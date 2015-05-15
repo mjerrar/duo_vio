@@ -6,6 +6,8 @@
 #include <message_filters/subscriber.h>
 #include <message_filters/time_synchronizer.h>
 
+#include <tf/transform_broadcaster.h>
+
 #include <sensor_msgs/Image.h>
 
 class DuoPoseEstimation
@@ -23,6 +25,7 @@ private:
   message_filters::TimeSynchronizer<sensor_msgs::Image, sensor_msgs::Image> time_synchronizer_;
 
   ros::Publisher pose_pub_;
+  tf::TransformBroadcaster tf_broadcaster_;
 
   void synchronized_callback(const sensor_msgs::ImageConstPtr& left_image, const sensor_msgs::ImageConstPtr& right_image);
 };

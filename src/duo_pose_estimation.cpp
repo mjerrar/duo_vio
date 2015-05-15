@@ -17,7 +17,21 @@ void DuoPoseEstimation::synchronized_callback(const sensor_msgs::ImageConstPtr& 
   geometry_msgs::PoseStamped pose;
   pose.header.stamp = left_image->header.stamp;
 
-  // TODO insert pose estimation here
+  // The images are synchronized according to their time stamps
+  // TODO Insert pose estimation here
 
   pose_pub_.publish(pose);
+
+  // Generate and publish pose as transform
+  tf::Transform transform;
+  transform.setOrigin(tf::Vector3(pose.pose.position.x, pose.pose.position.y, pose.pose.position.z));
+
+  tf::Quaternion q(0,0,0,1);
+  // TODO Set quaternion from pose estimation
+  // q.setEuler(yaw, pitch, roll);
+  // q.setRPY(roll, pitch, yaw);
+  // q.setRotation(axis, angle)
+  transform.setRotation(q);
+
+  tf_broadcaster_.sendTransform(tf::StampedTransform(transform, pose.header.stamp, "map", "base"));
 }
