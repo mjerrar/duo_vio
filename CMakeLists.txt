@@ -10,6 +10,7 @@ find_package(
   catkin REQUIRED
   message_filters 
   sensor_msgs
+  geometry_msgs
 )
 
 ## System dependencies are found with CMake's conventions
@@ -84,7 +85,7 @@ find_package(
 catkin_package(
 #  INCLUDE_DIRS include
 #  LIBRARIES hcf_duo_pose_estimation
-  CATKIN_DEPENDS sensor_msgs message_filters
+  CATKIN_DEPENDS sensor_msgs message_filters geometry_msgs
 #  DEPENDS system_lib
 )
 

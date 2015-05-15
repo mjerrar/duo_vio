@@ -22,6 +22,8 @@ private:
   
   message_filters::TimeSynchronizer<sensor_msgs::Image, sensor_msgs::Image> time_synchronizer_;
 
+  ros::Publisher pose_pub_;
+
   void synchronized_callback(const sensor_msgs::ImageConstPtr& left_image, const sensor_msgs::ImageConstPtr& right_image);
 };
 
