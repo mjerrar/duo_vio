@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.8.3)
-project(hcf_duo_pose_estimation)
+project(vio_ros)
 
 set(CMAKE_CXX_FLAGS "-std=c++0x ${CMAKE_CXX_FLAGS}")
 
@@ -85,7 +85,7 @@ find_package(
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
 #  INCLUDE_DIRS include
-#  LIBRARIES hcf_duo_pose_estimation
+#  LIBRARIES vio_ros
   CATKIN_DEPENDS sensor_msgs message_filters geometry_msgs tf
 #  DEPENDS system_lib
 )
@@ -99,22 +99,22 @@ catkin_package(
 # include_directories(include)
 
 ## Declare a cpp library
-# add_library(hcf_duo_pose_estimation
-#   src/${PROJECT_NAME}/hcf_duo_pose_estimation.cpp
+# add_library(vio_ros
+#   src/${PROJECT_NAME}/vio_ros.cpp
 # )
 
 ## Declare a cpp executable
-add_executable(hcf_duo_pose_estimation_node
-  src/duo_pose_estimation_node.cpp
-  src/duo_pose_estimation.cpp
+add_executable(vio_ros_node
+  src/vio_ros_node.cpp
+  src/localization.cpp
 )
 
 ## Add cmake target dependencies of the executable/library
 ## as an example, message headers may need to be generated before nodes
-# add_dependencies(hcf_duo_pose_estimation_node hcf_duo_pose_estimation_generate_messages_cpp)
+# add_dependencies(vio_ros_node vio_ros_cpp)
 
 ## Specify libraries to link a library or executable target against
-target_link_libraries(hcf_duo_pose_estimation_node
+target_link_libraries(vio_ros_node
   ${catkin_LIBRARIES}
 )
 
@@ -133,7 +133,7 @@ target_link_libraries(hcf_duo_pose_estimation_node
 # )
 
 ## Mark executables and/or libraries for installation
-# install(TARGETS hcf_duo_pose_estimation hcf_duo_pose_estimation_node
+# install(TARGETS vio_ros vio_ros_node
 #   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
 #   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
 #   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
@@ -158,7 +158,7 @@ target_link_libraries(hcf_duo_pose_estimation_node
 #############
 
 ## Add gtest based cpp test target and link libraries
-# catkin_add_gtest(${PROJECT_NAME}-test test/test_hcf_duo_pose_estimation.cpp)
+# catkin_add_gtest(${PROJECT_NAME}-test test/test_vio_ros.cpp)
 # if(TARGET ${PROJECT_NAME}-test)
 #   target_link_libraries(${PROJECT_NAME}-test ${PROJECT_NAME})
 # endif()

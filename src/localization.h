@@ -1,6 +1,6 @@
-#ifndef _DUO_POSE_ESTIMATION_H_
-#define _DUO_POSE_ESTIMATION_H_
-
+#ifndef _LOCALIZATION_H_
+#define _LOCALIZATION_H_
+#
 #include <ros/ros.h>
 
 #include <message_filters/subscriber.h>
@@ -10,11 +10,11 @@
 
 #include <sensor_msgs/Image.h>
 
-class DuoPoseEstimation
+class Localization
 {
 public:
-  DuoPoseEstimation();
-  ~DuoPoseEstimation() = default;
+  Localization();
+  ~Localization() = default;
 
 private:
   ros::NodeHandle nh_;
@@ -30,4 +30,4 @@ private:
   void synchronized_callback(const sensor_msgs::ImageConstPtr& left_image, const sensor_msgs::ImageConstPtr& right_image);
 };
 
-#endif /* _DUO_POSE_ESTIMATION_H_ */
+#endif /* _LOCALIZATION_H_ */

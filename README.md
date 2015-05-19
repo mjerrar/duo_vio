@@ -1,1 +1,7 @@
-# hcf_duo_pose_estimation
+# VIO_ROS
+
+Launch node with:
+```
+roslaunch 
+```
+

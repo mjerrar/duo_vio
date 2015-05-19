@@ -2,7 +2,7 @@
 
   <include file="$(find duo3d_ros)/launch/duo.launch" />
 
-  <node name="hcf_duo_pose_estimation" pkg="hcf_duo_pose_estimation" type="hcf_duo_pose_estimation_node" output="screen" >
+  <node name="vio_ros_node" pkg="vio_ros" type="vio_ros_node" output="screen" >
     <remap from="/left_image" to="/duo3d_camera/left/image_raw"/>
     <remap from="/right_image" to="/duo3d_camera/right/image_raw"/>
   </node>
