@@ -9,6 +9,7 @@
 #include <tf/transform_broadcaster.h>
 
 #include <sensor_msgs/Image.h>
+#include <sensor_msgs/Imu.h>
 
 class Localization
 {
@@ -21,6 +22,7 @@ private:
 
   message_filters::Subscriber<sensor_msgs::Image> left_image_sub_;
   message_filters::Subscriber<sensor_msgs::Image> right_image_sub_;
+  message_filters::Subscriber<sensor_msg::Imu>    imu_sub_;
   
   message_filters::TimeSynchronizer<sensor_msgs::Image, sensor_msgs::Image> time_synchronizer_;
 
