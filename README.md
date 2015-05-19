@@ -2,6 +2,6 @@
 
 Launch node with:
 ```
-roslaunch 
+roslaunch vio_ros duo_vio.launch
 ```
 
