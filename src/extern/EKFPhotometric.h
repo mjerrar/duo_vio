@@ -74,7 +74,10 @@ class EKFPhotometric
             float *rpdata = (float*)f->m_patch[i].row(y-ly+halfpatchm).data;
             for(int x = lx-halfpatchm; x < lx+halfpatchp; x++)
             {
-              rpdata[x-lx+halfpatchm] = (1 - fy) * ((1 - fx) * image[i].at<unsigned char>(y,x) + fx * image[i].at<unsigned char>(y,x + 1)) + fy * ((1 - fx) * image[i].at<unsigned char>(y + 1,x) + fx * image[i].at<unsigned char>(y + 1,x + 1));
+              rpdata[x-lx+halfpatchm] = (1 - fy) * ((1 - fx) * image[i].at<unsigned char>(y,x) 
+                + fx * image[i].at<unsigned char>(y,x + 1))
+                + fy * ((1 - fx) * image[i].at<unsigned char>(y + 1,x)
+                    + fx * image[i].at<unsigned char>(y + 1,x + 1));
             }
           }
           uv *= 0.5;

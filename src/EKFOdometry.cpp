@@ -287,20 +287,24 @@ void EKFOdometry::update()
   }
   else
   {
-    printf("!!!! ERROR NO NEW IMAGE !!!!"); //should never happen with only 1 thread
+    printf("!!!! ERROR NO NEW IMAGE !!!!\n"); //should never happen with only 1 thread
     return;
   }
   imgMutex.Unlock();
 
-//  uint64_t ticIMG = get_now();
-//  create image pyramid
-//  img.copyTo(pyramid[0]);
-//  for (int l = 1; l < LEVELS; l++)
-//    cv::pyrDown(pyramid[l-1], pyramid[l]);
-//
-//  uint64_t tocIMG = get_now();
-//  if (verbose)
-//    printf("undist/pyr: %6.1f ms\n", (double)(tocIMG - ticIMG) / 1000);
+//#########################################################3
+//TODO Check if necessary
+  uint64_t ticIMG = get_now();
+  // create image pyramid
+  img.copyTo(pyramid[0]);
+  for (int l = 1; l < LEVELS; l++)
+    cv::pyrDown(pyramid[l-1], pyramid[l]);
+
+
+  uint64_t tocIMG = get_now();
+  if (verbose)
+    printf("undist/pyr: %6.1f ms\n", (double)(tocIMG - ticIMG) / 1000);
+//#########################################################3
 
 #ifdef USE_KLT
   uint64_t ticKLT = get_now();
@@ -359,20 +363,24 @@ void EKFOdometry::update()
 
   double initAnchors[16];
 
-//  //copy image pyramid (this is only necessary for photometric EKF)
-//  for (int l = 0; l < 4; l++)
-//  {
-//    //first time: allocate space for images
-//    if (pyramid_col[l].empty())
-//    {
-//      pyramid_col[l] = cv::Mat(pyramid[l].cols,pyramid[l].rows,CV_8U);
-//    }
-//
-//    //copy column first order
-//    for (int x = 0; x < pyramid[l].cols; x++)
-//      for (int y = 0; y < pyramid[l].rows; y++)
-//        pyramid_col[l].data[x*pyramid[l].rows+y] = pyramid[l].data[y*pyramid[l].cols + x];
-//  }
+  
+//#########################################################
+// TODO Check if necessary
+  //copy image pyramid (this is only necessary for photometric EKF)
+  for (int l = 0; l < 4; l++)
+  {
+    //first time: allocate space for images
+    if (pyramid_col[l].empty())
+    {
+      pyramid_col[l] = cv::Mat(pyramid[l].cols,pyramid[l].rows,CV_8U);
+    }
+
+    //copy column first order
+    for (int x = 0; x < pyramid[l].cols; x++)
+      for (int y = 0; y < pyramid[l].rows; y++)
+        pyramid_col[l].data[x*pyramid[l].rows+y] = pyramid[l].data[y*pyramid[l].cols + x];
+  }
+//#########################################################
 
   for (int i = 0; i < numAnchors; i++)
   {
@@ -427,6 +435,10 @@ void EKFOdometry::update()
 //    cornerStatus[i] = 1;  //XXX
       cornerStatus_new.push_back(cornerStatus[i]);
   }
+
+  // TODO Remove return to calculate the update
+  return;
+
   uint64_t tic = get_now();
   m_ekf->update(pyramid, imNoise, cornerStatus_new, np);
   uint64_t toc = get_now();

@@ -3,6 +3,7 @@
   <include file="$(find duo3d_ros)/launch/duo.launch" />
 
   <node name="vio_ros_node" pkg="vio_ros" type="vio_ros_node" output="screen" >
+    <remap from="/imu" to="/duo3d_camera/cam_imu"/>
     <remap from="/left_image" to="/duo3d_camera/left/image_raw"/>
     <remap from="/right_image" to="/duo3d_camera/right/image_raw"/>
   </node>
