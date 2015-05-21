@@ -12,6 +12,7 @@ find_package(
   sensor_msgs
   geometry_msgs
   tf
+  cv_bridge
 )
 
 ## System dependencies are found with CMake's conventions
@@ -86,7 +87,7 @@ find_package(
 catkin_package(
 #  INCLUDE_DIRS include
 #  LIBRARIES vio_ros
-  CATKIN_DEPENDS sensor_msgs message_filters geometry_msgs tf
+  CATKIN_DEPENDS sensor_msgs message_filters geometry_msgs tf cv_bridge
 #  DEPENDS system_lib
 )
 
@@ -98,6 +99,8 @@ catkin_package(
 ## Your package locations should be listed before other locations
 # include_directories(include)
 
+include_directories(src/extern/)
+
 ## Declare a cpp library
 # add_library(vio_ros
 #   src/${PROJECT_NAME}/vio_ros.cpp
@@ -107,6 +110,9 @@ catkin_package(
 add_executable(vio_ros_node
   src/vio_ros_node.cpp
   src/localization.cpp
+  src/EKFOdometry.cpp
+  src/extern/threading/Mutex_posix.cpp
+  src/extern/threading/Thread_posix.cpp
 )
 
 ## Add cmake target dependencies of the executable/library
