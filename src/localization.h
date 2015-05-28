@@ -11,12 +11,10 @@
 #include <sensor_msgs/Image.h>
 #include <sensor_msgs/Imu.h>
 
-#include "EKFOdometry.h"
-
 class Localization
 {
 public:
-  Localization(const std::vector<float>& m_focal, const std::vector<float>& m_cc, const std::vector<float>& m_kc);
+  Localization();
   ~Localization() = default;
 
 private:
@@ -31,8 +29,6 @@ private:
 
   ros::Publisher pose_pub_;
   tf::TransformBroadcaster tf_broadcaster_;
-
-  EKFOdometry ekf_tracker_;
 
   void synchronized_callback(const sensor_msgs::ImageConstPtr& left_image,
       const sensor_msgs::ImageConstPtr& right_image,

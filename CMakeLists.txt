@@ -99,7 +99,7 @@ catkin_package(
 ## Your package locations should be listed before other locations
 # include_directories(include)
 
-include_directories(src/extern/)
+include_directories(src/codegen_SLAM/ )
 
 ## Declare a cpp library
 # add_library(vio_ros
@@ -110,9 +110,7 @@ include_directories(src/extern/)
 add_executable(vio_ros_node
   src/vio_ros_node.cpp
   src/localization.cpp
-  src/EKFOdometry.cpp
-  src/extern/threading/Mutex_posix.cpp
-  src/extern/threading/Thread_posix.cpp
+  src/codegen_SLAM/SLAM.cpp
 )
 
 ## Add cmake target dependencies of the executable/library
