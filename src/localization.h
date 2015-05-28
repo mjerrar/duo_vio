@@ -36,6 +36,13 @@ private:
   ros::Time prev_time_;
   double update_vec_[32];
 
+  // TODO Init subsequent parameters
+  double camera_params[4] = {0}; //f,Cx,Cy,baseline
+  double process_noise[4] = {0}; //qv,qw,qwo,qao
+  double im_noise[3] = {0};
+  int num_points_per_anchor;
+  int num_anchors;
+
   void synchronized_callback(const sensor_msgs::ImageConstPtr& left_image,
       const sensor_msgs::ImageConstPtr& right_image,
       const sensor_msgs::ImuConstPtr& imu);
@@ -43,7 +50,7 @@ private:
   void update(const cv::Mat& left_image, const cv::Mat& right_image, const sensor_msgs::Imu& imu, 
       const sensor_msgs::MagneticField& mag, geometry_msgs::Pose& pose);
 
-  void get_imu_array(const sensor_msgs::Imu& imu, const sensor_msgs::MagneticField& mag, std::vector<double>& imu_vec );
+  void get_inertial_vector(const sensor_msgs::Imu& imu, const sensor_msgs::MagneticField& mag, std::vector<double>& inertial_vec);
 };
 
 #endif /* _LOCALIZATION_H_ */

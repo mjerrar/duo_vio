@@ -17,6 +17,22 @@ Localization::Localization()
   pose_pub_ = nh_.advertise<geometry_msgs::PoseStamped>("/pose",1);
   time_synchronizer_.registerCallback(boost::bind(&Localization::synchronized_callback,
         this, _1, _2, _3));
+
+  // Init parameters
+  // TODO Check default values and give meaningful names
+  nh_.param<double>("process_noise_1", process_noise[0], 10.0);
+  nh_.param<double>("process_noise_2", process_noise[1], 10.0);
+  nh_.param<double>("process_noise_3", process_noise[2], 0.0);
+  nh_.param<double>("process_noise_4", process_noise[3], 0.0);
+
+
+  nh_.param<double>("im_noise_1", im_noise[0], 10.0);
+  nh_.param<double>("im_noise_2", im_noise[1], 10.0);
+  nh_.param<double>("im_noise_3", im_noise[2], 10.0);
+
+
+  nh_.param<int>("num_points_per_anchor", num_points_per_anchor, 1);
+  nh_.param<int>("num_anchors", num_anchors, 32);
 }
 
 Localization::~Localization()
@@ -83,14 +99,9 @@ void Localization::update(const cv::Mat& left_image, const cv::Mat& right_image,
 
   // TODO Insert point tracker here
   double z_all[96] = {0};
-  double camera_params[4] = {0}; //f,Cx,Cy,baseline
-  double process_noise[4] = {0}; //qv,qw,qwo,qao
-  double im_noise[3] = {0};
-  double num_points_per_anchor;
-  double num_anchors;
 
-  std::vector<double> imu_vec(9,0.0);
-  get_imu_array(imu,mag,imu_vec);
+  std::vector<double> inertial(9,0.0);
+  get_inertial_vector(imu,mag,inertial);
 
   emxArray_real_T *h_u_apo;
   emxArray_real_T *xt_out; // result
@@ -103,7 +114,7 @@ void Localization::update(const cv::Mat& left_image, const cv::Mat& right_image,
   emxInitArray_real_T(&anchor_pose_out,1);
 
   // Update SLAM and get pose estimation
-  SLAM(update_vec_, z_all, camera_params, dt, process_noise, &imu_vec[0], im_noise, num_points_per_anchor, num_anchors,
+  SLAM(update_vec_, z_all, camera_params, dt, process_noise, &inertial[0], im_noise, num_points_per_anchor, num_anchors,
       h_u_apo, xt_out, update_vec_, anchor_u_out, anchor_pose_out);
 
   emxDestroyArray_real_T(h_u_apo);
@@ -113,19 +124,19 @@ void Localization::update(const cv::Mat& left_image, const cv::Mat& right_image,
 
 }
 
-void Localization::get_imu_array(const sensor_msgs::Imu& imu, const sensor_msgs::MagneticField& mag, std::vector<double>& imu_vec )
+void Localization::get_inertial_vector(const sensor_msgs::Imu& imu, const sensor_msgs::MagneticField& mag, std::vector<double>& inertial_vec)
 {
   // TODO Check signs of angular velocities
-  imu_vec.at(0) = imu.angular_velocity.x;
-  imu_vec.at(1) = -imu.angular_velocity.y;
-  imu_vec.at(2) = imu.angular_velocity.z;
+  inertial_vec.at(0) = imu.angular_velocity.x;
+  inertial_vec.at(1) = -imu.angular_velocity.y;
+  inertial_vec.at(2) = imu.angular_velocity.z;
 
   // TODO Check signs of linear acceleration
-  imu_vec.at(3) = imu.linear_acceleration.x;
-  imu_vec.at(4) = -imu.linear_acceleration.y;
-  imu_vec.at(5) = -imu.linear_acceleration.z;
+  inertial_vec.at(3) = imu.linear_acceleration.x;
+  inertial_vec.at(4) = -imu.linear_acceleration.y;
+  inertial_vec.at(5) = -imu.linear_acceleration.z;
 
-  imu_vec.at(6) = mag.magnetic_field.x;
-  imu_vec.at(7) = mag.magnetic_field.y;
-  imu_vec.at(8) = mag.magnetic_field.z;
+  inertial_vec.at(6) = mag.magnetic_field.x;
+  inertial_vec.at(7) = mag.magnetic_field.y;
+  inertial_vec.at(8) = mag.magnetic_field.z;
 }
