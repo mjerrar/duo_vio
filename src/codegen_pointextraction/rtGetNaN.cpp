@@ -2,10 +2,10 @@
  * Academic License - for use in teaching, academic research, and meeting
  * course requirements at degree granting institutions only.  Not for
  * government, commercial, or other organizational use.
- * File: rtGetNaN.c
+ * File: rtGetNaN.cpp
  *
  * MATLAB Coder version            : 2.8
- * C/C++ source code generated on  : 01-Jun-2015 13:24:19
+ * C/C++ source code generated on  : 01-Jun-2015 13:49:37
  */
 
 /*
@@ -96,7 +96,7 @@ real32_T rtGetNaNF(void)
 }
 
 /*
- * File trailer for rtGetNaN.c
+ * File trailer for rtGetNaN.cpp
  *
  * [EOF]
  */

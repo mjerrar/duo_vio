@@ -1,14 +1,14 @@
-/*
- * Academic License - for use in teaching, academic research, and meeting
- * course requirements at degree granting institutions only.  Not for
- * government, commercial, or other organizational use.
- * File: pointextraction.c
- *
- * MATLAB Coder version            : 2.8
- * C/C++ source code generated on  : 01-Jun-2015 13:24:19
- */
+//
+// Academic License - for use in teaching, academic research, and meeting
+// course requirements at degree granting institutions only.  Not for
+// government, commercial, or other organizational use.
+// File: pointextraction.cpp
+//
+// MATLAB Coder version            : 2.8
+// C/C++ source code generated on  : 01-Jun-2015 13:49:37
+//
 
-/* Include Files */
+// Include Files
 #include "rt_nonfinite.h"
 #include "pointextraction.h"
 #include "cvstCG_detectFAST.h"
@@ -16,7 +16,7 @@
 #include "libmwgrayto8.h"
 #include "libmwmorphop_flat_tbb.h"
 
-/* Type Definitions */
+// Type Definitions
 #ifndef struct_emxArray__common
 #define struct_emxArray__common
 
@@ -29,14 +29,7 @@ struct emxArray__common
   boolean_T canFreeData;
 };
 
-#endif                                 /*struct_emxArray__common*/
-
-#ifndef typedef_emxArray__common
-#define typedef_emxArray__common
-
-typedef struct emxArray__common emxArray__common;
-
-#endif                                 /*typedef_emxArray__common*/
+#endif                                 //struct_emxArray__common
 
 #ifndef struct_emxArray_int8_T
 #define struct_emxArray_int8_T
@@ -50,25 +43,13 @@ struct emxArray_int8_T
   boolean_T canFreeData;
 };
 
-#endif                                 /*struct_emxArray_int8_T*/
-
-#ifndef typedef_emxArray_int8_T
-#define typedef_emxArray_int8_T
-
-typedef struct emxArray_int8_T emxArray_int8_T;
-
-#endif                                 /*typedef_emxArray_int8_T*/
-
-#ifndef typedef_b_struct_T
-#define typedef_b_struct_T
+#endif                                 //struct_emxArray_int8_T
 
 typedef struct {
   double offset[2];
   double count;
   emxArray_int8_T *grid;
 } b_struct_T;
-
-#endif                                 /*typedef_b_struct_T*/
 
 #ifndef struct_emxArray_b_struct_T
 #define struct_emxArray_b_struct_T
@@ -82,14 +63,7 @@ struct emxArray_b_struct_T
   boolean_T canFreeData;
 };
 
-#endif                                 /*struct_emxArray_b_struct_T*/
-
-#ifndef typedef_emxArray_b_struct_T
-#define typedef_emxArray_b_struct_T
-
-typedef struct emxArray_b_struct_T emxArray_b_struct_T;
-
-#endif                                 /*typedef_emxArray_b_struct_T*/
+#endif                                 //struct_emxArray_b_struct_T
 
 #ifndef struct_emxArray_boolean_T
 #define struct_emxArray_boolean_T
@@ -103,14 +77,7 @@ struct emxArray_boolean_T
   boolean_T canFreeData;
 };
 
-#endif                                 /*struct_emxArray_boolean_T*/
-
-#ifndef typedef_emxArray_boolean_T
-#define typedef_emxArray_boolean_T
-
-typedef struct emxArray_boolean_T emxArray_boolean_T;
-
-#endif                                 /*typedef_emxArray_boolean_T*/
+#endif                                 //struct_emxArray_boolean_T
 
 #ifndef struct_emxArray_int32_T
 #define struct_emxArray_int32_T
@@ -124,14 +91,7 @@ struct emxArray_int32_T
   boolean_T canFreeData;
 };
 
-#endif                                 /*struct_emxArray_int32_T*/
-
-#ifndef typedef_emxArray_int32_T
-#define typedef_emxArray_int32_T
-
-typedef struct emxArray_int32_T emxArray_int32_T;
-
-#endif                                 /*typedef_emxArray_int32_T*/
+#endif                                 //struct_emxArray_int32_T
 
 #ifndef struct_emxArray_real32_T
 #define struct_emxArray_real32_T
@@ -145,14 +105,7 @@ struct emxArray_real32_T
   boolean_T canFreeData;
 };
 
-#endif                                 /*struct_emxArray_real32_T*/
-
-#ifndef typedef_emxArray_real32_T
-#define typedef_emxArray_real32_T
-
-typedef struct emxArray_real32_T emxArray_real32_T;
-
-#endif                                 /*typedef_emxArray_real32_T*/
+#endif                                 //struct_emxArray_real32_T
 
 #ifndef struct_emxArray_real_T
 #define struct_emxArray_real_T
@@ -166,24 +119,12 @@ struct emxArray_real_T
   boolean_T canFreeData;
 };
 
-#endif                                 /*struct_emxArray_real_T*/
-
-#ifndef typedef_emxArray_real_T
-#define typedef_emxArray_real_T
-
-typedef struct emxArray_real_T emxArray_real_T;
-
-#endif                                 /*typedef_emxArray_real_T*/
-
-#ifndef typedef_struct_T
-#define typedef_struct_T
+#endif                                 //struct_emxArray_real_T
 
 typedef struct {
   double offset[2];
   double featureCandidates[64];
 } struct_T;
-
-#endif                                 /*typedef_struct_T*/
 
 #ifndef struct_emxArray_struct_T
 #define struct_emxArray_struct_T
@@ -197,14 +138,7 @@ struct emxArray_struct_T
   boolean_T canFreeData;
 };
 
-#endif                                 /*struct_emxArray_struct_T*/
-
-#ifndef typedef_emxArray_struct_T
-#define typedef_emxArray_struct_T
-
-typedef struct emxArray_struct_T emxArray_struct_T;
-
-#endif                                 /*typedef_emxArray_struct_T*/
+#endif                                 //struct_emxArray_struct_T
 
 #ifndef struct_emxArray_uint8_T
 #define struct_emxArray_uint8_T
@@ -218,14 +152,7 @@ struct emxArray_uint8_T
   boolean_T canFreeData;
 };
 
-#endif                                 /*struct_emxArray_uint8_T*/
-
-#ifndef typedef_emxArray_uint8_T
-#define typedef_emxArray_uint8_T
-
-typedef struct emxArray_uint8_T emxArray_uint8_T;
-
-#endif                                 /*typedef_emxArray_uint8_T*/
+#endif                                 //struct_emxArray_uint8_T
 
 #ifndef struct_vision_ColorSpaceConverter_0
 #define struct_vision_ColorSpaceConverter_0
@@ -235,26 +162,11 @@ struct vision_ColorSpaceConverter_0
   boolean_T SystemObjectStructType;
 };
 
-#endif                                 /*struct_vision_ColorSpaceConverter_0*/
-
-#ifndef typedef_vision_ColorSpaceConverter_0
-#define typedef_vision_ColorSpaceConverter_0
-
-typedef struct vision_ColorSpaceConverter_0 vision_ColorSpaceConverter_0;
-
-#endif                                 /*typedef_vision_ColorSpaceConverter_0*/
-
-#ifndef typedef_c_visioncodegen_ColorSpaceConve
-#define typedef_c_visioncodegen_ColorSpaceConve
+#endif                                 //struct_vision_ColorSpaceConverter_0
 
 typedef struct {
   vision_ColorSpaceConverter_0 cSFunObject;
 } c_visioncodegen_ColorSpaceConve;
-
-#endif                                 /*typedef_c_visioncodegen_ColorSpaceConve*/
-
-#ifndef typedef_vision_PointTracker_3
-#define typedef_vision_PointTracker_3
 
 typedef struct {
   int isInitialized;
@@ -268,15 +180,13 @@ typedef struct {
   c_visioncodegen_ColorSpaceConve ColorConverter;
 } vision_PointTracker_3;
 
-#endif                                 /*typedef_vision_PointTracker_3*/
-
-/* Variable Definitions */
+// Variable Definitions
 static boolean_T initialized_not_empty;
 static vision_PointTracker_3 pointTracker;
 static double prevPoints[64];
 static double prevDisp[32];
 
-/* Function Declarations */
+// Function Declarations
 static double FeaturePointsImpl_get_Count(const emxArray_real32_T
   *this_pLocation);
 static vision_PointTracker_3 *PointTracker_PointTracker(vision_PointTracker_3
@@ -379,22 +289,22 @@ static void stereoRight2Left(const unsigned char imgR[332672], const unsigned
   status_data[], int status_size[1]);
 static double sum(const signed char x_data[], const int x_size[1]);
 
-/* Function Definitions */
+// Function Definitions
 
-/*
- * Arguments    : const emxArray_real32_T *this_pLocation
- * Return Type  : double
- */
+//
+// Arguments    : const emxArray_real32_T *this_pLocation
+// Return Type  : double
+//
 static double FeaturePointsImpl_get_Count(const emxArray_real32_T
   *this_pLocation)
 {
   return this_pLocation->size[0];
 }
 
-/*
- * Arguments    : vision_PointTracker_3 *obj
- * Return Type  : vision_PointTracker_3 *
- */
+//
+// Arguments    : vision_PointTracker_3 *obj
+// Return Type  : vision_PointTracker_3 *
+//
 static vision_PointTracker_3 *PointTracker_PointTracker(vision_PointTracker_3
   *obj)
 {
@@ -411,15 +321,15 @@ static vision_PointTracker_3 *PointTracker_PointTracker(vision_PointTracker_3
   return b_obj;
 }
 
-/*
- * Arguments    : vision_PointTracker_3 *obj
- *                double kltParams_BlockSize[2]
- *                double *kltParams_NumPyramidLevels
- *                double *kltParams_MaxIterations
- *                double *kltParams_Epsilon
- *                double *kltParams_MaxBidirectionalError
- * Return Type  : void
- */
+//
+// Arguments    : vision_PointTracker_3 *obj
+//                double kltParams_BlockSize[2]
+//                double *kltParams_NumPyramidLevels
+//                double *kltParams_MaxIterations
+//                double *kltParams_Epsilon
+//                double *kltParams_MaxBidirectionalError
+// Return Type  : void
+//
 static void PointTracker_getKLTParams(vision_PointTracker_3 *obj, double
   kltParams_BlockSize[2], double *kltParams_NumPyramidLevels, double
   *kltParams_MaxIterations, double *kltParams_Epsilon, double
@@ -498,13 +408,13 @@ static void PointTracker_getKLTParams(vision_PointTracker_3 *obj, double
   *kltParams_MaxBidirectionalError = -1.0;
 }
 
-/*
- * Arguments    : vision_PointTracker_3 *obj
- *                const double points_data[]
- *                const int points_size[2]
- *                const unsigned char I[332672]
- * Return Type  : void
- */
+//
+// Arguments    : vision_PointTracker_3 *obj
+//                const double points_data[]
+//                const int points_size[2]
+//                const unsigned char I[332672]
+// Return Type  : void
+//
 static void PointTracker_initialize(vision_PointTracker_3 *obj, const double
   points_data[], const int points_size[2], const unsigned char I[332672])
 {
@@ -574,12 +484,12 @@ static void PointTracker_initialize(vision_PointTracker_3 *obj, const double
   obj->IsInitialized = true;
 }
 
-/*
- * Arguments    : vision_PointTracker_3 *obj
- *                const double points_data[]
- *                const int points_size[2]
- * Return Type  : void
- */
+//
+// Arguments    : vision_PointTracker_3 *obj
+//                const double points_data[]
+//                const int points_size[2]
+// Return Type  : void
+//
 static void PointTracker_setPoints(vision_PointTracker_3 *obj, const double
   points_data[], const int points_size[2])
 {
@@ -610,13 +520,13 @@ static void PointTracker_setPoints(vision_PointTracker_3 *obj, const double
     &pointValidity_data[0]);
 }
 
-/*
- * Arguments    : vision_PointTracker_3 *obj
- *                const unsigned char varargin_1[332672]
- *                emxArray_real32_T *varargout_1
- *                emxArray_boolean_T *varargout_2
- * Return Type  : void
- */
+//
+// Arguments    : vision_PointTracker_3 *obj
+//                const unsigned char varargin_1[332672]
+//                emxArray_real32_T *varargout_1
+//                emxArray_boolean_T *varargout_2
+// Return Type  : void
+//
 static void SystemCore_step(vision_PointTracker_3 *obj, const unsigned char
   varargin_1[332672], emxArray_real32_T *varargout_1, emxArray_boolean_T
   *varargout_2)
@@ -768,11 +678,11 @@ static void SystemCore_step(vision_PointTracker_3 *obj, const unsigned char
   emxFree_real32_T(&points);
 }
 
-/*
- * Arguments    : const double x[64]
- *                boolean_T y[32]
- * Return Type  : void
- */
+//
+// Arguments    : const double x[64]
+//                boolean_T y[32]
+// Return Type  : void
+//
 static void all(const double x[64], boolean_T y[32])
 {
   int iy;
@@ -805,10 +715,10 @@ static void all(const double x[64], boolean_T y[32])
   }
 }
 
-/*
- * Arguments    : const boolean_T x[2]
- * Return Type  : boolean_T
- */
+//
+// Arguments    : const boolean_T x[2]
+// Return Type  : boolean_T
+//
 static boolean_T any(const boolean_T x[2])
 {
   boolean_T y;
@@ -829,14 +739,14 @@ static boolean_T any(const boolean_T x[2])
   return y;
 }
 
-/*
- * Arguments    : const emxArray_real32_T *points_Location
- *                const emxArray_real32_T *points_Metric
- *                double params_MinQuality
- *                emxArray_real32_T *locations
- *                emxArray_real32_T *metricValues
- * Return Type  : void
- */
+//
+// Arguments    : const emxArray_real32_T *points_Location
+//                const emxArray_real32_T *points_Metric
+//                double params_MinQuality
+//                emxArray_real32_T *locations
+//                emxArray_real32_T *metricValues
+// Return Type  : void
+//
 static void applyMinQuality(const emxArray_real32_T *points_Location, const
   emxArray_real32_T *points_Metric, double params_MinQuality, emxArray_real32_T *
   locations, emxArray_real32_T *metricValues)
@@ -961,10 +871,10 @@ static void applyMinQuality(const emxArray_real32_T *points_Location, const
   }
 }
 
-/*
- * Arguments    : const emxArray_boolean_T *x
- * Return Type  : boolean_T
- */
+//
+// Arguments    : const emxArray_boolean_T *x
+// Return Type  : boolean_T
+//
 static boolean_T b_any(const emxArray_boolean_T *x)
 {
   boolean_T y;
@@ -987,10 +897,10 @@ static boolean_T b_any(const emxArray_boolean_T *x)
   return y;
 }
 
-/*
- * Arguments    : double x[2]
- * Return Type  : void
- */
+//
+// Arguments    : double x[2]
+// Return Type  : void
+//
 static void b_ceil(double x[2])
 {
   int k;
@@ -999,12 +909,12 @@ static void b_ceil(double x[2])
   }
 }
 
-/*
- * Arguments    : emxArray_real32_T *x
- *                int dim
- *                emxArray_int32_T *idx
- * Return Type  : void
- */
+//
+// Arguments    : emxArray_real32_T *x
+//                int dim
+//                emxArray_int32_T *idx
+// Return Type  : void
+//
 static void b_eml_sort(emxArray_real32_T *x, int dim, emxArray_int32_T *idx)
 {
   int i18;
@@ -1054,11 +964,11 @@ static void b_eml_sort(emxArray_real32_T *x, int dim, emxArray_int32_T *idx)
   emxFree_real32_T(&vwork);
 }
 
-/*
- * Arguments    : emxArray_real_T *x
- *                emxArray_int32_T *idx
- * Return Type  : void
- */
+//
+// Arguments    : emxArray_real_T *x
+//                emxArray_int32_T *idx
+// Return Type  : void
+//
 static void b_eml_sort_idx(emxArray_real_T *x, emxArray_int32_T *idx)
 {
   emxArray_real_T *b_x;
@@ -1328,10 +1238,10 @@ static void b_eml_sort_idx(emxArray_real_T *x, emxArray_int32_T *idx)
   emxFree_real_T(&b_x);
 }
 
-/*
- * Arguments    : emxArray_b_struct_T **pEmxArray
- * Return Type  : void
- */
+//
+// Arguments    : emxArray_b_struct_T **pEmxArray
+// Return Type  : void
+//
 static void b_emxFree_struct_T(emxArray_b_struct_T **pEmxArray)
 {
   int numEl;
@@ -1358,11 +1268,11 @@ static void b_emxFree_struct_T(emxArray_b_struct_T **pEmxArray)
   }
 }
 
-/*
- * Arguments    : emxArray_boolean_T **pEmxArray
- *                int numDimensions
- * Return Type  : void
- */
+//
+// Arguments    : emxArray_boolean_T **pEmxArray
+//                int numDimensions
+// Return Type  : void
+//
 static void b_emxInit_boolean_T(emxArray_boolean_T **pEmxArray, int
   numDimensions)
 {
@@ -1380,11 +1290,11 @@ static void b_emxInit_boolean_T(emxArray_boolean_T **pEmxArray, int
   }
 }
 
-/*
- * Arguments    : emxArray_int8_T **pEmxArray
- *                int numDimensions
- * Return Type  : void
- */
+//
+// Arguments    : emxArray_int8_T **pEmxArray
+//                int numDimensions
+// Return Type  : void
+//
 static void b_emxInit_int8_T(emxArray_int8_T **pEmxArray, int numDimensions)
 {
   emxArray_int8_T *emxArray;
@@ -1401,11 +1311,11 @@ static void b_emxInit_int8_T(emxArray_int8_T **pEmxArray, int numDimensions)
   }
 }
 
-/*
- * Arguments    : emxArray_real32_T **pEmxArray
- *                int numDimensions
- * Return Type  : void
- */
+//
+// Arguments    : emxArray_real32_T **pEmxArray
+//                int numDimensions
+// Return Type  : void
+//
 static void b_emxInit_real32_T(emxArray_real32_T **pEmxArray, int numDimensions)
 {
   emxArray_real32_T *emxArray;
@@ -1422,11 +1332,11 @@ static void b_emxInit_real32_T(emxArray_real32_T **pEmxArray, int numDimensions)
   }
 }
 
-/*
- * Arguments    : emxArray_real_T **pEmxArray
- *                int numDimensions
- * Return Type  : void
- */
+//
+// Arguments    : emxArray_real_T **pEmxArray
+//                int numDimensions
+// Return Type  : void
+//
 static void b_emxInit_real_T(emxArray_real_T **pEmxArray, int numDimensions)
 {
   emxArray_real_T *emxArray;
@@ -1443,11 +1353,11 @@ static void b_emxInit_real_T(emxArray_real_T **pEmxArray, int numDimensions)
   }
 }
 
-/*
- * Arguments    : emxArray_b_struct_T **pEmxArray
- *                int numDimensions
- * Return Type  : void
- */
+//
+// Arguments    : emxArray_b_struct_T **pEmxArray
+//                int numDimensions
+// Return Type  : void
+//
 static void b_emxInit_struct_T(emxArray_b_struct_T **pEmxArray, int
   numDimensions)
 {
@@ -1465,14 +1375,14 @@ static void b_emxInit_struct_T(emxArray_b_struct_T **pEmxArray, int
   }
 }
 
-/*
- * Arguments    : emxArray_int32_T *idx
- *                emxArray_real_T *x
- *                int offset
- *                int np
- *                int nq
- * Return Type  : void
- */
+//
+// Arguments    : emxArray_int32_T *idx
+//                emxArray_real_T *x
+//                int offset
+//                int np
+//                int nq
+// Return Type  : void
+//
 static void b_merge(emxArray_int32_T *idx, emxArray_real_T *x, int offset, int
                     np, int nq)
 {
@@ -1538,14 +1448,14 @@ static void b_merge(emxArray_int32_T *idx, emxArray_real_T *x, int offset, int
   emxFree_int32_T(&iwork);
 }
 
-/*
- * Arguments    : emxArray_int32_T *idx
- *                emxArray_real_T *x
- *                int offset
- *                int n
- *                int preSortLevel
- * Return Type  : void
- */
+//
+// Arguments    : emxArray_int32_T *idx
+//                emxArray_real_T *x
+//                int offset
+//                int n
+//                int preSortLevel
+// Return Type  : void
+//
 static void b_merge_block(emxArray_int32_T *idx, emxArray_real_T *x, int offset,
   int n, int preSortLevel)
 {
@@ -1579,12 +1489,12 @@ static void b_merge_block(emxArray_int32_T *idx, emxArray_real_T *x, int offset,
   }
 }
 
-/*
- * Arguments    : const double a[2]
- *                double varargin_1
- *                emxArray_real_T *b
- * Return Type  : void
- */
+//
+// Arguments    : const double a[2]
+//                double varargin_1
+//                emxArray_real_T *b
+// Return Type  : void
+//
 static void b_repmat(const double a[2], double varargin_1, emxArray_real_T *b)
 {
   int jcol;
@@ -1604,11 +1514,11 @@ static void b_repmat(const double a[2], double varargin_1, emxArray_real_T *b)
   }
 }
 
-/*
- * Arguments    : double x_data[]
- *                int x_size[1]
- * Return Type  : void
- */
+//
+// Arguments    : double x_data[]
+//                int x_size[1]
+// Return Type  : void
+//
 static void b_round(double x_data[], int x_size[1])
 {
   int i20;
@@ -1619,37 +1529,37 @@ static void b_round(double x_data[], int x_size[1])
   }
 }
 
-/*
- * Arguments    : double b[4]
- * Return Type  : void
- */
+//
+// Arguments    : double b[4]
+// Return Type  : void
+//
 static void boundWindow(double b[4])
 {
   if (b[0] <= 0.0) {
-    /* top */
+    // top
     b[0] = 1.0;
   }
 
   if (b[1] > 452.0) {
-    /* bottom */
+    // bottom
     b[1] = 452.0;
   }
 
   if (b[2] <= 0.0) {
-    /* left */
+    // left
     b[2] = 1.0;
   }
 
   if (b[3] > 736.0) {
-    /* right */
+    // right
     b[3] = 736.0;
   }
 }
 
-/*
- * Arguments    : const emxArray_int8_T *x
- * Return Type  : boolean_T
- */
+//
+// Arguments    : const emxArray_int8_T *x
+// Return Type  : boolean_T
+//
 static boolean_T c_any(const emxArray_int8_T *x)
 {
   boolean_T y;
@@ -1672,11 +1582,11 @@ static boolean_T c_any(const emxArray_int8_T *x)
   return y;
 }
 
-/*
- * Arguments    : emxArray_real_T *x
- *                emxArray_int32_T *idx
- * Return Type  : void
- */
+//
+// Arguments    : emxArray_real_T *x
+//                emxArray_int32_T *idx
+// Return Type  : void
+//
 static void c_eml_sort(emxArray_real_T *x, emxArray_int32_T *idx)
 {
   int dim;
@@ -1732,10 +1642,10 @@ static void c_eml_sort(emxArray_real_T *x, emxArray_int32_T *idx)
   emxFree_real_T(&vwork);
 }
 
-/*
- * Arguments    : emxArray_real32_T *x
- * Return Type  : void
- */
+//
+// Arguments    : emxArray_real32_T *x
+// Return Type  : void
+//
 static void c_round(emxArray_real32_T *x)
 {
   int i24;
@@ -1746,13 +1656,13 @@ static void c_round(emxArray_real32_T *x)
   }
 }
 
-/*
- * Arguments    : const emxArray_real32_T *varargin_1
- *                const emxArray_real32_T *varargin_3
- *                emxArray_real32_T *this_pLocation
- *                emxArray_real32_T *this_pMetric
- * Return Type  : void
- */
+//
+// Arguments    : const emxArray_real32_T *varargin_1
+//                const emxArray_real32_T *varargin_3
+//                emxArray_real32_T *this_pLocation
+//                emxArray_real32_T *this_pMetric
+// Return Type  : void
+//
 static void cornerPoints_cg_cornerPoints_cg(const emxArray_real32_T *varargin_1,
   const emxArray_real32_T *varargin_3, emxArray_real32_T *this_pLocation,
   emxArray_real32_T *this_pMetric)
@@ -1812,12 +1722,12 @@ static void cornerPoints_cg_cornerPoints_cg(const emxArray_real32_T *varargin_1,
   emxFree_real32_T(&r2);
 }
 
-/*
- * Arguments    : const emxArray_uint8_T *I
- *                emxArray_real32_T *pts_pLocation
- *                emxArray_real32_T *pts_pMetric
- * Return Type  : void
- */
+//
+// Arguments    : const emxArray_uint8_T *I
+//                emxArray_real32_T *pts_pLocation
+//                emxArray_real32_T *pts_pMetric
+// Return Type  : void
+//
 static void detectFASTFeatures(const emxArray_uint8_T *I, emxArray_real32_T
   *pts_pLocation, emxArray_real32_T *pts_pMetric)
 {
@@ -1889,11 +1799,11 @@ static void detectFASTFeatures(const emxArray_uint8_T *I, emxArray_real32_T
   emxFree_real32_T(&rawPts_Location);
 }
 
-/*
- * Arguments    : int numerator
- *                int denominator
- * Return Type  : int
- */
+//
+// Arguments    : int numerator
+//                int denominator
+// Return Type  : int
+//
 static int div_s32(int numerator, int denominator)
 {
   int quotient;
@@ -1931,11 +1841,11 @@ static int div_s32(int numerator, int denominator)
   return quotient;
 }
 
-/*
- * Arguments    : emxArray_real32_T *x
- *                emxArray_int32_T *idx
- * Return Type  : void
- */
+//
+// Arguments    : emxArray_real32_T *x
+//                emxArray_int32_T *idx
+// Return Type  : void
+//
 static void eml_sort(emxArray_real32_T *x, emxArray_int32_T *idx)
 {
   int dim;
@@ -1947,11 +1857,11 @@ static void eml_sort(emxArray_real32_T *x, emxArray_int32_T *idx)
   b_eml_sort(x, dim, idx);
 }
 
-/*
- * Arguments    : emxArray_real32_T *x
- *                emxArray_int32_T *idx
- * Return Type  : void
- */
+//
+// Arguments    : emxArray_real32_T *x
+//                emxArray_int32_T *idx
+// Return Type  : void
+//
 static void eml_sort_idx(emxArray_real32_T *x, emxArray_int32_T *idx)
 {
   emxArray_real32_T *b_x;
@@ -2249,11 +2159,11 @@ static void eml_sort_idx(emxArray_real32_T *x, emxArray_int32_T *idx)
   emxFree_real32_T(&b_x);
 }
 
-/*
- * Arguments    : double dst[2]
- *                const double src[2]
- * Return Type  : void
- */
+//
+// Arguments    : double dst[2]
+//                const double src[2]
+// Return Type  : void
+//
 static void emxCopyMatrix_real_T(double dst[2], const double src[2])
 {
   int i;
@@ -2262,11 +2172,11 @@ static void emxCopyMatrix_real_T(double dst[2], const double src[2])
   }
 }
 
-/*
- * Arguments    : b_struct_T *dst
- *                const b_struct_T *src
- * Return Type  : void
- */
+//
+// Arguments    : b_struct_T *dst
+//                const b_struct_T *src
+// Return Type  : void
+//
 static void emxCopyStruct_struct_T(b_struct_T *dst, const b_struct_T *src)
 {
   emxCopyMatrix_real_T(dst->offset, src->offset);
@@ -2274,11 +2184,11 @@ static void emxCopyStruct_struct_T(b_struct_T *dst, const b_struct_T *src)
   emxCopy_int8_T(&dst->grid, &src->grid);
 }
 
-/*
- * Arguments    : emxArray_int8_T **dst
- *                emxArray_int8_T * const *src
- * Return Type  : void
- */
+//
+// Arguments    : emxArray_int8_T **dst
+//                emxArray_int8_T * const *src
+// Return Type  : void
+//
 static void emxCopy_int8_T(emxArray_int8_T **dst, emxArray_int8_T * const *src)
 {
   int numElDst;
@@ -2301,12 +2211,12 @@ static void emxCopy_int8_T(emxArray_int8_T **dst, emxArray_int8_T * const *src)
   }
 }
 
-/*
- * Arguments    : emxArray__common *emxArray
- *                int oldNumel
- *                int elementSize
- * Return Type  : void
- */
+//
+// Arguments    : emxArray__common *emxArray
+//                int oldNumel
+//                int elementSize
+// Return Type  : void
+//
 static void emxEnsureCapacity(emxArray__common *emxArray, int oldNumel, int
   elementSize)
 {
@@ -2342,11 +2252,11 @@ static void emxEnsureCapacity(emxArray__common *emxArray, int oldNumel, int
   }
 }
 
-/*
- * Arguments    : emxArray_b_struct_T *emxArray
- *                int oldNumel
- * Return Type  : void
- */
+//
+// Arguments    : emxArray_b_struct_T *emxArray
+//                int oldNumel
+// Return Type  : void
+//
 static void emxEnsureCapacity_struct_T(emxArray_b_struct_T *emxArray, int
   oldNumel)
 {
@@ -2393,12 +2303,12 @@ static void emxEnsureCapacity_struct_T(emxArray_b_struct_T *emxArray, int
   }
 }
 
-/*
- * Arguments    : emxArray_b_struct_T *emxArray
- *                int fromIndex
- *                int toIndex
- * Return Type  : void
- */
+//
+// Arguments    : emxArray_b_struct_T *emxArray
+//                int fromIndex
+//                int toIndex
+// Return Type  : void
+//
 static void emxExpand_struct_T(emxArray_b_struct_T *emxArray, int fromIndex, int
   toIndex)
 {
@@ -2408,19 +2318,19 @@ static void emxExpand_struct_T(emxArray_b_struct_T *emxArray, int fromIndex, int
   }
 }
 
-/*
- * Arguments    : b_struct_T *pStruct
- * Return Type  : void
- */
+//
+// Arguments    : b_struct_T *pStruct
+// Return Type  : void
+//
 static void emxFreeStruct_struct_T(b_struct_T *pStruct)
 {
   emxFree_int8_T(&pStruct->grid);
 }
 
-/*
- * Arguments    : emxArray_boolean_T **pEmxArray
- * Return Type  : void
- */
+//
+// Arguments    : emxArray_boolean_T **pEmxArray
+// Return Type  : void
+//
 static void emxFree_boolean_T(emxArray_boolean_T **pEmxArray)
 {
   if (*pEmxArray != (emxArray_boolean_T *)NULL) {
@@ -2435,10 +2345,10 @@ static void emxFree_boolean_T(emxArray_boolean_T **pEmxArray)
   }
 }
 
-/*
- * Arguments    : emxArray_int32_T **pEmxArray
- * Return Type  : void
- */
+//
+// Arguments    : emxArray_int32_T **pEmxArray
+// Return Type  : void
+//
 static void emxFree_int32_T(emxArray_int32_T **pEmxArray)
 {
   if (*pEmxArray != (emxArray_int32_T *)NULL) {
@@ -2452,10 +2362,10 @@ static void emxFree_int32_T(emxArray_int32_T **pEmxArray)
   }
 }
 
-/*
- * Arguments    : emxArray_int8_T **pEmxArray
- * Return Type  : void
- */
+//
+// Arguments    : emxArray_int8_T **pEmxArray
+// Return Type  : void
+//
 static void emxFree_int8_T(emxArray_int8_T **pEmxArray)
 {
   if (*pEmxArray != (emxArray_int8_T *)NULL) {
@@ -2470,10 +2380,10 @@ static void emxFree_int8_T(emxArray_int8_T **pEmxArray)
   }
 }
 
-/*
- * Arguments    : emxArray_real32_T **pEmxArray
- * Return Type  : void
- */
+//
+// Arguments    : emxArray_real32_T **pEmxArray
+// Return Type  : void
+//
 static void emxFree_real32_T(emxArray_real32_T **pEmxArray)
 {
   if (*pEmxArray != (emxArray_real32_T *)NULL) {
@@ -2487,10 +2397,10 @@ static void emxFree_real32_T(emxArray_real32_T **pEmxArray)
   }
 }
 
-/*
- * Arguments    : emxArray_real_T **pEmxArray
- * Return Type  : void
- */
+//
+// Arguments    : emxArray_real_T **pEmxArray
+// Return Type  : void
+//
 static void emxFree_real_T(emxArray_real_T **pEmxArray)
 {
   if (*pEmxArray != (emxArray_real_T *)NULL) {
@@ -2504,10 +2414,10 @@ static void emxFree_real_T(emxArray_real_T **pEmxArray)
   }
 }
 
-/*
- * Arguments    : emxArray_struct_T **pEmxArray
- * Return Type  : void
- */
+//
+// Arguments    : emxArray_struct_T **pEmxArray
+// Return Type  : void
+//
 static void emxFree_struct_T(emxArray_struct_T **pEmxArray)
 {
   if (*pEmxArray != (emxArray_struct_T *)NULL) {
@@ -2521,10 +2431,10 @@ static void emxFree_struct_T(emxArray_struct_T **pEmxArray)
   }
 }
 
-/*
- * Arguments    : emxArray_uint8_T **pEmxArray
- * Return Type  : void
- */
+//
+// Arguments    : emxArray_uint8_T **pEmxArray
+// Return Type  : void
+//
 static void emxFree_uint8_T(emxArray_uint8_T **pEmxArray)
 {
   if (*pEmxArray != (emxArray_uint8_T *)NULL) {
@@ -2539,20 +2449,20 @@ static void emxFree_uint8_T(emxArray_uint8_T **pEmxArray)
   }
 }
 
-/*
- * Arguments    : b_struct_T *pStruct
- * Return Type  : void
- */
+//
+// Arguments    : b_struct_T *pStruct
+// Return Type  : void
+//
 static void emxInitStruct_struct_T(b_struct_T *pStruct)
 {
   emxInit_int8_T(&pStruct->grid, 2);
 }
 
-/*
- * Arguments    : emxArray_boolean_T **pEmxArray
- *                int numDimensions
- * Return Type  : void
- */
+//
+// Arguments    : emxArray_boolean_T **pEmxArray
+//                int numDimensions
+// Return Type  : void
+//
 static void emxInit_boolean_T(emxArray_boolean_T **pEmxArray, int numDimensions)
 {
   emxArray_boolean_T *emxArray;
@@ -2569,11 +2479,11 @@ static void emxInit_boolean_T(emxArray_boolean_T **pEmxArray, int numDimensions)
   }
 }
 
-/*
- * Arguments    : emxArray_int32_T **pEmxArray
- *                int numDimensions
- * Return Type  : void
- */
+//
+// Arguments    : emxArray_int32_T **pEmxArray
+//                int numDimensions
+// Return Type  : void
+//
 static void emxInit_int32_T(emxArray_int32_T **pEmxArray, int numDimensions)
 {
   emxArray_int32_T *emxArray;
@@ -2590,11 +2500,11 @@ static void emxInit_int32_T(emxArray_int32_T **pEmxArray, int numDimensions)
   }
 }
 
-/*
- * Arguments    : emxArray_int8_T **pEmxArray
- *                int numDimensions
- * Return Type  : void
- */
+//
+// Arguments    : emxArray_int8_T **pEmxArray
+//                int numDimensions
+// Return Type  : void
+//
 static void emxInit_int8_T(emxArray_int8_T **pEmxArray, int numDimensions)
 {
   emxArray_int8_T *emxArray;
@@ -2611,11 +2521,11 @@ static void emxInit_int8_T(emxArray_int8_T **pEmxArray, int numDimensions)
   }
 }
 
-/*
- * Arguments    : emxArray_real32_T **pEmxArray
- *                int numDimensions
- * Return Type  : void
- */
+//
+// Arguments    : emxArray_real32_T **pEmxArray
+//                int numDimensions
+// Return Type  : void
+//
 static void emxInit_real32_T(emxArray_real32_T **pEmxArray, int numDimensions)
 {
   emxArray_real32_T *emxArray;
@@ -2632,11 +2542,11 @@ static void emxInit_real32_T(emxArray_real32_T **pEmxArray, int numDimensions)
   }
 }
 
-/*
- * Arguments    : emxArray_real_T **pEmxArray
- *                int numDimensions
- * Return Type  : void
- */
+//
+// Arguments    : emxArray_real_T **pEmxArray
+//                int numDimensions
+// Return Type  : void
+//
 static void emxInit_real_T(emxArray_real_T **pEmxArray, int numDimensions)
 {
   emxArray_real_T *emxArray;
@@ -2653,11 +2563,11 @@ static void emxInit_real_T(emxArray_real_T **pEmxArray, int numDimensions)
   }
 }
 
-/*
- * Arguments    : emxArray_struct_T **pEmxArray
- *                int numDimensions
- * Return Type  : void
- */
+//
+// Arguments    : emxArray_struct_T **pEmxArray
+//                int numDimensions
+// Return Type  : void
+//
 static void emxInit_struct_T(emxArray_struct_T **pEmxArray, int numDimensions)
 {
   emxArray_struct_T *emxArray;
@@ -2674,11 +2584,11 @@ static void emxInit_struct_T(emxArray_struct_T **pEmxArray, int numDimensions)
   }
 }
 
-/*
- * Arguments    : emxArray_uint8_T **pEmxArray
- *                int numDimensions
- * Return Type  : void
- */
+//
+// Arguments    : emxArray_uint8_T **pEmxArray
+//                int numDimensions
+// Return Type  : void
+//
 static void emxInit_uint8_T(emxArray_uint8_T **pEmxArray, int numDimensions)
 {
   emxArray_uint8_T *emxArray;
@@ -2695,12 +2605,12 @@ static void emxInit_uint8_T(emxArray_uint8_T **pEmxArray, int numDimensions)
   }
 }
 
-/*
- * Arguments    : emxArray_b_struct_T *emxArray
- *                int fromIndex
- *                int toIndex
- * Return Type  : void
- */
+//
+// Arguments    : emxArray_b_struct_T *emxArray
+//                int fromIndex
+//                int toIndex
+// Return Type  : void
+//
 static void emxTrim_struct_T(emxArray_b_struct_T *emxArray, int fromIndex, int
   toIndex)
 {
@@ -2710,12 +2620,12 @@ static void emxTrim_struct_T(emxArray_b_struct_T *emxArray, int fromIndex, int
   }
 }
 
-/*
- * Arguments    : emxArray_real_T *a
- *                const double block[2]
- *                emxArray_real_T *b
- * Return Type  : void
- */
+//
+// Arguments    : emxArray_real_T *a
+//                const double block[2]
+//                emxArray_real_T *b
+// Return Type  : void
+//
 static void im2col(emxArray_real_T *a, const double block[2], emxArray_real_T *b)
 {
   int ma;
@@ -2744,7 +2654,7 @@ static void im2col(emxArray_real_T *a, const double block[2], emxArray_real_T *b
   emxArray_int32_T *r3;
   emxArray_real_T *d_a;
 
-  /*  matlab im2col function put here for codegen */
+  //  matlab im2col function put here for codegen
   ma = a->size[0];
   b_a[0] = (unsigned int)a->size[0];
   b_a[1] = (unsigned int)a->size[1];
@@ -2755,13 +2665,13 @@ static void im2col(emxArray_real_T *a, const double block[2], emxArray_real_T *b
   }
 
   if (any(c_a)) {
-    /*  if neighborhood is larger than image */
+    //  if neighborhood is larger than image
     i11 = b->size[0] * b->size[1];
     b->size[0] = (int)(block[0] * block[1]);
     b->size[1] = 0;
     emxEnsureCapacity((emxArray__common *)b, i11, (int)sizeof(double));
   } else {
-    /*  Create Hankel-like indexing sub matrix. */
+    //  Create Hankel-like indexing sub matrix.
     nc = ((double)a->size[0] - block[0]) + 1.0;
     nn = ((double)a->size[1] - block[1]) + 1.0;
     if (rtIsNaN(block[0] - 1.0)) {
@@ -2894,7 +2804,7 @@ static void im2col(emxArray_real_T *a, const double block[2], emxArray_real_T *b
 
     b_emxInit_real_T(&tt, 2);
 
-    /*  Hankel Subscripts */
+    //  Hankel Subscripts
     i11 = tt->size[0] * tt->size[1];
     tt->size[0] = (int)(block[0] * block[1]);
     emxEnsureCapacity((emxArray__common *)tt, i11, (int)sizeof(double));
@@ -3070,8 +2980,8 @@ static void im2col(emxArray_real_T *a, const double block[2], emxArray_real_T *b
     emxFree_real_T(&tt);
     emxFree_real_T(&ridx);
 
-    /*  If a is a row vector, change it to a column vector. This change is */
-    /*  necessary when A is a row vector and [M N] = size(A). */
+    //  If a is a row vector, change it to a column vector. This change is
+    //  necessary when A is a row vector and [M N] = size(A).
     emxInit_real_T(&d_a, 1);
     if ((a->size[1] > 1) && (a->size[0] == 1)) {
       nm1d2 = a->size[1];
@@ -3111,11 +3021,11 @@ static void im2col(emxArray_real_T *a, const double block[2], emxArray_real_T *b
   }
 }
 
-/*
- * Arguments    : const emxArray_int8_T *A
- *                emxArray_int8_T *B
- * Return Type  : void
- */
+//
+// Arguments    : const emxArray_int8_T *A
+//                emxArray_int8_T *B
+// Return Type  : void
+//
 static void imerode(const emxArray_int8_T *A, emxArray_int8_T *B)
 {
   int i15;
@@ -3144,25 +3054,25 @@ static void imerode(const emxArray_int8_T *A, emxArray_int8_T *B)
   erode_flat_int8_tbb(&A->data[0], asize, 2.0, nhood, nsize, 2.0, &B->data[0]);
 }
 
-/*
- * INITFEATURES initialize features for all anchors at the beginning
- *  features numFeatures x 2 matrix
- *  threshold suggested threshold for FASt detector (dynamic adjusted
- *  initially set to default 30)
- *  flag shows the status of initialization:
- *  {0,1,-1} = {successful but not balanced,successful,unsuccessful not
- *  enough features found}
- * Arguments    : const unsigned char greyImg[332672]
- *                double borderLength
- *                double numBinsX
- *                double numBinsY
- *                double minDistance
- *                double features[64]
- *                double featStatus[32]
- *                double *threshold
- *                double *flag
- * Return Type  : void
- */
+//
+// INITFEATURES initialize features for all anchors at the beginning
+//  features numFeatures x 2 matrix
+//  threshold suggested threshold for FASt detector (dynamic adjusted
+//  initially set to default 30)
+//  flag shows the status of initialization:
+//  {0,1,-1} = {successful but not balanced,successful,unsuccessful not
+//  enough features found}
+// Arguments    : const unsigned char greyImg[332672]
+//                double borderLength
+//                double numBinsX
+//                double numBinsY
+//                double minDistance
+//                double features[64]
+//                double featStatus[32]
+//                double *threshold
+//                double *flag
+// Return Type  : void
+//
 static void initFeatures(const unsigned char greyImg[332672], double
   borderLength, double numBinsX, double numBinsY, double minDistance, double
   features[64], double featStatus[32], double *threshold, double *flag)
@@ -3229,23 +3139,23 @@ static void initFeatures(const unsigned char greyImg[332672], double
   memset(&featStatus[0], 0, sizeof(double) << 5);
   emxInit_struct_T(&structBin, 1);
 
-  /* % divide bins and find fast feature in each bin */
-  /*  set initial output */
+  // % divide bins and find fast feature in each bin
+  //  set initial output
   binWidth = rt_roundd_snf((736.0 - 2.0 * borderLength) / numBinsX);
   binHeight = rt_roundd_snf((452.0 - 2.0 * borderLength) / numBinsY);
   numBins = numBinsX * numBinsY;
   numAvgFeaturePerBin = 32.0 / numBins;
 
-  /*  parameter for detector */
+  //  parameter for detector
   *threshold = 0.2;
 
-  /*  default value */
-  /*  minimum threshold allowed (used in threshold adaption) */
-  /*  flag to adjust threshold. it is incremented in each bin, if there are too */
-  /*  many features found in this bin */
+  //  default value
+  //  minimum threshold allowed (used in threshold adaption)
+  //  flag to adjust threshold. it is incremented in each bin, if there are too
+  //  many features found in this bin
   tooMany = 0.0;
 
-  /*  initialize structBin */
+  //  initialize structBin
   i0 = structBin->size[0];
   structBin->size[0] = (int)numBins;
   emxEnsureCapacity((emxArray__common *)structBin, i0, (int)sizeof(struct_T));
@@ -3300,8 +3210,8 @@ static void initFeatures(const unsigned char greyImg[332672], double
         i2 = (int)d0;
       }
 
-      /*  feature detection */
-      /*  arrBinCandidates = detectHarrisFeatures(subImg,'MinQuality',0.5,'FilterSize',5); */
+      //  feature detection
+      //  arrBinCandidates = detectHarrisFeatures(subImg,'MinQuality',0.5,'FilterSize',5); 
       mtmp = 0.2;
       grayto8_real64(&mtmp, &minContrast, 1.0);
       i3 = Iu8->size[0] * Iu8->size[1];
@@ -3352,8 +3262,8 @@ static void initFeatures(const unsigned char greyImg[332672], double
       cornerPoints_cg_cornerPoints_cg(locations, rawPts_metric,
         arrBinCandidates_pLocation, arrBinCandidates_pMetric);
 
-      /*  rank the feature wrt the detector response and keep maximal */
-      /*  numFeatures features in each bin */
+      //  rank the feature wrt the detector response and keep maximal
+      //  numFeatures features in each bin
       i0 = rawPts_metric->size[0];
       rawPts_metric->size[0] = arrBinCandidates_pMetric->size[0];
       emxEnsureCapacity((emxArray__common *)rawPts_metric, i0, (int)sizeof(float));
@@ -3379,7 +3289,7 @@ static void initFeatures(const unsigned char greyImg[332672], double
 
       featureCounts->data[(int)cntBin - 1] = mtmp;
 
-      /*  save candidates in bin structures */
+      //  save candidates in bin structures
       if (1.0 > mtmp) {
         loop_ub = 0;
       } else {
@@ -3422,19 +3332,19 @@ static void initFeatures(const unsigned char greyImg[332672], double
   emxFree_real32_T(&arrBinCandidates_pMetric);
   emxFree_real32_T(&arrBinCandidates_pLocation);
 
-  /* % fine placement in each bin, a better way to keep minimum distance */
-  /*  check distance to existing feature by constructing a fine grid with */
-  /*  gridwidth = minDistance */
-  /*  proceed from the highest ranking feature, */
-  /*  check in candidate's neighboring grids whether a features has already */
-  /*  been chosen, if yes discard this candidate */
-  /*  a grid is flagged 1 if a feature in its area is found and 0 otherwise */
+  // % fine placement in each bin, a better way to keep minimum distance
+  //  check distance to existing feature by constructing a fine grid with
+  //  gridwidth = minDistance
+  //  proceed from the highest ranking feature,
+  //  check in candidate's neighboring grids whether a features has already
+  //  been chosen, if yes discard this candidate
+  //  a grid is flagged 1 if a feature in its area is found and 0 otherwise
   numGridsX = ceil(binWidth / minDistance);
   numGridsY = ceil(binHeight / minDistance);
 
-  /*  start from the bin with least number of candidates, because it's most */
-  /*  possible to be not filled. if one bin is not filled, we'll be filled in */
-  /*  the next bin */
+  //  start from the bin with least number of candidates, because it's most
+  //  possible to be not filled. if one bin is not filled, we'll be filled in
+  //  the next bin
   i0 = unusedU1->size[0];
   unusedU1->size[0] = featureCounts->size[0];
   emxEnsureCapacity((emxArray__common *)unusedU1, i0, (int)sizeof(double));
@@ -3454,12 +3364,12 @@ static void initFeatures(const unsigned char greyImg[332672], double
 
   emxFree_int32_T(&iidx);
 
-  /*  number of features that cannot be filled in the processed bins */
+  //  number of features that cannot be filled in the processed bins
   numLeftOverFeature = 0.0;
   numCheckedBins = 0.0;
 
-  /*  number of initialized features in all bin (in order to make sure total */
-  /*  number of features does not exceed required) */
+  //  number of initialized features in all bin (in order to make sure total
+  //  number of features does not exceed required)
   numFeatureInit = 0.0;
   numExtraToCheckBin = 0.0;
   i = 0;
@@ -3469,9 +3379,9 @@ static void initFeatures(const unsigned char greyImg[332672], double
     numCheckedBins++;
     numFeatureInit_old = numFeatureInit;
 
-    /*  get number of found features in this bin. */
-    /*  if found nothing, then increase the number of features to be found in */
-    /*  other bins */
+    //  get number of found features in this bin.
+    //  if found nothing, then increase the number of features to be found in
+    //  other bins
     if (featureCounts->data[(int)unusedU1->data[i] - 1] == 0.0) {
       numLeftOverFeature += numAvgFeaturePerBin;
       *flag = 0.0;
@@ -3489,7 +3399,7 @@ static void initFeatures(const unsigned char greyImg[332672], double
         }
       }
 
-      /*  initialize arrBinFeatures */
+      //  initialize arrBinFeatures
       i0 = arrBinFeatures->size[0] * arrBinFeatures->size[1];
       arrBinFeatures->size[0] = (int)(numAvgFeaturePerBin + numExtraToCheckBin);
       arrBinFeatures->size[1] = 2;
@@ -3500,11 +3410,11 @@ static void initFeatures(const unsigned char greyImg[332672], double
         arrBinFeatures->data[i0] = 0.0;
       }
 
-      /*  a finer grids to represent location of keypoints */
-      /*  first and last row and column are dummy row and column */
-      /*  hence grid = grid + [1,1] */
-      /*  allocate memory for matrix, in each bin maximum numFeatures */
-      /*  features are found */
+      //  a finer grids to represent location of keypoints
+      //  first and last row and column are dummy row and column
+      //  hence grid = grid + [1,1]
+      //  allocate memory for matrix, in each bin maximum numFeatures
+      //  features are found
       i0 = binGrids->size[0] * binGrids->size[1] * binGrids->size[2];
       binGrids->size[0] = (int)(numGridsX + 2.0);
       binGrids->size[1] = (int)(numGridsY + 2.0);
@@ -3515,14 +3425,14 @@ static void initFeatures(const unsigned char greyImg[332672], double
         binGrids->data[i0] = false;
       }
 
-      /*  always keep the highest ranking candidate */
+      //  always keep the highest ranking candidate
       for (i0 = 0; i0 < 2; i0++) {
         grid[i0] = arrBinCandidates_data[loop_ub * i0] / minDistance;
       }
 
       b_ceil(grid);
 
-      /*  save highest rating feature */
+      //  save highest rating feature
       for (i0 = 0; i0 < 2; i0++) {
         arrBinFeatures->data[arrBinFeatures->size[0] * i0] =
           arrBinCandidates_data[loop_ub * i0] + structBin->data[(int)
@@ -3533,7 +3443,7 @@ static void initFeatures(const unsigned char greyImg[332672], double
         - 1] = true;
       numFeatureInit++;
 
-      /*  start checking candidates */
+      //  start checking candidates
       cntFeatureInitBin = 1U;
       cntChecked = 0;
       do {
@@ -3586,7 +3496,7 @@ static void initFeatures(const unsigned char greyImg[332672], double
                   if (binGrids->data[((int)left[0] + out_numel * ((int)left[1] -
                         1)) - 1]) {
                   } else {
-                    /*  passed check mark grid as occupied */
+                    //  passed check mark grid as occupied
                     out_numel = binGrids->size[0];
                     binGrids->data[((int)grid[0] + out_numel * ((int)grid[1] - 1))
                       - 1] = true;
@@ -3601,8 +3511,8 @@ static void initFeatures(const unsigned char greyImg[332672], double
 
                     if ((cntFeatureInitBin >= numAvgFeaturePerBin +
                          numExtraToCheckBin) || (numFeatureInit >= 32.0)) {
-                      /*  double check */
-                      /*  also an early break means we found too many features */
+                      //  double check
+                      //  also an early break means we found too many features
                       tooMany++;
                       exitg1 = 1;
                     }
@@ -3619,18 +3529,18 @@ static void initFeatures(const unsigned char greyImg[332672], double
       numLeftOverFeature = (numLeftOverFeature + numAvgFeaturePerBin) - (double)
         cntFeatureInitBin;
 
-      /*  stop adding features to this bin if this feature is full and the */
-      /*  left over features from earlier bins are also found in this bin */
+      //  stop adding features to this bin if this feature is full and the
+      //  left over features from earlier bins are also found in this bin
       numExtraToCheckBin = rt_roundd_snf(numLeftOverFeature / ((numBins -
         numCheckedBins) + 1.0));
 
-      /*  if there's leftover slots in this bin, flag 0 (unbalanced) */
+      //  if there's leftover slots in this bin, flag 0 (unbalanced)
       if (numLeftOverFeature > 0.0) {
         *flag = 0.0;
       }
 
-      /*  if this bin is not filled */
-      /*  store results in a cell for the full image */
+      //  if this bin is not filled
+      //  store results in a cell for the full image
       if (numFeatureInit_old + 1.0 > numFeatureInit) {
         i0 = 0;
       } else {
@@ -3655,7 +3565,7 @@ static void initFeatures(const unsigned char greyImg[332672], double
   emxFree_real_T(&featureCounts);
   emxFree_struct_T(&structBin);
 
-  /* % set flag */
+  // % set flag
   guard1 = false;
   if (numFeatureInit < 32.0) {
     *flag = -1.0;
@@ -3668,21 +3578,21 @@ static void initFeatures(const unsigned char greyImg[332672], double
   }
 
   if (guard1) {
-    /* % dynamically adjust threshold */
-    /*  dynamically adjust parameter to keep number of found features */
-    /*  around a certain value. This step reduces future computation */
-    /*  if features found in one bin are more than number of required */
-    /*  features the whole image, increase threshold */
+    // % dynamically adjust threshold
+    //  dynamically adjust parameter to keep number of found features
+    //  around a certain value. This step reduces future computation
+    //  if features found in one bin are more than number of required
+    //  features the whole image, increase threshold
     if (tooMany == numBins) {
       *threshold = 0.21000000000000002;
     } else {
       if (*flag == -1.0) {
-        /*  decrease threshold slowlier, because we stil want good valid features */
+        //  decrease threshold slowlier, because we stil want good valid features 
         *threshold = 0.19;
       }
     }
 
-    /* % return output */
+    // % return output
     loop_ub = (int)numFeatureInit;
     for (i0 = 0; i0 < loop_ub; i0++) {
       featStatus[i0] = 2.0;
@@ -3690,12 +3600,12 @@ static void initFeatures(const unsigned char greyImg[332672], double
   }
 }
 
-/*
- * Arguments    : const emxArray_int8_T *A
- *                const emxArray_int8_T *B
- *                emxArray_int8_T *K
- * Return Type  : void
- */
+//
+// Arguments    : const emxArray_int8_T *A
+//                const emxArray_int8_T *B
+//                emxArray_int8_T *K
+// Return Type  : void
+//
 static void kron(const emxArray_int8_T *A, const emxArray_int8_T *B,
                  emxArray_int8_T *K)
 {
@@ -3723,14 +3633,14 @@ static void kron(const emxArray_int8_T *A, const emxArray_int8_T *B,
   }
 }
 
-/*
- * Arguments    : emxArray_int32_T *idx
- *                emxArray_real32_T *x
- *                int offset
- *                int np
- *                int nq
- * Return Type  : void
- */
+//
+// Arguments    : emxArray_int32_T *idx
+//                emxArray_real32_T *x
+//                int offset
+//                int np
+//                int nq
+// Return Type  : void
+//
 static void merge(emxArray_int32_T *idx, emxArray_real32_T *x, int offset, int
                   np, int nq)
 {
@@ -3796,14 +3706,14 @@ static void merge(emxArray_int32_T *idx, emxArray_real32_T *x, int offset, int
   emxFree_int32_T(&iwork);
 }
 
-/*
- * Arguments    : emxArray_int32_T *idx
- *                emxArray_real32_T *x
- *                int offset
- *                int n
- *                int preSortLevel
- * Return Type  : void
- */
+//
+// Arguments    : emxArray_int32_T *idx
+//                emxArray_real32_T *x
+//                int offset
+//                int n
+//                int preSortLevel
+// Return Type  : void
+//
 static void merge_block(emxArray_int32_T *idx, emxArray_real32_T *x, int offset,
   int n, int preSortLevel)
 {
@@ -3837,12 +3747,12 @@ static void merge_block(emxArray_int32_T *idx, emxArray_real32_T *x, int offset,
   }
 }
 
-/*
- * Arguments    : const double x[2]
- *                const double y[2]
- *                double z[2]
- * Return Type  : void
- */
+//
+// Arguments    : const double x[2]
+//                const double y[2]
+//                double z[2]
+// Return Type  : void
+//
 static void rdivide(const double x[2], const double y[2], double z[2])
 {
   int i14;
@@ -3851,25 +3761,25 @@ static void rdivide(const double x[2], const double y[2], double z[2])
   }
 }
 
-/*
- * REFILLFEATURES finds new features to fill in feature slots
- *  features numFeatures x 2 matrix
- *  threshold suggested threshold for FASt detector (dynamic adjusted
- *  initially set to default 30)
- *  flag shows whether enough features are found
- * % parameters
- *  detector parameters
- *  TODO dynamically adjusted
- * Arguments    : const unsigned char greyImg[332672]
- *                double features[64]
- *                double featStatus[32]
- *                double numAnchors
- *                double numBinsX
- *                double numBinsY
- *                double borderLength
- *                double minDistance
- * Return Type  : boolean_T
- */
+//
+// REFILLFEATURES finds new features to fill in feature slots
+//  features numFeatures x 2 matrix
+//  threshold suggested threshold for FASt detector (dynamic adjusted
+//  initially set to default 30)
+//  flag shows whether enough features are found
+// % parameters
+//  detector parameters
+//  TODO dynamically adjusted
+// Arguments    : const unsigned char greyImg[332672]
+//                double features[64]
+//                double featStatus[32]
+//                double numAnchors
+//                double numBinsX
+//                double numBinsY
+//                double borderLength
+//                double minDistance
+// Return Type  : boolean_T
+//
 static boolean_T refillFeature(const unsigned char greyImg[332672], double
   features[64], double featStatus[32], double numAnchors, double numBinsX,
   double numBinsY, double borderLength, double minDistance)
@@ -3947,17 +3857,17 @@ static boolean_T refillFeature(const unsigned char greyImg[332672], double
   double features_tmp_data[64];
   signed char b_tmp_data[31];
 
-  /*  copy old featStatus */
+  //  copy old featStatus
   for (i = 0; i < 32; i++) {
     featStatus_old[i] = featStatus[i];
   }
 
   b_emxInit_boolean_T(&deactivatedAnchor, 1);
 
-  /*  erosion neighborhood size */
+  //  erosion neighborhood size
   numBins = numBinsX * numBinsY;
 
-  /* % deactivate anchor when half of its features are not tracked */
+  // % deactivate anchor when half of its features are not tracked
   numPointsPerAnchor = 32.0 / numAnchors;
   i21 = deactivatedAnchor->size[0];
   deactivatedAnchor->size[0] = (int)numAnchors;
@@ -4011,7 +3921,7 @@ static boolean_T refillFeature(const unsigned char greyImg[332672], double
     }
   }
 
-  /*  if no anchor is deactivated, return input feature */
+  //  if no anchor is deactivated, return input feature
   if (!b_any(deactivatedAnchor)) {
     notEnough = false;
   } else {
@@ -4047,15 +3957,15 @@ static boolean_T refillFeature(const unsigned char greyImg[332672], double
       idxDeadFeatures_data[i21] = ii_data[i21];
     }
 
-    /* % go through each bin and fill free grid with width minDistance */
-    /*  create structure to store feature locations */
-    /*  field name idx, xidx, yidx, offset, count, grid */
+    // % go through each bin and fill free grid with width minDistance
+    //  create structure to store feature locations
+    //  field name idx, xidx, yidx, offset, count, grid
     binWidth = rt_roundd_snf((736.0 - 2.0 * borderLength) / numBinsX);
     binHeight = rt_roundd_snf((452.0 - 2.0 * borderLength) / numBinsY);
     numGridsX = ceil(binWidth / minDistance);
     numGridsY = ceil(binHeight / minDistance);
 
-    /*  initialize structBin */
+    //  initialize structBin
     emxInit_int8_T(&t0_grid, 2);
     i21 = t0_grid->size[0] * t0_grid->size[1];
     t0_grid->size[0] = (int)numGridsX;
@@ -4095,8 +4005,8 @@ static boolean_T refillFeature(const unsigned char greyImg[332672], double
       featureCounts->data[i21] = 0.0;
     }
 
-    /*  [1 numBinsY+1 ...; */
-    /*   2 numBinsY+2 ...] */
+    //  [1 numBinsY+1 ...;
+    //   2 numBinsY+2 ...]
     b_i = 1U;
     for (idx = 0; idx < (int)numBinsX; idx++) {
       for (ii = 0; ii < (int)numBinsY; ii++) {
@@ -4108,7 +4018,7 @@ static boolean_T refillFeature(const unsigned char greyImg[332672], double
       }
     }
 
-    /*  count number of features/bin and their location in grid */
+    //  count number of features/bin and their location in grid
     trueCount = 0;
     for (i = 0; i < 32; i++) {
       if (featStatus[i] > 0.0) {
@@ -4148,8 +4058,8 @@ static boolean_T refillFeature(const unsigned char greyImg[332672], double
       rdivide(b_features, b_binWidth, bin);
       b_ceil(bin);
 
-      /*  get which bin this feature belongs to */
-      /*  TODO perhaps delete these features */
+      //  get which bin this feature belongs to
+      //  TODO perhaps delete these features
       if (bin[0] > numBinsX) {
         bin[0] = numBinsX;
       }
@@ -4158,13 +4068,13 @@ static boolean_T refillFeature(const unsigned char greyImg[332672], double
         bin[1] = numBinsY;
       }
 
-      /*  idx of the bin where this feature belongs to */
+      //  idx of the bin where this feature belongs to
       binIdx = (bin[0] - 1.0) * numBinsY + bin[1];
 
-      /*  increment number of features in this bin by 1 */
+      //  increment number of features in this bin by 1
       featureCounts->data[(int)binIdx - 1]++;
 
-      /*  relative location in bin */
+      //  relative location in bin
       idx = 0;
       for (ii = 0; ii < 32; ii++) {
         if (featStatus[ii] > 0.0) {
@@ -4180,7 +4090,7 @@ static boolean_T refillFeature(const unsigned char greyImg[332672], double
         }
       }
 
-      /*  get grid coordinates of this  */
+      //  get grid coordinates of this
       for (i21 = 0; i21 < 2; i21++) {
         for (i22 = 0; i22 < idx; i22++) {
           features_data[i22 + idx * i21] = features[(ii_data[i22] + (i21 << 5))
@@ -4198,16 +4108,16 @@ static boolean_T refillFeature(const unsigned char greyImg[332672], double
         data[(int)binIdx - 1].grid->size[0] * ((int)bin[1] - 1)) - 1] = 0;
     }
 
-    /* % go through each bin, compute mask from grid and find new features under mask */
-    /*  use erosion to create mask from free grid */
-    /*  erosion set target point to 0 if any point in its neighborhood is 0 */
-    /*  in our case, a grid is marked as 0 (deactivated) if it's neighborhood has */
-    /*  0 (occupied) */
+    // % go through each bin, compute mask from grid and find new features under mask 
+    //  use erosion to create mask from free grid
+    //  erosion set target point to 0 if any point in its neighborhood is 0
+    //  in our case, a grid is marked as 0 (deactivated) if it's neighborhood has 
+    //  0 (occupied)
     memset(&features_tmp[0], 0, sizeof(double) << 6);
     emxInit_int32_T(&iidx, 1);
 
-    /*  create erosion neighbourhood */
-    /*  sort bins with ascending occupancy */
+    //  create erosion neighbourhood
+    //  sort bins with ascending occupancy
     c_eml_sort(featureCounts, iidx);
     i21 = featureCounts->size[0];
     featureCounts->size[0] = iidx->size[0];
@@ -4217,7 +4127,7 @@ static boolean_T refillFeature(const unsigned char greyImg[332672], double
       featureCounts->data[i21] = iidx->data[i21];
     }
 
-    /*  number of features still to be found */
+    //  number of features still to be found
     trueCount = 0;
     for (i = 0; i < 32; i++) {
       if (featStatus[i] > 0.0) {
@@ -4228,10 +4138,10 @@ static boolean_T refillFeature(const unsigned char greyImg[332672], double
     numDeadFeature = 32 - trueCount;
     numFeatureToFind = numDeadFeature;
 
-    /*  average number of features to be found in each bin */
+    //  average number of features to be found in each bin
     numFeatureToFindBin = (double)numDeadFeature / numBins;
 
-    /*  TODO merge with mask from motion */
+    //  TODO merge with mask from motion
     numCheckedBin = 0.0;
     numFeatureFound = 0.0;
     i = 0;
@@ -4256,8 +4166,8 @@ static boolean_T refillFeature(const unsigned char greyImg[332672], double
       numFeatureFound_old = numFeatureFound;
       numCheckedBin++;
 
-      /*  create a mask in this bin so that only features whose neighborhood */
-      /*  is not occupied will be saved */
+      //  create a mask in this bin so that only features whose neighborhood
+      //  is not occupied will be saved
       imerode(structBin->data[(int)featureCounts->data[i] - 1].grid, erodedGrid);
       i21 = b_erodedGrid->size[0] * b_erodedGrid->size[1];
       b_erodedGrid->size[0] = erodedGrid->size[1];
@@ -4284,7 +4194,7 @@ static boolean_T refillFeature(const unsigned char greyImg[332672], double
 
       kron(b_erodedGrid, r10, erodedGrid);
 
-      /*  crop right and down side to correct size mistake due to rounding */
+      //  crop right and down side to correct size mistake due to rounding
       if (1.0 > binHeight) {
         b_loop_ub = 0;
       } else {
@@ -4308,7 +4218,7 @@ static boolean_T refillFeature(const unsigned char greyImg[332672], double
         }
       }
 
-      /*  detect fast feature in current bin */
+      //  detect fast feature in current bin
       d1 = ((structBin->data[(int)featureCounts->data[i] - 1].offset[1] + 1.0) +
             binHeight) - 1.0;
       if (structBin->data[(int)featureCounts->data[i] - 1].offset[1] + 1.0 > d1)
@@ -4351,12 +4261,12 @@ static boolean_T refillFeature(const unsigned char greyImg[332672], double
       detectFASTFeatures(b_greyImg, arrBinCandidates_pLocation,
                          arrBinCandidates_pMetric);
 
-      /*      arrBinCandidates = detectHarrisFeatures(subImg,'MinQuality',0.5,'FilterSize',5); */
-      /*  if found features in this bin */
+      //      arrBinCandidates = detectHarrisFeatures(subImg,'MinQuality',0.5,'FilterSize',5); 
+      //  if found features in this bin
       guard1 = false;
       guard2 = false;
       if (FeaturePointsImpl_get_Count(arrBinCandidates_pLocation) > 0.0) {
-        /*  get the mask value of found feature candidates */
+        //  get the mask value of found feature candidates
         i21 = roundedCandLocation->size[0] * roundedCandLocation->size[1];
         roundedCandLocation->size[0] = arrBinCandidates_pLocation->size[0];
         roundedCandLocation->size[1] = 2;
@@ -4431,9 +4341,9 @@ static boolean_T refillFeature(const unsigned char greyImg[332672], double
         if (!c_any(validCandidates)) {
           guard1 = true;
         } else {
-          /*  filter candidates with mask value */
-          /*  select x strongest features in this bin. */
-          /*  x should be smaller than numFeatureToFindBin and numFeatureToFind */
+          //  filter candidates with mask value
+          //  select x strongest features in this bin.
+          //  x should be smaller than numFeatureToFindBin and numFeatureToFind
           idx = r8->size[0] - 1;
           trueCount = 0;
           for (ii = 0; ii <= idx; ii++) {
@@ -4563,9 +4473,9 @@ static boolean_T refillFeature(const unsigned char greyImg[332672], double
             }
           }
 
-          /*  add offset due to subimg */
+          //  add offset due to subimg
           b_repmat(structBin->data[(int)featureCounts->data[i] - 1].offset,
-                   b_loop_ub, r9);
+                   (double)b_loop_ub, r9);
           i21 = roundedCandLocation->size[0] * roundedCandLocation->size[1];
           roundedCandLocation->size[1] = 2;
           emxEnsureCapacity((emxArray__common *)roundedCandLocation, i21, (int)
@@ -4577,7 +4487,7 @@ static boolean_T refillFeature(const unsigned char greyImg[332672], double
             roundedCandLocation->data[i21] += (float)r9->data[i21];
           }
 
-          /*  update temporary counters */
+          //  update temporary counters
           numFeatureFound += (double)roundedCandLocation->size[0];
           numFeatureToFind = (double)numDeadFeature - numFeatureFound;
           if (numFeatureFound_old + 1.0 > numFeatureFound) {
@@ -4634,7 +4544,7 @@ static boolean_T refillFeature(const unsigned char greyImg[332672], double
     emxFree_real_T(&featureCounts);
     b_emxFree_struct_T(&structBin);
 
-    /* % output */
+    // % output
     if (numFeatureFound > 0.0) {
       all(features_tmp, bv0);
       trueCount = 0;
@@ -4659,7 +4569,7 @@ static boolean_T refillFeature(const unsigned char greyImg[332672], double
         }
       }
 
-      /*  set flag and save features */
+      //  set flag and save features
       if (numFeatureFound < numDeadFeature) {
         notEnough = true;
         for (i21 = 0; i21 < 2; i21++) {
@@ -4696,7 +4606,7 @@ static boolean_T refillFeature(const unsigned char greyImg[332672], double
         }
       }
     } else {
-      /*  if haven't found feature at all, return original */
+      //  if haven't found feature at all, return original
       notEnough = true;
       memcpy(&featStatus[0], &featStatus_old[0], sizeof(double) << 5);
     }
@@ -4706,12 +4616,12 @@ static boolean_T refillFeature(const unsigned char greyImg[332672], double
   return notEnough;
 }
 
-/*
- * Arguments    : const b_struct_T a
- *                double varargin_1
- *                emxArray_b_struct_T *b
- * Return Type  : void
- */
+//
+// Arguments    : const b_struct_T a
+//                double varargin_1
+//                emxArray_b_struct_T *b
+// Return Type  : void
+//
 static void repmat(const b_struct_T a, double varargin_1, emxArray_b_struct_T *b)
 {
   int i13;
@@ -4725,10 +4635,10 @@ static void repmat(const b_struct_T a, double varargin_1, emxArray_b_struct_T *b
   }
 }
 
-/*
- * Arguments    : double u
- * Return Type  : double
- */
+//
+// Arguments    : double u
+// Return Type  : double
+//
 static double rt_roundd_snf(double u)
 {
   double y;
@@ -4747,20 +4657,20 @@ static double rt_roundd_snf(double u)
   return y;
 }
 
-/*
- * Arguments    : float u
- * Return Type  : float
- */
+//
+// Arguments    : float u
+// Return Type  : float
+//
 static float rt_roundf_snf(float u)
 {
   float y;
-  if ((real32_T)fabs(u) < 8.388608E+6F) {
+  if ((real32_T)fabs((real_T)u) < 8.388608E+6F) {
     if (u >= 0.5F) {
-      y = (real32_T)floor(u + 0.5F);
+      y = (real32_T)floor((real_T)(u + 0.5F));
     } else if (u > -0.5F) {
       y = u * 0.0F;
     } else {
-      y = (real32_T)ceil(u - 0.5F);
+      y = (real32_T)ceil((real_T)(u - 0.5F));
     }
   } else {
     y = u;
@@ -4769,28 +4679,28 @@ static float rt_roundf_snf(float u)
   return y;
 }
 
-/*
- * STEREOMATCHING finds correspondences in the left image given points in the
- * right image. Steoro images should be rectified first.
- *  pointsR Nx2 Array
- *  minDisp Nx1 Array
- *  maxDisp Nx1 Array
- *  shift scalar
- * % parse parameters
- * Arguments    : const unsigned char imgR[332672]
- *                const unsigned char imgL[332672]
- *                const double pointsR_data[]
- *                const int pointsR_size[2]
- *                double minDisp_data[]
- *                int minDisp_size[1]
- *                double maxDisp_data[]
- *                int maxDisp_size[1]
- *                double pointsL_data[]
- *                int pointsL_size[2]
- *                boolean_T status_data[]
- *                int status_size[1]
- * Return Type  : void
- */
+//
+// STEREOMATCHING finds correspondences in the left image given points in the
+// right image. Steoro images should be rectified first.
+//  pointsR Nx2 Array
+//  minDisp Nx1 Array
+//  maxDisp Nx1 Array
+//  shift scalar
+// % parse parameters
+// Arguments    : const unsigned char imgR[332672]
+//                const unsigned char imgL[332672]
+//                const double pointsR_data[]
+//                const int pointsR_size[2]
+//                double minDisp_data[]
+//                int minDisp_size[1]
+//                double maxDisp_data[]
+//                int maxDisp_size[1]
+//                double pointsL_data[]
+//                int pointsL_size[2]
+//                boolean_T status_data[]
+//                int status_size[1]
+// Return Type  : void
+//
 static void stereoRight2Left(const unsigned char imgR[332672], const unsigned
   char imgL[332672], const double pointsR_data[], const int pointsR_size[2],
   double minDisp_data[], int minDisp_size[1], double maxDisp_data[], int
@@ -4802,7 +4712,7 @@ static void stereoRight2Left(const unsigned char imgR[332672], const unsigned
   int i6;
   int outsize_idx_0;
   int counter;
-  emxArray_real_T *template;
+  emxArray_real_T *b_template;
   emxArray_real_T *roi;
   emxArray_real_T *ssd;
   emxArray_real_T *a;
@@ -4834,11 +4744,11 @@ static void stereoRight2Left(const unsigned char imgR[332672], const unsigned
     b_imgL[i6] = (double)imgL[i6] / 255.0;
   }
 
-  /*  default values */
+  //  default values
   b_round(maxDisp_data, maxDisp_size);
   b_round(minDisp_data, minDisp_size);
 
-  /* % preset output */
+  // % preset output
   status_size[0] = pointsR_size[0];
   outsize_idx_0 = pointsR_size[0];
   for (i6 = 0; i6 < outsize_idx_0; i6++) {
@@ -4852,14 +4762,14 @@ static void stereoRight2Left(const unsigned char imgR[332672], const unsigned
     pointsL_data[i6] = pointsR_data[i6];
   }
 
-  /* % Matching by convolving along a stripe around epipolar line */
-  /*  extract template around points then extract stripe in other image around */
-  /*  epipolar line */
-  /*  template = zeros(winSize*2+1,winSize*2+1); */
-  /*  roi = zeros(2*(shift+winSize)+1,2*winSize+maxDisp-minDisp+1); */
-  /*  match = repmat(struct('template',template,'roi',roi),numPoints,1); */
+  // % Matching by convolving along a stripe around epipolar line
+  //  extract template around points then extract stripe in other image around
+  //  epipolar line
+  //  template = zeros(winSize*2+1,winSize*2+1);
+  //  roi = zeros(2*(shift+winSize)+1,2*winSize+maxDisp-minDisp+1);
+  //  match = repmat(struct('template',template,'roi',roi),numPoints,1);
   counter = 0;
-  b_emxInit_real_T(&template, 2);
+  b_emxInit_real_T(&b_template, 2);
   b_emxInit_real_T(&roi, 2);
   b_emxInit_real_T(&ssd, 2);
   emxInit_real_T(&a, 1);
@@ -4889,7 +4799,7 @@ static void stereoRight2Left(const unsigned char imgR[332672], const unsigned
       i9 = (int)boundT[3] + 1;
     }
 
-    /* mxn */
+    // mxn
     b[0] = (posy - 1.0) - 2.0;
     b[1] = (posy + 1.0) + 2.0;
     b[2] = (posx + minDisp_data[counter]) - 2.0;
@@ -4899,22 +4809,22 @@ static void stereoRight2Left(const unsigned char imgR[332672], const unsigned
     }
 
     if ((posy - 1.0) - 2.0 <= 0.0) {
-      /* top */
+      // top
       boundR[0] = 1.0;
     }
 
     if ((posy + 1.0) + 2.0 > 452.0) {
-      /* bottom */
+      // bottom
       boundR[1] = 452.0;
     }
 
     if (b[2] <= 0.0) {
-      /* left */
+      // left
       boundR[2] = 1.0;
     }
 
     if (b[3] > 736.0) {
-      /* right */
+      // right
       boundR[3] = 736.0;
     }
 
@@ -4934,10 +4844,10 @@ static void stereoRight2Left(const unsigned char imgR[332672], const unsigned
       ixstart = (int)boundR[3];
     }
 
-    /* mmxnn */
+    // mmxnn
     m = (boundT[1] - boundT[0]) + 1.0;
 
-    /*  vectorize */
+    //  vectorize
     k = c_imgL->size[0] * c_imgL->size[1];
     c_imgL->size[0] = nrows - i10;
     c_imgL->size[1] = ixstart - ix;
@@ -4978,10 +4888,10 @@ static void stereoRight2Left(const unsigned char imgR[332672], const unsigned
     outsize_idx_0 = (i7 - i6) * (i9 - i8);
     ix = roi->size[1];
     nrows = roi->size[1];
-    i10 = template->size[0] * template->size[1];
-    template->size[0] = outsize_idx_0;
-    template->size[1] = nrows;
-    emxEnsureCapacity((emxArray__common *)template, i10, (int)sizeof(double));
+    i10 = b_template->size[0] * b_template->size[1];
+    b_template->size[0] = outsize_idx_0;
+    b_template->size[1] = nrows;
+    emxEnsureCapacity((emxArray__common *)b_template, i10, (int)sizeof(double));
     if (!(a->size[0] == 0)) {
       if (outsize_idx_0 == 0) {
         p = true;
@@ -5000,7 +4910,7 @@ static void stereoRight2Left(const unsigned char imgR[332672], const unsigned
           if (ixstart <= ix) {
             outsize_idx_0 = (ixstart - 1) * nrows;
             for (k = 1; k <= nrows; k++) {
-              template->data[(outsize_idx_0 + k) - 1] = a->data[k - 1];
+              b_template->data[(outsize_idx_0 + k) - 1] = a->data[k - 1];
             }
 
             ixstart++;
@@ -5011,23 +4921,23 @@ static void stereoRight2Left(const unsigned char imgR[332672], const unsigned
       }
     }
 
-    /*  if roi is smaller than template block set track failure */
+    //  if roi is smaller than template block set track failure
     if ((roi->size[0] == 0) || (roi->size[1] == 0)) {
       status_data[counter] = false;
     } else {
-      /*  SSD */
-      i10 = template->size[0] * template->size[1];
-      emxEnsureCapacity((emxArray__common *)template, i10, (int)sizeof(double));
-      outsize_idx_0 = template->size[0];
-      nrows = template->size[1];
+      //  SSD
+      i10 = b_template->size[0] * b_template->size[1];
+      emxEnsureCapacity((emxArray__common *)b_template, i10, (int)sizeof(double));
+      outsize_idx_0 = b_template->size[0];
+      nrows = b_template->size[1];
       outsize_idx_0 *= nrows;
       for (i10 = 0; i10 < outsize_idx_0; i10++) {
-        template->data[i10] = (template->data[i10] - roi->data[i10]) *
-          (template->data[i10] - roi->data[i10]);
+        b_template->data[i10] = (b_template->data[i10] - roi->data[i10]) *
+          (b_template->data[i10] - roi->data[i10]);
       }
 
       for (i10 = 0; i10 < 2; i10++) {
-        sz[i10] = template->size[i10];
+        sz[i10] = b_template->size[i10];
       }
 
       i10 = ssd->size[0] * ssd->size[1];
@@ -5036,13 +4946,13 @@ static void stereoRight2Left(const unsigned char imgR[332672], const unsigned
       emxEnsureCapacity((emxArray__common *)ssd, i10, (int)sizeof(double));
       ix = -1;
       outsize_idx_0 = -1;
-      for (nrows = 1; nrows <= template->size[1]; nrows++) {
+      for (nrows = 1; nrows <= b_template->size[1]; nrows++) {
         ixstart = ix + 1;
         ix++;
-        s = template->data[ixstart];
-        for (k = 2; k <= template->size[0]; k++) {
+        s = b_template->data[ixstart];
+        for (k = 2; k <= b_template->size[0]; k++) {
           ix++;
-          s += template->data[ix];
+          s += b_template->data[ix];
         }
 
         outsize_idx_0++;
@@ -5081,7 +4991,7 @@ static void stereoRight2Left(const unsigned char imgR[332672], const unsigned
         }
       }
 
-      /*  failure if error larger than threshold */
+      //  failure if error larger than threshold
       if (s / (double)((i7 - i6) * (i9 - i8)) > 0.1) {
         status_data[counter] = false;
       } else {
@@ -5104,14 +5014,14 @@ static void stereoRight2Left(const unsigned char imgR[332672], const unsigned
   emxFree_real_T(&a);
   emxFree_real_T(&ssd);
   emxFree_real_T(&roi);
-  emxFree_real_T(&template);
+  emxFree_real_T(&b_template);
 }
 
-/*
- * Arguments    : const signed char x_data[]
- *                const int x_size[1]
- * Return Type  : double
- */
+//
+// Arguments    : const signed char x_data[]
+//                const int x_size[1]
+// Return Type  : double
+//
 static double sum(const signed char x_data[], const int x_size[1])
 {
   double y;
@@ -5128,40 +5038,40 @@ static double sum(const signed char x_data[], const int x_size[1])
   return y;
 }
 
-/*
- * POINTEXTRACTION extracts feature points from stereo images
- *  ImGrayR_r rectified right stereo image
- *  ImGrayR_l rectified left stereo image
- *  updateVect Nx1 array showing the status of points
- *  numAnchors scalar number of anchors
- *  binx number of bins in x direction (horizontal)
- *  binx number of bins in y direction (vertical)
- *  border width of border where a feature is considered invalid
- *  minDistance quaosi distance of between features in one grid
- *  h_u_apo estimated point location in the right image
- * Arguments    : const unsigned char ImGrayR_r[332672]
- *                const unsigned char ImGrayR_l[332672]
- *                double updateVect[32]
- *                double numAnchors
- *                double binx
- *                double biny
- *                double border
- *                double minDistance
- *                boolean_T useInitGuess
- *                const double h_u_apo_data[]
- *                const int h_u_apo_size[1]
- *                double pts_r_arr[64]
- *                double pts_l_arr[64]
- *                double useDisparity[32]
- *                double z_all[96]
- * Return Type  : void
- */
+//
+// POINTEXTRACTION extracts feature points from stereo images
+//  ImGrayR_r rectified right stereo image
+//  ImGrayR_l rectified left stereo image
+//  updateVect Nx1 array showing the status of points
+//  numAnchors scalar number of anchors
+//  binx number of bins in x direction (horizontal)
+//  binx number of bins in y direction (vertical)
+//  border width of border where a feature is considered invalid
+//  minDistance quaosi distance of between features in one grid
+//  h_u_apo estimated point location in the right image
+// Arguments    : const unsigned char ImGrayR_r[332672]
+//                const unsigned char ImGrayR_l[332672]
+//                double updateVect[32]
+//                double numAnchors
+//                double binx
+//                double biny
+//                double border
+//                double minDistance
+//                boolean_T useInitGuess
+//                const double h_u_apo_data[]
+//                const int h_u_apo_size[1]
+//                double pts_r_arr[64]
+//                double pts_l_arr[64]
+//                double useDisparity[32]
+//                double z_all[96]
+// Return Type  : void
+//
 void pointextraction(const unsigned char ImGrayR_r[332672], const unsigned char
                      ImGrayR_l[332672], double updateVect[32], double numAnchors,
                      double binx, double biny, double border, double minDistance,
-                     boolean_T useInitGuess, const double h_u_apo_data[], const
-                     int h_u_apo_size[1], double pts_r_arr[64], double
-                     pts_l_arr[64], double useDisparity[32], double z_all[96])
+                     boolean_T, const double [], const int [1], double
+                     pts_r_arr[64], double pts_l_arr[64], double useDisparity[32],
+                     double z_all[96])
 {
   double flag;
   double threshold;
@@ -5201,20 +5111,17 @@ void pointextraction(const unsigned char ImGrayR_r[332672], const unsigned char
   double dispVect[64];
   boolean_T exitg1;
   boolean_T guard1 = false;
-  (void)useInitGuess;
-  (void)h_u_apo_data;
-  (void)h_u_apo_size;
 
-  /* % compute initial feature */
-  /*  get anchor pose and estimated feature depth to compute initial feature */
-  /*  location */
-  /* % initialization */
+  // % compute initial feature
+  //  get anchor pose and estimated feature depth to compute initial feature
+  //  location
+  // % initialization
   if (!initialized_not_empty) {
     initialized_not_empty = true;
     memset(&prevPoints[0], 0, sizeof(double) << 6);
     memset(&prevDisp[0], 0, sizeof(double) << 5);
 
-    /*  initialize features in the right image */
+    //  initialize features in the right image
     initFeatures(ImGrayR_r, border, binx, biny, minDistance, prevPoints,
                  updateVect_r, &threshold, &flag);
     idx = 0;
@@ -5255,7 +5162,7 @@ void pointextraction(const unsigned char ImGrayR_r[332672], const unsigned char
       active_idx_data[i] = (signed char)ii_data[i];
     }
 
-    /*  find correspondences in the left image */
+    //  find correspondences in the left image
     memset(&b_pts_l_arr[0], 0, sizeof(double) << 6);
     tmp_size[0] = trueCount;
     tmp_size[1] = 2;
@@ -5307,8 +5214,8 @@ void pointextraction(const unsigned char ImGrayR_r[332672], const unsigned char
       }
     }
 
-    /*  reset features in right image if no correspondances are found in the */
-    /*  left image */
+    //  reset features in right image if no correspondances are found in the
+    //  left image
     idx = status_r_l_size[0] - 1;
     trueCount = 0;
     for (i = 0; i <= idx; i++) {
@@ -5351,7 +5258,7 @@ void pointextraction(const unsigned char ImGrayR_r[332672], const unsigned char
       updateVect[active_idx_data[ii_data[i] - 1] - 1] = 2.0;
     }
 
-    /*  initialized KLT tracker */
+    //  initialized KLT tracker
     PointTracker_PointTracker(&pointTracker);
     idx = status_r_l_size[0] - 1;
     trueCount = 0;
@@ -5380,9 +5287,9 @@ void pointextraction(const unsigned char ImGrayR_r[332672], const unsigned char
 
     PointTracker_initialize(&pointTracker, tmp_data, b_tmp_size, ImGrayR_r);
 
-    /* % tracking and refill */
+    // % tracking and refill
   } else {
-    /*  set to track current visible points in right image for next iteration */
+    //  set to track current visible points in right image for next iteration
     trueCount = 0;
     for (i = 0; i < 32; i++) {
       if (updateVect[i] > 0.0) {
@@ -5408,7 +5315,7 @@ void pointextraction(const unsigned char ImGrayR_r[332672], const unsigned char
 
     PointTracker_setPoints(&pointTracker, tmp_data, tmp_size);
 
-    /*  indices of points that are to be tracked */
+    //  indices of points that are to be tracked
     idx = 0;
     ii = 1;
     exitg3 = false;
@@ -5445,7 +5352,7 @@ void pointextraction(const unsigned char ImGrayR_r[332672], const unsigned char
     emxInit_real32_T(&b_pts_r_arr_tmp, 2);
     b_emxInit_boolean_T(&b_trackStatus, 1);
 
-    /*  KLT Tracker tracks active points */
+    //  KLT Tracker tracks active points
     SystemCore_step(&pointTracker, ImGrayR_r, b_pts_r_arr_tmp, b_trackStatus);
     i = trackStatus->size[0];
     trackStatus->size[0] = b_trackStatus->size[0];
@@ -5458,7 +5365,7 @@ void pointextraction(const unsigned char ImGrayR_r[332672], const unsigned char
     emxFree_boolean_T(&b_trackStatus);
     b_emxInit_boolean_T(&r5, 1);
 
-    /*  deactivate points too close to the border */
+    //  deactivate points too close to the border
     ii = b_pts_r_arr_tmp->size[0];
     i = r5->size[0];
     r5->size[0] = ii;
@@ -5491,7 +5398,7 @@ void pointextraction(const unsigned char ImGrayR_r[332672], const unsigned char
     emxFree_boolean_T(&r5);
     emxInit_int32_T(&r7, 1);
 
-    /*  save to pts_r_arr and updateVect */
+    //  save to pts_r_arr and updateVect
     idx = trackStatus->size[0] - 1;
     trueCount = 0;
     for (i = 0; i <= idx; i++) {
@@ -5563,7 +5470,7 @@ void pointextraction(const unsigned char ImGrayR_r[332672], const unsigned char
     emxFree_real_T(&pts_r_arr_tmp);
     emxFree_int32_T(&r7);
 
-    /*  fill feature vector */
+    //  fill feature vector
     refillFeature(ImGrayR_r, prevPoints, updateVect, numAnchors, binx, biny,
                   border, minDistance);
     idx = 0;
@@ -5604,9 +5511,9 @@ void pointextraction(const unsigned char ImGrayR_r[332672], const unsigned char
       active_idx_data[i] = (signed char)ii_data[i];
     }
 
-    /*  indices of newly initialized features relative in active_idx */
-    /*  use last disparity to limit search window (but do not use newly */
-    /*  initialized ones) */
+    //  indices of newly initialized features relative in active_idx
+    //  use last disparity to limit search window (but do not use newly
+    //  initialized ones)
     maxDisp_size[0] = trueCount;
     for (i = 0; i < trueCount; i++) {
       maxDisp_data[i] = prevDisp[active_idx_data[i] - 1] + 6.0;
@@ -5629,7 +5536,7 @@ void pointextraction(const unsigned char ImGrayR_r[332672], const unsigned char
       }
     }
 
-    /*  find correspondences in the left image */
+    //  find correspondences in the left image
     memset(&b_pts_l_arr[0], 0, sizeof(double) << 6);
     b_tmp_size[0] = trueCount;
     b_tmp_size[1] = 2;
@@ -5687,8 +5594,8 @@ void pointextraction(const unsigned char ImGrayR_r[332672], const unsigned char
       updateVect[active_idx_data[ii_data[i] - 1] - 1] = 0.0;
     }
 
-    /*  reset features in right image if no correspondances are found in the */
-    /*  left image */
+    //  reset features in right image if no correspondances are found in the
+    //  left image
     trueCount = 0;
     for (i = 0; i < 32; i++) {
       if (updateVect[i] == 0.0) {
@@ -5711,8 +5618,8 @@ void pointextraction(const unsigned char ImGrayR_r[332672], const unsigned char
     }
   }
 
-  /* % Disparity check and output */
-  /*  compute the disparity Vector (should be only x component because images are rectified) */
+  // % Disparity check and output
+  //  compute the disparity Vector (should be only x component because images are rectified) 
   for (i = 0; i < 64; i++) {
     dispVect[i] = b_pts_l_arr[i] - prevPoints[i];
   }
@@ -5758,35 +5665,35 @@ void pointextraction(const unsigned char ImGrayR_r[332672], const unsigned char
   memset(&useDisparity[0], 0, sizeof(double) << 5);
   memset(&z_all[0], 0, 96U * sizeof(double));
   for (ii = 0; ii < trueCount; ii++) {
-    /*  x coordinates in pixels */
-    /*  y coordinates in pixels */
+    //  x coordinates in pixels
+    //  y coordinates in pixels
     z_all[3 * active_idx_data[ii] - 3] = prevPoints[active_idx_data[ii] - 1];
 
-    /*  fill in the pixel measurements from the left? */
+    //  fill in the pixel measurements from the left?
     z_all[3 * active_idx_data[ii] - 2] = prevPoints[active_idx_data[ii] + 31];
 
-    /*  make a second outlier rejecton based on the dispairty (disparity */
-    /*  should be disp=[d,0] because images are rectified */
+    //  make a second outlier rejecton based on the dispairty (disparity
+    //  should be disp=[d,0] because images are rectified
     if ((dispVect[active_idx_data[ii] - 1] > 1.7759) && (fabs
          (dispVect[active_idx_data[ii] + 31]) < 5.0) &&
         (dispVect[active_idx_data[ii] - 1] < 100.0)) {
       z_all[3 * active_idx_data[ii] - 1] = dispVect[active_idx_data[ii] - 1];
 
-      /*  if valid use disparity */
+      //  if valid use disparity
       useDisparity[active_idx_data[ii] - 1] = 1.0;
 
-      /*  set use disparity vector to 1 */
+      //  set use disparity vector to 1
     } else {
       z_all[3 * active_idx_data[ii] - 1] = -100.0;
 
-      /*  else use dummy value */
+      //  else use dummy value
       useDisparity[active_idx_data[ii] - 1] = 0.0;
 
-      /*  set vect. to 0 */
+      //  set vect. to 0
     }
   }
 
-  /*  save for next loop */
+  //  save for next loop
   for (i = 0; i < 32; i++) {
     prevDisp[i] = dispVect[i];
     for (idx = 0; idx < 2; idx++) {
@@ -5796,27 +5703,27 @@ void pointextraction(const unsigned char ImGrayR_r[332672], const unsigned char
   }
 }
 
-/*
- * Arguments    : void
- * Return Type  : void
- */
-void pointextraction_initialize(void)
+//
+// Arguments    : void
+// Return Type  : void
+//
+void pointextraction_initialize()
 {
   rt_InitInfAndNaN(8U);
   initialized_not_empty = false;
 }
 
-/*
- * Arguments    : void
- * Return Type  : void
- */
-void pointextraction_terminate(void)
+//
+// Arguments    : void
+// Return Type  : void
+//
+void pointextraction_terminate()
 {
-  /* (no terminate code required) */
+  // (no terminate code required)
 }
 
-/*
- * File trailer for pointextraction.c
- *
- * [EOF]
- */
+//
+// File trailer for pointextraction.cpp
+//
+// [EOF]
+//
