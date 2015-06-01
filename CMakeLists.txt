@@ -15,6 +15,8 @@ find_package(
   cv_bridge
 )
 
+find_library(POINTEXTRACTION_LIBRARY pointextraction.a src/codegen_pointextraction/ )
+
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
 
@@ -99,7 +101,7 @@ catkin_package(
 ## Your package locations should be listed before other locations
 # include_directories(include)
 
-include_directories(src/codegen_SLAM/ )
+include_directories(src/codegen_SLAM/ src/codegen_pointextraction/ )
 
 ## Declare a cpp library
 # add_library(vio_ros
@@ -119,7 +121,7 @@ add_executable(vio_ros_node
 
 ## Specify libraries to link a library or executable target against
 target_link_libraries(vio_ros_node
-  ${catkin_LIBRARIES}
+  ${catkin_LIBRARIES} ${POINTEXTRACTION_LIBRARY}
 )
 
 #############
