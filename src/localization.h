@@ -14,6 +14,8 @@
 
 #include <opencv2/opencv.hpp>
 
+#include "SLAM.h"
+
 class Localization
 {
 public:
@@ -42,6 +44,7 @@ private:
   double im_noise[3] = {0};
   int num_points_per_anchor;
   int num_anchors;
+  emxArray_real_T *h_u_apo_;
 
   void synchronized_callback(const sensor_msgs::ImageConstPtr& left_image,
       const sensor_msgs::ImageConstPtr& right_image,

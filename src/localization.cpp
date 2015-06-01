@@ -1,6 +1,8 @@
 #include "localization.h"
 #include "SLAM.h"
 
+#include "pointextraction.h"
+
 #include <geometry_msgs/PoseStamped.h>
 #include <cv_bridge/cv_bridge.h>
 
@@ -14,6 +16,9 @@ Localization::Localization()
     update_vec_{0}
 {
   SLAM_initialize();
+  pointextraction_initialize();
+  emxInitArray_real_T(&h_u_apo_,1);
+
   pose_pub_ = nh_.advertise<geometry_msgs::PoseStamped>("/pose",1);
   time_synchronizer_.registerCallback(boost::bind(&Localization::synchronized_callback,
         this, _1, _2, _3));
@@ -37,7 +42,9 @@ Localization::Localization()
 
 Localization::~Localization()
 {
+  emxDestroyArray_real_T(h_u_apo_);
   SLAM_terminate();
+  pointextraction_terminate();
 }
 
 void Localization::synchronized_callback(const sensor_msgs::ImageConstPtr& left_image,
@@ -98,18 +105,41 @@ void Localization::update(const cv::Mat& left_image, const cv::Mat& right_image,
   prev_time_ = current;
 
   // TODO Insert point tracker here
-  double z_all[96] = {0};
+  double bin_x_ = 4;
+  double bin_y_ = 4;
+  double border_ = 10;
+  double min_distance_ = 12;
+  int h_u_apo_size = num_anchors * 3;
+  double z_all[num_anchors * 3];
+  double use_disparity[32];
+  double pts_l_arr[64];
+  double pts_r_arr[64];
+
+  std::vector<unsigned char>left_image_vector;
+  std::vector<unsigned char>right_image_vector;
+  left_image_vector.assign(left_image.datastart, left_image.dataend);
+  left_image_vector.assign(right_image.datastart, right_image.dataend);
+  
+  double h_u_apo_data[num_anchors * 3];
+  
+  pointextraction(&right_image_vector[0], &left_image_vector[0], update_vec_, num_anchors, bin_x_, bin_y_, border_, min_distance_, false,
+      h_u_apo_data, &h_u_apo_size, pts_r_arr, pts_l_arr, use_disparity, z_all);
+
+  h_u_apo_->data = h_u_apo_data;
+  *h_u_apo_->size = h_u_apo_size;
+  
+  //*********************************************************************
+  // SLAM
+  //*********************************************************************
 
   std::vector<double> inertial(9,0.0);
   get_inertial_vector(imu,mag,inertial);
 
-  emxArray_real_T *h_u_apo;
   emxArray_real_T *xt_out; // result
   emxArray_real_T *anchor_u_out;
   emxArray_real_T *anchor_pose_out;
   emxArray_real_T *P_apo;
 
-  emxInitArray_real_T(&h_u_apo,1);
   emxInitArray_real_T(&xt_out,1);
   emxInitArray_real_T(&anchor_u_out,1);
   emxInitArray_real_T(&anchor_pose_out,1);
@@ -117,7 +147,7 @@ void Localization::update(const cv::Mat& left_image, const cv::Mat& right_image,
 
   // Update SLAM and get pose estimation
   SLAM(update_vec_, z_all, camera_params, dt, process_noise, &inertial[0], im_noise, num_points_per_anchor, num_anchors,
-      h_u_apo, xt_out, update_vec_, anchor_u_out, anchor_pose_out, P_apo);
+      h_u_apo_, xt_out, update_vec_, anchor_u_out, anchor_pose_out, P_apo);
 
   // Set the pose
   pose.position.x = xt_out->data[0];
@@ -131,7 +161,6 @@ void Localization::update(const cv::Mat& left_image, const cv::Mat& right_image,
 
   // TODO Make velocities ex_out[7] .. ex_out[12] available as ROS message
 
-  emxDestroyArray_real_T(h_u_apo);
   emxDestroyArray_real_T(xt_out);
   emxDestroyArray_real_T(anchor_u_out);
   emxDestroyArray_real_T(anchor_pose_out);
