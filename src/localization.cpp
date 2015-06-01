@@ -107,15 +107,17 @@ void Localization::update(const cv::Mat& left_image, const cv::Mat& right_image,
   emxArray_real_T *xt_out; // result
   emxArray_real_T *anchor_u_out;
   emxArray_real_T *anchor_pose_out;
+  emxArray_real_T *P_apo;
 
   emxInitArray_real_T(&h_u_apo,1);
   emxInitArray_real_T(&xt_out,1);
   emxInitArray_real_T(&anchor_u_out,1);
   emxInitArray_real_T(&anchor_pose_out,1);
+  emxInitArray_real_T(&P_apo,1);
 
   // Update SLAM and get pose estimation
   SLAM(update_vec_, z_all, camera_params, dt, process_noise, &inertial[0], im_noise, num_points_per_anchor, num_anchors,
-      h_u_apo, xt_out, update_vec_, anchor_u_out, anchor_pose_out);
+      h_u_apo, xt_out, update_vec_, anchor_u_out, anchor_pose_out, P_apo);
 
   // Set the pose
   pose.position.x = xt_out->data[0];
@@ -133,6 +135,7 @@ void Localization::update(const cv::Mat& left_image, const cv::Mat& right_image,
   emxDestroyArray_real_T(xt_out);
   emxDestroyArray_real_T(anchor_u_out);
   emxDestroyArray_real_T(anchor_pose_out);
+  emxDestroyArray_real_T(P_apo);
 
 }
 
