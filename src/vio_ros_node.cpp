@@ -5,8 +5,8 @@
 int main(int argc, char *argv[])
 {
   ros::init(argc, argv, "vio_ros_node");
-
-  Localization estimation;
+  
+  Localization estimation();
 
   ros::spin();
   return 0;
