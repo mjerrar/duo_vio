@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 2.8.3)
 project(vio_ros)
 
 set(CMAKE_CXX_FLAGS "-std=c++0x ${CMAKE_CXX_FLAGS}")
+set(CMAKE_BUILD_TYPE Debug)
 
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
@@ -14,8 +15,6 @@ find_package(
   tf
   cv_bridge
 )
-
-find_library(POINTEXTRACTION_LIBRARY pointextraction.a src/codegen_pointextraction/ )
 
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
@@ -101,7 +100,7 @@ catkin_package(
 ## Your package locations should be listed before other locations
 # include_directories(include)
 
-include_directories(src/codegen_SLAM/ src/codegen_pointextraction/ )
+include_directories(src/codegen_SLAM/)
 
 ## Declare a cpp library
 # add_library(vio_ros
@@ -112,6 +111,7 @@ include_directories(src/codegen_SLAM/ src/codegen_pointextraction/ )
 add_executable(vio_ros_node
   src/vio_ros_node.cpp
   src/localization.cpp
+  src/klt_point_handling.cc
   src/codegen_SLAM/SLAM.cpp
 )
 
@@ -121,7 +121,7 @@ add_executable(vio_ros_node
 
 ## Specify libraries to link a library or executable target against
 target_link_libraries(vio_ros_node
-  ${catkin_LIBRARIES} ${POINTEXTRACTION_LIBRARY}
+  ${catkin_LIBRARIES}
 )
 
 #############

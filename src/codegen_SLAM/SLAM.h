@@ -5,7 +5,7 @@
 // File: SLAM.h
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 01-Jun-2015 13:22:06
+// C/C++ source code generated on  : 19-May-2015 18:39:23
 //
 #ifndef __SLAM_H__
 #define __SLAM_H__
@@ -24,8 +24,7 @@ extern void SLAM(const double updateVect[32], const double z_all[96], const
                  const double IMU_measurements[9], const double imNoise[3],
                  double numPointsPerAnchor, double numAnchors, emxArray_real_T
                  *h_u_apo, emxArray_real_T *xt_out, double updateVect_out[32],
-                 emxArray_real_T *anchor_u_out, emxArray_real_T *anchor_pose_out,
-                 emxArray_real_T *P_apo_out);
+                 emxArray_real_T *anchor_u_out, emxArray_real_T *anchor_pose_out);
 extern void SLAM_initialize();
 extern void SLAM_terminate();
 extern emxArray_real_T *emxCreateND_real_T(int numDimensions, int *size);

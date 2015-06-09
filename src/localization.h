@@ -16,6 +16,8 @@
 
 #include "SLAM.h"
 
+#include <vector>
+
 class Localization
 {
 public:
@@ -36,12 +38,12 @@ private:
   tf::TransformBroadcaster tf_broadcaster_;
 
   ros::Time prev_time_;
-  double update_vec_[32];
+  std::vector<double> update_vec_;
 
   // TODO Init subsequent parameters
-  double camera_params[4] = {0}; //f,Cx,Cy,baseline
-  double process_noise[4] = {0}; //qv,qw,qwo,qao
-  double im_noise[3] = {0};
+  std::vector<double> process_noise_; //qv,qw,qwo,qao
+  std::vector<double> im_noise_;
+  std::vector<double> camera_params_; //f,Cx,Cy,baseline
   int num_points_per_anchor;
   int num_anchors;
   emxArray_real_T *h_u_apo_;
