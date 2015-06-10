@@ -26,21 +26,21 @@ Localization::Localization()
 
   // Init parameters
   // TODO Check default values and give meaningful names
+  nh_.param<bool>("show_tracker_images", show_tracker_images_, false);
+
   nh_.param<double>("process_noise_1", process_noise_[0], 10.0);
   nh_.param<double>("process_noise_2", process_noise_[1], 10.0);
   nh_.param<double>("process_noise_3", process_noise_[2], 0.0);
   nh_.param<double>("process_noise_4", process_noise_[3], 0.0);
 
-
   nh_.param<double>("im_noise_1", im_noise_[0], 10.0);
   nh_.param<double>("im_noise_2", im_noise_[1], 10.0);
   nh_.param<double>("im_noise_3", im_noise_[2], 10.0);
 
+  nh_.param<int>("num_points_per_anchor", num_points_per_anchor_, 1);
+  nh_.param<int>("num_anchors", num_anchors_, 32);
 
-  nh_.param<int>("num_points_per_anchor", num_points_per_anchor, 1);
-  nh_.param<int>("num_anchors", num_anchors, 32);
-
-  update_vec_.assign(num_anchors,0.0);
+  update_vec_.assign(num_anchors_,0.0);
 }
 
 Localization::~Localization()
@@ -105,12 +105,20 @@ void Localization::update(const cv::Mat& left_image, const cv::Mat& right_image,
   double dt = (current - prev_time_).toSec();
   prev_time_ = current;
 
-  // TODO Insert point tracker here
-  double z_all[num_anchors * 3];
-  unsigned char update_vec_char[num_anchors];
-  handle_points_klt(left_image, right_image,num_anchors, z_all,update_vec_char);
+  //*********************************************************************
+  // Point tracking
+  //*********************************************************************
 
-  double update_vec_array[num_anchors];
+  double z_all[num_anchors_ * 3];
+  unsigned char update_vec_char[num_anchors_];
+  handle_points_klt(left_image,right_image,num_anchors_,z_all,update_vec_char);
+
+  if (show_tracker_images_)
+  {
+    display_tracks(left_image, right_image, z_all, update_vec_char);
+  }
+
+  double update_vec_array[num_anchors_];
   for (unsigned int i = 0; i < sizeof(update_vec_char); ++i)
   {
     update_vec_array[i] = update_vec_char[i];
@@ -133,9 +141,9 @@ void Localization::update(const cv::Mat& left_image, const cv::Mat& right_image,
 
   // Update SLAM and get pose estimation
   SLAM(update_vec_array, z_all, &camera_params_[0], dt, &process_noise_[0], &inertial[0], 
-      &im_noise_[0], num_points_per_anchor, num_anchors,
+      &im_noise_[0], num_points_per_anchor_, num_anchors_,
       h_u_apo_, xt_out, update_vec_array, anchor_u_out, anchor_pose_out);
-  update_vec_.assign(update_vec_array, update_vec_array + num_anchors);
+  update_vec_.assign(update_vec_array, update_vec_array + num_anchors_);
 
   // Set the pose
   pose.position.x = xt_out->data[0];
@@ -170,4 +178,39 @@ void Localization::get_inertial_vector(const sensor_msgs::Imu& imu, const sensor
   inertial_vec.at(6) = mag.magnetic_field.x;
   inertial_vec.at(7) = mag.magnetic_field.y;
   inertial_vec.at(8) = mag.magnetic_field.z;
+}
+
+void Localization::display_tracks(const cv::Mat& left_image, const cv::Mat& right_image,
+    double z_all[], unsigned char status[])
+{
+  cv::Mat left;
+  cv::cvtColor(left_image,left,cv::COLOR_GRAY2BGR);
+
+  cv::Mat right;
+  cv::cvtColor(right_image,right,cv::COLOR_GRAY2RGB);
+
+
+  for (int i = 0; i < num_anchors_; ++i)
+  {
+    if (status[i])
+    {
+      cv::Point left_point(z_all[3*i + 0] + z_all[3*i + 2], z_all[3*i+1]);
+      cv::Point right_point(z_all[3*i + 0],z_all[3*i+1]);
+      cv::Scalar color_left;
+      if (z_all[3*i + 2] > -100)
+      {
+        color_left = cv::Scalar(0,255,0);
+        cv::circle(right, left_point,1,cv::Scalar(0,255,0),2);
+        cv::line(left,left_point,right_point,color_left,1);
+      }
+      else
+      {
+        color_left = cv::Scalar(255,0,0);
+      }
+      cv::circle(left, right_point ,1,color_left,2);
+    }
+  }
+  cv::imshow("left image", left);
+  cv::imshow("right image", right);
+  cv::waitKey(10);
 }

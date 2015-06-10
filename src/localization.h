@@ -44,8 +44,9 @@ private:
   std::vector<double> process_noise_; //qv,qw,qwo,qao
   std::vector<double> im_noise_;
   std::vector<double> camera_params_; //f,Cx,Cy,baseline
-  int num_points_per_anchor;
-  int num_anchors;
+  int num_points_per_anchor_;
+  int num_anchors_;
+  bool show_tracker_images_;
   emxArray_real_T *h_u_apo_;
 
   void synchronized_callback(const sensor_msgs::ImageConstPtr& left_image,
@@ -56,6 +57,9 @@ private:
       const sensor_msgs::MagneticField& mag, geometry_msgs::Pose& pose);
 
   void get_inertial_vector(const sensor_msgs::Imu& imu, const sensor_msgs::MagneticField& mag, std::vector<double>& inertial_vec);
+
+  void display_tracks(const cv::Mat& left_image, const cv::Mat& right_image, double z_all[],
+      unsigned char status[]);
 };
 
 #endif /* _LOCALIZATION_H_ */
