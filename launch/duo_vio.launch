@@ -2,13 +2,13 @@
 
   <include file="$(find duo3d_ros)/launch/duo_proc.launch" />
 
-  <node name="vio_ros_node" pkg="vio_ros" type="vio_ros_node" output="screen" >
+  <node name="vio_ros_node" pkg="vio_ros" type="vio_ros_node" output="screen">
     <remap from="/imu" to="/duo3d_camera/cam_imu"/>
     <remap from="/left_image" to="/left/image_rect"/>
     <remap from="/right_image" to="/right/image_rect"/>
 
-    <param name="process_noise_1" type="double" value="10.0" />
-    <param name="process_noise_2" type="double" value="10.0" />
+    <param name="process_noise_1" type="double" value="1.0" />
+    <param name="process_noise_2" type="double" value="1.0" />
     <param name="process_noise_3" type="double" value="0.0" />
     <param name="process_noise_4" type="double" value="0.0" />
 
@@ -18,5 +18,8 @@
 
     <param name="num_points_per_anchor" type="int" value="1" />
     <param name="num_anchors" type="int" value="32" />
+
+    <param name="show_tracker_images" type="bool" value="0" />
+
   </node>
 </launch>

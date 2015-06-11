@@ -44,8 +44,8 @@ private:
   std::vector<double> process_noise_; //qv,qw,qwo,qao
   std::vector<double> im_noise_;
   std::vector<double> camera_params_; //f,Cx,Cy,baseline
-  int num_points_per_anchor_;
-  int num_anchors_;
+  unsigned int num_points_per_anchor_;
+  unsigned int num_anchors_;
   bool show_tracker_images_;
   emxArray_real_T *h_u_apo_;
 

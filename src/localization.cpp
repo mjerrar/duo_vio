@@ -37,8 +37,35 @@ Localization::Localization()
   nh_.param<double>("im_noise_2", im_noise_[1], 10.0);
   nh_.param<double>("im_noise_3", im_noise_[2], 10.0);
 
-  nh_.param<int>("num_points_per_anchor", num_points_per_anchor_, 1);
-  nh_.param<int>("num_anchors", num_anchors_, 32);
+  int num_points_per_anchor, num_anchors;
+  nh_.param<int>("num_points_per_anchor", num_points_per_anchor, 1);
+  nh_.param<int>("num_anchors", num_anchors, 32);
+
+  if (num_anchors < 0.0)
+  {
+    ROS_ERROR("Number of anchors may not be negative!");
+    nh_.shutdown();
+  }
+  else
+  {
+    num_anchors_ = static_cast<unsigned int>(num_anchors);
+  }
+
+  if (num_points_per_anchor < 0.0)
+  {
+    ROS_ERROR("Number of points per anchors may not be negative!");
+    nh_.shutdown();
+  }
+  else
+  {
+    num_points_per_anchor_ = static_cast<unsigned int>(num_points_per_anchor);
+  }
+
+  // TODO get parameter from file
+  camera_params_[0] = 3.839736774809138e+02;
+  camera_params_[1] = 3.052485794790584e+02;
+  camera_params_[2] = 3.052485794790584e+02;
+  camera_params_[3] = 0.029865896166552;
 
   update_vec_.assign(num_anchors_,0.0);
 }
@@ -112,7 +139,7 @@ void Localization::update(const cv::Mat& left_image, const cv::Mat& right_image,
   double z_all[num_anchors_ * 3];
   unsigned char update_vec_char[num_anchors_];
 
-  for (int i = 0; i < num_anchors_; ++i)
+  for (size_t i = 0; i < num_anchors_; ++i)
   {
     update_vec_char[i] = update_vec_[i];
   }
@@ -125,9 +152,13 @@ void Localization::update(const cv::Mat& left_image, const cv::Mat& right_image,
   }
 
   double update_vec_array[num_anchors_];
-  for (int i = 0; i < num_anchors_; ++i)
+  for (size_t i = 0; i < num_anchors_; ++i)
   {
     update_vec_array[i] = update_vec_char[i];
+    if(z_all[3*i] < 0)
+      ROS_ERROR("neg x: %f",z_all[3*i]);
+    if(z_all[3*i+1] < 0)
+      ROS_ERROR("neg y: %f",z_all[3*i+1]);
   }
   
   //*********************************************************************
@@ -196,7 +227,7 @@ void Localization::display_tracks(const cv::Mat& left_image, const cv::Mat& righ
   cv::cvtColor(right_image,right,cv::COLOR_GRAY2RGB);
 
 
-  for (int i = 0; i < num_anchors_; ++i)
+  for (unsigned int i = 0; i < num_anchors_; ++i)
   {
     if (status[i])
     {
