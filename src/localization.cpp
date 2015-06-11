@@ -111,6 +111,12 @@ void Localization::update(const cv::Mat& left_image, const cv::Mat& right_image,
 
   double z_all[num_anchors_ * 3];
   unsigned char update_vec_char[num_anchors_];
+
+  for (int i = 0; i < num_anchors_; ++i)
+  {
+    update_vec_char[i] = update_vec_[i];
+  }
+
   handle_points_klt(left_image,right_image,num_anchors_,z_all,update_vec_char);
 
   if (show_tracker_images_)
@@ -119,7 +125,7 @@ void Localization::update(const cv::Mat& left_image, const cv::Mat& right_image,
   }
 
   double update_vec_array[num_anchors_];
-  for (unsigned int i = 0; i < sizeof(update_vec_char); ++i)
+  for (int i = 0; i < num_anchors_; ++i)
   {
     update_vec_array[i] = update_vec_char[i];
   }
@@ -194,7 +200,7 @@ void Localization::display_tracks(const cv::Mat& left_image, const cv::Mat& righ
   {
     if (status[i])
     {
-      cv::Point left_point(z_all[3*i + 0] + z_all[3*i + 2], z_all[3*i+1]);
+      cv::Point left_point(z_all[3*i + 0] - z_all[3*i + 2], z_all[3*i+1]);
       cv::Point right_point(z_all[3*i + 0],z_all[3*i+1]);
       cv::Scalar color_left;
       if (z_all[3*i + 2] > -100)
@@ -205,7 +211,7 @@ void Localization::display_tracks(const cv::Mat& left_image, const cv::Mat& righ
       }
       else
       {
-        color_left = cv::Scalar(255,0,0);
+        color_left = cv::Scalar(0,0,255);
       }
       cv::circle(left, right_point ,1,color_left,2);
     }

@@ -28,6 +28,11 @@ void handle_points_klt(const cv::Mat &img_l, const cv::Mat &img_r, unsigned int 
   const unsigned int targetNumPoints = numPoints;
   const double minDistSqr = 10*10;
   const double minScore = 4;
+  
+  for (size_t i = 0; i < prev_status.size() && i <numPoints; ++i)
+  {
+    prev_status.at(i) = updateVect[i];
+  }
 
   //if we have a previous image we can do KLT tracking
   std::vector<unsigned char> status;
@@ -41,7 +46,7 @@ void handle_points_klt(const cv::Mat &img_l, const cv::Mat &img_r, unsigned int 
     if (!img_r.empty())
     {
       std::vector<unsigned char> statusRight;
-      cv::calcOpticalFlowPyrLK(img_l, img_r, cur_corners, cur_corners_right, statusRight, error, cv::Size(21,21), 5);
+      cv::calcOpticalFlowPyrLK(img_l, img_r, cur_corners, prev_corners_right, statusRight, error, cv::Size(21,21), 5);
 
       //update status for valid points (if tracking failed on any valid point invalidate them)
       for (size_t i = 0; i < prev_corners.size(); i++)
