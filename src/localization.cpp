@@ -15,7 +15,8 @@ Localization::Localization()
     prev_time_(ros::Time::now()),
     process_noise_(4,0.0),
     im_noise_(3,0.0),
-    camera_params_(4,0.0)
+    camera_params_(4,0.0),
+    camera_info_initialized_(false)
 {
   SLAM_initialize();
   emxInitArray_real_T(&h_u_apo_,1);
@@ -23,6 +24,8 @@ Localization::Localization()
   pose_pub_ = nh_.advertise<geometry_msgs::PoseStamped>("/pose",1);
   time_synchronizer_.registerCallback(boost::bind(&Localization::synchronized_callback,
         this, _1, _2, _3));
+  camera_info_sub_ = nh_.subscribe<sensor_msgs::CameraInfo>("/duo3d_camera/right/camera_info",1,
+      &Localization::camera_info_callback,this);
 
   // Init parameters
   // TODO Check default values and give meaningful names
@@ -61,12 +64,6 @@ Localization::Localization()
     num_points_per_anchor_ = static_cast<unsigned int>(num_points_per_anchor);
   }
 
-  // TODO get parameter from file
-  camera_params_[0] = 3.839736774809138e+02;
-  camera_params_[1] = 3.052485794790584e+02;
-  camera_params_[2] = 3.052485794790584e+02;
-  camera_params_[3] = 0.029865896166552;
-
   update_vec_.assign(num_anchors_,0.0);
 }
 
@@ -82,6 +79,12 @@ void Localization::synchronized_callback(const sensor_msgs::ImageConstPtr& left_
 {
 
   sensor_msgs::MagneticField mag; // TODO Subscribe to mag topic
+
+  if (!camera_info_initialized_)
+  {
+    ROS_ERROR("Camera info not initialized!");
+    return;
+  }
 
   cv_bridge::CvImagePtr cv_left_image;
   cv_bridge::CvImagePtr cv_right_image;
@@ -140,7 +143,9 @@ void Localization::update(const cv::Mat& left_image, const cv::Mat& right_image,
     update_vec_char[i] = update_vec_[i];
   }
 
+  ros::Time tic = ros::Time::now();
   handle_points_klt(left_image,right_image,num_anchors_,z_all,update_vec_char);
+  ROS_INFO("Time Tracking: %f", (ros::Time::now() - tic).toSec());
 
   if (show_tracker_images_)
   {
@@ -152,9 +157,9 @@ void Localization::update(const cv::Mat& left_image, const cv::Mat& right_image,
   {
     update_vec_array[i] = update_vec_char[i];
     if(z_all[3*i] < 0)
-      ROS_ERROR("neg x: %f",z_all[3*i]);
+      ROS_ERROR("Negative x: %f",z_all[3*i]);
     if(z_all[3*i+1] < 0)
-      ROS_ERROR("neg y: %f",z_all[3*i+1]);
+      ROS_ERROR("Negative y: %f",z_all[3*i+1]);
   }
   
   //*********************************************************************
@@ -175,20 +180,22 @@ void Localization::update(const cv::Mat& left_image, const cv::Mat& right_image,
   emxInitArray_real_T(&P_apo_out,2);
 
   // Update SLAM and get pose estimation
+  tic = ros::Time::now();
   SLAM(update_vec_array, z_all, &camera_params_[0], dt, &process_noise_[0], &inertial[0], 
       &im_noise_[0], num_points_per_anchor_, num_anchors_,
       h_u_apo_, xt_out, update_vec_array, anchor_u_out, anchor_pose_out, P_apo_out);
   update_vec_.assign(update_vec_array, update_vec_array + num_anchors_);
+  ROS_INFO("Time SLAM: %f", (ros::Time::now() - tic).toSec());
 
   // Set the pose
   pose.position.x = xt_out->data[0];
   pose.position.y = xt_out->data[1];
   pose.position.z = xt_out->data[2];
 
-  pose.orientation.x = xt_out->data[4];
-  pose.orientation.y = xt_out->data[5];
-  pose.orientation.z = xt_out->data[6];
-  pose.orientation.w = xt_out->data[3];
+  pose.orientation.x = xt_out->data[3];
+  pose.orientation.y = xt_out->data[4];
+  pose.orientation.z = xt_out->data[5];
+  pose.orientation.w = xt_out->data[6];
 
   // TODO Make velocities ex_out[7] .. ex_out[12] available as ROS message
 
@@ -197,6 +204,15 @@ void Localization::update(const cv::Mat& left_image, const cv::Mat& right_image,
   emxDestroyArray_real_T(anchor_pose_out);
   emxDestroyArray_real_T(P_apo_out);
 
+}
+
+void Localization::camera_info_callback(const sensor_msgs::CameraInfoConstPtr& info)
+{
+  camera_info_initialized_ = true;
+  camera_params_[0] = (info->K[0] + info->K[0]) / 2.0; // focal length
+  camera_params_[1] = info->K[2]; // Cx
+  camera_params_[2] = info->K[4]; // Cy
+  camera_params_[3] = -0.1 * info->P[3] / info->P[0]; // baseline
 }
 
 void Localization::get_inertial_vector(const sensor_msgs::Imu& imu, const sensor_msgs::MagneticField& mag, std::vector<double>& inertial_vec)
