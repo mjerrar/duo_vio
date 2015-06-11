@@ -114,12 +114,8 @@ void Localization::synchronized_callback(const sensor_msgs::ImageConstPtr& left_
   tf::Transform transform;
   transform.setOrigin(tf::Vector3(pose.position.x, pose.position.y, pose.position.z));
 
-  tf::Quaternion q(0,0,0,1);
-  // TODO Set quaternion from pose estimation
-  // q.setEuler(yaw, pitch, roll);
-  // q.setRPY(roll, pitch, yaw);
-  // q.setRotation(axis, angle)
-  transform.setRotation(q);
+  transform.setRotation(tf::Quaternion(pose.orientation.x,pose.orientation.y,
+      pose.orientation.z,pose.orientation.w));
 
   tf_broadcaster_.sendTransform(tf::StampedTransform(transform, pose_stamped.header.stamp, "map", "base"));
 }
