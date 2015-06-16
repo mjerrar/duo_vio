@@ -12,7 +12,6 @@ Localization::Localization()
     right_image_sub_(nh_, "/right_image", 1),
     imu_sub_(nh_, "/imu", 1),
     time_synchronizer_(left_image_sub_, right_image_sub_, imu_sub_, 10),
-    prev_time_(ros::Time::now()),
     process_noise_(4,0.0),
     im_noise_(3,0.0),
     camera_params_(4,0.0),
@@ -104,11 +103,20 @@ void Localization::synchronized_callback(const sensor_msgs::ImageConstPtr& left_
     return;
   }
 
+  // Init time on first call
+  if (prev_time_.isZero())
+  {
+    prev_time_ = left_image->header.stamp;
+  }
+  
+  double dt = (left_image->header.stamp - prev_time_).toSec();
+  prev_time_ = left_image->header.stamp;
+
   geometry_msgs::PoseStamped pose_stamped;
   geometry_msgs::Pose pose;
   pose_stamped.header.stamp = left_image->header.stamp;
 
-  update(cv_left_image->image, cv_right_image->image, *imu, mag, pose);
+  update(dt, cv_left_image->image, cv_right_image->image, *imu, mag, pose);
 
   pose_stamped.pose = pose;
   pose_pub_.publish(pose_stamped);
@@ -123,14 +131,9 @@ void Localization::synchronized_callback(const sensor_msgs::ImageConstPtr& left_
   tf_broadcaster_.sendTransform(tf::StampedTransform(transform, pose_stamped.header.stamp, "map", "base"));
 }
 
-void Localization::update(const cv::Mat& left_image, const cv::Mat& right_image, const sensor_msgs::Imu& imu, 
+void Localization::update(double dt, const cv::Mat& left_image, const cv::Mat& right_image, const sensor_msgs::Imu& imu, 
     const sensor_msgs::MagneticField& mag, geometry_msgs::Pose& pose)
 {
-  // Get time
-  ros::Time current = ros::Time::now();
-  double dt = (current - prev_time_).toSec();
-  prev_time_ = current;
-
   //*********************************************************************
   // Point tracking
   //*********************************************************************

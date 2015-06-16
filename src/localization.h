@@ -59,7 +59,7 @@ private:
 
   void camera_info_callback(const sensor_msgs::CameraInfoConstPtr& info);
 
-  void update(const cv::Mat& left_image, const cv::Mat& right_image, const sensor_msgs::Imu& imu, 
+  void update(double dt, const cv::Mat& left_image, const cv::Mat& right_image, const sensor_msgs::Imu& imu, 
       const sensor_msgs::MagneticField& mag, geometry_msgs::Pose& pose);
 
   void get_inertial_vector(const sensor_msgs::Imu& imu, const sensor_msgs::MagneticField& mag, std::vector<double>& inertial_vec);
