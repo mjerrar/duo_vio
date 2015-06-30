@@ -82,10 +82,10 @@ void handle_points_klt(const cv::Mat &img_l, const cv::Mat &img_r, unsigned int 
     double diffy = prev_corners[i].y - prev_corners_right[i].y;
     double disparity = sqrt(diffx*diffx + diffy*diffy);
 
-    if (diffx > 1.7759 && diffx < 100 && diffy < 5)
+    if (diffx > -3.0 && diffy/diffx < 0.1 && diffx < 250)
       z_all[3*i+2] = disparity;
     else
-      z_all[3*i+2] = -100;  //outlier
+      z_all[3*i+2] = std::nan;  //outlier
 
     updateVect[i] = prev_status[i];
   }
