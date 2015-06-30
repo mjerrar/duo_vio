@@ -7,11 +7,14 @@
 #include <message_filters/time_synchronizer.h>
 
 #include <tf/transform_broadcaster.h>
+#include <tf/tf.h>
 
 #include <sensor_msgs/Image.h>
 #include <sensor_msgs/Imu.h>
 #include <sensor_msgs/MagneticField.h>
 #include <sensor_msgs/CameraInfo.h>
+#include <sensor_msgs/PointCloud.h>
+#include <nav_msgs/Path.h>
 
 #include <opencv2/opencv.hpp>
 
@@ -66,6 +69,14 @@ private:
 
   void display_tracks(const cv::Mat& left_image, const cv::Mat& right_image, double z_all[],
       unsigned char status[]);
+
+  ros::Publisher point_cloud_pub_;
+  void publishPointCloud(emxArray_real_T *anchor_u_out, emxArray_real_T * xt_out);
+
+  void updateDronePose(void);
+
+  ros::Publisher path_pub_;
+  nav_msgs::Path slam_path_;
 };
 
 #endif /* _LOCALIZATION_H_ */

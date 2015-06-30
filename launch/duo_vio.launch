@@ -19,7 +19,7 @@
     <param name="num_points_per_anchor" type="int" value="1" />
     <param name="num_anchors" type="int" value="16" />
 
-    <param name="show_tracker_images" type="bool" value="0" />
+    <param name="show_tracker_images" type="bool" value="1" />
 
   </node>
 </launch>

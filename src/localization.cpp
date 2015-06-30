@@ -5,6 +5,8 @@
 
 #include <geometry_msgs/PoseStamped.h>
 #include <cv_bridge/cv_bridge.h>
+#include <geometry_msgs/Point32.h>
+#include <math.h>
 
 Localization::Localization()
   : nh_("~"), 
@@ -25,6 +27,8 @@ Localization::Localization()
         this, _1, _2, _3));
   camera_info_sub_ = nh_.subscribe<sensor_msgs::CameraInfo>("/duo3d_camera/right/camera_info",1,
       &Localization::camera_info_callback,this);
+  point_cloud_pub_ = nh_.advertise<sensor_msgs::PointCloud>("/vio/features_point_cloud",1); //TODO: add to debug parameter
+  path_pub_ = nh_.advertise<nav_msgs::Path>("/vio/SLAM_path",1);
 
   // Init parameters
   // TODO Check default values and give meaningful names
@@ -115,6 +119,7 @@ void Localization::synchronized_callback(const sensor_msgs::ImageConstPtr& left_
   geometry_msgs::PoseStamped pose_stamped;
   geometry_msgs::Pose pose;
   pose_stamped.header.stamp = left_image->header.stamp;
+  pose_stamped.header.frame_id = "world";
 
   update(dt, cv_left_image->image, cv_right_image->image, *imu, mag, pose);
 
@@ -128,7 +133,13 @@ void Localization::synchronized_callback(const sensor_msgs::ImageConstPtr& left_
   transform.setRotation(tf::Quaternion(pose.orientation.x,pose.orientation.y,
       pose.orientation.z,pose.orientation.w));
 
-  tf_broadcaster_.sendTransform(tf::StampedTransform(transform, pose_stamped.header.stamp, "map", "base"));
+  tf_broadcaster_.sendTransform(tf::StampedTransform(transform, /*pose_stamped.header.stamp*/ ros::Time::now(), "world", "SLAM"));
+
+  slam_path_.poses.push_back(pose_stamped);
+  slam_path_.header = pose_stamped.header;
+  path_pub_.publish(slam_path_);
+
+  updateDronePose();
 }
 
 void Localization::update(double dt, const cv::Mat& left_image, const cv::Mat& right_image, const sensor_msgs::Imu& imu, 
@@ -189,6 +200,9 @@ void Localization::update(double dt, const cv::Mat& left_image, const cv::Mat& r
       h_u_apo_, xt_out, update_vec_array, anchor_u_out, anchor_pose_out, P_apo_out);
   update_vec_.assign(update_vec_array, update_vec_array + num_anchors_);
   ROS_INFO("Time SLAM: %f", (ros::Time::now() - tic).toSec());
+
+  // Publish feature position in world frame
+  publishPointCloud(anchor_u_out, xt_out);
 
   // Set the pose
   pose.position.x = xt_out->data[0];
@@ -269,3 +283,94 @@ void Localization::display_tracks(const cv::Mat& left_image, const cv::Mat& righ
   cv::imshow("right image", right);
   cv::waitKey(10);
 }
+
+void Localization::publishPointCloud(emxArray_real_T *anchor_u_out, emxArray_real_T *xt_out)
+{
+  sensor_msgs::PointCloud features;
+
+  features.header.frame_id = "world";
+
+  for(int cnt = 0; cnt < num_points_per_anchor_*num_anchors_; cnt++)
+  {
+	int ind_anchor = cnt/num_points_per_anchor_ + 1;
+
+	//13 = numStatesxt, 7 = numStatesPerAnchorxt - num_points_per_anchor_ TODO(Stefan): change to constants or function inputs
+	double x_i = xt_out->data[13 + ind_anchor*(7 + num_points_per_anchor_) - (6 + num_points_per_anchor_) - 1];
+	double y_i = xt_out->data[13 + ind_anchor*(7 + num_points_per_anchor_) - (5 + num_points_per_anchor_) - 1];
+	double z_i = xt_out->data[13 + ind_anchor*(7 + num_points_per_anchor_) - (4 + num_points_per_anchor_) - 1];
+
+	double fq_cw0 = xt_out->data[13 + ind_anchor*(7 + num_points_per_anchor_) - (3 + num_points_per_anchor_) - 1];
+    double fq_cw1 = xt_out->data[13 + ind_anchor*(7 + num_points_per_anchor_) - (2 + num_points_per_anchor_) - 1];
+	double fq_cw2 = xt_out->data[13 + ind_anchor*(7 + num_points_per_anchor_) - (1 + num_points_per_anchor_) - 1];
+	double fq_cw3 = xt_out->data[13 + ind_anchor*(7 + num_points_per_anchor_) - (0 + num_points_per_anchor_) - 1];
+
+	int feature_offset = cnt % num_points_per_anchor_ + 1;
+	double rho = xt_out->data[13 + ind_anchor*(7 + num_points_per_anchor_) - (0 + num_points_per_anchor_) + feature_offset - 1];
+
+	tf::Vector3 fp(x_i, y_i, z_i);
+	tf::Quaternion q(fq_cw0, fq_cw1, fq_cw2, fq_cw3);
+	//tf::Matrix3x3 R_wc(q);
+
+	tf::Transform cam2world;
+	cam2world.setOrigin(fp);
+	cam2world.setRotation(q);
+
+	tf::Vector3 m((camera_params_[1] - anchor_u_out->data[cnt*2])/camera_params_[0], (camera_params_[2] - anchor_u_out->data[cnt*2 + 1])/camera_params_[0], 1.0f);
+	m.normalize();
+	m /= rho;
+
+	tf::Vector3 featurePosition = cam2world*m;
+
+	geometry_msgs::Point32 point;
+	point.x = featurePosition.getX();
+	point.y = featurePosition.getY();
+	point.z = featurePosition.getZ();
+
+	features.points.push_back(point);
+  }
+
+  point_cloud_pub_.publish(features);
+}
+
+
+
+void Localization::updateDronePose(void)
+{
+  /*tf::Transform camera2drone;
+  camera2drone.setOrigin(tf::Vector3(0.0, 0.0, -0.10));
+  tf::Quaternion q_c2d;
+  q_c2d.setEulerZYX(-M_PI/2, -M_PI/2, 0.0);
+  camera2drone.setRotation(q_c2d);
+  tf_broadcaster_.sendTransform(tf::StampedTransform(camera2drone, ros::Time::now(), "camera", "drone_base"));*/
+
+  /*tf::Transform slam2drone;
+  slam2drone.setOrigin(tf::Vector3(0.0, 0.0, 0.0));
+  tf::Quaternion q_s2d;
+  q_s2d.setEuler(0.0, M_PI, 0.0);// check convention
+  slam2drone.setRotation(q_s2d);
+  tf_broadcaster_.sendTransform(tf::StampedTransform(slam2drone, ros::Time::now(), "SLAM", "drone_base"));*/
+
+  tf::Transform slam2camera;
+  slam2camera.setOrigin(tf::Vector3(0.0, 0.0, 0.0));
+  tf::Quaternion q_s2d;
+  q_s2d.setEuler(0.0, 0.0, 0.0);
+  slam2camera.setRotation(q_s2d);
+  tf_broadcaster_.sendTransform(tf::StampedTransform(slam2camera, ros::Time::now(), "SLAM", "camera"));
+
+  /*tf::Transform drone2camera;
+  drone2camera.setOrigin(tf::Vector3(1.0, 0.0, 0.0));
+  tf::Quaternion q_d2c;
+  q_d2c.setEuler(M_PI/2, 0.0, M_PI/2);
+  drone2camera.setRotation(q_d2c);
+  tf_broadcaster_.sendTransform(tf::StampedTransform(drone2camera, ros::Time::now(), "drone_base", "camera"));*/
+
+  tf::Transform camera2drone;
+  camera2drone.setOrigin(tf::Vector3(0.0, 0.0, -1.0));
+  tf::Quaternion q_d2c;
+  q_d2c.setEuler(-M_PI/2, -M_PI/2, 0.0);
+  camera2drone.setRotation(q_d2c);
+  tf_broadcaster_.sendTransform(tf::StampedTransform(camera2drone, ros::Time::now(), "camera", "drone_base"));
+}
+
+
+
