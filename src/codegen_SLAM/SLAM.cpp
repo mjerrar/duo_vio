@@ -5,7 +5,7 @@
 // File: SLAM.cpp
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 30-Jun-2015 17:41:56
+// C/C++ source code generated on  : 30-Jun-2015 17:55:49
 //
 
 // Include Files
@@ -99,10 +99,8 @@ static void b_emxInit_real_T(emxArray_real_T **pEmxArray, int b_numDimensions);
 static void b_eye(double I[144]);
 static double b_mod(double x, double y);
 static double b_norm(const double x[4]);
-static double b_std(const double varargin_1_data[], const int varargin_1_size[1]);
 static double c_eml_xnrm2(int n, const emxArray_real_T *x, int ix0);
 static void diag(const double v[3], double d[9]);
-static int div_s32_floor(int numerator, int denominator);
 static int eml_ixamax(int n, const double x_data[], int ix0);
 static void eml_lusolve(const emxArray_real_T *A, const emxArray_real_T *B,
   emxArray_real_T *X);
@@ -132,7 +130,6 @@ static void emxInit_real_T(emxArray_real_T **pEmxArray, int b_numDimensions);
 static void eye(double varargin_1, emxArray_real_T *I);
 static void kron(const double A_data[], const int A_size[2], const double B[9],
                  emxArray_real_T *K);
-static double mean(const double x_data[], const int x_size[1]);
 static void merge(int idx[32], double x[32], int offset, int np, int nq);
 static void mrdivide(const emxArray_real_T *A, const emxArray_real_T *B,
                      emxArray_real_T *y);
@@ -1244,17 +1241,6 @@ static void SLAM_updIT(emxArray_real_T *P_apr, emxArray_real_T *b_xt, const
   emxArray_real_T *y;
   double dv1[3];
   double dv2[9];
-  double b_z_data[96];
-  int z_size[1];
-  double mean_residual_ux;
-  int b_z_size[1];
-  double std_dev_residual_ux;
-  double rejection_threshold_ux;
-  int c_z_size[1];
-  double mean_residual_uy;
-  int d_z_size[1];
-  double std_dev_residual_uy;
-  double rejection_threshold_uy;
   unsigned int unnamed_idx_0;
   unsigned int unnamed_idx_1;
   int m;
@@ -1367,22 +1353,22 @@ static void SLAM_updIT(emxArray_real_T *P_apr, emxArray_real_T *b_xt, const
   i9 = H_xc->size[0] * H_xc->size[1];
   H_xc->size[1] = (int)numStates;
   emxEnsureCapacity((emxArray__common *)H_xc, i9, (int)sizeof(double));
-  idx = ar * 3 * (int)numStates;
-  for (i9 = 0; i9 < idx; i9++) {
+  ib = ar * 3 * (int)numStates;
+  for (i9 = 0; i9 < ib; i9++) {
     H_xc->data[i9] = 0.0;
   }
 
   //  derivatives wrt camera state
-  idx = 3 * ar;
-  for (i9 = 0; i9 < idx; i9++) {
+  ib = 3 * ar;
+  for (i9 = 0; i9 < ib; i9++) {
     h_u_data[i9] = 0.0;
   }
 
   //  predicted measurements of current frame
   RotFromQuatJ(*(double (*)[4])&b_xt->data[3], R_cw);
   z_size_idx_0 = 3 * ar;
-  idx = 3 * ar;
-  for (i9 = 0; i9 < idx; i9++) {
+  ib = 3 * ar;
+  for (i9 = 0; i9 < ib; i9++) {
     z_data[i9] = 0.0;
   }
 
@@ -1398,8 +1384,8 @@ static void SLAM_updIT(emxArray_real_T *P_apr, emxArray_real_T *b_xt, const
       i9--;
     }
 
-    idx = i10 - i9;
-    for (i10 = 0; i10 < idx; i10++) {
+    ib = i10 - i9;
+    for (i10 = 0; i10 < ib; i10++) {
       z_curr_data[i10] = z_all[i9 + i10];
     }
 
@@ -1460,13 +1446,13 @@ static void SLAM_updIT(emxArray_real_T *P_apr, emxArray_real_T *b_xt, const
         i9--;
       }
 
-      idx = i10 - i9;
-      for (br = 0; br < idx; br++) {
+      ib = i10 - i9;
+      for (br = 0; br < ib; br++) {
         tmp_data[br] = i9 + br;
       }
 
-      idx = i10 - i9;
-      for (i9 = 0; i9 < idx; i9++) {
+      ib = i10 - i9;
+      for (i9 = 0; i9 < ib; i9++) {
         z_data[tmp_data[i9]] = z_curr_data[i9];
       }
 
@@ -1483,13 +1469,13 @@ static void SLAM_updIT(emxArray_real_T *P_apr, emxArray_real_T *b_xt, const
         i9--;
       }
 
-      idx = i10 - i9;
-      for (br = 0; br < idx; br++) {
+      ib = i10 - i9;
+      for (br = 0; br < ib; br++) {
         tmp_data[br] = i9 + br;
       }
 
-      idx = i10 - i9;
-      for (i9 = 0; i9 < idx; i9++) {
+      ib = i10 - i9;
+      for (i9 = 0; i9 < ib; i9++) {
         h_u_data[tmp_data[i9]] = h_ui[i9];
       }
 
@@ -1503,16 +1489,16 @@ static void SLAM_updIT(emxArray_real_T *P_apr, emxArray_real_T *b_xt, const
         i9--;
       }
 
-      idx = i10 - i9;
-      for (br = 0; br < idx; br++) {
+      ib = i10 - i9;
+      for (br = 0; br < ib; br++) {
         b_tmp_data[br] = i9 + br;
       }
 
-      idx = H_xc->size[1];
+      ib = H_xc->size[1];
       br = r2->size[0];
-      r2->size[0] = idx;
+      r2->size[0] = ib;
       emxEnsureCapacity((emxArray__common *)r2, br, (int)sizeof(int));
-      for (br = 0; br < idx; br++) {
+      for (br = 0; br < ib; br++) {
         r2->data[br] = br;
       }
 
@@ -1577,8 +1563,8 @@ static void SLAM_updIT(emxArray_real_T *P_apr, emxArray_real_T *b_xt, const
     i9 = r3->size[0] * r3->size[1];
     r3->size[1] = (int)(trailSize * 6.0);
     emxEnsureCapacity((emxArray__common *)r3, i9, (int)sizeof(double));
-    idx = H_xc->size[0] * (int)(trailSize * 6.0);
-    for (i9 = 0; i9 < idx; i9++) {
+    ib = H_xc->size[0] * (int)(trailSize * 6.0);
+    for (i9 = 0; i9 < ib; i9++) {
       r3->data[i9] = 0.0;
     }
 
@@ -1587,18 +1573,18 @@ static void SLAM_updIT(emxArray_real_T *P_apr, emxArray_real_T *b_xt, const
     H->size[0] = H_xc->size[0];
     H->size[1] = H_xc->size[1] + r3->size[1];
     emxEnsureCapacity((emxArray__common *)H, i9, (int)sizeof(double));
-    idx = H_xc->size[1];
-    for (i9 = 0; i9 < idx; i9++) {
-      ii = H_xc->size[0];
-      for (i10 = 0; i10 < ii; i10++) {
+    ib = H_xc->size[1];
+    for (i9 = 0; i9 < ib; i9++) {
+      idx = H_xc->size[0];
+      for (i10 = 0; i10 < idx; i10++) {
         H->data[i10 + H->size[0] * i9] = H_xc->data[i10 + H_xc->size[0] * i9];
       }
     }
 
-    idx = r3->size[1];
-    for (i9 = 0; i9 < idx; i9++) {
-      ii = r3->size[0];
-      for (i10 = 0; i10 < ii; i10++) {
+    ib = r3->size[1];
+    for (i9 = 0; i9 < ib; i9++) {
+      idx = r3->size[0];
+      for (i10 = 0; i10 < idx; i10++) {
         H->data[i10 + H->size[0] * (i9 + H_xc->size[1])] = r3->data[i10 +
           r3->size[0] * i9];
       }
@@ -1614,97 +1600,25 @@ static void SLAM_updIT(emxArray_real_T *P_apr, emxArray_real_T *b_xt, const
     msckfUPD = 0.0;
 
     //  simple residual outlier rejection
-    if (1 > z_size_idx_0) {
-      i9 = 1;
-      i10 = -1;
-    } else {
-      i9 = 3;
-      i10 = z_size_idx_0 - 1;
-    }
-
-    z_size[0] = div_s32_floor(i10, i9) + 1;
-    idx = div_s32_floor(i10, i9);
-    for (i10 = 0; i10 <= idx; i10++) {
-      b_z_data[i10] = z_data[i9 * i10];
-    }
-
-    mean_residual_ux = mean(b_z_data, z_size);
-    if (1 > z_size_idx_0) {
-      i9 = 1;
-      i10 = -1;
-    } else {
-      i9 = 3;
-      i10 = z_size_idx_0 - 1;
-    }
-
-    b_z_size[0] = div_s32_floor(i10, i9) + 1;
-    idx = div_s32_floor(i10, i9);
-    for (i10 = 0; i10 <= idx; i10++) {
-      b_z_data[i10] = z_data[i9 * i10];
-    }
-
-    std_dev_residual_ux = b_std(b_z_data, b_z_size);
-    rejection_threshold_ux = 2.0 * std_dev_residual_ux;
-    if (2 > z_size_idx_0) {
-      i9 = 1;
-      i10 = 1;
-      br = 0;
-    } else {
-      i9 = 2;
-      i10 = 3;
-      br = z_size_idx_0;
-    }
-
-    c_z_size[0] = div_s32_floor(br - i9, i10) + 1;
-    idx = div_s32_floor(br - i9, i10);
-    for (br = 0; br <= idx; br++) {
-      b_z_data[br] = z_data[(i9 + i10 * br) - 1];
-    }
-
-    mean_residual_uy = mean(b_z_data, c_z_size);
-    if (2 > z_size_idx_0) {
-      i9 = 1;
-      i10 = 1;
-      br = 0;
-    } else {
-      i9 = 2;
-      i10 = 3;
-      br = z_size_idx_0;
-    }
-
-    d_z_size[0] = div_s32_floor(br - i9, i10) + 1;
-    idx = div_s32_floor(br - i9, i10);
-    for (br = 0; br <= idx; br++) {
-      b_z_data[br] = z_data[(i9 + i10 * br) - 1];
-    }
-
-    std_dev_residual_uy = b_std(b_z_data, d_z_size);
-    rejection_threshold_uy = 2.0 * std_dev_residual_uy;
-    for (ar = 0; ar < ib; ar++) {
-      //          plot((k-1)*3 + (1:2), r((i-1)*3 + (1:2)), '.-')
-      //          text((k-1)*3 + 1, 0, num2str(k))
-      if (fabs(z_data[ar * 3] - mean_residual_ux) > rejection_threshold_ux) {
-        // disp(['Reject feature ', num2str(k), ' due to ux residual'])
-        ii = ar * 3;
-        for (i9 = 0; i9 < 3; i9++) {
-          z_data[i9 + ii] = 0.0;
-        }
-
-        updateVect[indMeas_data[ar] - 1] = 0.0;
-      }
-
-      if (fabs(z_data[ar * 3 + 1] - mean_residual_uy) > rejection_threshold_uy)
-      {
-        // disp(['Reject feature ', num2str(k), ' due to uy residual'])
-        ii = ar * 3;
-        for (i9 = 0; i9 < 3; i9++) {
-          z_data[i9 + ii] = 0.0;
-        }
-
-        updateVect[indMeas_data[ar] - 1] = 0.0;
-      }
-    }
-
+    //
+    //      for i = 1:length(indMeas)
+    //          k = indMeas(i);
+    //          %         plot((k-1)*3 + (1:2), r((i-1)*3 + (1:2)), '.-')
+    //          %         text((k-1)*3 + 1, 0, num2str(k))
+    //
+    //          if abs(r((i-1)*3 + 1) - mean_residual_ux) > rejection_threshold_ux 
+    //              %disp(['Reject feature ', num2str(k), ' due to ux residual']) 
+    //              r((i-1)*3 + (1:3)) = 0;
+    //              updateVect_out(k) = 0;
+    //          end
+    //
+    //          if abs(r((i-1)*3 + 2) - mean_residual_uy) > rejection_threshold_uy 
+    //              %disp(['Reject feature ', num2str(k), ' due to uy residual']) 
+    //              r((i-1)*3 + (1:3)) = 0;
+    //              updateVect_out(k) = 0;
+    //          end
+    //      end
+    //
     if ((H->size[1] == 1) || (P_apr->size[0] == 1)) {
       i9 = y->size[0] * y->size[1];
       y->size[0] = H->size[0];
@@ -3052,53 +2966,6 @@ static double b_norm(const double x[4])
 }
 
 //
-// Arguments    : const double varargin_1_data[]
-//                const int varargin_1_size[1]
-// Return Type  : double
-//
-static double b_std(const double varargin_1_data[], const int varargin_1_size[1])
-{
-  double y;
-  int n;
-  int ix;
-  double xbar;
-  int k;
-  double r;
-  int b_varargin_1_size;
-  n = varargin_1_size[0] - 2;
-  if (varargin_1_size[0] == 0) {
-    y = 0.0;
-  } else {
-    ix = 0;
-    xbar = varargin_1_data[0];
-    for (k = 0; k <= n; k++) {
-      ix++;
-      xbar += varargin_1_data[ix];
-    }
-
-    xbar /= (double)varargin_1_size[0];
-    ix = 0;
-    r = varargin_1_data[0] - xbar;
-    y = r * r;
-    for (k = 0; k <= n; k++) {
-      ix++;
-      r = varargin_1_data[ix] - xbar;
-      y += r * r;
-    }
-
-    if (varargin_1_size[0] > 1) {
-      b_varargin_1_size = varargin_1_size[0] - 1;
-    } else {
-      b_varargin_1_size = varargin_1_size[0];
-    }
-
-    y /= (double)b_varargin_1_size;
-  }
-
-  return sqrt(y);
-}
-
-//
 // Arguments    : int n
 //                const emxArray_real_T *x
 //                int ix0
@@ -3149,56 +3016,6 @@ static void diag(const double v[3], double d[9])
   for (j = 0; j < 3; j++) {
     d[j + 3 * j] = v[j];
   }
-}
-
-//
-// Arguments    : int numerator
-//                int denominator
-// Return Type  : int
-//
-static int div_s32_floor(int numerator, int denominator)
-{
-  int quotient;
-  unsigned int absNumerator;
-  unsigned int absDenominator;
-  boolean_T quotientNeedsNegation;
-  unsigned int tempAbsQuotient;
-  if (denominator == 0) {
-    if (numerator >= 0) {
-      quotient = MAX_int32_T;
-    } else {
-      quotient = MIN_int32_T;
-    }
-  } else {
-    if (numerator >= 0) {
-      absNumerator = (unsigned int)numerator;
-    } else {
-      absNumerator = (unsigned int)-numerator;
-    }
-
-    if (denominator >= 0) {
-      absDenominator = (unsigned int)denominator;
-    } else {
-      absDenominator = (unsigned int)-denominator;
-    }
-
-    quotientNeedsNegation = ((numerator < 0) != (denominator < 0));
-    tempAbsQuotient = absNumerator / absDenominator;
-    if (quotientNeedsNegation) {
-      absNumerator %= absDenominator;
-      if (absNumerator > 0U) {
-        tempAbsQuotient++;
-      }
-    }
-
-    if (quotientNeedsNegation) {
-      quotient = -(int)tempAbsQuotient;
-    } else {
-      quotient = (int)tempAbsQuotient;
-    }
-  }
-
-  return quotient;
 }
 
 //
@@ -4092,28 +3909,6 @@ static void kron(const double A_data[], const int A_size[2], const double B[9],
       }
     }
   }
-}
-
-//
-// Arguments    : const double x_data[]
-//                const int x_size[1]
-// Return Type  : double
-//
-static double mean(const double x_data[], const int x_size[1])
-{
-  double y;
-  int k;
-  if (x_size[0] == 0) {
-    y = 0.0;
-  } else {
-    y = x_data[0];
-    for (k = 2; k <= x_size[0]; k++) {
-      y += x_data[k - 1];
-    }
-  }
-
-  y /= (double)x_size[0];
-  return y;
 }
 
 //
