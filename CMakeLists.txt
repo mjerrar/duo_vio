@@ -113,6 +113,9 @@ add_executable(vio_ros_node
   src/localization.cpp
   src/klt_point_handling.cc
   src/codegen_SLAM/SLAM.cpp
+  src/codegen_SLAM/rt_nonfinite.cpp
+  src/codegen_SLAM/rtGetNaN.cpp
+  src/codegen_SLAM/rtGetInf.cpp
 )
 
 ## Add cmake target dependencies of the executable/library
