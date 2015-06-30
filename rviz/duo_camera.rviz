@@ -13,6 +13,7 @@ Panels:
         - /Axes3
         - /Axes4
         - /Path1
+        - /Marker1
       Splitter Ratio: 0.5
     Tree Height: 895
   - Class: rviz/Selection
@@ -126,6 +127,14 @@ Visualization Manager:
         Z: 0
       Topic: /vio/SLAM_path
       Value: true
+    - Class: rviz/Marker
+      Enabled: true
+      Marker Topic: /vio_ros_node/drone
+      Name: Marker
+      Namespaces:
+        my_namespace: true
+      Queue Size: 100
+      Value: true
   Enabled: true
   Global Options:
     Background Color: 48; 48; 48
@@ -162,10 +171,10 @@ Visualization Manager:
         Z: 0
       Name: Current View
       Near Clip Distance: 0.01
-      Pitch: -0.179603
+      Pitch: -0.449797
       Target Frame: <Fixed Frame>
       Value: Orbit (rviz)
-      Yaw: 0.0540806
+      Yaw: 2.79909
     Saved: ~
 Window Geometry:
   Displays:
@@ -183,5 +192,5 @@ Window Geometry:
   Views:
     collapsed: false
   Width: 1869
-  X: 41
-  Y: -14
+  X: 51
+  Y: 24

@@ -7,6 +7,7 @@
 #include <cv_bridge/cv_bridge.h>
 #include <geometry_msgs/Point32.h>
 #include <math.h>
+#include <visualization_msgs/Marker.h>
 
 Localization::Localization()
   : nh_("~"), 
@@ -29,6 +30,7 @@ Localization::Localization()
       &Localization::camera_info_callback,this);
   point_cloud_pub_ = nh_.advertise<sensor_msgs::PointCloud>("/vio/features_point_cloud",1); //TODO: add to debug parameter
   path_pub_ = nh_.advertise<nav_msgs::Path>("/vio/SLAM_path",1);
+  vis_pub_ = nh_.advertise<visualization_msgs::Marker>( "drone", 0 );
 
   // Init parameters
   // TODO Check default values and give meaningful names
@@ -140,6 +142,7 @@ void Localization::synchronized_callback(const sensor_msgs::ImageConstPtr& left_
   path_pub_.publish(slam_path_);
 
   updateDronePose();
+  visMarker();
 }
 
 void Localization::update(double dt, const cv::Mat& left_image, const cv::Mat& right_image, const sensor_msgs::Imu& imu, 
@@ -370,6 +373,34 @@ void Localization::updateDronePose(void)
   q_d2c.setEuler(-M_PI/2, -M_PI/2, 0.0);
   camera2drone.setRotation(q_d2c);
   tf_broadcaster_.sendTransform(tf::StampedTransform(camera2drone, ros::Time::now(), "camera", "drone_base"));
+}
+
+void Localization::visMarker(void)
+{
+	visualization_msgs::Marker marker;
+	marker.header.frame_id = "drone_base";
+	marker.header.stamp = ros::Time();
+	marker.ns = "my_namespace";
+	marker.id = 0;
+    marker.type = visualization_msgs::Marker::CUBE;
+	marker.action = visualization_msgs::Marker::ADD;
+	marker.pose.position.x = 0.0;
+	marker.pose.position.y = 0.0;
+	marker.pose.position.z = 0.0;
+	marker.pose.orientation.x = 1.0;
+	marker.pose.orientation.y = 0.0;
+	marker.pose.orientation.z = 0.0;
+	marker.pose.orientation.w = 0.0;
+	marker.scale.x = 0.7;
+	marker.scale.y = 0.7;
+	marker.scale.z = 0.1;
+	marker.color.a = 1.0; // Don't forget to set the alpha!
+	marker.color.r = 0.0;
+	marker.color.g = 1.0;
+	marker.color.b = 0.0;
+	//only if using a MESH_RESOURCE marker type:
+	//marker.mesh_resource = "package://pr2_description/meshes/base_v0/base.dae";
+	vis_pub_.publish(marker);
 }
 
 

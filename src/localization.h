@@ -77,6 +77,9 @@ private:
 
   ros::Publisher path_pub_;
   nav_msgs::Path slam_path_;
+  ros::Publisher vis_pub_;
+
+  void visMarker(void);
 };
 
 #endif /* _LOCALIZATION_H_ */
