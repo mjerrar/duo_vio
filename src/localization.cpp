@@ -183,24 +183,53 @@ void Localization::update(double dt, const cv::Mat& left_image, const cv::Mat& r
   // SLAM
   //*********************************************************************
 
-  std::vector<double> inertial(9,0.0);
-  get_inertial_vector(imu,mag,inertial);
+  // std::vector<double> inertial(9,0.0);
+  // get_inertial_vector(imu,mag,inertial);
 
-  emxArray_real_T *xt_out; // result
-  emxArray_real_T *anchor_u_out;
-  emxArray_real_T *anchor_pose_out;
-  emxArray_real_T *P_apo_out;
+  // emxArray_real_T *xt_out; // result
+  // emxArray_real_T *anchor_u_out;
+  // emxArray_real_T *anchor_pose_out;
+  // emxArray_real_T *P_apo_out;
 
-  emxInitArray_real_T(&xt_out,1);
-  emxInitArray_real_T(&anchor_u_out,1);
-  emxInitArray_real_T(&anchor_pose_out,1);
-  emxInitArray_real_T(&P_apo_out,2);
+  // emxInitArray_real_T(&xt_out,1);
+  // emxInitArray_real_T(&anchor_u_out,1);
+  // emxInitArray_real_T(&anchor_pose_out,1);
+  // emxInitArray_real_T(&P_apo_out,2);
 
   // Update SLAM and get pose estimation
   tic = ros::Time::now();
-  SLAM(update_vec_array, z_all, &camera_params_[0], dt, &process_noise_[0], &inertial[0], 
-      &im_noise_[0], num_points_per_anchor_, num_anchors_,
-      h_u_apo_, xt_out, update_vec_array, anchor_u_out, anchor_pose_out, P_apo_out);
+  // SLAM(update_vec_array, z_all, &camera_params_[0], dt, &process_noise_[0], &inertial[0], &im_noise_[0], num_points_per_anchor_, num_anchors_,
+  //     h_u_apo_, xt_out, update_vec_array, anchor_u_out, anchor_pose_out, P_apo_out);
+emxArray_real_T *xt_out;
+  emxArray_real_T *P_apo_out;
+  double updateVect[32];
+  double dv0[96];
+  double dv1[4];
+  double dv2[5];
+  double dv3[9];
+  double dv4[3];
+  double b_map[96];
+  double h_u_apo[96];
+  emxInitArray_real_T(&xt_out, 1);
+  emxInitArray_real_T(&P_apo_out, 2);
+
+  // Initialize function 'SLAM' input arguments.
+  // Initialize function input argument 'updateVect'.
+  argInit_32x1_real_T(updateVect);
+
+  // Initialize function input argument 'z_all'.
+  // Initialize function input argument 'cameraparams'.
+  // Initialize function input argument 'processNoise'.
+  // Initialize function input argument 'IMU_measurements'.
+  // Initialize function input argument 'imNoise'.
+  // Call the entry-point 'SLAM'.
+  argInit_96x1_real_T(dv0);
+  argInit_1x4_real_T(dv1);
+  argInit_1x5_real_T(dv2);
+  argInit_9x1_real_T(dv3);
+  argInit_1x3_real_T(dv4);
+  SLAM(updateVect, dv0, dv1, argInit_real_T(), dv2, dv3, dv4, argInit_real_T(),argInit_real_T(), h_u_apo, xt_out, P_apo_out, b_map);
+
   update_vec_.assign(update_vec_array, update_vec_array + num_anchors_);
   ROS_INFO("Time SLAM: %f", (ros::Time::now() - tic).toSec());
 
