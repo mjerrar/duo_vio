@@ -70,8 +70,8 @@ private:
   void display_tracks(const cv::Mat& left_image, const cv::Mat& right_image, double z_all[],
       unsigned char status[]);
 
-  ros::Publisher point_cloud_pub_;
-  void publishPointCloud(emxArray_real_T *anchor_u_out, emxArray_real_T * xt_out);
+  // ros::Publisher point_cloud_pub_;
+  // void publishPointCloud(emxArray_real_T *anchor_u_out, emxArray_real_T * xt_out,emxArray_real_T * map );
 
   void updateDronePose(void);
 
