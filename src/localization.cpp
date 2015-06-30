@@ -15,7 +15,7 @@ Localization::Localization()
     right_image_sub_(nh_, "/right_image", 1),
     imu_sub_(nh_, "/imu", 1),
     time_synchronizer_(left_image_sub_, right_image_sub_, imu_sub_, 10),
-    process_noise_(4,0.0),
+    process_noise_(3,0.0),
     im_noise_(3,0.0),
     camera_params_(4,0.0),
     camera_info_initialized_(false)
@@ -39,7 +39,7 @@ Localization::Localization()
   nh_.param<double>("process_noise_1", process_noise_[0], 10.0);
   nh_.param<double>("process_noise_2", process_noise_[1], 10.0);
   nh_.param<double>("process_noise_3", process_noise_[2], 0.0);
-  nh_.param<double>("process_noise_4", process_noise_[3], 0.0);
+ // nh_.param<double>("process_noise_4", process_noise_[3], 0.0);
 
   nh_.param<double>("im_noise_1", im_noise_[0], 10.0);
   nh_.param<double>("im_noise_2", im_noise_[1], 10.0);
@@ -183,18 +183,18 @@ void Localization::update(double dt, const cv::Mat& left_image, const cv::Mat& r
   // SLAM
   //*********************************************************************
 
-  // std::vector<double> inertial(9,0.0);
-  // get_inertial_vector(imu,mag,inertial);
+  std::vector<double> inertial(9,0.0);
+  get_inertial_vector(imu,mag,inertial);
 
-  // emxArray_real_T *xt_out; // result
+   emxArray_real_T *xt_out; // result
   // emxArray_real_T *anchor_u_out;
   // emxArray_real_T *anchor_pose_out;
-  // emxArray_real_T *P_apo_out;
+   emxArray_real_T *P_apo_out;
 
-  // emxInitArray_real_T(&xt_out,1);
+   emxInitArray_real_T(&xt_out,1);
   // emxInitArray_real_T(&anchor_u_out,1);
   // emxInitArray_real_T(&anchor_pose_out,1);
-  // emxInitArray_real_T(&P_apo_out,2);
+   emxInitArray_real_T(&P_apo_out,2);
 
   // Update SLAM and get pose estimation
   tic = ros::Time::now();
@@ -203,11 +203,7 @@ void Localization::update(double dt, const cv::Mat& left_image, const cv::Mat& r
 emxArray_real_T *xt_out;
   emxArray_real_T *P_apo_out;
   double updateVect[32];
-  double dv0[96];
-  double dv1[4];
-  double dv2[5];
-  double dv3[9];
-  double dv4[3];
+  
   double b_map[96];
   double h_u_apo[96];
   emxInitArray_real_T(&xt_out, 1);
@@ -223,18 +219,14 @@ emxArray_real_T *xt_out;
   // Initialize function input argument 'IMU_measurements'.
   // Initialize function input argument 'imNoise'.
   // Call the entry-point 'SLAM'.
-  argInit_96x1_real_T(dv0);
-  argInit_1x4_real_T(dv1);
-  argInit_1x5_real_T(dv2);
-  argInit_9x1_real_T(dv3);
-  argInit_1x3_real_T(dv4);
-  SLAM(updateVect, dv0, dv1, argInit_real_T(), dv2, dv3, dv4, argInit_real_T(),argInit_real_T(), h_u_apo, xt_out, P_apo_out, b_map);
+
+  SLAM(updateVect, z_all, camera_params_, dt, process_noise_, inertial, im_noise_, num_points_per_anchor_,num_anchors_, h_u_apo, xt_out, P_apo_out, b_map);
 
   update_vec_.assign(update_vec_array, update_vec_array + num_anchors_);
   ROS_INFO("Time SLAM: %f", (ros::Time::now() - tic).toSec());
 
   // Publish feature position in world frame
-  publishPointCloud(anchor_u_out, xt_out);
+  publishPointCloud(anchor_u_out, xt_out,b_map);
 
   // Set the pose
   pose.position.x = xt_out->data[0];
@@ -316,7 +308,7 @@ void Localization::display_tracks(const cv::Mat& left_image, const cv::Mat& righ
   cv::waitKey(10);
 }
 
-void Localization::publishPointCloud(emxArray_real_T *anchor_u_out, emxArray_real_T *xt_out)
+void Localization::publishPointCloud(emxArray_real_T *anchor_u_out, emxArray_real_T *xt_out,emxArray_real_T *map)
 {
   sensor_msgs::PointCloud features;
 
@@ -324,39 +316,39 @@ void Localization::publishPointCloud(emxArray_real_T *anchor_u_out, emxArray_rea
 
   for(int cnt = 0; cnt < num_points_per_anchor_*num_anchors_; cnt++)
   {
-	int ind_anchor = cnt/num_points_per_anchor_ + 1;
+	// int ind_anchor = cnt/num_points_per_anchor_ + 1;
 
-	//13 = numStatesxt, 7 = numStatesPerAnchorxt - num_points_per_anchor_ TODO(Stefan): change to constants or function inputs
-	double x_i = xt_out->data[13 + ind_anchor*(7 + num_points_per_anchor_) - (6 + num_points_per_anchor_) - 1];
-	double y_i = xt_out->data[13 + ind_anchor*(7 + num_points_per_anchor_) - (5 + num_points_per_anchor_) - 1];
-	double z_i = xt_out->data[13 + ind_anchor*(7 + num_points_per_anchor_) - (4 + num_points_per_anchor_) - 1];
+	// //13 = numStatesxt, 7 = numStatesPerAnchorxt - num_points_per_anchor_ TODO(Stefan): change to constants or function inputs
+	// double x_i = xt_out->data[13 + ind_anchor*(7 + num_points_per_anchor_) - (6 + num_points_per_anchor_) - 1];
+	// double y_i = xt_out->data[13 + ind_anchor*(7 + num_points_per_anchor_) - (5 + num_points_per_anchor_) - 1];
+	// double z_i = xt_out->data[13 + ind_anchor*(7 + num_points_per_anchor_) - (4 + num_points_per_anchor_) - 1];
 
-	double fq_cw0 = xt_out->data[13 + ind_anchor*(7 + num_points_per_anchor_) - (3 + num_points_per_anchor_) - 1];
-    double fq_cw1 = xt_out->data[13 + ind_anchor*(7 + num_points_per_anchor_) - (2 + num_points_per_anchor_) - 1];
-	double fq_cw2 = xt_out->data[13 + ind_anchor*(7 + num_points_per_anchor_) - (1 + num_points_per_anchor_) - 1];
-	double fq_cw3 = xt_out->data[13 + ind_anchor*(7 + num_points_per_anchor_) - (0 + num_points_per_anchor_) - 1];
+	// double fq_cw0 = xt_out->data[13 + ind_anchor*(7 + num_points_per_anchor_) - (3 + num_points_per_anchor_) - 1];
+ //    double fq_cw1 = xt_out->data[13 + ind_anchor*(7 + num_points_per_anchor_) - (2 + num_points_per_anchor_) - 1];
+	// double fq_cw2 = xt_out->data[13 + ind_anchor*(7 + num_points_per_anchor_) - (1 + num_points_per_anchor_) - 1];
+	// double fq_cw3 = xt_out->data[13 + ind_anchor*(7 + num_points_per_anchor_) - (0 + num_points_per_anchor_) - 1];
 
-	int feature_offset = cnt % num_points_per_anchor_ + 1;
-	double rho = xt_out->data[13 + ind_anchor*(7 + num_points_per_anchor_) - (0 + num_points_per_anchor_) + feature_offset - 1];
+	// int feature_offset = cnt % num_points_per_anchor_ + 1;
+	// double rho = xt_out->data[13 + ind_anchor*(7 + num_points_per_anchor_) - (0 + num_points_per_anchor_) + feature_offset - 1];
 
-	tf::Vector3 fp(x_i, y_i, z_i);
-	tf::Quaternion q(fq_cw0, fq_cw1, fq_cw2, fq_cw3);
-	//tf::Matrix3x3 R_wc(q);
+	// tf::Vector3 fp(x_i, y_i, z_i);
+	// tf::Quaternion q(fq_cw0, fq_cw1, fq_cw2, fq_cw3);
+	// //tf::Matrix3x3 R_wc(q);
 
-	tf::Transform cam2world;
-	cam2world.setOrigin(fp);
-	cam2world.setRotation(q);
+	// tf::Transform cam2world;
+	// cam2world.setOrigin(fp);
+	// cam2world.setRotation(q);
 
-	tf::Vector3 m((camera_params_[1] - anchor_u_out->data[cnt*2])/camera_params_[0], (camera_params_[2] - anchor_u_out->data[cnt*2 + 1])/camera_params_[0], 1.0f);
-	m.normalize();
-	m /= rho;
+	// tf::Vector3 m((camera_params_[1] - anchor_u_out->data[cnt*2])/camera_params_[0], (camera_params_[2] - anchor_u_out->data[cnt*2 + 1])/camera_params_[0], 1.0f);
+	// m.normalize();
+	// m /= rho;
 
-	tf::Vector3 featurePosition = cam2world*m;
+	// tf::Vector3 featurePosition = cam2world*m;
 
 	geometry_msgs::Point32 point;
-	point.x = featurePosition.getX();
-	point.y = featurePosition.getY();
-	point.z = featurePosition.getZ();
+	point.x = map(cnt*3);
+	point.y = map(cnt*3+1);
+	point.z = map(cnt*3+2);
 
 	features.points.push_back(point);
   }

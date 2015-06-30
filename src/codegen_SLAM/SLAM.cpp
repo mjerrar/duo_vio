@@ -5,7 +5,7 @@
 // File: SLAM.cpp
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 30-Jun-2015 13:32:33
+// C/C++ source code generated on  : 30-Jun-2015 14:23:01
 //
 
 // Include Files
@@ -80,7 +80,7 @@ static void RotFromQuatJ(const double q[4], double R[9]);
 static void SLAM_free();
 static void SLAM_init();
 static void SLAM_pred_euler(emxArray_real_T *b_P_apo, emxArray_real_T *x, double
-  dt, const double processNoise[5], const double IMU_measurements[9], double
+  dt, const double processNoise[3], const double IMU_measurements[9], double
   c_numStates);
 static void SLAM_updIT(emxArray_real_T *P_apr, emxArray_real_T *b_xt, const
   double cameraparams[4], double updateVect[32], const double z_all[96], const
@@ -385,13 +385,13 @@ static void SLAM_init()
 // Arguments    : emxArray_real_T *b_P_apo
 //                emxArray_real_T *x
 //                double dt
-//                const double processNoise[5]
+//                const double processNoise[3]
 //                const double IMU_measurements[9]
 //                double c_numStates
 // Return Type  : void
 //
 static void SLAM_pred_euler(emxArray_real_T *b_P_apo, emxArray_real_T *x, double
-  dt, const double processNoise[5], const double IMU_measurements[9], double
+  dt, const double processNoise[3], const double IMU_measurements[9], double
   c_numStates)
 {
   double c;
@@ -4447,7 +4447,7 @@ static double rt_roundd_snf(double u)
 //                const double z_all[96]
 //                const double cameraparams[4]
 //                double dt
-//                const double processNoise[5]
+//                const double processNoise[3]
 //                const double IMU_measurements[9]
 //                const double imNoise[3]
 //                double numPointsPerAnchor
@@ -4459,7 +4459,7 @@ static double rt_roundd_snf(double u)
 // Return Type  : void
 //
 void SLAM(double updateVect[32], const double z_all[96], const double
-          cameraparams[4], double dt, const double processNoise[5], const double
+          cameraparams[4], double dt, const double processNoise[3], const double
           IMU_measurements[9], const double imNoise[3], double, double, double
           h_u_apo[96], emxArray_real_T *xt_out, emxArray_real_T *P_apo_out,
           double b_map[96])

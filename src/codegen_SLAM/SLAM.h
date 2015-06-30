@@ -5,7 +5,7 @@
 // File: SLAM.h
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 30-Jun-2015 13:32:33
+// C/C++ source code generated on  : 30-Jun-2015 14:23:01
 //
 #ifndef __SLAM_H__
 #define __SLAM_H__
@@ -21,7 +21,7 @@
 
 // Function Declarations
 extern void SLAM(double updateVect[32], const double z_all[96], const double
-                 cameraparams[4], double dt, const double processNoise[5], const
+                 cameraparams[4], double dt, const double processNoise[3], const
                  double IMU_measurements[9], const double imNoise[3], double
                  numPointsPerAnchor, double numAnchors, double h_u_apo[96],
                  emxArray_real_T *xt_out, emxArray_real_T *P_apo_out, double
