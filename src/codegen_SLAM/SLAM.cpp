@@ -5,7 +5,7 @@
 // File: SLAM.cpp
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 30-Jun-2015 16:00:22
+// C/C++ source code generated on  : 30-Jun-2015 16:04:16
 //
 
 // Include Files
@@ -2332,8 +2332,7 @@ static void SLAM_updIT(emxArray_real_T *P_apr, emxArray_real_T *b_xt, const
     //  fill in nan for un-used map points so they won't be plotted
     if (z_all[2] < -500.0) {
       //  nan disparity means the measurement is useless
-      updateVect[0] = 0.0;
-
+      // updateVect_out(i) = 0;
       //   fprintf('rejecting due to invalid disparity\n')
     } else if (z_all[2] > disparityThreshold) {
       //  insert into the map immediately
