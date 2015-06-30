@@ -5,7 +5,7 @@
 // File: SLAM.cpp
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 30-Jun-2015 17:08:06
+// C/C++ source code generated on  : 30-Jun-2015 17:23:38
 //
 
 // Include Files
@@ -42,7 +42,7 @@ struct emxArray_int32_T
 #endif                                 //struct_emxArray_int32_T
 
 // Named Constants
-#define b_UseAccToPredict              (true)
+#define b_UseAccToPredict              (false)
 #define b_normalGravity                (true)
 #define b_trailSize                    (0.0)
 #define b_numStates                    (12.0)
@@ -392,10 +392,10 @@ static void SLAM_pred_euler(emxArray_real_T *b_P_apo, emxArray_real_T *x, double
   double R_cw[9];
   double w[3];
   int i15;
-  double dv12[9];
+  double dv6[9];
   double b_R_cw[9];
   int cr;
-  double dv13[9];
+  double dv7[9];
   double c_R_cw[9];
   int k;
   static const signed char iv2[36] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -423,7 +423,7 @@ static void SLAM_pred_euler(emxArray_real_T *b_P_apo, emxArray_real_T *x, double
   int ia;
   double y[144];
   double b_processNoise[9];
-  double dv14[81];
+  double dv8[81];
   double b_G1[108];
   double c_G1[144];
   emxArray_real_T *d_P_apo;
@@ -431,9 +431,9 @@ static void SLAM_pred_euler(emxArray_real_T *b_P_apo, emxArray_real_T *x, double
   emxArray_int32_T *r5;
   emxArray_real_T *b_P_xs_apr;
   double grav[3];
-  static const double dv15[3] = { 0.0, 0.0, 9.81 };
+  static const double dv9[3] = { 0.0, 0.0, 9.81 };
 
-  static const double dv16[3] = { 0.0, 0.0, -9.81 };
+  static const double dv10[3] = { 0.0, 0.0, -9.81 };
 
   double b_x[3];
   double b_w[3];
@@ -469,35 +469,35 @@ static void SLAM_pred_euler(emxArray_real_T *b_P_apo, emxArray_real_T *x, double
   }
 
   if (UseAccToPredict) {
-    dv12[0] = 0.0;
-    dv12[3] = -w[2];
-    dv12[6] = w[1];
-    dv12[1] = w[2];
-    dv12[4] = 0.0;
-    dv12[7] = -w[0];
-    dv12[2] = -w[1];
-    dv12[5] = w[0];
-    dv12[8] = 0.0;
+    dv6[0] = 0.0;
+    dv6[3] = -w[2];
+    dv6[6] = w[1];
+    dv6[1] = w[2];
+    dv6[4] = 0.0;
+    dv6[7] = -w[0];
+    dv6[2] = -w[1];
+    dv6[5] = w[0];
+    dv6[8] = 0.0;
     for (i15 = 0; i15 < 3; i15++) {
       for (cr = 0; cr < 3; cr++) {
         b_R_cw[cr + 3 * i15] = -R_cw[i15 + 3 * cr];
       }
     }
 
-    dv13[0] = 0.0;
-    dv13[3] = -IMU_measurements[5];
-    dv13[6] = IMU_measurements[4];
-    dv13[1] = IMU_measurements[5];
-    dv13[4] = 0.0;
-    dv13[7] = -IMU_measurements[3];
-    dv13[2] = -IMU_measurements[4];
-    dv13[5] = IMU_measurements[3];
-    dv13[8] = 0.0;
+    dv7[0] = 0.0;
+    dv7[3] = -IMU_measurements[5];
+    dv7[6] = IMU_measurements[4];
+    dv7[1] = IMU_measurements[5];
+    dv7[4] = 0.0;
+    dv7[7] = -IMU_measurements[3];
+    dv7[2] = -IMU_measurements[4];
+    dv7[5] = IMU_measurements[3];
+    dv7[8] = 0.0;
     for (i15 = 0; i15 < 3; i15++) {
       for (cr = 0; cr < 3; cr++) {
         c_R_cw[i15 + 3 * cr] = 0.0;
         for (k = 0; k < 3; k++) {
-          c_R_cw[i15 + 3 * cr] += b_R_cw[i15 + 3 * k] * dv13[k + 3 * cr];
+          c_R_cw[i15 + 3 * cr] += b_R_cw[i15 + 3 * k] * dv7[k + 3 * cr];
         }
       }
     }
@@ -516,7 +516,7 @@ static void SLAM_pred_euler(emxArray_real_T *b_P_apo, emxArray_real_T *x, double
 
     for (i15 = 0; i15 < 3; i15++) {
       for (cr = 0; cr < 3; cr++) {
-        Fc[(cr + 12 * (i15 + 3)) + 3] = -dv12[cr + 3 * i15];
+        Fc[(cr + 12 * (i15 + 3)) + 3] = -dv6[cr + 3 * i15];
       }
     }
 
@@ -562,29 +562,29 @@ static void SLAM_pred_euler(emxArray_real_T *b_P_apo, emxArray_real_T *x, double
       }
     }
   } else {
-    dv12[0] = 0.0;
-    dv12[3] = -w[2];
-    dv12[6] = w[1];
-    dv12[1] = w[2];
-    dv12[4] = 0.0;
-    dv12[7] = -w[0];
-    dv12[2] = -w[1];
-    dv12[5] = w[0];
-    dv12[8] = 0.0;
-    dv13[0] = 0.0;
-    dv13[3] = -IMU_measurements[5];
-    dv13[6] = IMU_measurements[4];
-    dv13[1] = IMU_measurements[5];
-    dv13[4] = 0.0;
-    dv13[7] = -IMU_measurements[3];
-    dv13[2] = -IMU_measurements[4];
-    dv13[5] = IMU_measurements[3];
-    dv13[8] = 0.0;
+    dv6[0] = 0.0;
+    dv6[3] = -w[2];
+    dv6[6] = w[1];
+    dv6[1] = w[2];
+    dv6[4] = 0.0;
+    dv6[7] = -w[0];
+    dv6[2] = -w[1];
+    dv6[5] = w[0];
+    dv6[8] = 0.0;
+    dv7[0] = 0.0;
+    dv7[3] = -IMU_measurements[5];
+    dv7[6] = IMU_measurements[4];
+    dv7[1] = IMU_measurements[5];
+    dv7[4] = 0.0;
+    dv7[7] = -IMU_measurements[3];
+    dv7[2] = -IMU_measurements[4];
+    dv7[5] = IMU_measurements[3];
+    dv7[8] = 0.0;
     for (i15 = 0; i15 < 3; i15++) {
       for (cr = 0; cr < 3; cr++) {
         b_R_cw[i15 + 3 * cr] = 0.0;
         for (k = 0; k < 3; k++) {
-          b_R_cw[i15 + 3 * cr] += -0.0 * R_cw[k + 3 * i15] * dv13[k + 3 * cr];
+          b_R_cw[i15 + 3 * cr] += -0.0 * R_cw[k + 3 * i15] * dv7[k + 3 * cr];
         }
       }
     }
@@ -603,7 +603,7 @@ static void SLAM_pred_euler(emxArray_real_T *b_P_apo, emxArray_real_T *x, double
 
     for (i15 = 0; i15 < 3; i15++) {
       for (cr = 0; cr < 3; cr++) {
-        Fc[(cr + 12 * (i15 + 3)) + 3] = -dv12[cr + 3 * i15];
+        Fc[(cr + 12 * (i15 + 3)) + 3] = -dv6[cr + 3 * i15];
       }
     }
 
@@ -833,12 +833,12 @@ static void SLAM_pred_euler(emxArray_real_T *b_P_apo, emxArray_real_T *x, double
     b_R_cw[i15] = b_processNoise[i15] * c;
   }
 
-  b_diag(b_R_cw, dv14);
+  b_diag(b_R_cw, dv8);
   for (i15 = 0; i15 < 12; i15++) {
     for (cr = 0; cr < 9; cr++) {
       b_G1[i15 + 12 * cr] = 0.0;
       for (k = 0; k < 9; k++) {
-        b_G1[i15 + 12 * cr] += G1[i15 + 12 * k] * dv14[k + 9 * cr];
+        b_G1[i15 + 12 * cr] += G1[i15 + 12 * k] * dv8[k + 9 * cr];
       }
     }
 
@@ -1085,11 +1085,11 @@ static void SLAM_pred_euler(emxArray_real_T *b_P_apo, emxArray_real_T *x, double
   emxFree_int32_T(&r4);
   if (normalGravity) {
     for (k = 0; k < 3; k++) {
-      grav[k] = dv15[k];
+      grav[k] = dv9[k];
     }
   } else {
     for (k = 0; k < 3; k++) {
-      grav[k] = dv16[k];
+      grav[k] = dv10[k];
     }
   }
 
@@ -1239,8 +1239,8 @@ static void SLAM_updIT(emxArray_real_T *P_apr, emxArray_real_T *b_xt, const
   emxArray_real_T *H;
   emxArray_real_T *R;
   emxArray_real_T *y;
-  double dv7[3];
-  double dv8[9];
+  double dv1[3];
+  double dv2[9];
   unsigned int unnamed_idx_0;
   unsigned int unnamed_idx_1;
   int m;
@@ -1252,14 +1252,14 @@ static void SLAM_updIT(emxArray_real_T *P_apr, emxArray_real_T *b_xt, const
   emxArray_real_T *K;
   emxArray_real_T *x_apo;
   emxArray_real_T *b_y;
-  double dv9[4];
-  double dv10[4];
+  double dv3[4];
+  double dv4[4];
   double d_xt[6];
   double d0;
   double d1;
   double d2;
   double e_xt[4];
-  double dv11[4];
+  double dv5[4];
   double newestTrail;
   double b_h_ui;
   static const signed char iv0[3] = { 0, 1, 2 };
@@ -1594,9 +1594,9 @@ static void SLAM_updIT(emxArray_real_T *P_apr, emxArray_real_T *b_xt, const
     emxInit_real_T(&R, 2);
     emxInit_real_T(&y, 2);
     eye((double)ar, y);
-    power(imNoise, dv7);
-    diag(dv7, dv8);
-    kron(y->data, y->size, dv8, R);
+    power(imNoise, dv1);
+    diag(dv1, dv2);
+    kron(y->data, y->size, dv2, R);
     msckfUPD = 0.0;
 
     //  simple residual outlier rejection
@@ -2119,10 +2119,10 @@ static void SLAM_updIT(emxArray_real_T *P_apr, emxArray_real_T *b_xt, const
       c_xt[i9] = x_apo->data[3 + i9];
     }
 
-    quatPlusThetaJ(c_xt, dv9);
-    quatmultJ(dv9, *(double (*)[4])&b_xt->data[3], dv10);
+    quatPlusThetaJ(c_xt, dv3);
+    quatmultJ(dv3, *(double (*)[4])&b_xt->data[3], dv4);
     for (i9 = 0; i9 < 4; i9++) {
-      b_xt->data[3 + i9] = dv10[i9];
+      b_xt->data[3 + i9] = dv4[i9];
     }
 
     for (i9 = 0; i9 < 6; i9++) {
@@ -2157,11 +2157,11 @@ static void SLAM_updIT(emxArray_real_T *P_apr, emxArray_real_T *b_xt, const
         e_xt[i9] = b_xt->data[(int)(d0 + (4.0 + (double)i9)) - 1];
       }
 
-      quatPlusThetaJ(c_xt, dv11);
-      quatmultJ(dv11, e_xt, dv10);
+      quatPlusThetaJ(c_xt, dv5);
+      quatmultJ(dv5, e_xt, dv4);
       d0 = numStatesxt + ((1.0 + (double)ii) - 1.0) * 7.0;
       for (i9 = 0; i9 < 4; i9++) {
-        b_xt->data[(int)(d0 + (4.0 + (double)i9)) - 1] = dv10[i9];
+        b_xt->data[(int)(d0 + (4.0 + (double)i9)) - 1] = dv4[i9];
       }
     }
 
