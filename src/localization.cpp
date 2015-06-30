@@ -28,7 +28,7 @@ Localization::Localization()
         this, _1, _2, _3));
   camera_info_sub_ = nh_.subscribe<sensor_msgs::CameraInfo>("/duo3d_camera/right/camera_info",1,
       &Localization::camera_info_callback,this);
-  point_cloud_pub_ = nh_.advertise<sensor_msgs::PointCloud>("/vio/features_point_cloud",1); //TODO: add to debug parameter
+  //point_cloud_pub_ = nh_.advertise<sensor_msgs::PointCloud>("/vio/features_point_cloud",1); //TODO: add to debug parameter
   path_pub_ = nh_.advertise<nav_msgs::Path>("/vio/SLAM_path",1);
   vis_pub_ = nh_.advertise<visualization_msgs::Marker>( "drone", 0 );
 
@@ -187,40 +187,20 @@ void Localization::update(double dt, const cv::Mat& left_image, const cv::Mat& r
   get_inertial_vector(imu,mag,inertial);
 
    emxArray_real_T *xt_out; // result
-  // emxArray_real_T *anchor_u_out;
-  // emxArray_real_T *anchor_pose_out;
    emxArray_real_T *P_apo_out;
 
    emxInitArray_real_T(&xt_out,1);
-  // emxInitArray_real_T(&anchor_u_out,1);
-  // emxInitArray_real_T(&anchor_pose_out,1);
    emxInitArray_real_T(&P_apo_out,2);
 
   // Update SLAM and get pose estimation
   tic = ros::Time::now();
-  // SLAM(update_vec_array, z_all, &camera_params_[0], dt, &process_noise_[0], &inertial[0], &im_noise_[0], num_points_per_anchor_, num_anchors_,
-  //     h_u_apo_, xt_out, update_vec_array, anchor_u_out, anchor_pose_out, P_apo_out);
-emxArray_real_T *xt_out;
-  emxArray_real_T *P_apo_out;
-  double updateVect[32];
+
+  //double updateVect[32];
   
   double b_map[96];
   double h_u_apo[96];
-  emxInitArray_real_T(&xt_out, 1);
-  emxInitArray_real_T(&P_apo_out, 2);
 
-  // Initialize function 'SLAM' input arguments.
-  // Initialize function input argument 'updateVect'.
-  argInit_32x1_real_T(updateVect);
-
-  // Initialize function input argument 'z_all'.
-  // Initialize function input argument 'cameraparams'.
-  // Initialize function input argument 'processNoise'.
-  // Initialize function input argument 'IMU_measurements'.
-  // Initialize function input argument 'imNoise'.
-  // Call the entry-point 'SLAM'.
-
-  SLAM(updateVect, z_all, camera_params_, dt, process_noise_, inertial, im_noise_, num_points_per_anchor_,num_anchors_, h_u_apo, xt_out, P_apo_out, b_map);
+  SLAM(update_vec_array, z_all,  &camera_params_[0], dt, &process_noise_[0], &inertial[0], &im_noise_[0], num_points_per_anchor_,num_anchors_, h_u_apo, xt_out, P_apo_out, b_map);
 
   update_vec_.assign(update_vec_array, update_vec_array + num_anchors_);
   ROS_INFO("Time SLAM: %f", (ros::Time::now() - tic).toSec());
@@ -241,8 +221,6 @@ emxArray_real_T *xt_out;
   // TODO Make velocities ex_out[7] .. ex_out[12] available as ROS message
 
   emxDestroyArray_real_T(xt_out);
-  emxDestroyArray_real_T(anchor_u_out);
-  emxDestroyArray_real_T(anchor_pose_out);
   emxDestroyArray_real_T(P_apo_out);
 
 }
