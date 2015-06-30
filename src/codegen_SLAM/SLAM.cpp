@@ -5,7 +5,7 @@
 // File: SLAM.cpp
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 30-Jun-2015 15:37:11
+// C/C++ source code generated on  : 30-Jun-2015 15:53:33
 //
 
 // Include Files
@@ -83,8 +83,8 @@ static void SLAM_pred_euler(emxArray_real_T *b_P_apo, emxArray_real_T *x, double
   dt, const double processNoise[3], const double IMU_measurements[9], double
   c_numStates);
 static void SLAM_updIT(emxArray_real_T *P_apr, emxArray_real_T *b_xt, const
-  double cameraparams[4], const double updateVect[32], const double z_all[96],
-  const double imNoise[3], emxArray_real_T *b_P_apo, double map_out[96]);
+  double cameraparams[4], double updateVect[32], const double z_all[96], const
+  double imNoise[3], emxArray_real_T *b_P_apo, double map_out[96]);
 static void SLAM_updIT_free();
 static void SLAM_updIT_init();
 static boolean_T any(const boolean_T x[3]);
@@ -1198,7 +1198,7 @@ static void SLAM_pred_euler(emxArray_real_T *b_P_apo, emxArray_real_T *x, double
 // Arguments    : emxArray_real_T *P_apr
 //                emxArray_real_T *b_xt
 //                const double cameraparams[4]
-//                const double updateVect[32]
+//                double updateVect[32]
 //                const double z_all[96]
 //                const double imNoise[3]
 //                emxArray_real_T *b_P_apo
@@ -1206,10 +1206,9 @@ static void SLAM_pred_euler(emxArray_real_T *b_P_apo, emxArray_real_T *x, double
 // Return Type  : void
 //
 static void SLAM_updIT(emxArray_real_T *P_apr, emxArray_real_T *b_xt, const
-  double cameraparams[4], const double updateVect[32], const double z_all[96],
-  const double imNoise[3], emxArray_real_T *b_P_apo, double map_out[96])
+  double cameraparams[4], double updateVect[32], const double z_all[96], const
+  double imNoise[3], emxArray_real_T *b_P_apo, double map_out[96])
 {
-  double updateVect_out[32];
   double f;
   double Cx;
   double Cy;
@@ -1289,12 +1288,12 @@ static void SLAM_updIT(emxArray_real_T *P_apr, emxArray_real_T *b_xt, const
   int iv1[6];
   double A;
   double c_y;
+  double disparities[32];
   boolean_T bv1[32];
-  double b_updateVect_out;
+  double b_disparities;
   signed char c_tmp_data[32];
   int iidx[32];
   int d_tmp_data[32];
-  memcpy(&updateVect_out[0], &updateVect[0], sizeof(double) << 5);
 
   // % Iterative Camera Pose optimization (EKF)
   //  camera parameters
@@ -1425,7 +1424,7 @@ static void SLAM_updIT(emxArray_real_T *P_apr, emxArray_real_T *b_xt, const
       h_ui[0] = Cx + f * (h_ci[0] / h_ci[2]);
       h_ui[1] = Cy + f * (h_ci[1] / h_ci[2]);
       h_ui[2] = f * b / h_ci[2];
-      if (rtIsNaN(z_all[i9 + 2])) {
+      if (z_all[i9 + 2] < -500.0) {
         // invalid disparity
         h_u_To_h_c[0] = f / h_ci[2];
         h_u_To_h_c[3] = 0.0;
@@ -1693,7 +1692,7 @@ static void SLAM_updIT(emxArray_real_T *P_apr, emxArray_real_T *b_xt, const
           z_data[i9 + ii] = 0.0;
         }
 
-        updateVect_out[indMeas_data[ar] - 1] = 0.0;
+        updateVect[indMeas_data[ar] - 1] = 0.0;
       }
 
       if (fabs(z_data[ar * 3 + 1] - mean_residual_uy) > rejection_threshold_uy)
@@ -1704,7 +1703,7 @@ static void SLAM_updIT(emxArray_real_T *P_apr, emxArray_real_T *b_xt, const
           z_data[i9 + ii] = 0.0;
         }
 
-        updateVect_out[indMeas_data[ar] - 1] = 0.0;
+        updateVect[indMeas_data[ar] - 1] = 0.0;
       }
     }
 
@@ -2277,7 +2276,7 @@ static void SLAM_updIT(emxArray_real_T *P_apr, emxArray_real_T *b_xt, const
     } else {
       br = 0;
       for (k = 0; k < 32; k++) {
-        if (updateVect_out[k] == 1.0) {
+        if (updateVect[k] == 1.0) {
           br++;
         }
       }
@@ -2401,7 +2400,7 @@ static void SLAM_updIT(emxArray_real_T *P_apr, emxArray_real_T *b_xt, const
 
   // %
   RotFromQuatJ(*(double (*)[4])&b_xt->data[3], R_cw);
-  if (updateVect_out[0] == 2.0) {
+  if (updateVect[0] == 2.0) {
     //  a new feature
     //   fprintf('Feature %i: ', i)
     ib = measurementHistory->size[1];
@@ -2419,9 +2418,9 @@ static void SLAM_updIT(emxArray_real_T *P_apr, emxArray_real_T *b_xt, const
     }
 
     //  fill in nan for un-used map points so they won't be plotted
-    if (rtIsNaN(z_all[2])) {
+    if (z_all[2] < -500.0) {
       //  nan disparity means the measurement is useless
-      updateVect_out[0] = 0.0;
+      updateVect[0] = 0.0;
 
       //   fprintf('rejecting due to invalid disparity\n')
     } else if (z_all[2] > disparityThreshold) {
@@ -2444,17 +2443,17 @@ static void SLAM_updIT(emxArray_real_T *P_apr, emxArray_real_T *b_xt, const
       pointInMap[0] = 1.0;
 
       //  corresponds to pointInitialized
-      updateVect_out[0] = 1.0;
+      updateVect[0] = 1.0;
     } else {
       //  we need to postpone the initialization of this feature
       //   fprintf('delaying initialization\n')
       age[0] = 0.0;
-      updateVect_out[0] = 1.0;
+      updateVect[0] = 1.0;
       pointInMap[0] = 0.0;
     }
   }
 
-  if ((updateVect_out[0] == 1.0) && (pointInMap[0] == 0.0) && createNewTrail &&
+  if ((updateVect[0] == 1.0) && (pointInMap[0] == 0.0) && createNewTrail &&
       (trailSize > 0.0)) {
     //  an existing, yet to be initialized, feature
     age[0]++;
@@ -2499,18 +2498,18 @@ static void SLAM_updIT(emxArray_real_T *P_apr, emxArray_real_T *b_xt, const
     //  disparity
     idx = 0;
     for (i9 = 0; i9 < 32; i9++) {
-      b_updateVect_out = z_all[2 + 3 * i9];
+      b_disparities = z_all[2 + 3 * i9];
       if (pointInMap[i9] == 1.0) {
-        b_updateVect_out = 0.0;
+        b_disparities = 0.0;
       }
 
       //  only look at features not yet in map
-      b0 = rtIsNaN(b_updateVect_out);
+      b0 = rtIsNaN(b_disparities);
       if (b0) {
         idx++;
       }
 
-      updateVect_out[i9] = b_updateVect_out;
+      disparities[i9] = b_disparities;
       bv1[i9] = b0;
     }
 
@@ -2523,12 +2522,12 @@ static void SLAM_updIT(emxArray_real_T *P_apr, emxArray_real_T *b_xt, const
     }
 
     for (i9 = 0; i9 < idx; i9++) {
-      updateVect_out[c_tmp_data[i9] - 1] = 0.0;
+      disparities[c_tmp_data[i9] - 1] = 0.0;
     }
 
     //  remove invalid disparities (NaN is bigger than Inf in matlab)
-    eml_sort(updateVect_out, iidx);
-    memset(&updateVect_out[0], 0, sizeof(double) << 5);
+    eml_sort(disparities, iidx);
+    memset(&disparities[0], 0, sizeof(double) << 5);
     d0 = minFeatureThreshold - (double)br;
     if (1.0 > d0) {
       ib = 0;
@@ -2541,12 +2540,12 @@ static void SLAM_updIT(emxArray_real_T *P_apr, emxArray_real_T *b_xt, const
     }
 
     for (i9 = 0; i9 < ib; i9++) {
-      updateVect_out[d_tmp_data[i9] - 1] = 1.0;
+      disparities[d_tmp_data[i9] - 1] = 1.0;
     }
 
     //  triangulate the features with the highest disparities
     for (ar = 0; ar < 32; ar++) {
-      if (updateVect_out[ar] != 0.0) {
+      if (disparities[ar] != 0.0) {
         //        fprintf('Feature %i: forcing initialization\n', i)
         A = f * b;
         c_y = A / z_all[ar * 3 + 2];
@@ -2565,11 +2564,14 @@ static void SLAM_updIT(emxArray_real_T *P_apr, emxArray_real_T *b_xt, const
         pointInMap[ar] = 1.0;
 
         //  corresponds to pointInitialized
+        updateVect[ar] = 1.0;
       }
     }
   }
 
   memcpy(&map_out[0], &map[0], 96U * sizeof(double));
+
+  // updateVect_out(:)=1;
 }
 
 //
@@ -4620,9 +4622,6 @@ void SLAM(double updateVect[32], const double z_all[96], const double
     }
 
     SLAM_updIT(P_apr, xt, cameraparams, updateVect, z_all, imNoise, P_apo, b_map);
-    for (outsize_idx_0 = 0; outsize_idx_0 < 32; outsize_idx_0++) {
-      updateVect[outsize_idx_0] = 1.0;
-    }
   }
 
   emxInit_real_T(&r1, 2);
@@ -4652,10 +4651,6 @@ void SLAM(double updateVect[32], const double z_all[96], const double
   }
 
   emxFree_real_T(&P_apr);
-  for (outsize_idx_0 = 0; outsize_idx_0 < 32; outsize_idx_0++) {
-    updateVect[outsize_idx_0] = 1.0;
-  }
-
   i7 = xt_out->size[0];
   xt_out->size[0] = xt->size[0];
   emxEnsureCapacity((emxArray__common *)xt_out, i7, (int)sizeof(double));
