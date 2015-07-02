@@ -28,68 +28,80 @@ void handle_points_klt(const cv::Mat &img_l, const cv::Mat &img_r, unsigned int 
   const unsigned int targetNumPoints = numPoints;
   const double minDistSqr = 10*10;
   const double minScore = 4;
-  
+
   for (size_t i = 0; i < prev_status.size() && i <numPoints; ++i)
   {
     prev_status.at(i) = updateVect[i];
   }
 
-  //if we have a previous image we can do KLT tracking
   std::vector<unsigned char> status;
+  std::vector<cv::Point2f> cur_corners;
+  std::vector<float> error;
+
   if (!prev_img.empty())
   {
-    std::vector<cv::Point2f> cur_corners;
-    std::vector<cv::Point2f> cur_corners_right;
-    std::vector<float> error;
     cv::calcOpticalFlowPyrLK(prev_img, img_l, prev_corners, cur_corners, status, error, cv::Size(21,21), 5);
-
-    if (!img_r.empty())
-    {
-      std::vector<unsigned char> statusRight;
-      cv::calcOpticalFlowPyrLK(img_l, img_r, cur_corners, prev_corners_right, statusRight, error, cv::Size(21,21), 5);
-
-      //update status for valid points (if tracking failed on any valid point invalidate them)
-      for (size_t i = 0; i < prev_corners.size(); i++)
-      {
-        if (prev_status[i] == 1 && status[i] == 1 && statusRight[i] == 1)
-          prev_status[i] = 1;
-        else
-          prev_status[i] = 0;
-      }
-    }
-    else
-    {
-      //update status for valid points (if tracking failed on any valid point invalidate them)
-      for (size_t i = 0; i < prev_corners.size(); i++)
-        if (prev_status[i] == 1)
-          prev_status[i] = status[i];
-    }
     prev_corners = cur_corners;
+    for (size_t i = 0; i < prev_status.size() && i <numPoints; ++i)
+    {
+      prev_status[i] = prev_status[i] && status[i];
+    }
   }
+
   img_l.copyTo(prev_img);
 
   //check if we need more points
   initMorePoints(img_l, gridSizeX, gridSizeY, targetNumPoints, minDistSqr, minScore);
 
-  //compute disparity and write the output variables
-  for (size_t i = 0; i < prev_corners.size() && i < numPoints; i++)
+  if (!img_r.empty())
   {
-    z_all[3*i+0] = prev_corners[i].x;
-    z_all[3*i+1] = prev_corners[i].y;
+    std::vector<unsigned char> statusRight;
+    cv::calcOpticalFlowPyrLK(img_l, img_r, prev_corners, prev_corners_right, statusRight, error, cv::Size(21,21), 5);
 
-    //check disparity
-    double diffx = prev_corners[i].x - prev_corners_right[i].x;
-    double diffy = prev_corners[i].y - prev_corners_right[i].y;
-    double disparity = sqrt(diffx*diffx + diffy*diffy);
+    //compute disparity and write the output variables
+    for (size_t i = 0; i < prev_corners.size() && i < numPoints; i++)
+    {
+      if(status.size() == 0) // status has size 0 the first time
+      {
+        // only statusRight matters
+        if(!(statusRight[i] == 1))
+        {
+          prev_status[i] = 0;
+        }
 
-    if (diffx > -3.0 && diffy/diffx < 0.1 && diffx < 250)
-      z_all[3*i+2] = disparity;
-    else
-      z_all[3*i+2] = -1000;  //outlier
+      } else {
+        if(!(statusRight[i] == 1) || (!status[i] == 1 && !prev_status[i] == 2))
+        {
+          prev_status[i] = 0;
+        }
+      }
 
-    updateVect[i] = prev_status[i];
+      z_all[3*i+0] = prev_corners[i].x;
+      z_all[3*i+1] = prev_corners[i].y;
+
+      //check disparity
+      double diffx = prev_corners[i].x - prev_corners_right[i].x;
+      double diffy = prev_corners[i].y - prev_corners_right[i].y;
+      double disparity = sqrt(diffx*diffx + diffy*diffy);
+
+      if (diffx > -3.0 && diffy/diffx < 0.1 && diffx < 250)
+        z_all[3*i+2] = disparity;
+      else
+      {
+        z_all[3*i+2] = -1000;  //outlier
+      }
+
+        updateVect[i] = prev_status[i];
+    }
+
+
+  } else {
+    printf("Right image is empty!\n");
+    for (size_t i = 0; i < prev_corners.size() && i < numPoints; i++)
+    {
+      z_all[3*i+2] = -1000;
+    }
   }
-
 }
 
 // ==== local functions, hidden from outside this file ====
@@ -249,7 +261,7 @@ static void initMorePoints(const cv::Mat &img, int gridSizeX, int gridSizeY, uns
       {
         prev_status[j] = 2;
         prev_corners[j] = newPoints[i];
-        break;
+        i++;
       }
     }
     //stop if no more slots for new points
@@ -259,6 +271,7 @@ static void initMorePoints(const cv::Mat &img, int gridSizeX, int gridSizeY, uns
     prev_status.push_back(2);
     prev_corners.push_back(newPoints[i]);
     prev_corners_right.push_back(newPoints[i]);
+    j++;
 
   }
 

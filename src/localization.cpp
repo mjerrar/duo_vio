@@ -10,7 +10,7 @@
 #include <visualization_msgs/Marker.h>
 
 Localization::Localization()
-: nh_("~"), 
+: nh_("~"),
 left_image_sub_(nh_, "/left_image", 1),
 right_image_sub_(nh_, "/right_image", 1),
 imu_sub_(nh_, "/imu", 1),
@@ -82,6 +82,7 @@ void Localization::synchronized_callback(const sensor_msgs::ImageConstPtr& left_
     const sensor_msgs::ImageConstPtr& right_image,
     const sensor_msgs::ImuConstPtr& imu)
 {
+
     sensor_msgs::MagneticField mag; // TODO Subscribe to mag topic
 
     if (!camera_info_initialized_)
@@ -144,7 +145,7 @@ void Localization::synchronized_callback(const sensor_msgs::ImageConstPtr& left_
     visMarker();
 }
 
-void Localization::update(double dt, const cv::Mat& left_image, const cv::Mat& right_image, const sensor_msgs::Imu& imu, 
+void Localization::update(double dt, const cv::Mat& left_image, const cv::Mat& right_image, const sensor_msgs::Imu& imu,
     const sensor_msgs::MagneticField& mag, geometry_msgs::Pose& pose)
 {
     //*********************************************************************
@@ -161,7 +162,8 @@ void Localization::update(double dt, const cv::Mat& left_image, const cv::Mat& r
 
     ros::Time tic = ros::Time::now();
     handle_points_klt(left_image,right_image,num_anchors_,z_all,update_vec_char);
-    ROS_INFO("Time Tracking: %f", (ros::Time::now() - tic).toSec());
+//     ROS_INFO("Time Tracking: %f", (ros::Time::now() - tic).toSec());
+//     printf("Measurement: %f,%f,%f \n",z_all[0],z_all[1],z_all[2]);
 
     if (show_tracker_images_)
     {
@@ -172,11 +174,11 @@ void Localization::update(double dt, const cv::Mat& left_image, const cv::Mat& r
     double update_vec_array_out[num_anchors_];
     for (size_t i = 0; i < num_anchors_; ++i)
     {
-        update_vec_array[i] = update_vec_char[i];
-        if(z_all[3*i] < 0)
-        ROS_ERROR("Negative x: %f",z_all[3*i]);
-        if(z_all[3*i+1] < 0)
-        ROS_ERROR("Negative y: %f",z_all[3*i+1]);
+    	update_vec_array[i] = update_vec_char[i];
+         if(z_all[3*i] < 0)
+             ROS_ERROR("Negative x: %f",z_all[3*i]);
+         if(z_all[3*i+1] < 0)
+             ROS_ERROR("Negative y: %f",z_all[3*i+1]);
     }
 
     //*********************************************************************
@@ -204,7 +206,7 @@ void Localization::update(double dt, const cv::Mat& left_image, const cv::Mat& r
     //memcpy(update_vec_array,update_vec_array_out,num_anchors_*sizeof(double));
 
     update_vec_.assign(update_vec_array_out, update_vec_array_out + num_anchors_);
-    ROS_INFO("Time SLAM: %f", (ros::Time::now() - tic).toSec());
+     ROS_INFO("Time SLAM: %f", (ros::Time::now() - tic).toSec());
 
     // Publish feature position in world frame
     publishPointCloud(b_map);
@@ -293,39 +295,9 @@ void Localization::publishPointCloud(double *map)
 
     features.header.frame_id = "world";
     features.header.stamp = ros::Time::now();
-    printf("%f,%f,%f \n",map[0],map[1],map[2]);
-    
+
     for(int cnt = 0; cnt < num_points_per_anchor_*num_anchors_; cnt++)
     {
-            // int ind_anchor = cnt/num_points_per_anchor_ + 1;
-
-            // //13 = numStatesxt, 7 = numStatesPerAnchorxt - num_points_per_anchor_ TODO(Stefan): change to constants or function inputs
-            // double x_i = xt_out->data[13 + ind_anchor*(7 + num_points_per_anchor_) - (6 + num_points_per_anchor_) - 1];
-            // double y_i = xt_out->data[13 + ind_anchor*(7 + num_points_per_anchor_) - (5 + num_points_per_anchor_) - 1];
-            // double z_i = xt_out->data[13 + ind_anchor*(7 + num_points_per_anchor_) - (4 + num_points_per_anchor_) - 1];
-
-            // double fq_cw0 = xt_out->data[13 + ind_anchor*(7 + num_points_per_anchor_) - (3 + num_points_per_anchor_) - 1];
-            // double fq_cw1 = xt_out->data[13 + ind_anchor*(7 + num_points_per_anchor_) - (2 + num_points_per_anchor_) - 1];
-            // double fq_cw2 = xt_out->data[13 + ind_anchor*(7 + num_points_per_anchor_) - (1 + num_points_per_anchor_) - 1];
-            // double fq_cw3 = xt_out->data[13 + ind_anchor*(7 + num_points_per_anchor_) - (0 + num_points_per_anchor_) - 1];
-
-            // int feature_offset = cnt % num_points_per_anchor_ + 1;
-            // double rho = xt_out->data[13 + ind_anchor*(7 + num_points_per_anchor_) - (0 + num_points_per_anchor_) + feature_offset - 1];
-
-            // tf::Vector3 fp(x_i, y_i, z_i);
-            // tf::Quaternion q(fq_cw0, fq_cw1, fq_cw2, fq_cw3);
-            // //tf::Matrix3x3 R_wc(q);
-
-            // tf::Transform cam2world;
-            // cam2world.setOrigin(fp);
-            // cam2world.setRotation(q);
-
-            // tf::Vector3 m((camera_params_[1] - anchor_u_out->data[cnt*2])/camera_params_[0], (camera_params_[2] - anchor_u_out->data[cnt*2 + 1])/camera_params_[0], 1.0f);
-            // m.normalize();
-            // m /= rho;
-
-            // tf::Vector3 featurePosition = cam2world*m;
-
             geometry_msgs::Point32 point;
             point.x = map[cnt*3];
             point.y = map[cnt*3+1];

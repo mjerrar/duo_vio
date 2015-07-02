@@ -7,13 +7,13 @@
     <remap from="/left_image" to="/left/image_rect"/>
     <remap from="/right_image" to="/right/image_rect"/>
 
-    <param name="process_noise_1" type="double" value="1" />
-    <param name="process_noise_2" type="double" value="1" />
+    <param name="process_noise_1" type="double" value="0.01" />
+    <param name="process_noise_2" type="double" value="0.01" />
     <param name="process_noise_3" type="double" value="0.0" />
 
-    <param name="im_noise_1" type="double" value="10" />
-    <param name="im_noise_2" type="double" value="10" />
-    <param name="im_noise_3" type="double" value="10" />
+    <param name="im_noise_1" type="double" value="2" />
+    <param name="im_noise_2" type="double" value="2" />
+    <param name="im_noise_3" type="double" value="2" />
 
     <param name="num_points_per_anchor" type="int" value="1" />
     <param name="num_anchors" type="int" value="32" />

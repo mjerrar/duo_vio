@@ -37,7 +37,7 @@ private:
   message_filters::Subscriber<sensor_msgs::Imu>   imu_sub_;
 
   ros::Subscriber camera_info_sub_;
-  
+
   message_filters::TimeSynchronizer
     <sensor_msgs::Image, sensor_msgs::Image, sensor_msgs::Imu> time_synchronizer_;
 
@@ -63,7 +63,7 @@ private:
 
   void camera_info_callback(const sensor_msgs::CameraInfoConstPtr& info);
 
-  void update(double dt, const cv::Mat& left_image, const cv::Mat& right_image, const sensor_msgs::Imu& imu, 
+  void update(double dt, const cv::Mat& left_image, const cv::Mat& right_image, const sensor_msgs::Imu& imu,
       const sensor_msgs::MagneticField& mag, geometry_msgs::Pose& pose);
 
   void get_inertial_vector(const sensor_msgs::Imu& imu, const sensor_msgs::MagneticField& mag, std::vector<double>& inertial_vec);
