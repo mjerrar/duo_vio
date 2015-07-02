@@ -5,7 +5,7 @@
 // File: SLAM.cpp
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 30-Jun-2015 17:55:49
+// C/C++ source code generated on  : 02-Jul-2015 17:06:45
 //
 
 // Include Files
@@ -392,10 +392,10 @@ static void SLAM_pred_euler(emxArray_real_T *b_P_apo, emxArray_real_T *x, double
   double R_cw[9];
   double w[3];
   int i15;
-  double dv6[9];
+  double b_processNoise[9];
   double b_R_cw[9];
   int cr;
-  double dv7[9];
+  double dv12[9];
   double c_R_cw[9];
   int k;
   static const signed char iv2[36] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -422,8 +422,8 @@ static void SLAM_pred_euler(emxArray_real_T *b_P_apo, emxArray_real_T *x, double
   int ib;
   int ia;
   double y[144];
-  double b_processNoise[9];
-  double dv8[81];
+  double c_processNoise[9];
+  double dv13[81];
   double b_G1[108];
   double c_G1[144];
   emxArray_real_T *d_P_apo;
@@ -431,9 +431,9 @@ static void SLAM_pred_euler(emxArray_real_T *b_P_apo, emxArray_real_T *x, double
   emxArray_int32_T *r5;
   emxArray_real_T *b_P_xs_apr;
   double grav[3];
-  static const double dv9[3] = { 0.0, 0.0, 9.81 };
+  static const double dv14[3] = { 0.0, 0.0, 9.81 };
 
-  static const double dv10[3] = { 0.0, 0.0, -9.81 };
+  static const double dv15[3] = { 0.0, 0.0, -9.81 };
 
   double b_x[3];
   double b_w[3];
@@ -469,35 +469,35 @@ static void SLAM_pred_euler(emxArray_real_T *b_P_apo, emxArray_real_T *x, double
   }
 
   if (UseAccToPredict) {
-    dv6[0] = 0.0;
-    dv6[3] = -w[2];
-    dv6[6] = w[1];
-    dv6[1] = w[2];
-    dv6[4] = 0.0;
-    dv6[7] = -w[0];
-    dv6[2] = -w[1];
-    dv6[5] = w[0];
-    dv6[8] = 0.0;
+    b_processNoise[0] = 0.0;
+    b_processNoise[3] = -w[2];
+    b_processNoise[6] = w[1];
+    b_processNoise[1] = w[2];
+    b_processNoise[4] = 0.0;
+    b_processNoise[7] = -w[0];
+    b_processNoise[2] = -w[1];
+    b_processNoise[5] = w[0];
+    b_processNoise[8] = 0.0;
     for (i15 = 0; i15 < 3; i15++) {
       for (cr = 0; cr < 3; cr++) {
         b_R_cw[cr + 3 * i15] = -R_cw[i15 + 3 * cr];
       }
     }
 
-    dv7[0] = 0.0;
-    dv7[3] = -IMU_measurements[5];
-    dv7[6] = IMU_measurements[4];
-    dv7[1] = IMU_measurements[5];
-    dv7[4] = 0.0;
-    dv7[7] = -IMU_measurements[3];
-    dv7[2] = -IMU_measurements[4];
-    dv7[5] = IMU_measurements[3];
-    dv7[8] = 0.0;
+    dv12[0] = 0.0;
+    dv12[3] = -IMU_measurements[5];
+    dv12[6] = IMU_measurements[4];
+    dv12[1] = IMU_measurements[5];
+    dv12[4] = 0.0;
+    dv12[7] = -IMU_measurements[3];
+    dv12[2] = -IMU_measurements[4];
+    dv12[5] = IMU_measurements[3];
+    dv12[8] = 0.0;
     for (i15 = 0; i15 < 3; i15++) {
       for (cr = 0; cr < 3; cr++) {
         c_R_cw[i15 + 3 * cr] = 0.0;
         for (k = 0; k < 3; k++) {
-          c_R_cw[i15 + 3 * cr] += b_R_cw[i15 + 3 * k] * dv7[k + 3 * cr];
+          c_R_cw[i15 + 3 * cr] += b_R_cw[i15 + 3 * k] * dv12[k + 3 * cr];
         }
       }
     }
@@ -516,7 +516,7 @@ static void SLAM_pred_euler(emxArray_real_T *b_P_apo, emxArray_real_T *x, double
 
     for (i15 = 0; i15 < 3; i15++) {
       for (cr = 0; cr < 3; cr++) {
-        Fc[(cr + 12 * (i15 + 3)) + 3] = -dv6[cr + 3 * i15];
+        Fc[(cr + 12 * (i15 + 3)) + 3] = -b_processNoise[cr + 3 * i15];
       }
     }
 
@@ -562,29 +562,35 @@ static void SLAM_pred_euler(emxArray_real_T *b_P_apo, emxArray_real_T *x, double
       }
     }
   } else {
-    dv6[0] = 0.0;
-    dv6[3] = -w[2];
-    dv6[6] = w[1];
-    dv6[1] = w[2];
-    dv6[4] = 0.0;
-    dv6[7] = -w[0];
-    dv6[2] = -w[1];
-    dv6[5] = w[0];
-    dv6[8] = 0.0;
-    dv7[0] = 0.0;
-    dv7[3] = -IMU_measurements[5];
-    dv7[6] = IMU_measurements[4];
-    dv7[1] = IMU_measurements[5];
-    dv7[4] = 0.0;
-    dv7[7] = -IMU_measurements[3];
-    dv7[2] = -IMU_measurements[4];
-    dv7[5] = IMU_measurements[3];
-    dv7[8] = 0.0;
+    b_processNoise[0] = 0.0;
+    b_processNoise[3] = -w[2];
+    b_processNoise[6] = w[1];
+    b_processNoise[1] = w[2];
+    b_processNoise[4] = 0.0;
+    b_processNoise[7] = -w[0];
+    b_processNoise[2] = -w[1];
+    b_processNoise[5] = w[0];
+    b_processNoise[8] = 0.0;
     for (i15 = 0; i15 < 3; i15++) {
       for (cr = 0; cr < 3; cr++) {
-        b_R_cw[i15 + 3 * cr] = 0.0;
+        b_R_cw[cr + 3 * i15] = -R_cw[i15 + 3 * cr];
+      }
+    }
+
+    dv12[0] = 0.0;
+    dv12[3] = -IMU_measurements[5];
+    dv12[6] = IMU_measurements[4];
+    dv12[1] = IMU_measurements[5];
+    dv12[4] = 0.0;
+    dv12[7] = -IMU_measurements[3];
+    dv12[2] = -IMU_measurements[4];
+    dv12[5] = IMU_measurements[3];
+    dv12[8] = 0.0;
+    for (i15 = 0; i15 < 3; i15++) {
+      for (cr = 0; cr < 3; cr++) {
+        c_R_cw[i15 + 3 * cr] = 0.0;
         for (k = 0; k < 3; k++) {
-          b_R_cw[i15 + 3 * cr] += -0.0 * R_cw[k + 3 * i15] * dv7[k + 3 * cr];
+          c_R_cw[i15 + 3 * cr] += b_R_cw[i15 + 3 * k] * dv12[k + 3 * cr];
         }
       }
     }
@@ -603,7 +609,7 @@ static void SLAM_pred_euler(emxArray_real_T *b_P_apo, emxArray_real_T *x, double
 
     for (i15 = 0; i15 < 3; i15++) {
       for (cr = 0; cr < 3; cr++) {
-        Fc[(cr + 12 * (i15 + 3)) + 3] = -dv6[cr + 3 * i15];
+        Fc[(cr + 12 * (i15 + 3)) + 3] = -b_processNoise[cr + 3 * i15];
       }
     }
 
@@ -627,7 +633,7 @@ static void SLAM_pred_euler(emxArray_real_T *b_P_apo, emxArray_real_T *x, double
 
     for (i15 = 0; i15 < 3; i15++) {
       for (cr = 0; cr < 3; cr++) {
-        Fc[(cr + 12 * (i15 + 3)) + 6] = b_R_cw[cr + 3 * i15];
+        Fc[(cr + 12 * (i15 + 3)) + 6] = c_R_cw[cr + 3 * i15];
       }
     }
 
@@ -820,25 +826,25 @@ static void SLAM_pred_euler(emxArray_real_T *b_P_apo, emxArray_real_T *x, double
     }
   }
 
-  b_processNoise[0] = processNoise[1];
-  b_processNoise[1] = processNoise[1];
-  b_processNoise[2] = processNoise[1];
-  b_processNoise[3] = processNoise[0];
-  b_processNoise[4] = processNoise[0];
-  b_processNoise[5] = processNoise[0];
-  b_processNoise[6] = processNoise[2];
-  b_processNoise[7] = processNoise[2];
-  b_processNoise[8] = processNoise[2];
+  c_processNoise[0] = processNoise[1];
+  c_processNoise[1] = processNoise[1];
+  c_processNoise[2] = processNoise[1];
+  c_processNoise[3] = processNoise[0];
+  c_processNoise[4] = processNoise[0];
+  c_processNoise[5] = processNoise[0];
+  c_processNoise[6] = processNoise[2];
+  c_processNoise[7] = processNoise[2];
+  c_processNoise[8] = processNoise[2];
   for (i15 = 0; i15 < 9; i15++) {
-    b_R_cw[i15] = b_processNoise[i15] * c;
+    b_processNoise[i15] = c_processNoise[i15] * c;
   }
 
-  b_diag(b_R_cw, dv8);
+  b_diag(b_processNoise, dv13);
   for (i15 = 0; i15 < 12; i15++) {
     for (cr = 0; cr < 9; cr++) {
       b_G1[i15 + 12 * cr] = 0.0;
       for (k = 0; k < 9; k++) {
-        b_G1[i15 + 12 * cr] += G1[i15 + 12 * k] * dv8[k + 9 * cr];
+        b_G1[i15 + 12 * cr] += G1[i15 + 12 * k] * dv13[k + 9 * cr];
       }
     }
 
@@ -1085,11 +1091,11 @@ static void SLAM_pred_euler(emxArray_real_T *b_P_apo, emxArray_real_T *x, double
   emxFree_int32_T(&r4);
   if (normalGravity) {
     for (k = 0; k < 3; k++) {
-      grav[k] = dv9[k];
+      grav[k] = dv14[k];
     }
   } else {
     for (k = 0; k < 3; k++) {
-      grav[k] = dv10[k];
+      grav[k] = dv15[k];
     }
   }
 
@@ -1208,13 +1214,13 @@ static void SLAM_updIT(emxArray_real_T *P_apr, emxArray_real_T *b_xt, const
   double Cy;
   double b;
   int i9;
-  int ib;
+  int ar;
   int idx;
   signed char ii_data[32];
   int ii;
   boolean_T exitg1;
   boolean_T guard1 = false;
-  int ar;
+  int ib;
   signed char indMeas_data[32];
   emxArray_real_T *H_xc;
   double h_u_data[96];
@@ -1239,8 +1245,8 @@ static void SLAM_updIT(emxArray_real_T *P_apr, emxArray_real_T *b_xt, const
   emxArray_real_T *H;
   emxArray_real_T *R;
   emxArray_real_T *y;
-  double dv1[3];
-  double dv2[9];
+  double dv7[3];
+  double dv8[9];
   unsigned int unnamed_idx_0;
   unsigned int unnamed_idx_1;
   int m;
@@ -1252,14 +1258,14 @@ static void SLAM_updIT(emxArray_real_T *P_apr, emxArray_real_T *b_xt, const
   emxArray_real_T *K;
   emxArray_real_T *x_apo;
   emxArray_real_T *b_y;
-  double dv3[4];
-  double dv4[4];
+  double dv9[4];
+  double dv10[4];
   double d_xt[6];
   double d0;
   double d1;
   double d2;
   double e_xt[4];
-  double dv5[4];
+  double dv11[4];
   double newestTrail;
   double b_h_ui;
   static const signed char iv0[3] = { 0, 1, 2 };
@@ -1273,11 +1279,9 @@ static void SLAM_updIT(emxArray_real_T *P_apr, emxArray_real_T *b_xt, const
   double c_y;
   double fp[3];
   double disparities[32];
-  boolean_T bv1[32];
   double b_disparities;
-  signed char c_tmp_data[32];
   int iidx[32];
-  int d_tmp_data[32];
+  int c_tmp_data[32];
 
   // % Iterative Camera Pose optimization (EKF)
   //  camera parameters
@@ -1297,13 +1301,12 @@ static void SLAM_updIT(emxArray_real_T *P_apr, emxArray_real_T *b_xt, const
     measurementHistory->size[1] = (int)trailSize;
     emxEnsureCapacity((emxArray__common *)measurementHistory, i9, (int)sizeof
                       (double));
-    ib = 96 * (int)trailSize;
-    for (i9 = 0; i9 < ib; i9++) {
+    ar = 96 * (int)trailSize;
+    for (i9 = 0; i9 < ar; i9++) {
       measurementHistory->data[i9] = 0.0;
     }
 
     //  the old measurements for each trailing position
-    // residual_plot = figure;
     msckfUPD = 0.0;
   }
 
@@ -1331,50 +1334,50 @@ static void SLAM_updIT(emxArray_real_T *P_apr, emxArray_real_T *b_xt, const
   }
 
   if (1 > idx) {
-    ib = 0;
-  } else {
-    ib = idx;
-  }
-
-  if (1 > idx) {
     ar = 0;
   } else {
     ar = idx;
   }
 
-  for (i9 = 0; i9 < ib; i9++) {
+  if (1 > idx) {
+    ib = 0;
+  } else {
+    ib = idx;
+  }
+
+  for (i9 = 0; i9 < ar; i9++) {
     indMeas_data[i9] = ii_data[i9];
   }
 
   emxInit_real_T(&H_xc, 2);
   i9 = H_xc->size[0] * H_xc->size[1];
-  H_xc->size[0] = ib * 3;
+  H_xc->size[0] = ar * 3;
   emxEnsureCapacity((emxArray__common *)H_xc, i9, (int)sizeof(double));
   i9 = H_xc->size[0] * H_xc->size[1];
   H_xc->size[1] = (int)numStates;
   emxEnsureCapacity((emxArray__common *)H_xc, i9, (int)sizeof(double));
-  ib = ar * 3 * (int)numStates;
-  for (i9 = 0; i9 < ib; i9++) {
+  ar = ib * 3 * (int)numStates;
+  for (i9 = 0; i9 < ar; i9++) {
     H_xc->data[i9] = 0.0;
   }
 
   //  derivatives wrt camera state
-  ib = 3 * ar;
-  for (i9 = 0; i9 < ib; i9++) {
+  ar = 3 * ib;
+  for (i9 = 0; i9 < ar; i9++) {
     h_u_data[i9] = 0.0;
   }
 
   //  predicted measurements of current frame
   RotFromQuatJ(*(double (*)[4])&b_xt->data[3], R_cw);
-  z_size_idx_0 = 3 * ar;
-  ib = 3 * ar;
-  for (i9 = 0; i9 < ib; i9++) {
+  z_size_idx_0 = 3 * ib;
+  ar = 3 * ib;
+  for (i9 = 0; i9 < ar; i9++) {
     z_data[i9] = 0.0;
   }
 
   k = 1;
   emxInit_int32_T(&r2, 1);
-  while ((k <= ar) && (!(k > ar))) {
+  while ((k <= ib) && (!(k > ib))) {
     i9 = indMeas_data[k - 1] * 3 - 2;
     i10 = indMeas_data[k - 1] * 3;
     if (i9 > i10) {
@@ -1384,16 +1387,18 @@ static void SLAM_updIT(emxArray_real_T *P_apr, emxArray_real_T *b_xt, const
       i9--;
     }
 
-    ib = i10 - i9;
-    for (i10 = 0; i10 < ib; i10++) {
+    ar = i10 - i9;
+    for (i10 = 0; i10 < ar; i10++) {
       z_curr_data[i10] = z_all[i9 + i10];
     }
 
+    //  check if the feature point has NaNs, there was a problem
     for (i10 = 0; i10 < 3; i10++) {
       bv0[i10] = rtIsNaN(map[i10 + 3 * (indMeas_data[k - 1] - 1)]);
     }
 
     if (!any(bv0)) {
+      //  predicted point in camere frame
       for (i10 = 0; i10 < 3; i10++) {
         c_xt[i10] = map[i10 + 3 * (indMeas_data[k - 1] - 1)] - b_xt->data[i10];
       }
@@ -1405,9 +1410,13 @@ static void SLAM_updIT(emxArray_real_T *P_apr, emxArray_real_T *b_xt, const
         }
       }
 
+      //  measurement prediction
       h_ui[0] = Cx + f * (h_ci[0] / h_ci[2]);
       h_ui[1] = Cy + f * (h_ci[1] / h_ci[2]);
       h_ui[2] = f * b / h_ci[2];
+
+      //  gravity measurement prediction
+      //  check if the feature has a valid disparity
       if (z_all[i9 + 2] < -500.0) {
         // invalid disparity
         h_u_To_h_c[0] = f / h_ci[2];
@@ -1437,6 +1446,7 @@ static void SLAM_updIT(emxArray_real_T *P_apr, emxArray_real_T *b_xt, const
         h_u_To_h_c[8] = -b * f / (h_ci[2] * h_ci[2]);
       }
 
+      //  insert the current measurement into the measurement vector
       i9 = k * 3 - 2;
       i10 = k * 3;
       if (i9 > i10) {
@@ -1446,19 +1456,16 @@ static void SLAM_updIT(emxArray_real_T *P_apr, emxArray_real_T *b_xt, const
         i9--;
       }
 
-      ib = i10 - i9;
-      for (br = 0; br < ib; br++) {
+      ar = i10 - i9;
+      for (br = 0; br < ar; br++) {
         tmp_data[br] = i9 + br;
       }
 
-      ib = i10 - i9;
-      for (i9 = 0; i9 < ib; i9++) {
+      ar = i10 - i9;
+      for (i9 = 0; i9 < ar; i9++) {
         z_data[tmp_data[i9]] = z_curr_data[i9];
       }
 
-      // %%%%%%%%%%%%%%%%%%%%%%%
-      //         %% computation of H(x)%%
-      // %%%%%%%%%%%%%%%%%%%%%%%
       //  nonlinear predicted measurement
       i9 = 3 * k - 2;
       i10 = 3 * k;
@@ -1469,16 +1476,20 @@ static void SLAM_updIT(emxArray_real_T *P_apr, emxArray_real_T *b_xt, const
         i9--;
       }
 
-      ib = i10 - i9;
-      for (br = 0; br < ib; br++) {
+      ar = i10 - i9;
+      for (br = 0; br < ar; br++) {
         tmp_data[br] = i9 + br;
       }
 
-      ib = i10 - i9;
-      for (i9 = 0; i9 < ib; i9++) {
+      ar = i10 - i9;
+      for (i9 = 0; i9 < ar; i9++) {
         h_u_data[tmp_data[i9]] = h_ui[i9];
       }
 
+      // %%%%%%%%%%%%%%%%%%%%%%%
+      //         %% computation of H(x)%%
+      // %%%%%%%%%%%%%%%%%%%%%%%
+      //  derivative of measurement model wrt robot state
       //  stack the matrices for all feature measurements
       i9 = 3 * k - 2;
       i10 = 3 * k;
@@ -1489,16 +1500,16 @@ static void SLAM_updIT(emxArray_real_T *P_apr, emxArray_real_T *b_xt, const
         i9--;
       }
 
-      ib = i10 - i9;
-      for (br = 0; br < ib; br++) {
+      ar = i10 - i9;
+      for (br = 0; br < ar; br++) {
         b_tmp_data[br] = i9 + br;
       }
 
-      ib = H_xc->size[1];
+      ar = H_xc->size[1];
       br = r2->size[0];
-      r2->size[0] = ib;
+      r2->size[0] = ar;
       emxEnsureCapacity((emxArray__common *)r2, br, (int)sizeof(int));
-      for (br = 0; br < ib; br++) {
+      for (br = 0; br < ar; br++) {
         r2->data[br] = br;
       }
 
@@ -1548,14 +1559,16 @@ static void SLAM_updIT(emxArray_real_T *P_apr, emxArray_real_T *b_xt, const
 
   emxFree_int32_T(&r2);
 
-  // ===========ACC=====================================
-  if (ar > 0) {
+  //  perform update if the number of measurements > 0
+  if (ib > 0) {
     //  residual
     for (i9 = 0; i9 < z_size_idx_0; i9++) {
       z_data[i9] -= h_u_data[i9];
     }
 
     emxInit_real_T(&r3, 2);
+
+    //  make H the right size
     ii = H_xc->size[0];
     i9 = r3->size[0] * r3->size[1];
     r3->size[0] = ii;
@@ -1563,8 +1576,8 @@ static void SLAM_updIT(emxArray_real_T *P_apr, emxArray_real_T *b_xt, const
     i9 = r3->size[0] * r3->size[1];
     r3->size[1] = (int)(trailSize * 6.0);
     emxEnsureCapacity((emxArray__common *)r3, i9, (int)sizeof(double));
-    ib = H_xc->size[0] * (int)(trailSize * 6.0);
-    for (i9 = 0; i9 < ib; i9++) {
+    ar = H_xc->size[0] * (int)(trailSize * 6.0);
+    for (i9 = 0; i9 < ar; i9++) {
       r3->data[i9] = 0.0;
     }
 
@@ -1573,16 +1586,16 @@ static void SLAM_updIT(emxArray_real_T *P_apr, emxArray_real_T *b_xt, const
     H->size[0] = H_xc->size[0];
     H->size[1] = H_xc->size[1] + r3->size[1];
     emxEnsureCapacity((emxArray__common *)H, i9, (int)sizeof(double));
-    ib = H_xc->size[1];
-    for (i9 = 0; i9 < ib; i9++) {
+    ar = H_xc->size[1];
+    for (i9 = 0; i9 < ar; i9++) {
       idx = H_xc->size[0];
       for (i10 = 0; i10 < idx; i10++) {
         H->data[i10 + H->size[0] * i9] = H_xc->data[i10 + H_xc->size[0] * i9];
       }
     }
 
-    ib = r3->size[1];
-    for (i9 = 0; i9 < ib; i9++) {
+    ar = r3->size[1];
+    for (i9 = 0; i9 < ar; i9++) {
       idx = r3->size[0];
       for (i10 = 0; i10 < idx; i10++) {
         H->data[i10 + H->size[0] * (i9 + H_xc->size[1])] = r3->data[i10 +
@@ -1593,13 +1606,21 @@ static void SLAM_updIT(emxArray_real_T *P_apr, emxArray_real_T *b_xt, const
     emxFree_real_T(&r3);
     emxInit_real_T(&R, 2);
     emxInit_real_T(&y, 2);
-    eye((double)ar, y);
-    power(imNoise, dv1);
-    diag(dv1, dv2);
-    kron(y->data, y->size, dv2, R);
+
+    //  measurement noise covariance matrix
+    eye((double)ib, y);
+    power(imNoise, dv7);
+    diag(dv7, dv8);
+    kron(y->data, y->size, dv8, R);
     msckfUPD = 0.0;
 
     //  simple residual outlier rejection
+    //      mean_residual_ux = mean(r(1:3:end));
+    //      std_dev_residual_ux = std(r(1:3:end));
+    //      rejection_threshold_ux = 2*std_dev_residual_ux;
+    //      mean_residual_uy = mean(r(2:3:end));
+    //      std_dev_residual_uy = std(r(2:3:end));
+    //      rejection_threshold_uy = 2*std_dev_residual_uy;
     //
     //      for i = 1:length(indMeas)
     //          k = indMeas(i);
@@ -1619,13 +1640,14 @@ static void SLAM_updIT(emxArray_real_T *P_apr, emxArray_real_T *b_xt, const
     //          end
     //      end
     //
+    //  innovation covariance
     if ((H->size[1] == 1) || (P_apr->size[0] == 1)) {
       i9 = y->size[0] * y->size[1];
       y->size[0] = H->size[0];
       y->size[1] = P_apr->size[1];
       emxEnsureCapacity((emxArray__common *)y, i9, (int)sizeof(double));
-      ib = H->size[0];
-      for (i9 = 0; i9 < ib; i9++) {
+      ar = H->size[0];
+      for (i9 = 0; i9 < ar; i9++) {
         idx = P_apr->size[1];
         for (i10 = 0; i10 < idx; i10++) {
           y->data[i9 + y->size[0] * i10] = 0.0;
@@ -1647,8 +1669,8 @@ static void SLAM_updIT(emxArray_real_T *P_apr, emxArray_real_T *b_xt, const
       i9 = y->size[0] * y->size[1];
       y->size[1] = (int)unnamed_idx_1;
       emxEnsureCapacity((emxArray__common *)y, i9, (int)sizeof(double));
-      ib = (int)unnamed_idx_0 * (int)unnamed_idx_1;
-      for (i9 = 0; i9 < ib; i9++) {
+      ar = (int)unnamed_idx_0 * (int)unnamed_idx_1;
+      for (i9 = 0; i9 < ar; i9++) {
         y->data[i9] = 0.0;
       }
 
@@ -1694,8 +1716,8 @@ static void SLAM_updIT(emxArray_real_T *P_apr, emxArray_real_T *b_xt, const
     b_b->size[0] = H->size[1];
     b_b->size[1] = H->size[0];
     emxEnsureCapacity((emxArray__common *)b_b, i9, (int)sizeof(double));
-    ib = H->size[0];
-    for (i9 = 0; i9 < ib; i9++) {
+    ar = H->size[0];
+    for (i9 = 0; i9 < ar; i9++) {
       idx = H->size[1];
       for (i10 = 0; i10 < idx; i10++) {
         b_b->data[i10 + b_b->size[0] * i9] = H->data[i9 + H->size[0] * i10];
@@ -1708,8 +1730,8 @@ static void SLAM_updIT(emxArray_real_T *P_apr, emxArray_real_T *b_xt, const
       C->size[0] = y->size[0];
       C->size[1] = b_b->size[1];
       emxEnsureCapacity((emxArray__common *)C, i9, (int)sizeof(double));
-      ib = y->size[0];
-      for (i9 = 0; i9 < ib; i9++) {
+      ar = y->size[0];
+      for (i9 = 0; i9 < ar; i9++) {
         idx = b_b->size[1];
         for (i10 = 0; i10 < idx; i10++) {
           C->data[i9 + C->size[0] * i10] = 0.0;
@@ -1731,8 +1753,8 @@ static void SLAM_updIT(emxArray_real_T *P_apr, emxArray_real_T *b_xt, const
       i9 = C->size[0] * C->size[1];
       C->size[1] = (int)unnamed_idx_1;
       emxEnsureCapacity((emxArray__common *)C, i9, (int)sizeof(double));
-      ib = (int)unnamed_idx_0 * (int)unnamed_idx_1;
-      for (i9 = 0; i9 < ib; i9++) {
+      ar = (int)unnamed_idx_0 * (int)unnamed_idx_1;
+      for (i9 = 0; i9 < ar; i9++) {
         C->data[i9] = 0.0;
       }
 
@@ -1773,12 +1795,13 @@ static void SLAM_updIT(emxArray_real_T *P_apr, emxArray_real_T *b_xt, const
       }
     }
 
+    //  kalman gain
     i9 = b_b->size[0] * b_b->size[1];
     b_b->size[0] = H->size[1];
     b_b->size[1] = H->size[0];
     emxEnsureCapacity((emxArray__common *)b_b, i9, (int)sizeof(double));
-    ib = H->size[0];
-    for (i9 = 0; i9 < ib; i9++) {
+    ar = H->size[0];
+    for (i9 = 0; i9 < ar; i9++) {
       idx = H->size[1];
       for (i10 = 0; i10 < idx; i10++) {
         b_b->data[i10 + b_b->size[0] * i9] = H->data[i9 + H->size[0] * i10];
@@ -1790,8 +1813,8 @@ static void SLAM_updIT(emxArray_real_T *P_apr, emxArray_real_T *b_xt, const
       y->size[0] = P_apr->size[0];
       y->size[1] = b_b->size[1];
       emxEnsureCapacity((emxArray__common *)y, i9, (int)sizeof(double));
-      ib = P_apr->size[0];
-      for (i9 = 0; i9 < ib; i9++) {
+      ar = P_apr->size[0];
+      for (i9 = 0; i9 < ar; i9++) {
         idx = b_b->size[1];
         for (i10 = 0; i10 < idx; i10++) {
           y->data[i9 + y->size[0] * i10] = 0.0;
@@ -1813,8 +1836,8 @@ static void SLAM_updIT(emxArray_real_T *P_apr, emxArray_real_T *b_xt, const
       i9 = y->size[0] * y->size[1];
       y->size[1] = (int)unnamed_idx_1;
       emxEnsureCapacity((emxArray__common *)y, i9, (int)sizeof(double));
-      ib = (int)unnamed_idx_0 * (int)unnamed_idx_1;
-      for (i9 = 0; i9 < ib; i9++) {
+      ar = (int)unnamed_idx_0 * (int)unnamed_idx_1;
+      for (i9 = 0; i9 < ar; i9++) {
         y->data[i9] = 0.0;
       }
 
@@ -1860,22 +1883,24 @@ static void SLAM_updIT(emxArray_real_T *P_apr, emxArray_real_T *b_xt, const
     b_C->size[0] = C->size[0];
     b_C->size[1] = C->size[1];
     emxEnsureCapacity((emxArray__common *)b_C, i9, (int)sizeof(double));
-    ib = C->size[0] * C->size[1];
-    for (i9 = 0; i9 < ib; i9++) {
+    ar = C->size[0] * C->size[1];
+    for (i9 = 0; i9 < ar; i9++) {
       b_C->data[i9] = C->data[i9] + R->data[i9];
     }
 
     emxFree_real_T(&R);
     emxInit_real_T(&K, 2);
     mrdivide(y, b_C, K);
+
+    //  error in x
     emxFree_real_T(&b_C);
     b_emxInit_real_T(&x_apo, 1);
     if (z_size_idx_0 == 1) {
       i9 = x_apo->size[0];
       x_apo->size[0] = K->size[0];
       emxEnsureCapacity((emxArray__common *)x_apo, i9, (int)sizeof(double));
-      ib = K->size[0];
-      for (i9 = 0; i9 < ib; i9++) {
+      ar = K->size[0];
+      for (i9 = 0; i9 < ar; i9++) {
         x_apo->data[i9] = 0.0;
         idx = K->size[1];
         for (i10 = 0; i10 < idx; i10++) {
@@ -1889,8 +1914,8 @@ static void SLAM_updIT(emxArray_real_T *P_apr, emxArray_real_T *b_xt, const
       i9 = x_apo->size[0];
       x_apo->size[0] = (int)unnamed_idx_0;
       emxEnsureCapacity((emxArray__common *)x_apo, i9, (int)sizeof(double));
-      ib = (int)unnamed_idx_0;
-      for (i9 = 0; i9 < ib; i9++) {
+      ar = (int)unnamed_idx_0;
+      for (i9 = 0; i9 < ar; i9++) {
         x_apo->data[i9] = 0.0;
       }
 
@@ -1928,14 +1953,15 @@ static void SLAM_updIT(emxArray_real_T *P_apr, emxArray_real_T *b_xt, const
       }
     }
 
+    //  update covariance matrix
     eye(numStates + trailSize * 6.0, y);
     if ((K->size[1] == 1) || (H->size[0] == 1)) {
       i9 = C->size[0] * C->size[1];
       C->size[0] = K->size[0];
       C->size[1] = H->size[1];
       emxEnsureCapacity((emxArray__common *)C, i9, (int)sizeof(double));
-      ib = K->size[0];
-      for (i9 = 0; i9 < ib; i9++) {
+      ar = K->size[0];
+      for (i9 = 0; i9 < ar; i9++) {
         idx = H->size[1];
         for (i10 = 0; i10 < idx; i10++) {
           C->data[i9 + C->size[0] * i10] = 0.0;
@@ -1957,8 +1983,8 @@ static void SLAM_updIT(emxArray_real_T *P_apr, emxArray_real_T *b_xt, const
       i9 = C->size[0] * C->size[1];
       C->size[1] = (int)unnamed_idx_1;
       emxEnsureCapacity((emxArray__common *)C, i9, (int)sizeof(double));
-      ib = (int)unnamed_idx_0 * (int)unnamed_idx_1;
-      for (i9 = 0; i9 < ib; i9++) {
+      ar = (int)unnamed_idx_0 * (int)unnamed_idx_1;
+      for (i9 = 0; i9 < ar; i9++) {
         C->data[i9] = 0.0;
       }
 
@@ -2005,8 +2031,8 @@ static void SLAM_updIT(emxArray_real_T *P_apr, emxArray_real_T *b_xt, const
     emxEnsureCapacity((emxArray__common *)y, i9, (int)sizeof(double));
     ii = y->size[0];
     idx = y->size[1];
-    ib = ii * idx;
-    for (i9 = 0; i9 < ib; i9++) {
+    ar = ii * idx;
+    for (i9 = 0; i9 < ar; i9++) {
       y->data[i9] -= C->data[i9];
     }
 
@@ -2015,8 +2041,8 @@ static void SLAM_updIT(emxArray_real_T *P_apr, emxArray_real_T *b_xt, const
     b_b->size[0] = P_apr->size[0];
     b_b->size[1] = P_apr->size[1];
     emxEnsureCapacity((emxArray__common *)b_b, i9, (int)sizeof(double));
-    ib = P_apr->size[0] * P_apr->size[1];
-    for (i9 = 0; i9 < ib; i9++) {
+    ar = P_apr->size[0] * P_apr->size[1];
+    for (i9 = 0; i9 < ar; i9++) {
       b_b->data[i9] = P_apr->data[i9];
     }
 
@@ -2026,8 +2052,8 @@ static void SLAM_updIT(emxArray_real_T *P_apr, emxArray_real_T *b_xt, const
       b_y->size[0] = y->size[0];
       b_y->size[1] = P_apr->size[1];
       emxEnsureCapacity((emxArray__common *)b_y, i9, (int)sizeof(double));
-      ib = y->size[0];
-      for (i9 = 0; i9 < ib; i9++) {
+      ar = y->size[0];
+      for (i9 = 0; i9 < ar; i9++) {
         idx = P_apr->size[1];
         for (i10 = 0; i10 < idx; i10++) {
           b_y->data[i9 + b_y->size[0] * i10] = 0.0;
@@ -2043,8 +2069,8 @@ static void SLAM_updIT(emxArray_real_T *P_apr, emxArray_real_T *b_xt, const
       P_apr->size[0] = b_y->size[0];
       P_apr->size[1] = b_y->size[1];
       emxEnsureCapacity((emxArray__common *)P_apr, i9, (int)sizeof(double));
-      ib = b_y->size[1];
-      for (i9 = 0; i9 < ib; i9++) {
+      ar = b_y->size[1];
+      for (i9 = 0; i9 < ar; i9++) {
         idx = b_y->size[0];
         for (i10 = 0; i10 < idx; i10++) {
           P_apr->data[i10 + P_apr->size[0] * i9] = b_y->data[i10 + b_y->size[0] *
@@ -2062,8 +2088,8 @@ static void SLAM_updIT(emxArray_real_T *P_apr, emxArray_real_T *b_xt, const
       i9 = P_apr->size[0] * P_apr->size[1];
       P_apr->size[1] = (int)unnamed_idx_1;
       emxEnsureCapacity((emxArray__common *)P_apr, i9, (int)sizeof(double));
-      ib = (int)unnamed_idx_0 * (int)unnamed_idx_1;
-      for (i9 = 0; i9 < ib; i9++) {
+      ar = (int)unnamed_idx_0 * (int)unnamed_idx_1;
+      for (i9 = 0; i9 < ar; i9++) {
         P_apr->data[i9] = 0.0;
       }
 
@@ -2121,10 +2147,10 @@ static void SLAM_updIT(emxArray_real_T *P_apr, emxArray_real_T *b_xt, const
       c_xt[i9] = x_apo->data[3 + i9];
     }
 
-    quatPlusThetaJ(c_xt, dv3);
-    quatmultJ(dv3, *(double (*)[4])&b_xt->data[3], dv4);
+    quatPlusThetaJ(c_xt, dv9);
+    quatmultJ(dv9, *(double (*)[4])&b_xt->data[3], dv10);
     for (i9 = 0; i9 < 4; i9++) {
-      b_xt->data[3 + i9] = dv4[i9];
+      b_xt->data[3 + i9] = dv10[i9];
     }
 
     for (i9 = 0; i9 < 6; i9++) {
@@ -2159,24 +2185,28 @@ static void SLAM_updIT(emxArray_real_T *P_apr, emxArray_real_T *b_xt, const
         e_xt[i9] = b_xt->data[(int)(d0 + (4.0 + (double)i9)) - 1];
       }
 
-      quatPlusThetaJ(c_xt, dv5);
-      quatmultJ(dv5, e_xt, dv4);
+      quatPlusThetaJ(c_xt, dv11);
+      quatmultJ(dv11, e_xt, dv10);
       d0 = numStatesxt + ((1.0 + (double)ii) - 1.0) * 7.0;
       for (i9 = 0; i9 < 4; i9++) {
-        b_xt->data[(int)(d0 + (4.0 + (double)i9)) - 1] = dv4[i9];
+        b_xt->data[(int)(d0 + (4.0 + (double)i9)) - 1] = dv10[i9];
       }
     }
 
     emxFree_real_T(&x_apo);
 
-    //  check if the camera has moved enough since the last trail pose to
-    //  create a new trail pose
+    //  calculate the index of the newest trail
     newestTrail = oldestTrail - 1.0;
     if (oldestTrail - 1.0 < 1.0) {
       newestTrail = trailSize;
     }
 
+    //  get the position of the newes trail
     d0 = numStatesxt + (newestTrail - 1.0) * 7.0;
+
+    //  ge the current position
+    //  check if the camera has moved enough since the last trail pose to
+    //  create a new trail pose
     for (i9 = 0; i9 < 3; i9++) {
       b_h_ui = b_xt->data[(int)(d0 + (1.0 + (double)i9)) - 1];
       c_xt[i9] = b_xt->data[iv0[i9]] - b_h_ui;
@@ -2186,14 +2216,14 @@ static void SLAM_updIT(emxArray_real_T *P_apr, emxArray_real_T *b_xt, const
     if (norm(c_xt) > baselineThresold) {
       b_guard1 = true;
     } else {
-      br = 0;
+      ii = 0;
       for (k = 0; k < 32; k++) {
         if (updateVect[k] == 1.0) {
-          br++;
+          ii++;
         }
       }
 
-      if (br < minFeatureThreshold) {
+      if (ii < minFeatureThreshold) {
         b_guard1 = true;
       } else {
         b0 = false;
@@ -2207,13 +2237,12 @@ static void SLAM_updIT(emxArray_real_T *P_apr, emxArray_real_T *b_xt, const
     createNewTrail = b0;
   } else {
     createNewTrail = true;
-
-    //      P_apo = P_apr;
   }
 
   emxFree_real_T(&H_xc);
+
+  //  if a new trail pose needs to be created
   if ((trailSize != 0.0) && createNewTrail) {
-    //  disp('Creating new trail pose')
     //  move the state down by one
     d0 = numStatesxt + (oldestTrail - 1.0) * 7.0;
     for (i9 = 0; i9 < 7; i9++) {
@@ -2229,24 +2258,24 @@ static void SLAM_updIT(emxArray_real_T *P_apr, emxArray_real_T *b_xt, const
     b_P_apo->size[0] = P_apr->size[0];
     b_P_apo->size[1] = P_apr->size[1];
     emxEnsureCapacity((emxArray__common *)b_P_apo, i9, (int)sizeof(double));
-    ib = P_apr->size[0] * P_apr->size[1];
-    for (i9 = 0; i9 < ib; i9++) {
+    ar = P_apr->size[0] * P_apr->size[1];
+    for (i9 = 0; i9 < ar; i9++) {
       b_P_apo->data[i9] = P_apr->data[i9];
     }
 
-    ib = P_apr->size[1];
+    ar = P_apr->size[1];
     d0 = numStates + (oldestTrail - 1.0) * 6.0;
-    for (i9 = 0; i9 < ib; i9++) {
+    for (i9 = 0; i9 < ar; i9++) {
       for (i10 = 0; i10 < 6; i10++) {
         b_P_apo->data[((int)(d0 + (1.0 + (double)i10)) + b_P_apo->size[0] * i9)
           - 1] = 0.0;
       }
     }
 
-    ib = b_P_apo->size[0];
+    ar = b_P_apo->size[0];
     d0 = numStates + (oldestTrail - 1.0) * 6.0;
     for (i9 = 0; i9 < 6; i9++) {
-      for (i10 = 0; i10 < ib; i10++) {
+      for (i10 = 0; i10 < ar; i10++) {
         b_P_apo->data[i10 + b_P_apo->size[0] * ((int)(d0 + (1.0 + (double)i9)) -
           1)] = 0.0;
       }
@@ -2263,9 +2292,9 @@ static void SLAM_updIT(emxArray_real_T *P_apr, emxArray_real_T *b_xt, const
     }
 
     if (1.0 > numStates) {
-      ib = -1;
+      ar = -1;
     } else {
-      ib = (int)numStates - 1;
+      ar = (int)numStates - 1;
     }
 
     d0 = numStates + (oldestTrail - 1.0) * 6.0;
@@ -2274,16 +2303,16 @@ static void SLAM_updIT(emxArray_real_T *P_apr, emxArray_real_T *b_xt, const
     }
 
     for (i9 = 0; i9 < 6; i9++) {
-      for (i10 = 0; i10 <= ib; i10++) {
+      for (i10 = 0; i10 <= ar; i10++) {
         b_P_apo->data[i10 + b_P_apo->size[0] * iv1[i9]] = P_apr->data[i10 +
           P_apr->size[0] * i9];
       }
     }
 
     if (1.0 > numStates) {
-      ib = -1;
+      ar = -1;
     } else {
-      ib = (int)numStates - 1;
+      ar = (int)numStates - 1;
     }
 
     d0 = numStates + (oldestTrail - 1.0) * 6.0;
@@ -2291,134 +2320,133 @@ static void SLAM_updIT(emxArray_real_T *P_apr, emxArray_real_T *b_xt, const
       iv1[i9] = (int)(d0 + (1.0 + (double)i9)) - 1;
     }
 
-    for (i9 = 0; i9 <= ib; i9++) {
+    for (i9 = 0; i9 <= ar; i9++) {
       for (i10 = 0; i10 < 6; i10++) {
         b_P_apo->data[iv1[i10] + b_P_apo->size[0] * i9] = P_apr->data[i10 +
           P_apr->size[0] * i9];
       }
     }
 
+    //  increment the oldestTrail index
     oldestTrail = b_mod(oldestTrail, trailSize) + 1.0;
   } else {
+    //  if no new trail pose was initialized, keep covariance matrix as it is
     i9 = b_P_apo->size[0] * b_P_apo->size[1];
     b_P_apo->size[0] = P_apr->size[0];
     b_P_apo->size[1] = P_apr->size[1];
     emxEnsureCapacity((emxArray__common *)b_P_apo, i9, (int)sizeof(double));
-    ib = P_apr->size[0] * P_apr->size[1];
-    for (i9 = 0; i9 < ib; i9++) {
+    ar = P_apr->size[0] * P_apr->size[1];
+    for (i9 = 0; i9 < ar; i9++) {
       b_P_apo->data[i9] = P_apr->data[i9];
     }
   }
 
-  // %
+  //  get current position and orientation
   RotFromQuatJ(*(double (*)[4])&b_xt->data[3], R_cw);
-  for (ar = 0; ar < 32; ar++) {
-    ii = ar * 3;
+
+  //  go through the features and initialize new ones if needed
+  for (ii = 0; ii < 32; ii++) {
+    //  the measurement of this feature
+    idx = ii * 3;
     for (i9 = 0; i9 < 3; i9++) {
-      h_ui[i9] = z_all[i9 + ii];
+      h_ui[i9] = z_all[i9 + idx];
     }
 
-    if (updateVect[ar] == 2.0) {
+    //  if this feature is new
+    if (updateVect[ii] == 2.0) {
       //  a new feature
-      //   fprintf('Feature %i: ', i)
-      ib = measurementHistory->size[1];
-      ii = ar * 3;
-      for (i9 = 0; i9 < ib; i9++) {
+      ar = measurementHistory->size[1];
+      idx = ii * 3;
+      for (i9 = 0; i9 < ar; i9++) {
         for (i10 = 0; i10 < 3; i10++) {
-          measurementHistory->data[(i10 + ii) + measurementHistory->size[0] * i9]
-            = 0.0;
+          measurementHistory->data[(i10 + idx) + measurementHistory->size[0] *
+            i9] = 0.0;
         }
       }
 
       //  clean up the measurement  history for this feature
-      //          poses(i*7-6:i*7,:)=zeros(7,trailSize);
-      pointInMap[ar] = 0.0;
+      pointInMap[ii] = 0.0;
       for (i9 = 0; i9 < 3; i9++) {
-        map[i9 + 3 * ar] = rtNaN;
+        map[i9 + 3 * ii] = rtNaN;
       }
 
       //  fill in nan for un-used map points so they won't be plotted
-      if (z_all[ar * 3 + 2] < -500.0) {
-        //  nan disparity means the measurement is useless
-        updateVect[ar] = 0.0;
+      if (z_all[ii * 3 + 2] < -500.0) {
+        //  negative disparity means the measurement is useless
+        updateVect[ii] = 0.0;
+      } else {
+        //  the disparity is valid
+        if (z_all[ii * 3 + 2] > disparityThreshold) {
+          //  insert into the map immediately
+          A = f * b;
+          c_y = A / z_all[ii * 3 + 2];
+          h_ci[2] = A / z_all[ii * 3 + 2];
+          h_ci[0] = (z_all[ii * 3] - Cx) / f * c_y;
+          h_ci[1] = (z_all[ii * 3 + 1] - Cy) / f * c_y;
+          for (i9 = 0; i9 < 3; i9++) {
+            d0 = 0.0;
+            for (i10 = 0; i10 < 3; i10++) {
+              d0 += R_cw[i10 + 3 * i9] * h_ci[i10];
+            }
 
-        //   fprintf('rejecting due to invalid disparity\n')
-      } else if (z_all[ar * 3 + 2] > disparityThreshold) {
-        //  insert into the map immediately
-        //      fprintf('inserting immediately\n')
-        A = f * b;
-        c_y = A / z_all[ar * 3 + 2];
-        h_ci[2] = A / z_all[ar * 3 + 2];
-        h_ci[0] = (z_all[ar * 3] - Cx) / f * c_y;
-        h_ci[1] = (z_all[ar * 3 + 1] - Cy) / f * c_y;
-        for (i9 = 0; i9 < 3; i9++) {
-          d0 = 0.0;
-          for (i10 = 0; i10 < 3; i10++) {
-            d0 += R_cw[i10 + 3 * i9] * h_ci[i10];
+            map[i9 + 3 * ii] = d0 + b_xt->data[i9];
           }
 
-          map[i9 + 3 * ar] = d0 + b_xt->data[i9];
+          pointInMap[ii] = 1.0;
+          updateVect[ii] = 1.0;
+        } else {
+          //  we need to postpone the initialization of this feature
+          age[ii] = 0.0;
+          updateVect[ii] = 1.0;
+          pointInMap[ii] = 0.0;
         }
-
-        pointInMap[ar] = 1.0;
-
-        //  corresponds to pointInitialized
-        updateVect[ar] = 1.0;
-      } else {
-        //  we need to postpone the initialization of this feature
-        //   fprintf('delaying initialization\n')
-        age[ar] = 0.0;
-        updateVect[ar] = 1.0;
-        pointInMap[ar] = 0.0;
       }
     }
 
-    if ((updateVect[ar] == 1.0) && (pointInMap[ar] == 0.0) && createNewTrail &&
+    //  an existing, yet to be initialized, feature
+    if ((updateVect[ii] == 1.0) && (pointInMap[ii] == 0.0) && createNewTrail &&
         (trailSize > 0.0)) {
-      //  an existing, yet to be initialized, feature
-      age[ar]++;
+      age[ii]++;
 
       //  only increment the age if we created a new trailing pose
-      ii = ar * 3;
+      idx = ii * 3;
       for (i9 = 0; i9 < 3; i9++) {
-        measurementHistory->data[(i9 + ii) + measurementHistory->size[0] * ((int)
-          age[ar] - 1)] = h_ui[i9];
+        measurementHistory->data[(i9 + idx) + measurementHistory->size[0] *
+          ((int)age[ii] - 1)] = h_ui[i9];
       }
     }
 
     //  check if a feature has reached maximum age and needs to be
     //  triangulated and inserted into the map
-    if ((pointInMap[ar] == 0.0) && (age[ar] == trailSize)) {
+    if ((pointInMap[ii] == 0.0) && (age[ii] == trailSize)) {
       //    fprintf('Feature %i: triangulating\n', i)
-      pointInMap[ar] = 0.0;
+      pointInMap[ii] = 0.0;
       PointTriangulation(b_xt, h_ui, cameraparams, fp);
-      for (ii = 0; ii < 3; ii++) {
-        bv0[ii] = rtIsNaN(fp[ii]);
-      }
-
-      if (any(bv0)) {
-        pointInMap[ar] = 0.0;
-      } else {
-        pointInMap[ar] = 1.0;
+      if (z_all[ii * 3 + 2] < -500.0) {
+        pointInMap[ii] = 0.0;
         for (i9 = 0; i9 < 3; i9++) {
-          map[i9 + 3 * ar] = fp[i9];
+          map[i9 + 3 * ii] = rtNaN;
+        }
+      } else {
+        pointInMap[ii] = 1.0;
+        for (i9 = 0; i9 < 3; i9++) {
+          map[i9 + 3 * ii] = fp[i9];
         }
       }
     }
   }
 
-  br = 0;
+  //  check if we need to force the initialization of some features
+  ii = 0;
   for (k = 0; k < 32; k++) {
     if (pointInMap[k] != 0.0) {
-      br++;
+      ii++;
     }
   }
 
-  if (br < minFeatureThreshold) {
-    //   disp(['Forcing the insertion of ', num2str(minFeatureThreshold - numFeaturesInMap), ' map features']) 
+  if (ii < minFeatureThreshold) {
     //  need to initialize some features. Find the ones with highest
     //  disparity
-    idx = 0;
     for (i9 = 0; i9 < 32; i9++) {
       b_disparities = z_all[2 + 3 * i9];
       if (pointInMap[i9] == 1.0) {
@@ -2426,67 +2454,55 @@ static void SLAM_updIT(emxArray_real_T *P_apr, emxArray_real_T *b_xt, const
       }
 
       //  only look at features not yet in map
-      b0 = rtIsNaN(b_disparities);
-      if (b0) {
-        idx++;
+      if (b_disparities < -500.0) {
+        b_disparities = 0.0;
       }
 
       disparities[i9] = b_disparities;
-      bv1[i9] = b0;
-    }
-
-    ii = 0;
-    for (ar = 0; ar < 32; ar++) {
-      if (bv1[ar]) {
-        c_tmp_data[ii] = (signed char)(ar + 1);
-        ii++;
-      }
-    }
-
-    for (i9 = 0; i9 < idx; i9++) {
-      disparities[c_tmp_data[i9] - 1] = 0.0;
     }
 
     //  remove invalid disparities (NaN is bigger than Inf in matlab)
     eml_sort(disparities, iidx);
     memset(&disparities[0], 0, sizeof(double) << 5);
-    d0 = minFeatureThreshold - (double)br;
+    d0 = minFeatureThreshold - (double)ii;
     if (1.0 > d0) {
-      ib = 0;
+      ar = 0;
     } else {
-      ib = (int)d0;
+      ar = (int)d0;
     }
 
-    for (i9 = 0; i9 < ib; i9++) {
-      d_tmp_data[i9] = iidx[i9];
+    for (i9 = 0; i9 < ar; i9++) {
+      c_tmp_data[i9] = iidx[i9];
     }
 
-    for (i9 = 0; i9 < ib; i9++) {
-      disparities[d_tmp_data[i9] - 1] = 1.0;
+    for (i9 = 0; i9 < ar; i9++) {
+      disparities[c_tmp_data[i9] - 1] = 1.0;
     }
 
     //  triangulate the features with the highest disparities
-    for (ar = 0; ar < 32; ar++) {
-      if (disparities[ar] != 0.0) {
-        //        fprintf('Feature %i: forcing initialization\n', i)
+    for (ii = 0; ii < 32; ii++) {
+      if (disparities[ii] != 0.0) {
+        //  measurement of this feature
+        //  feature position in camera frame
         A = f * b;
-        c_y = A / z_all[ar * 3 + 2];
-        h_ci[2] = A / z_all[ar * 3 + 2];
-        h_ci[0] = (z_all[ar * 3] - Cx) / f * c_y;
-        h_ci[1] = (z_all[ar * 3 + 1] - Cy) / f * c_y;
+        c_y = A / z_all[ii * 3 + 2];
+        h_ci[2] = A / z_all[ii * 3 + 2];
+        h_ci[0] = (z_all[ii * 3] - Cx) / f * c_y;
+        h_ci[1] = (z_all[ii * 3 + 1] - Cy) / f * c_y;
+
+        //  feature position in world frame
+        //  put feature into the map
         for (i9 = 0; i9 < 3; i9++) {
           d0 = 0.0;
           for (i10 = 0; i10 < 3; i10++) {
             d0 += R_cw[i10 + 3 * i9] * h_ci[i10];
           }
 
-          map[i9 + 3 * ar] = d0 + b_xt->data[i9];
+          map[i9 + 3 * ii] = d0 + b_xt->data[i9];
         }
 
-        pointInMap[ar] = 1.0;
-
-        //  corresponds to pointInitialized
-        updateVect[ar] = 1.0;
+        pointInMap[ii] = 1.0;
+        updateVect[ii] = 1.0;
       }
     }
   }
