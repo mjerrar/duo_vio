@@ -4,6 +4,7 @@
 #include "klt_point_handling.h"
 
 #include <geometry_msgs/PoseStamped.h>
+#include <geometry_msgs/Twist.h>
 #include <cv_bridge/cv_bridge.h>
 #include <geometry_msgs/Point32.h>
 #include <math.h>
@@ -24,6 +25,7 @@ camera_info_initialized_(false)
     emxInitArray_real_T(&h_u_apo_,1);
 
     pose_pub_ = nh_.advertise<geometry_msgs::PoseStamped>("/pose",1);
+    velocity_pub_ = nh_.advertise<geometry_msgs::Twist>("/velocity",1);
     time_synchronizer_.registerCallback(boost::bind(&Localization::synchronized_callback,
             this, _1, _2, _3));
     camera_info_sub_ = nh_.subscribe<sensor_msgs::CameraInfo>("/duo3d_camera/right/camera_info",1,
@@ -120,13 +122,15 @@ void Localization::synchronized_callback(const sensor_msgs::ImageConstPtr& left_
 
     geometry_msgs::PoseStamped pose_stamped;
     geometry_msgs::Pose pose;
+    geometry_msgs::Twist velocity;
     pose_stamped.header.stamp = left_image->header.stamp;
     pose_stamped.header.frame_id = "world";
 
-    update(dt, cv_left_image->image, cv_right_image->image, *imu, mag, pose);
+    update(dt, cv_left_image->image, cv_right_image->image, *imu, mag, pose, velocity);
 
     pose_stamped.pose = pose;
     pose_pub_.publish(pose_stamped);
+    velocity_pub_.publish(velocity);
 
     // Generate and publish pose as transform
     tf::Transform transform;
@@ -146,7 +150,7 @@ void Localization::synchronized_callback(const sensor_msgs::ImageConstPtr& left_
 }
 
 void Localization::update(double dt, const cv::Mat& left_image, const cv::Mat& right_image, const sensor_msgs::Imu& imu,
-    const sensor_msgs::MagneticField& mag, geometry_msgs::Pose& pose)
+    const sensor_msgs::MagneticField& mag, geometry_msgs::Pose& pose, geometry_msgs::Twist& velocity)
 {
     //*********************************************************************
     // Point tracking
@@ -221,7 +225,14 @@ void Localization::update(double dt, const cv::Mat& left_image, const cv::Mat& r
     pose.orientation.z = xt_out->data[5];
     pose.orientation.w = xt_out->data[6];
 
-    // TODO Make velocities ex_out[7] .. ex_out[12] available as ROS message
+    // Set the pose
+    velocity.linear.x = xt_out->data[7];
+    velocity.linear.y = xt_out->data[8];
+    velocity.linear.z = xt_out->data[9];
+
+    velocity.angular.x = xt_out->data[10];
+    velocity.angular.y = xt_out->data[11];
+    velocity.angular.z = xt_out->data[12];
 
     emxDestroyArray_real_T(xt_out);
     emxDestroyArray_real_T(P_apo_out);
@@ -342,7 +353,7 @@ void Localization::updateDronePose(void)
     tf_broadcaster_.sendTransform(tf::StampedTransform(drone2camera, ros::Time::now(), "drone_base", "camera"));*/
 
     tf::Transform camera2drone;
-    camera2drone.setOrigin(tf::Vector3(0.0, 0.0, -1.0));
+    camera2drone.setOrigin(tf::Vector3(0.0, 0.0, -0.045));
     tf::Quaternion q_d2c;
     q_d2c.setEuler(-M_PI/2, -M_PI/2, 0.0);
     camera2drone.setRotation(q_d2c);
@@ -365,9 +376,9 @@ void Localization::visMarker(void)
         marker.pose.orientation.y = 0.0;
         marker.pose.orientation.z = 0.0;
         marker.pose.orientation.w = 0.0;
-        marker.scale.x = 0.7;
-        marker.scale.y = 0.7;
-        marker.scale.z = 0.1;
+        marker.scale.x = 0.09;
+        marker.scale.y = 0.045;
+        marker.scale.z = 0.01;
         marker.color.a = 1.0; // Don't forget to set the alpha!
         marker.color.r = 0.0;
         marker.color.g = 1.0;
