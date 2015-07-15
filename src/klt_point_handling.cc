@@ -20,7 +20,7 @@ static void initMorePoints(const cv::Mat &img, int gridSizeX, int gridSizeY, uns
 static double shiTomasiScore(const cv::Mat &image, const cv::Point &position, int halfWindow);
 
 //corners and status are output variables
-void handle_points_klt(const cv::Mat &img_l, const cv::Mat &img_r, unsigned int numPoints, double *z_all, unsigned char *updateVect)
+void handle_points_klt(const cv::Mat &img_l, const cv::Mat &img_r, unsigned int numPoints, double *z_all_l, double *z_all_r, unsigned char *updateVect)
 {
   //settings that might or might not be arguments of this function...
   const int gridSizeX = 4;
@@ -76,20 +76,23 @@ void handle_points_klt(const cv::Mat &img_l, const cv::Mat &img_r, unsigned int 
         }
       }
 
-      z_all[3*i+0] = prev_corners[i].x;
-      z_all[3*i+1] = prev_corners[i].y;
+      z_all_l[2*i+0] = prev_corners[i].x;
+      z_all_l[2*i+1] = prev_corners[i].y;
+
+      z_all_r[2*i+0] = prev_corners_right[i].x;
+      z_all_r[2*i+1] = prev_corners_right[i].y;
 
       //check disparity
       double diffx = prev_corners[i].x - prev_corners_right[i].x;
       double diffy = prev_corners[i].y - prev_corners_right[i].y;
       double disparity = sqrt(diffx*diffx + diffy*diffy);
 
-      if (diffx > -3.0 && diffy/diffx < 0.1 && diffx < 250)
-        z_all[3*i+2] = disparity;
-      else
-      {
-        z_all[3*i+2] = -1000;  //outlier
-      }
+//      if (diffx > -3.0 && diffy/diffx < 0.1 && diffx < 250)
+//        z_all_l[3*i+2] = disparity;
+//      else
+//      {
+//        z_all_l[3*i+2] = -1000;  //outlier
+//      }
 
         updateVect[i] = prev_status[i];
     }
@@ -99,7 +102,7 @@ void handle_points_klt(const cv::Mat &img_l, const cv::Mat &img_r, unsigned int 
     printf("Right image is empty!\n");
     for (size_t i = 0; i < prev_corners.size() && i < numPoints; i++)
     {
-      z_all[3*i+2] = -1000;
+      z_all_l[3*i+2] = -1000;
     }
   }
 }

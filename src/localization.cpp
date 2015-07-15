@@ -15,10 +15,11 @@ left_image_sub_(nh_, "/left_image", 1),
 right_image_sub_(nh_, "/right_image", 1),
 imu_sub_(nh_, "/imu", 1),
 time_synchronizer_(left_image_sub_, right_image_sub_, imu_sub_, 10),
-process_noise_(3,0.0),
-im_noise_(3,0.0),
+process_noise_(4,0.0),
+im_noise_(4,0.0),
 camera_params_(4,0.0),
-camera_info_initialized_(false)
+camera_info_initialized_(false),
+loopCounter(0)
 {
     SLAM_initialize();
     emxInitArray_real_T(&h_u_apo_,1);
@@ -36,14 +37,24 @@ camera_info_initialized_(false)
     // TODO Check default values and give meaningful names
     nh_.param<bool>("show_tracker_images", show_tracker_images_, false);
 
-    nh_.param<double>("process_noise_1", process_noise_[0], 0.001);
+    nh_.param<double>("process_noise_1", process_noise_[0], 100);
     nh_.param<double>("process_noise_2", process_noise_[1], 1);
     nh_.param<double>("process_noise_3", process_noise_[2], 0.0);
     // nh_.param<double>("process_noise_4", process_noise_[3], 0.0);
+    printf("process_noise_1 = %f\n", process_noise_[0]);
+    printf("process_noise_2 = %f\n", process_noise_[1]);
+    printf("process_noise_3 = %f\n", process_noise_[2]);
 
     nh_.param<double>("im_noise_1", im_noise_[0], 2.0);
     nh_.param<double>("im_noise_2", im_noise_[1], 2.0);
     nh_.param<double>("im_noise_3", im_noise_[2], 2.0);
+    nh_.param<double>("im_noise_3", im_noise_[3], 2.0);
+
+    printf("im_noise_1 = %f\n", im_noise_[0]);
+    printf("im_noise_2 = %f\n", im_noise_[1]);
+    printf("im_noise_3 = %f\n", im_noise_[2]);
+    printf("im_noise_4 = %f\n", im_noise_[3]);
+
 
     int num_points_per_anchor, num_anchors;
     nh_.param<int>("num_points_per_anchor", num_points_per_anchor, 1);
@@ -51,7 +62,7 @@ camera_info_initialized_(false)
 
     if (num_anchors < 0.0)
     {
-        ROS_ERROR("Number of anchors may not be negative!");
+        ROS_ERROR("Number of anchors must not be negative!");
         nh_.shutdown();
     }
     else
@@ -61,7 +72,7 @@ camera_info_initialized_(false)
 
     if (num_points_per_anchor < 0.0)
     {
-        ROS_ERROR("Number of points per anchors may not be negative!");
+        ROS_ERROR("Number of points per anchors must not be negative!");
         nh_.shutdown();
     }
     else
@@ -148,11 +159,20 @@ void Localization::synchronized_callback(const sensor_msgs::ImageConstPtr& left_
 void Localization::update(double dt, const cv::Mat& left_image, const cv::Mat& right_image, const sensor_msgs::Imu& imu,
     const sensor_msgs::MagneticField& mag, geometry_msgs::Pose& pose)
 {
+//	if(loopCounter < 3)
+//		loopCounter++;
+//	else
+//	{
+//		ros::Duration(0.5).sleep();
+//		return;
+//	}
     //*********************************************************************
     // Point tracking
     //*********************************************************************
+	int measurementDim = 4;
 
-    double z_all[num_anchors_ * 3];
+    double z_all_l[num_anchors_ * measurementDim];
+    double z_all_r[num_anchors_ * measurementDim];
     unsigned char update_vec_char[num_anchors_];
 
     for (size_t i = 0; i < num_anchors_; ++i)
@@ -161,24 +181,20 @@ void Localization::update(double dt, const cv::Mat& left_image, const cv::Mat& r
     }
 
     ros::Time tic = ros::Time::now();
-    handle_points_klt(left_image,right_image,num_anchors_,z_all,update_vec_char);
+    handle_points_klt(left_image, right_image, num_anchors_, z_all_l, z_all_r, update_vec_char);
+
 //     ROS_INFO("Time Tracking: %f", (ros::Time::now() - tic).toSec());
 //     printf("Measurement: %f,%f,%f \n",z_all[0],z_all[1],z_all[2]);
-
-    if (show_tracker_images_)
-    {
-        display_tracks(left_image, right_image, z_all, update_vec_char);
-    }
 
     double update_vec_array[num_anchors_];
     double update_vec_array_out[num_anchors_];
     for (size_t i = 0; i < num_anchors_; ++i)
     {
     	update_vec_array[i] = update_vec_char[i];
-         if(z_all[3*i] < 0)
-             ROS_ERROR("Negative x: %f",z_all[3*i]);
-         if(z_all[3*i+1] < 0)
-             ROS_ERROR("Negative y: %f",z_all[3*i+1]);
+//         if(z_all_l[3*i] < 0)
+//             ROS_ERROR("Negative x: %f",z_all_l[3*i]);
+//         if(z_all_l[3*i+1] < 0)
+//             ROS_ERROR("Negative y: %f",z_all_l[3*i+1]);
     }
 
     //*********************************************************************
@@ -190,23 +206,41 @@ void Localization::update(double dt, const cv::Mat& left_image, const cv::Mat& r
 
     emxArray_real_T *xt_out; // result
     emxArray_real_T *P_apo_out;
+    emxArray_real_T *h_u_apo;
 
     emxInitArray_real_T(&xt_out,1);
     emxInitArray_real_T(&P_apo_out,2);
+    emxInitArray_real_T(&h_u_apo,1);
 
     // Update SLAM and get pose estimation
     tic = ros::Time::now();
 
-    //double updateVect[32];
-
     double b_map[96];
-    double h_u_apo[96];
 
-    SLAM(update_vec_array, z_all,  &camera_params_[0], 0.03, &process_noise_[0], &inertial[0], &im_noise_[0], num_points_per_anchor_,num_anchors_, h_u_apo, xt_out,update_vec_array_out, P_apo_out, b_map);
+//    printf("updateVect bef SLAM: [");
+//    for(int i = 0; i < 32; i++)
+//    	printf("%d, ", (int) update_vec_array[i]);
+//    printf("]\n");
+
+    SLAM(update_vec_array, z_all_l, z_all_r, 0.03, &process_noise_[0], &inertial[0], &im_noise_[0], num_points_per_anchor_,num_anchors_, h_u_apo, xt_out, P_apo_out, b_map);
     //memcpy(update_vec_array,update_vec_array_out,num_anchors_*sizeof(double));
+//    printf("updateVect aft SLAM: [");
+//    for(int i = 0; i < 32; i++)
+//    	printf("%d, ", (int) update_vec_array[i]);
+//    printf("]\n");
 
-    update_vec_.assign(update_vec_array_out, update_vec_array_out + num_anchors_);
-     ROS_INFO("Time SLAM: %f", (ros::Time::now() - tic).toSec());
+//    update_vec_.assign(update_vec_array_out, update_vec_array_out + num_anchors_);
+    for(int i = 0; i < update_vec_.size(); i++)
+    {
+    	update_vec_[i] = update_vec_array[i];
+    }
+
+    if (show_tracker_images_)
+    {
+    	display_tracks(left_image, right_image, z_all_l, z_all_r, update_vec_, h_u_apo);
+    }
+
+//    ROS_INFO("Time SLAM: %f", (ros::Time::now() - tic).toSec());
 
     // Publish feature position in world frame
     publishPointCloud(b_map);
@@ -225,6 +259,7 @@ void Localization::update(double dt, const cv::Mat& left_image, const cv::Mat& r
 
     emxDestroyArray_real_T(xt_out);
     emxDestroyArray_real_T(P_apo_out);
+    emxDestroyArray_real_T(h_u_apo);
 
 }
 
@@ -240,52 +275,75 @@ void Localization::camera_info_callback(const sensor_msgs::CameraInfoConstPtr& i
 void Localization::get_inertial_vector(const sensor_msgs::Imu& imu, const sensor_msgs::MagneticField& mag, std::vector<double>& inertial_vec)
 {
     // TODO Check signs of angular velocities
-    inertial_vec.at(0) = imu.angular_velocity.x;
+    inertial_vec.at(0) = +imu.angular_velocity.x;
     inertial_vec.at(1) = -imu.angular_velocity.y;
-    inertial_vec.at(2) = imu.angular_velocity.z;
+    inertial_vec.at(2) = +imu.angular_velocity.z;
 
     // TODO Check signs of linear acceleration
-    inertial_vec.at(3) = imu.linear_acceleration.x;
-    inertial_vec.at(4) = -imu.linear_acceleration.y;
-    inertial_vec.at(5) = -imu.linear_acceleration.z;
+    inertial_vec.at(3) = +imu.linear_acceleration.x*9.81;
+    inertial_vec.at(4) = -imu.linear_acceleration.y*9.81;
+    inertial_vec.at(5) = -imu.linear_acceleration.z*9.81;
 
-    inertial_vec.at(6) = mag.magnetic_field.x;
-    inertial_vec.at(7) = mag.magnetic_field.y;
-    inertial_vec.at(8) = mag.magnetic_field.z;
+    inertial_vec.at(6) = +mag.magnetic_field.x;
+    inertial_vec.at(7) = +mag.magnetic_field.y;
+    inertial_vec.at(8) = +mag.magnetic_field.z;
 }
 
 void Localization::display_tracks(const cv::Mat& left_image, const cv::Mat& right_image,
-    double z_all[], unsigned char status[])
+    double z_all_l[], double z_all_r[], std::vector<double> status, emxArray_real_T *h_u)
 {
+
     cv::Mat left;
     cv::cvtColor(left_image,left,cv::COLOR_GRAY2BGR);
 
     cv::Mat right;
     cv::cvtColor(right_image,right,cv::COLOR_GRAY2RGB);
 
+    cv::Scalar color_left = cv::Scalar(0,255,0);
+    cv::Scalar color_right = cv::Scalar(0,0,255);
+    cv::Scalar color_left_pred = cv::Scalar(0,127,127);
+    cv::Scalar color_right_pred = cv::Scalar(127,0,127);
+
 
     for (unsigned int i = 0; i < num_anchors_; ++i)
     {
         if (status[i])
         {
-            cv::Point left_point(z_all[3*i + 0] - z_all[3*i + 2], z_all[3*i+1]);
-            cv::Point right_point(z_all[3*i + 0],z_all[3*i+1]);
-            cv::Scalar color_left;
-            if (z_all[3*i + 2] > -100)
+            cv::Point left_point(z_all_l[2*i + 0], z_all_l[2*i + 1]);
+            cv::Point right_point(z_all_r[2*i + 0], z_all_r[2*i + 1]);
+
+            cv::circle(left, left_point, 1, color_left, 2);
+            cv::line(left, left_point, right_point, color_left, 1);
+            cv::circle(right, right_point, 1, color_right, 2);
+
+            if(!(h_u == NULL))
             {
-                color_left = cv::Scalar(0,255,0);
-                cv::circle(right, left_point,1,cv::Scalar(0,255,0),2);
-                cv::line(left,left_point,right_point,color_left,1);
+            	if (h_u->data[4*i + 0] > -100)
+            	{
+            		cv::Point left_point_pred(h_u->data[4*i + 0], h_u->data[4*i + 1]);
+            		cv::Point right_point_pred(h_u->data[4*i + 2], h_u->data[4*i + 3]);
+            		cv::circle(left, left_point_pred, 1, color_left_pred, 2);
+            		cv::line(left, left_point, left_point_pred, color_left_pred, 1);
+            		cv::circle(right, right_point_pred, 1, color_right_pred, 2);
+            		cv::line(right, right_point, right_point_pred, color_right_pred, 1);
+            	}
             }
-            else
-            {
-                color_left = cv::Scalar(0,0,255);
-            }
-            cv::circle(left, right_point ,1,color_left,2);
+
+//            if (z_all_l[3*i + 2] > -100)
+//            {
+//                color_left = cv::Scalar(0,255,0);
+//                cv::circle(right, left_point,1,cv::Scalar(0,255,0),2);
+//                cv::line(left,left_point,right_point,color_left,1);
+//            }
+//            else
+//            {
+//                color_left = cv::Scalar(0,0,255);
+//            }
+
         }
     }
-    cv::imshow("left image", left);
     cv::imshow("right image", right);
+    cv::imshow("left image", left);
     cv::waitKey(10);
 }
 

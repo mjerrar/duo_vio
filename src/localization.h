@@ -19,9 +19,10 @@
 #include <opencv2/opencv.hpp>
 
 #include "SLAM.h"
-
+#include "SLAM_includes.h"
 
 #include <vector>
+#include <cstdio>
 
 class Localization
 {
@@ -30,6 +31,7 @@ public:
   ~Localization();
 
 private:
+  int loopCounter;
   ros::NodeHandle nh_;
 
   message_filters::Subscriber<sensor_msgs::Image> left_image_sub_;
@@ -68,8 +70,8 @@ private:
 
   void get_inertial_vector(const sensor_msgs::Imu& imu, const sensor_msgs::MagneticField& mag, std::vector<double>& inertial_vec);
 
-  void display_tracks(const cv::Mat& left_image, const cv::Mat& right_image, double z_all[],
-      unsigned char status[]);
+  void display_tracks(const cv::Mat& left_image, const cv::Mat& right_image, double z_all_l[], double z_all_r[],
+		  std::vector<double>, emxArray_real_T *h_u = NULL);
 
    ros::Publisher point_cloud_pub_;
    void publishPointCloud(double * map );

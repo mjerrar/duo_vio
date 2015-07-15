@@ -107,15 +107,15 @@ include_directories(src/codegen_SLAM/)
 #   src/${PROJECT_NAME}/vio_ros.cpp
 # )
 
+# Get all *.cpp files that Matlab Coder created
+FILE(GLOB SLAMSources src/codegen_SLAM/*.cpp)
+
 ## Declare a cpp executable
 add_executable(vio_ros_node
   src/vio_ros_node.cpp
   src/localization.cpp
   src/klt_point_handling.cc
-  src/codegen_SLAM/SLAM.cpp
-  src/codegen_SLAM/rt_nonfinite.cpp
-  src/codegen_SLAM/rtGetNaN.cpp
-  src/codegen_SLAM/rtGetInf.cpp
+  ${SLAMSources}
 )
 
 ## Add cmake target dependencies of the executable/library
