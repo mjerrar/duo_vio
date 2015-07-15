@@ -39,7 +39,7 @@ Visualization Manager:
   Class: ""
   Displays:
     - Alpha: 0.5
-      Cell Size: 1
+      Cell Size: 0.1
       Class: rviz/Grid
       Color: 160; 160; 164
       Enabled: true
@@ -53,7 +53,7 @@ Visualization Manager:
         Y: 0
         Z: 0
       Plane: XY
-      Plane Cell Count: 10
+      Plane Cell Count: 100
       Reference Frame: world
       Value: true
     - Alpha: 1
@@ -87,9 +87,9 @@ Visualization Manager:
       Value: true
     - Class: rviz/Axes
       Enabled: true
-      Length: 1
+      Length: 0.1
       Name: Axes
-      Radius: 0.1
+      Radius: 0.02
       Reference Frame: SLAM
       Value: true
     - Class: rviz/Axes
@@ -101,16 +101,16 @@ Visualization Manager:
       Value: true
     - Class: rviz/Axes
       Enabled: true
-      Length: 1
+      Length: 0.1
       Name: Axes
-      Radius: 0.1
+      Radius: 0.02
       Reference Frame: drone_base
       Value: true
     - Class: rviz/Axes
       Enabled: true
-      Length: 1
+      Length: 0.1
       Name: Axes
-      Radius: 0.1
+      Radius: 0.02
       Reference Frame: camera
       Value: true
     - Alpha: 1
@@ -159,7 +159,7 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/Orbit
-      Distance: 10.064
+      Distance: 2.50253
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.06
         Stereo Focal Distance: 1
@@ -171,10 +171,10 @@ Visualization Manager:
         Z: 0
       Name: Current View
       Near Clip Distance: 0.01
-      Pitch: -0.449797
+      Pitch: 0.569798
       Target Frame: <Fixed Frame>
       Value: Orbit (rviz)
-      Yaw: 2.79909
+      Yaw: 0.0981319
     Saved: ~
 Window Geometry:
   Displays:
@@ -192,5 +192,5 @@ Window Geometry:
   Views:
     collapsed: false
   Width: 1869
-  X: 51
-  Y: 24
+  X: 1961
+  Y: -14

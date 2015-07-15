@@ -44,6 +44,7 @@ private:
     <sensor_msgs::Image, sensor_msgs::Image, sensor_msgs::Imu> time_synchronizer_;
 
   ros::Publisher pose_pub_;
+  ros::Publisher velocity_pub_;
   tf::TransformBroadcaster tf_broadcaster_;
 
   bool camera_info_initialized_;
@@ -66,7 +67,7 @@ private:
   void camera_info_callback(const sensor_msgs::CameraInfoConstPtr& info);
 
   void update(double dt, const cv::Mat& left_image, const cv::Mat& right_image, const sensor_msgs::Imu& imu,
-      const sensor_msgs::MagneticField& mag, geometry_msgs::Pose& pose);
+      const sensor_msgs::MagneticField& mag, geometry_msgs::Pose& pose, geometry_msgs::Twist& velocity);
 
   void get_inertial_vector(const sensor_msgs::Imu& imu, const sensor_msgs::MagneticField& mag, std::vector<double>& inertial_vec);
 
