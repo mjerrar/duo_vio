@@ -43,19 +43,11 @@ loopCounter(0)
     nh_.param<double>("process_noise_2", process_noise_[1], 1);
     nh_.param<double>("process_noise_3", process_noise_[2], 0.0);
     // nh_.param<double>("process_noise_4", process_noise_[3], 0.0);
-    printf("process_noise_1 = %f\n", process_noise_[0]);
-    printf("process_noise_2 = %f\n", process_noise_[1]);
-    printf("process_noise_3 = %f\n", process_noise_[2]);
 
     nh_.param<double>("im_noise_1", im_noise_[0], 2.0);
     nh_.param<double>("im_noise_2", im_noise_[1], 2.0);
     nh_.param<double>("im_noise_3", im_noise_[2], 2.0);
     nh_.param<double>("im_noise_3", im_noise_[3], 2.0);
-
-    printf("im_noise_1 = %f\n", im_noise_[0]);
-    printf("im_noise_2 = %f\n", im_noise_[1]);
-    printf("im_noise_3 = %f\n", im_noise_[2]);
-    printf("im_noise_4 = %f\n", im_noise_[3]);
 
 
     int num_points_per_anchor, num_anchors;
