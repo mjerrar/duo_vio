@@ -79,7 +79,7 @@ Visualization Manager:
       Queue Size: 10
       Selectable: true
       Size (Pixels): 3
-      Size (m): 0.08
+      Size (m): 0.008
       Style: Flat Squares
       Topic: /vio/features_point_cloud
       Use Fixed Frame: true
@@ -101,7 +101,7 @@ Visualization Manager:
       Value: true
     - Class: rviz/Axes
       Enabled: true
-      Length: 0.1
+      Length: 0.045
       Name: Axes
       Radius: 0.02
       Reference Frame: drone_base
@@ -159,7 +159,7 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/Orbit
-      Distance: 2.50253
+      Distance: 2.00584
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.06
         Stereo Focal Distance: 1
@@ -171,10 +171,10 @@ Visualization Manager:
         Z: 0
       Name: Current View
       Near Clip Distance: 0.01
-      Pitch: 0.569798
+      Pitch: 0.315399
       Target Frame: <Fixed Frame>
       Value: Orbit (rviz)
-      Yaw: 0.0981319
+      Yaw: 5.97225
     Saved: ~
 Window Geometry:
   Displays:
