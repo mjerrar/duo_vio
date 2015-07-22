@@ -29,6 +29,13 @@ void handle_points_klt(const cv::Mat &img_l, const cv::Mat &img_r, unsigned int 
   const double minDistSqr = 10*10;
   const double minScore = 4;
 
+
+  for (size_t i = 0; i < prev_status.size() && i <numPoints; ++i)
+  {
+    prev_status.at(i) = updateVect[i];
+  }
+
+
   std::vector<unsigned char> status;
   std::vector<cv::Point2f> cur_corners;
   std::vector<float> error;
@@ -84,6 +91,10 @@ void handle_points_klt(const cv::Mat &img_l, const cv::Mat &img_r, unsigned int 
 
   } else {
     printf("Right image is empty!\n");
+    for (size_t i = 0; i < prev_corners.size() && i < numPoints; i++)
+    {
+      z_all_l[3*i+2] = -1000;
+    }
   }
 }
 
