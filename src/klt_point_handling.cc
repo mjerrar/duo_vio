@@ -29,11 +29,6 @@ void handle_points_klt(const cv::Mat &img_l, const cv::Mat &img_r, unsigned int 
   const double minDistSqr = 10*10;
   const double minScore = 4;
 
-  for (size_t i = 0; i < prev_status.size() && i <numPoints; ++i)
-  {
-    prev_status.at(i) = updateVect[i];
-  }
-
   std::vector<unsigned char> status;
   std::vector<cv::Point2f> cur_corners;
   std::vector<float> error;
@@ -44,7 +39,8 @@ void handle_points_klt(const cv::Mat &img_l, const cv::Mat &img_r, unsigned int 
     prev_corners = cur_corners;
     for (size_t i = 0; i < prev_status.size() && i <numPoints; ++i)
     {
-      prev_status[i] = prev_status[i] && status[i];
+    	if(!(prev_status[i] && status[i]))
+    		prev_status[i] = 0;
     }
   }
 
@@ -82,28 +78,12 @@ void handle_points_klt(const cv::Mat &img_l, const cv::Mat &img_r, unsigned int 
       z_all_r[2*i+0] = prev_corners_right[i].x;
       z_all_r[2*i+1] = prev_corners_right[i].y;
 
-      //check disparity
-      double diffx = prev_corners[i].x - prev_corners_right[i].x;
-      double diffy = prev_corners[i].y - prev_corners_right[i].y;
-      double disparity = sqrt(diffx*diffx + diffy*diffy);
-
-//      if (diffx > -3.0 && diffy/diffx < 0.1 && diffx < 250)
-//        z_all_l[3*i+2] = disparity;
-//      else
-//      {
-//        z_all_l[3*i+2] = -1000;  //outlier
-//      }
-
-        updateVect[i] = prev_status[i];
+      updateVect[i] = prev_status[i];
     }
 
 
   } else {
     printf("Right image is empty!\n");
-    for (size_t i = 0; i < prev_corners.size() && i < numPoints; i++)
-    {
-      z_all_l[3*i+2] = -1000;
-    }
   }
 }
 
