@@ -40,7 +40,7 @@ void handle_points_klt(const cv::Mat &img_l, const cv::Mat &img_r, unsigned int 
 
   if (!prev_img.empty())
   {
-    cv::calcOpticalFlowPyrLK(prev_img, img_l, prev_corners, cur_corners, status, error, cv::Size(21,21), 5);
+    cv::calcOpticalFlowPyrLK(prev_img, img_l, prev_corners, cur_corners, status, error, cv::Size(11,11), 3);
     prev_corners = cur_corners;
     for (size_t i = 0; i < prev_status.size() && i <numPoints; ++i)
     {
@@ -56,7 +56,7 @@ void handle_points_klt(const cv::Mat &img_l, const cv::Mat &img_r, unsigned int 
   if (!img_r.empty())
   {
     std::vector<unsigned char> statusRight;
-    cv::calcOpticalFlowPyrLK(img_l, img_r, prev_corners, prev_corners_right, statusRight, error, cv::Size(21,21), 5);
+    cv::calcOpticalFlowPyrLK(img_l, img_r, prev_corners, prev_corners_right, statusRight, error, cv::Size(11,11), 3);
 
     //compute disparity and write the output variables
     for (size_t i = 0; i < prev_corners.size() && i < numPoints; i++)
