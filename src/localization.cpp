@@ -8,6 +8,7 @@
 #include <cv_bridge/cv_bridge.h>
 #include <geometry_msgs/Point32.h>
 #include <math.h>
+#include <stdio.h>
 #include <visualization_msgs/Marker.h>
 
 Localization::Localization()
@@ -74,7 +75,10 @@ loopCounter(0)
         num_points_per_anchor_ = static_cast<unsigned int>(num_points_per_anchor);
     }
 
-    update_vec_.assign(num_anchors_,0.0);
+    num_points_ = num_anchors_*num_points_per_anchor_;
+
+    update_vec_.assign(num_points_, 0);
+//    fill(update_vec_.begin(), update_vec_.begin() + num_points_per_anchor_, 2); // request new features for the first anchor initially
 }
 
 Localization::~Localization()
@@ -155,42 +159,39 @@ void Localization::synchronized_callback(const sensor_msgs::ImageConstPtr& left_
 void Localization::update(double dt, const cv::Mat& left_image, const cv::Mat& right_image, const sensor_msgs::Imu& imu,
     const sensor_msgs::MagneticField& mag, geometry_msgs::Pose& pose, geometry_msgs::Twist& velocity)
 {
-//	if(loopCounter < 3)
-//		loopCounter++;
-//	else
-//	{
-//		ros::Duration(0.5).sleep();
-//		return;
-//	}
+
     //*********************************************************************
     // Point tracking
     //*********************************************************************
 	int measurementDim = 4;
 
-    double z_all_l[num_anchors_ * measurementDim];
-    double z_all_r[num_anchors_ * measurementDim];
-    unsigned char update_vec_char[num_anchors_];
-
-    for (size_t i = 0; i < num_anchors_; ++i)
-    {
-        update_vec_char[i] = update_vec_[i];
-    }
+//    double z_all_l[num_anchors_ * measurementDim];
+//    double z_all_r[num_anchors_ * measurementDim];
+    std::vector<double> z_all_l(num_points_*2, 0.0);
+    std::vector<double> z_all_r(num_points_*2, 0.0);
 
     ros::Time tic = ros::Time::now();
-    handle_points_klt(left_image, right_image, num_anchors_, z_all_l, z_all_r, update_vec_char);
 
-//     ROS_INFO("Time Tracking: %f", (ros::Time::now() - tic).toSec());
-//     printf("Measurement: %f,%f,%f \n",z_all[0],z_all[1],z_all[2]);
+//    printf("updateVect before point tracker: [");
+//    for (int i = 0; i < update_vec_.size(); i++)
+//    {
+//    	printf("%d, ", update_vec_[i]);
+//    }
+//    printf("]\n");
 
-    double update_vec_array[num_anchors_];
-    double update_vec_array_out[num_anchors_];
-    for (size_t i = 0; i < num_anchors_; ++i)
+    handle_points_klt(left_image, right_image, z_all_l, z_all_r, update_vec_);
+
+//    printf("z_all_l,\t\t\tz_all_r\t\t\tupdateVect:\n");
+//    for (int i = 0; i < num_points_; i++)
+//    {
+//    	printf("%2d: %+3f, %+3f\t%+3f, %+3f\t%d\n", i, z_all_l[2*i], z_all_l[2*i+1], z_all_r[2*i], z_all_r[2*i+1], update_vec_[i]);
+//    }
+
+    double update_vec_array[num_points_];
+    double update_vec_array_out[num_points_];
+    for (size_t i = 0; i < num_points_; ++i)
     {
-    	update_vec_array[i] = update_vec_char[i];
-//         if(z_all_l[3*i] < 0)
-//             ROS_ERROR("Negative x: %f",z_all_l[3*i]);
-//         if(z_all_l[3*i+1] < 0)
-//             ROS_ERROR("Negative y: %f",z_all_l[3*i+1]);
+    	update_vec_array[i] = update_vec_[i];
     }
 
     //*********************************************************************
@@ -203,27 +204,22 @@ void Localization::update(double dt, const cv::Mat& left_image, const cv::Mat& r
     emxArray_real_T *xt_out; // result
     emxArray_real_T *P_apo_out;
     emxArray_real_T *h_u_apo;
+    emxArray_real_T *map;
 
     emxInitArray_real_T(&xt_out,1);
     emxInitArray_real_T(&P_apo_out,2);
     emxInitArray_real_T(&h_u_apo,1);
+    emxInitArray_real_T(&map,2);
 
     // Update SLAM and get pose estimation
     tic = ros::Time::now();
 
-    double b_map[96];
+//    double b_map[96];
 
-//    printf("updateVect bef SLAM: [");
-//    for(int i = 0; i < 32; i++)
-//    	printf("%d, ", (int) update_vec_array[i]);
-//    printf("]\n");
-
-    SLAM(update_vec_array, z_all_l, z_all_r, 0.03, &process_noise_[0], &inertial[0], &im_noise_[0], num_points_per_anchor_,num_anchors_, h_u_apo, xt_out, P_apo_out, b_map);
-    //memcpy(update_vec_array,update_vec_array_out,num_anchors_*sizeof(double));
-//    printf("updateVect aft SLAM: [");
-//    for(int i = 0; i < 32; i++)
-//    	printf("%d, ", (int) update_vec_array[i]);
-//    printf("]\n");
+    clock_t t1 = clock();
+    SLAM(update_vec_array, &z_all_l[0], &z_all_r[0], 0.03, &process_noise_[0], &inertial[0], &im_noise_[0], num_points_per_anchor_,num_anchors_, h_u_apo, xt_out, P_apo_out, map);
+    clock_t t2 = clock();
+    printf("SLAM took: %d clicks, %f msec\n", int(t2 - t1), 1000*float(t2 - t1)/CLOCKS_PER_SEC);
 
 //    update_vec_.assign(update_vec_array_out, update_vec_array_out + num_anchors_);
     for(int i = 0; i < update_vec_.size(); i++)
@@ -231,15 +227,20 @@ void Localization::update(double dt, const cv::Mat& left_image, const cv::Mat& r
     	update_vec_[i] = update_vec_array[i];
     }
 
+//    printf("updateVect aft SLAM:             [");
+//    for(int i = 0; i < update_vec_.size(); i++)
+//    	printf("%d, ", update_vec_[i]);
+//    printf("]\n");
+
     if (show_tracker_images_)
     {
-    	display_tracks(left_image, right_image, z_all_l, z_all_r, update_vec_, h_u_apo);
+    	display_tracks(left_image, &z_all_l[0], &z_all_r[0], update_vec_, h_u_apo);
     }
 
 //    ROS_INFO("Time SLAM: %f", (ros::Time::now() - tic).toSec());
 
     // Publish feature position in world frame
-    publishPointCloud(b_map);
+    publishPointCloud(map->data);
 
     // Set the pose
     pose.position.x = xt_out->data[0];
@@ -251,7 +252,6 @@ void Localization::update(double dt, const cv::Mat& left_image, const cv::Mat& r
     pose.orientation.z = xt_out->data[5];
     pose.orientation.w = xt_out->data[6];
 
-    // Set the pose
     velocity.linear.x = xt_out->data[7];
     velocity.linear.y = xt_out->data[8];
     velocity.linear.z = xt_out->data[9];
@@ -263,6 +263,7 @@ void Localization::update(double dt, const cv::Mat& left_image, const cv::Mat& r
     emxDestroyArray_real_T(xt_out);
     emxDestroyArray_real_T(P_apo_out);
     emxDestroyArray_real_T(h_u_apo);
+    emxDestroyArray_real_T(map);
 
 }
 
@@ -292,32 +293,35 @@ void Localization::get_inertial_vector(const sensor_msgs::Imu& imu, const sensor
     inertial_vec.at(8) = +mag.magnetic_field.z;
 }
 
-void Localization::display_tracks(const cv::Mat& left_image, const cv::Mat& right_image,
-    double z_all_l[], double z_all_r[], std::vector<double> status, emxArray_real_T *h_u)
+void Localization::display_tracks(const cv::Mat& left_image,
+    double z_all_l[], double z_all_r[], std::vector<int> status, emxArray_real_T *h_u)
 {
-
     cv::Mat left;
     cv::cvtColor(left_image,left,cv::COLOR_GRAY2BGR);
 
-    cv::Mat right;
-    cv::cvtColor(right_image,right,cv::COLOR_GRAY2RGB);
-
-    cv::Scalar color_left = cv::Scalar(0,255,0);
-    cv::Scalar color_right = cv::Scalar(0,0,255);
-    cv::Scalar color_left_pred = cv::Scalar(0,127,127);
-    cv::Scalar color_right_pred = cv::Scalar(127,0,127);
+    cv::Scalar color_left = cv::Scalar(0,140,255);
+    cv::Scalar color_right = cv::Scalar(255,140,0);
+    cv::Scalar color_left_pred = cv::Scalar(127,0,127);
 
 
-    for (unsigned int i = 0; i < num_anchors_; ++i)
+    for (unsigned int i = 0; i < num_points_; ++i)
     {
         if (status[i])
         {
             cv::Point left_point(z_all_l[2*i + 0], z_all_l[2*i + 1]);
-            cv::Point right_point(z_all_r[2*i + 0], z_all_r[2*i + 1]);
 
-            cv::circle(left, left_point, 1, color_left, 2);
-            cv::line(left, left_point, right_point, color_left, 1);
-            cv::circle(right, right_point, 1, color_right, 2);
+            std::stringstream ss;
+            ss << i+1;
+            cv::putText(left, ss.str(), left_point, 1, 1, cvScalar(0,0,255), 1, CV_AA);
+
+            cv::circle(left, left_point, 2, color_left, 2);
+
+            if (z_all_r[2*i + 0] > 0) // plot stereo measurement if available
+            {
+            	cv::Point right_point(z_all_r[2*i + 0], z_all_r[2*i + 1]);
+            	cv::circle(left, right_point, 2, color_right, 2);
+            	cv::line(left, left_point, right_point, color_right, 1);
+            }
 
             if(!(h_u == NULL))
             {
@@ -327,25 +331,10 @@ void Localization::display_tracks(const cv::Mat& left_image, const cv::Mat& righ
             		cv::Point right_point_pred(h_u->data[4*i + 2], h_u->data[4*i + 3]);
             		cv::circle(left, left_point_pred, 1, color_left_pred, 2);
             		cv::line(left, left_point, left_point_pred, color_left_pred, 1);
-            		cv::circle(right, right_point_pred, 1, color_right_pred, 2);
-            		cv::line(right, right_point, right_point_pred, color_right_pred, 1);
             	}
             }
-
-//            if (z_all_l[3*i + 2] > -100)
-//            {
-//                color_left = cv::Scalar(0,255,0);
-//                cv::circle(right, left_point,1,cv::Scalar(0,255,0),2);
-//                cv::line(left,left_point,right_point,color_left,1);
-//            }
-//            else
-//            {
-//                color_left = cv::Scalar(0,0,255);
-//            }
-
         }
     }
-    cv::imshow("right image", right);
     cv::imshow("left image", left);
     cv::waitKey(10);
 }

@@ -5,13 +5,14 @@
 // File: QuatFromRotJ.cpp
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 15-Jul-2015 17:00:42
+// C/C++ source code generated on  : 31-Jul-2015 14:58:50
 //
 
 // Include Files
 #include "rt_nonfinite.h"
 #include "SLAM.h"
 #include "QuatFromRotJ.h"
+#include "SLAM_updIT.h"
 #include "SLAM_rtwutil.h"
 #include <stdio.h>
 
@@ -41,7 +42,7 @@ void QuatFromRotJ(const double R[9], double b_Q[4])
   boolean_T exitg1;
   boolean_T guard1 = false;
   int loop_ub;
-  int i1;
+  int i0;
   signed char i_data[4];
   signed char index_data[4];
 
@@ -108,8 +109,8 @@ void QuatFromRotJ(const double R[9], double b_Q[4])
     loop_ub = idx;
   }
 
-  for (i1 = 0; i1 < loop_ub; i1++) {
-    i_data[i1] = ii_data[i1];
+  for (i0 = 0; i0 < loop_ub; i0++) {
+    i_data[i0] = ii_data[i0];
   }
 
   if (1 > idx) {
@@ -118,8 +119,8 @@ void QuatFromRotJ(const double R[9], double b_Q[4])
     ixstart = idx;
   }
 
-  for (i1 = 0; i1 < ixstart; i1++) {
-    index_data[i1] = i_data[i1];
+  for (i0 = 0; i0 < ixstart; i0++) {
+    index_data[i0] = i_data[i0];
   }
 
   for (ixstart = 0; ixstart < loop_ub; ixstart++) {
@@ -154,6 +155,102 @@ void QuatFromRotJ(const double R[9], double b_Q[4])
     b_Q[0] = (R[7] - R[5]) / (4.0 * mtmp);
     b_Q[1] = (R[2] - R[6]) / (4.0 * mtmp);
     b_Q[2] = (R[3] - R[1]) / (4.0 * mtmp);
+  }
+}
+
+//
+// THIS IS OK, It is according to the NASA memo found
+//  https://claraty.jpl.nasa.gov/man/software/development/conventions/standards_docs/unadopted/JPL_Quaternions_Breckenridge.pdf
+// QUATFROMROTJ Get equivalent quaternion of the rotation matrix R
+//    Returns a quaternion in JPL notation
+//  The implementation is copied from qGetQ(R), but we are careful about the
+//  ordering of the output vector
+// Arguments    : double b_Q[4]
+// Return Type  : void
+//
+void b_QuatFromRotJ(double b_Q[4])
+{
+  int idx;
+  signed char ii_data[4];
+  int ii;
+  boolean_T exitg1;
+  boolean_T guard1 = false;
+  static const boolean_T x[4] = { false, false, false, true };
+
+  int loop_ub;
+  int i10;
+  signed char i_data[4];
+  signed char index_data[4];
+
+  //  if( r ~= 3 || c ~= 3 )
+  //      error( 'R must be a 3x3 matrix\n\r' );
+  //  end
+  idx = 0;
+  ii = 1;
+  exitg1 = false;
+  while ((!exitg1) && (ii < 5)) {
+    guard1 = false;
+    if (x[ii - 1]) {
+      idx++;
+      ii_data[idx - 1] = (signed char)ii;
+      if (idx >= 4) {
+        exitg1 = true;
+      } else {
+        guard1 = true;
+      }
+    } else {
+      guard1 = true;
+    }
+
+    if (guard1) {
+      ii++;
+    }
+  }
+
+  if (1 > idx) {
+    loop_ub = 0;
+  } else {
+    loop_ub = idx;
+  }
+
+  for (i10 = 0; i10 < loop_ub; i10++) {
+    i_data[i10] = ii_data[i10];
+  }
+
+  if (1 > idx) {
+    ii = 0;
+  } else {
+    ii = idx;
+  }
+
+  for (i10 = 0; i10 < ii; i10++) {
+    index_data[i10] = i_data[i10];
+  }
+
+  for (ii = 0; ii < loop_ub; ii++) {
+    index_data[ii] = (signed char)rt_roundd_snf((double)index_data[ii]);
+  }
+
+  if (index_data[0] == 1) {
+    b_Q[0] = 0.0;
+    b_Q[1] = rtNaN;
+    b_Q[2] = rtNaN;
+    b_Q[3] = rtNaN;
+  } else if (index_data[0] == 2) {
+    b_Q[1] = 0.0;
+    b_Q[0] = rtNaN;
+    b_Q[2] = rtNaN;
+    b_Q[3] = rtNaN;
+  } else if (index_data[0] == 3) {
+    b_Q[2] = 0.0;
+    b_Q[0] = rtNaN;
+    b_Q[1] = rtNaN;
+    b_Q[3] = rtNaN;
+  } else {
+    b_Q[3] = 1.0;
+    b_Q[0] = 0.0;
+    b_Q[1] = 0.0;
+    b_Q[2] = 0.0;
   }
 }
 

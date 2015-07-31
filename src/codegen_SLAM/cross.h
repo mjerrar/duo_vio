@@ -2,13 +2,13 @@
 // Academic License - for use in teaching, academic research, and meeting
 // course requirements at degree granting institutions only.  Not for
 // government, commercial, or other organizational use.
-// File: RotFromQuatJ.h
+// File: cross.h
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 15-Jul-2015 17:00:42
+// C/C++ source code generated on  : 31-Jul-2015 14:58:50
 //
-#ifndef __ROTFROMQUATJ_H__
-#define __ROTFROMQUATJ_H__
+#ifndef __CROSS_H__
+#define __CROSS_H__
 
 // Include Files
 #include <math.h>
@@ -20,12 +20,12 @@
 #include "SLAM_types.h"
 
 // Function Declarations
-extern void RotFromQuatJ(const double q[4], double R[9]);
+extern void cross(const double a[3], const double b[3], double c[3]);
 
 #endif
 
 //
-// File trailer for RotFromQuatJ.h
+// File trailer for cross.h
 //
 // [EOF]
 //

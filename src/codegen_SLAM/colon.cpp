@@ -5,7 +5,7 @@
 // File: colon.cpp
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 15-Jul-2015 17:00:42
+// C/C++ source code generated on  : 31-Jul-2015 14:58:50
 //
 
 // Include Files
@@ -24,15 +24,24 @@
 //
 void eml_signed_integer_colon(int b, int y_data[], int y_size[2])
 {
+  int n;
   int yk;
   int k;
+  if (b < 1) {
+    n = 0;
+  } else {
+    n = b;
+  }
+
   y_size[0] = 1;
-  y_size[1] = b;
-  y_data[0] = 1;
-  yk = 1;
-  for (k = 2; k <= b; k++) {
-    yk++;
-    y_data[k - 1] = yk;
+  y_size[1] = n;
+  if (n > 0) {
+    y_data[0] = 1;
+    yk = 1;
+    for (k = 2; k <= n; k++) {
+      yk++;
+      y_data[k - 1] = yk;
+    }
   }
 }
 

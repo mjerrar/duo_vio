@@ -5,7 +5,7 @@
 // File: any.h
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 15-Jul-2015 17:00:42
+// C/C++ source code generated on  : 31-Jul-2015 14:58:50
 //
 #ifndef __ANY_H__
 #define __ANY_H__
@@ -20,13 +20,10 @@
 #include "SLAM_types.h"
 
 // Function Declarations
-extern void any(const boolean_T x[9], boolean_T y[3]);
-extern boolean_T b_any(const boolean_T x[3]);
+extern boolean_T any(const boolean_T x[32]);
+extern void b_any(const emxArray_boolean_T *x, boolean_T y[32]);
 extern boolean_T c_any(const boolean_T x[3]);
-extern boolean_T d_any(boolean_T x);
-extern void e_any(const emxArray_boolean_T *x, emxArray_boolean_T *y);
-extern boolean_T f_any(const emxArray_boolean_T *x);
-extern boolean_T g_any(const emxArray_boolean_T *x);
+extern boolean_T d_any(const emxArray_boolean_T *x);
 
 #endif
 

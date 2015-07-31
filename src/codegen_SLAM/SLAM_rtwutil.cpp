@@ -5,7 +5,7 @@
 // File: SLAM_rtwutil.cpp
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 15-Jul-2015 17:00:42
+// C/C++ source code generated on  : 31-Jul-2015 14:58:50
 //
 
 // Include Files
@@ -15,6 +15,48 @@
 #include <stdio.h>
 
 // Function Definitions
+
+//
+// Arguments    : int numerator
+//                int denominator
+// Return Type  : int
+//
+int div_nzp_s32_floor(int numerator, int denominator)
+{
+  int quotient;
+  unsigned int absNumerator;
+  unsigned int absDenominator;
+  boolean_T quotientNeedsNegation;
+  unsigned int tempAbsQuotient;
+  if (numerator >= 0) {
+    absNumerator = (unsigned int)numerator;
+  } else {
+    absNumerator = (unsigned int)-numerator;
+  }
+
+  if (denominator >= 0) {
+    absDenominator = (unsigned int)denominator;
+  } else {
+    absDenominator = (unsigned int)-denominator;
+  }
+
+  quotientNeedsNegation = ((numerator < 0) != (denominator < 0));
+  tempAbsQuotient = absNumerator / absDenominator;
+  if (quotientNeedsNegation) {
+    absNumerator %= absDenominator;
+    if (absNumerator > 0U) {
+      tempAbsQuotient++;
+    }
+  }
+
+  if (quotientNeedsNegation) {
+    quotient = -(int)tempAbsQuotient;
+  } else {
+    quotient = (int)tempAbsQuotient;
+  }
+
+  return quotient;
+}
 
 //
 // Arguments    : double u0
@@ -51,17 +93,17 @@ double rt_hypotd_snf(double u0, double u1)
 double rt_powd_snf(double u0, double u1)
 {
   double y;
-  double d1;
   double d2;
+  double d3;
   if (rtIsNaN(u0) || rtIsNaN(u1)) {
     y = rtNaN;
   } else {
-    d1 = fabs(u0);
-    d2 = fabs(u1);
+    d2 = fabs(u0);
+    d3 = fabs(u1);
     if (rtIsInf(u1)) {
-      if (d1 == 1.0) {
+      if (d2 == 1.0) {
         y = rtNaN;
-      } else if (d1 > 1.0) {
+      } else if (d2 > 1.0) {
         if (u1 > 0.0) {
           y = rtInf;
         } else {
@@ -72,9 +114,9 @@ double rt_powd_snf(double u0, double u1)
       } else {
         y = rtInf;
       }
-    } else if (d2 == 0.0) {
+    } else if (d3 == 0.0) {
       y = 1.0;
-    } else if (d2 == 1.0) {
+    } else if (d3 == 1.0) {
       if (u1 > 0.0) {
         y = u0;
       } else {

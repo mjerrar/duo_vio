@@ -5,13 +5,14 @@
 // File: SLAM_terminate.cpp
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 15-Jul-2015 17:00:42
+// C/C++ source code generated on  : 31-Jul-2015 14:58:50
 //
 
 // Include Files
 #include "rt_nonfinite.h"
 #include "SLAM.h"
 #include "SLAM_terminate.h"
+#include "SLAM_updIT.h"
 #include <stdio.h>
 
 // Function Definitions
@@ -23,6 +24,7 @@
 void SLAM_terminate()
 {
   SLAM_free();
+  SLAM_updIT_free();
 }
 
 //

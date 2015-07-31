@@ -49,7 +49,7 @@ private:
 
   bool camera_info_initialized_;
   ros::Time prev_time_;
-  std::vector<double> update_vec_;
+  std::vector<int> update_vec_;
 
   // TODO Init subsequent parameters
   std::vector<double> process_noise_; //qv,qw,qwo,qao
@@ -57,6 +57,7 @@ private:
   std::vector<double> camera_params_; //f,Cx,Cy,baseline
   unsigned int num_points_per_anchor_;
   unsigned int num_anchors_;
+  unsigned int num_points_;
   bool show_tracker_images_;
   emxArray_real_T *h_u_apo_;
 
@@ -71,8 +72,8 @@ private:
 
   void get_inertial_vector(const sensor_msgs::Imu& imu, const sensor_msgs::MagneticField& mag, std::vector<double>& inertial_vec);
 
-  void display_tracks(const cv::Mat& left_image, const cv::Mat& right_image, double z_all_l[], double z_all_r[],
-		  std::vector<double>, emxArray_real_T *h_u = NULL);
+  void display_tracks(const cv::Mat& left_image, double z_all_l[], double z_all_r[],
+		  std::vector<int> status, emxArray_real_T *h_u = NULL);
 
    ros::Publisher point_cloud_pub_;
    void publishPointCloud(double * map );

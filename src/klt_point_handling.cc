@@ -19,7 +19,7 @@ static std::vector<cv::Point2f> prev_corners;
 static std::vector<cv::Point2f> prev_corners_right;
 static std::vector<unsigned char> prev_status(100, 0);
 static FastFeatureDetector detector(50);
-static BriefDescriptorExtractor extractor(16); //this is really 16 x 8 matches since they are binary matches packed into bytes
+static BriefDescriptorExtractor extractor(64); //this is really 16 x 8 matches since they are binary matches packed into bytes
 
 //local functions
 static void initMorePoints(const cv::Mat &img_l, const cv::Mat &img_r, std::vector<int> &updateVect, vector<double> &z_all_l, vector<double> &z_all_r);
@@ -38,7 +38,6 @@ void handle_points_klt(
 		vector<double> &z_all_r,
 		vector<int> &updateVect)
 {
-	printf("\n");
 	clock_t t1 = clock();
 
 	unsigned int numPoints = updateVect.size();
@@ -64,22 +63,26 @@ void handle_points_klt(
 
 	if (!prev_img.empty())
 	{
-		cv::calcOpticalFlowPyrLK(prev_img, img_l, prev_corners, cur_corners, status, error, cv::Size(64,64), 4);
-		prev_corners = cur_corners;
-
-		for (size_t i = 0; i < prev_corners.size() && i < numPoints; ++i)
+		if (!prev_corners.empty())
 		{
-			if(!(prev_status[i] && status[i]))
-				prev_status[i] = 0;
+			cv::calcOpticalFlowPyrLK(prev_img, img_l, prev_corners, cur_corners, status, error, cv::Size(64,64), 4);
+			prev_corners = cur_corners;
 
-			if (prev_status[i] == 1)
+
+			for (size_t i = 0; i < prev_corners.size() && i < numPoints; ++i)
 			{
-				z_all_l[2*i+0] = prev_corners[i].x;
-				z_all_l[2*i+1] = prev_corners[i].y;
-				updateVect[i] = 1;
-			} else {
-				if (updateVect[i] == 1) // be careful not to overwrite 2s in updateVect
-					updateVect[i] = 0;
+				if(!(prev_status[i] && status[i]))
+					prev_status[i] = 0;
+
+				if (prev_status[i] == 1)
+				{
+					z_all_l[2*i+0] = prev_corners[i].x;
+					z_all_l[2*i+1] = prev_corners[i].y;
+					updateVect[i] = 1;
+				} else {
+					if (updateVect[i] == 1) // be careful not to overwrite 2s in updateVect
+						updateVect[i] = 0;
+				}
 			}
 		}
 	}
@@ -102,13 +105,12 @@ void handle_points_klt(
 		} else {
 			initMorePoints(img_l, img_r, updateVect, z_all_l, z_all_r);
 		}
-
 	} else {
 		printf("Right image is empty!\n");
 	}
 
 	clock_t t2 = clock();
-	printf("Took: %d clicks, %f msec\n", int(t2 - t1), 1000*float(t2 - t1)/CLOCKS_PER_SEC);
+	printf("Point tracker took: %d clicks, %f msec\n", int(t2 - t1), 1000*float(t2 - t1)/CLOCKS_PER_SEC);
 }
 
 // ==== local functions, hidden from outside this file ====
@@ -144,9 +146,15 @@ static void initMorePoints(
 	extractor.compute(img_r, keypointsR, descriptorsR);
 
 	if ( descriptorsL.empty() )
-		cvError(0,"MatchFinder","Left descriptor empty",__FILE__,__LINE__);
+	{
+		ROS_ERROR("Left descriptor empty in %s:%d",__FILE__,__LINE__);
+		return;
+	}
 	if ( descriptorsR.empty() )
-		cvError(0,"MatchFinder","Right descriptor empty",__FILE__,__LINE__);
+	{
+		ROS_ERROR("Left descriptor empty in %s:%d",__FILE__,__LINE__);
+		return;
+	}
 
 	BFMatcher matcher(cv::NORM_HAMMING, true); // BFMatcher appears to be faster than FlannBasedMatcher
 	std::vector< DMatch > matches;
@@ -220,7 +228,7 @@ static void initMorePoints(
 	if (prev_corners.size() < updateVect.size())
 		prev_corners.resize(updateVect.size());
 
-	printf("Number of good matches: %d, desired: %d\n", good_matches.size(), targetNumPoints);
+	printf("Number of good matches: %d, desired: %d\n", (int) good_matches.size(), targetNumPoints);
 
 	int good_matches_idx = 0;
 	for (int i = 0; i < updateVect.size(); i++)

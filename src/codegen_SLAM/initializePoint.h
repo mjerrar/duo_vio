@@ -5,7 +5,7 @@
 // File: initializePoint.h
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 15-Jul-2015 17:00:42
+// C/C++ source code generated on  : 31-Jul-2015 14:58:50
 //
 #ifndef __INITIALIZEPOINT_H__
 #define __INITIALIZEPOINT_H__
@@ -23,7 +23,7 @@
 extern double d_eml_xnrm2(int n, const double x[30], int ix0);
 extern void initializePoint(const emxArray_real_T *b_xt, const double
   cameraparams_r_lr[3], const double cameraparams_R_lr[9], const double z_l[2],
-  const double z_r[2], double fp[3]);
+  const double z_r[2], double fp[3], double m_out[3]);
 
 #endif
 

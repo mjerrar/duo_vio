@@ -5,7 +5,7 @@
 // File: SLAM_emxutil.h
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 15-Jul-2015 17:00:42
+// C/C++ source code generated on  : 31-Jul-2015 14:58:50
 //
 #ifndef __SLAM_EMXUTIL_H__
 #define __SLAM_EMXUTIL_H__
@@ -20,8 +20,7 @@
 #include "SLAM_types.h"
 
 // Function Declarations
-extern void b_emxInit_boolean_T(emxArray_boolean_T **pEmxArray, int
-  b_numDimensions);
+extern void b_emxInit_int32_T(emxArray_int32_T **pEmxArray, int b_numDimensions);
 extern void b_emxInit_real_T(emxArray_real_T **pEmxArray, int b_numDimensions);
 extern void emxEnsureCapacity(emxArray__common *emxArray, int oldNumel, int
   elementSize);

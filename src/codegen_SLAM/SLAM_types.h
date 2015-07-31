@@ -5,7 +5,7 @@
 // File: SLAM_types.h
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 15-Jul-2015 17:00:42
+// C/C++ source code generated on  : 31-Jul-2015 14:58:50
 //
 #ifndef __SLAM_TYPES_H__
 #define __SLAM_TYPES_H__
@@ -105,22 +105,22 @@ struct emxArray_real_T
 typedef struct {
   double RadialDistortion[3];
   double TangentialDistortion[2];
-  double WorldPoints[96];
+  double WorldPoints[80];
   char WorldUnits[2];
   boolean_T EstimateSkew;
   double NumRadialDistortionCoefficients;
   boolean_T EstimateTangentialDistortion;
-  double TranslationVectors[300];
-  double ReprojectionErrors[9600];
-  double RotationVectors[300];
+  double TranslationVectors[141];
+  double ReprojectionErrors[3760];
+  double RotationVectors[141];
   double NumPatterns;
   double IntrinsicMatrix[9];
   double FocalLength[2];
   double PrincipalPoint[2];
   double Skew;
   double MeanReprojectionError;
-  double ReprojectedPoints[9600];
-  double RotationMatrices[900];
+  double ReprojectedPoints[3760];
+  double RotationMatrices[423];
 } struct_T;
 
 typedef struct {
@@ -132,7 +132,7 @@ typedef struct {
   double EssentialMatrix[9];
   double MeanReprojectionError;
   double NumPatterns;
-  double WorldPoints[96];
+  double WorldPoints[80];
   char WorldUnits[2];
   b_struct_T RectifyMap1;
   b_struct_T RectifyMap2;
@@ -140,6 +140,7 @@ typedef struct {
   e_struct_T Version;
   double r_lr[3];
   double R_lr[9];
+  double R_rl[9];
 } f_struct_T;
 
 #endif

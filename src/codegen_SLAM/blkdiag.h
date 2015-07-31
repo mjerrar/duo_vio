@@ -2,13 +2,13 @@
 // Academic License - for use in teaching, academic research, and meeting
 // course requirements at degree granting institutions only.  Not for
 // government, commercial, or other organizational use.
-// File: det.h
+// File: blkdiag.h
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 15-Jul-2015 17:00:42
+// C/C++ source code generated on  : 31-Jul-2015 14:58:50
 //
-#ifndef __DET_H__
-#define __DET_H__
+#ifndef __BLKDIAG_H__
+#define __BLKDIAG_H__
 
 // Include Files
 #include <math.h>
@@ -20,14 +20,13 @@
 #include "SLAM_types.h"
 
 // Function Declarations
-extern double det(const emxArray_real_T *x);
-extern void eml_lapack_xgetrf(int m, int n, emxArray_real_T *A, int lda, int
-  ipiv_data[], int ipiv_size[2], int *info);
+extern void blkdiag(const emxArray_real_T *varargin_1, const emxArray_real_T
+                    *varargin_2, emxArray_real_T *y);
 
 #endif
 
 //
-// File trailer for det.h
+// File trailer for blkdiag.h
 //
 // [EOF]
 //

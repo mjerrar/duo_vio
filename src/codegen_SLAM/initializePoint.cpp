@@ -5,15 +5,16 @@
 // File: initializePoint.cpp
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 15-Jul-2015 17:00:42
+// C/C++ source code generated on  : 31-Jul-2015 14:58:50
 //
 
 // Include Files
 #include "rt_nonfinite.h"
 #include "SLAM.h"
 #include "initializePoint.h"
-#include "svd.h"
+#include "predictMeasurement_stereo.h"
 #include "norm.h"
+#include "svd.h"
 #include "QuatFromRotJ.h"
 #include "SLAM_rtwutil.h"
 #include <stdio.h>
@@ -33,7 +34,7 @@ static double f_eml_xnrm2(int n, const double x[30], int ix0);
 static void b_eml_xgeqp3(double A[30], double tau[5], int jpvt[5])
 {
   double work[5];
-  int i20;
+  int i26;
   double vn1[5];
   double vn2[5];
   int k;
@@ -52,9 +53,9 @@ static void b_eml_xgeqp3(double A[30], double tau[5], int jpvt[5])
   int lastc;
   boolean_T exitg2;
   int32_T exitg1;
-  for (i20 = 0; i20 < 5; i20++) {
-    jpvt[i20] = 1 + i20;
-    work[i20] = 0.0;
+  for (i26 = 0; i26 < 5; i26++) {
+    jpvt[i26] = 1 + i26;
+    work[i26] = 0.0;
   }
 
   k = 1;
@@ -127,8 +128,8 @@ static void b_eml_xgeqp3(double A[30], double tau[5], int jpvt[5])
         itemp = 0;
         do {
           itemp++;
-          i20 = i_i - i;
-          for (k = i_i + 1; k + 1 <= i20 + 6; k++) {
+          i26 = i_i - i;
+          for (k = i_i + 1; k + 1 <= i26 + 6; k++) {
             A[k] *= 9.9792015476736E+291;
           }
 
@@ -143,8 +144,8 @@ static void b_eml_xgeqp3(double A[30], double tau[5], int jpvt[5])
 
         temp2 = (smax - absxk) / smax;
         absxk = 1.0 / (absxk - smax);
-        i20 = i_i - i;
-        for (k = i_i + 1; k + 1 <= i20 + 6; k++) {
+        i26 = i_i - i;
+        for (k = i_i + 1; k + 1 <= i26 + 6; k++) {
           A[k] *= absxk;
         }
 
@@ -156,8 +157,8 @@ static void b_eml_xgeqp3(double A[30], double tau[5], int jpvt[5])
       } else {
         temp2 = (smax - A[i_i]) / smax;
         absxk = 1.0 / (A[i_i] - smax);
-        i20 = i_i - i;
-        for (k = i_i + 1; k + 1 <= i20 + 6; k++) {
+        i26 = i_i - i;
+        for (k = i_i + 1; k + 1 <= i26 + 6; k++) {
           A[k] *= absxk;
         }
 
@@ -215,8 +216,8 @@ static void b_eml_xgeqp3(double A[30], double tau[5], int jpvt[5])
           }
 
           iy = 0;
-          i20 = i_ip1 + 6 * (lastc - 1);
-          for (itemp = i_ip1; itemp <= i20; itemp += 6) {
+          i26 = i_ip1 + 6 * (lastc - 1);
+          for (itemp = i_ip1; itemp <= i26; itemp += 6) {
             ix = i_i;
             smax = 0.0;
             pvt = (itemp + lastv) - 1;
@@ -238,8 +239,8 @@ static void b_eml_xgeqp3(double A[30], double tau[5], int jpvt[5])
             if (work[pvt] != 0.0) {
               smax = work[pvt] * -tau[i];
               ix = i_i;
-              i20 = lastv + itemp;
-              for (k = itemp; k + 1 <= i20; k++) {
+              i26 = lastv + itemp;
+              for (k = itemp; k + 1 <= i26; k++) {
                 A[k] += A[ix] * smax;
                 ix++;
               }
@@ -362,28 +363,27 @@ double d_eml_xnrm2(int n, const double x[30], int ix0)
 //
 //  OUTPUT ARGUMENTS:
 //  - fp: The feature point in the world frame
+//  - m:  The ray in the left camera frame to the feature
 // Arguments    : const emxArray_real_T *b_xt
 //                const double cameraparams_r_lr[3]
 //                const double cameraparams_R_lr[9]
 //                const double z_l[2]
 //                const double z_r[2]
 //                double fp[3]
+//                double m_out[3]
 // Return Type  : void
 //
 void initializePoint(const emxArray_real_T *b_xt, const double
                      cameraparams_r_lr[3], const double cameraparams_R_lr[9],
-                     const double z_l[2], const double z_r[2], double fp[3])
+                     const double z_l[2], const double z_r[2], double fp[3],
+                     double m_out[3])
 {
-  double R_cw[9];
-  double c_xt[3];
-  int i8;
-  double tol;
-  int i9;
   double pos[6];
-  double dv617[4];
+  int j;
+  double dv303[4];
   double b_cameraparams_R_lr[9];
-  int i;
-  double dv618[4];
+  int rankR;
+  double dv304[4];
   double rot[8];
   double zn_d_l[2];
   double zn_d_r[2];
@@ -391,78 +391,64 @@ void initializePoint(const emxArray_real_T *b_xt, const double
   double rad_d_r;
   double r_u_l;
   double r_u_r;
+  int i;
   double b_r_u_l[2];
   boolean_T b[2];
   boolean_T y;
-  boolean_T exitg2;
+  boolean_T exitg3;
   boolean_T guard1 = false;
   double c_r_u_l[2];
-  boolean_T exitg1;
+  boolean_T exitg2;
   double B;
-  double ml[3];
+  double absxk;
   double mr[3];
   double m[6];
   double A[30];
   double b_b[6];
-  int rankR;
-  int j;
+  int anchorIdx;
   double b_rot[9];
+  signed char I[9];
+  double s[5];
+  int exponent;
   double unusedExpr[5];
   int jpvt[5];
-  double tau[5];
   double x[5];
+  boolean_T exitg1;
+  double c_xt[9];
 
   //  camera parameters for the left and right camera
-  R_cw[0] = ((b_xt->data[3] * b_xt->data[3] - b_xt->data[4] * b_xt->data[4]) -
-             b_xt->data[5] * b_xt->data[5]) + b_xt->data[6] * b_xt->data[6];
-  R_cw[3] = 2.0 * (b_xt->data[3] * b_xt->data[4] + b_xt->data[5] * b_xt->data[6]);
-  R_cw[6] = 2.0 * (b_xt->data[3] * b_xt->data[5] - b_xt->data[4] * b_xt->data[6]);
-  R_cw[1] = 2.0 * (b_xt->data[3] * b_xt->data[4] - b_xt->data[5] * b_xt->data[6]);
-  R_cw[4] = ((-(b_xt->data[3] * b_xt->data[3]) + b_xt->data[4] * b_xt->data[4])
-             - b_xt->data[5] * b_xt->data[5]) + b_xt->data[6] * b_xt->data[6];
-  R_cw[7] = 2.0 * (b_xt->data[4] * b_xt->data[5] + b_xt->data[3] * b_xt->data[6]);
-  R_cw[2] = 2.0 * (b_xt->data[3] * b_xt->data[5] + b_xt->data[4] * b_xt->data[6]);
-  R_cw[5] = 2.0 * (b_xt->data[4] * b_xt->data[5] - b_xt->data[3] * b_xt->data[6]);
-  R_cw[8] = ((-(b_xt->data[3] * b_xt->data[3]) - b_xt->data[4] * b_xt->data[4])
-             + b_xt->data[5] * b_xt->data[5]) + b_xt->data[6] * b_xt->data[6];
-  for (i8 = 0; i8 < 3; i8++) {
-    tol = 0.0;
-    for (i9 = 0; i9 < 3; i9++) {
-      tol += R_cw[i8 + 3 * i9] * cameraparams_r_lr[i9];
-    }
-
-    c_xt[i8] = b_xt->data[i8] + tol;
+  //  if ~all(size(q) == [4, 1])
+  //      error('q does not have the size of a quaternion')
+  //  end
+  //  if abs(norm(q) - 1) > 1e-3
+  //      error('The provided quaternion is not a valid rotation quaternion because it does not have norm 1') 
+  //  end
+  //  R_lw = R_cw;
+  //  R_rw = R_lr'*R_cw;
+  //  pos  = [r_cw,r_cw + R_cw*r_lr];
+  //  rot  = [QuatFromRotJ(R_lw),QuatFromRotJ(R_rw)];
+  for (j = 0; j < 3; j++) {
+    pos[j] = 0.0;
+    pos[3 + j] = cameraparams_r_lr[j];
   }
 
-  for (i8 = 0; i8 < 3; i8++) {
-    pos[i8] = b_xt->data[i8];
-  }
-
-  for (i8 = 0; i8 < 3; i8++) {
-    pos[3 + i8] = c_xt[i8];
-  }
-
-  QuatFromRotJ(R_cw, dv617);
-  for (i8 = 0; i8 < 3; i8++) {
-    for (i9 = 0; i9 < 3; i9++) {
-      b_cameraparams_R_lr[i8 + 3 * i9] = 0.0;
-      for (i = 0; i < 3; i++) {
-        b_cameraparams_R_lr[i8 + 3 * i9] += cameraparams_R_lr[i + 3 * i8] *
-          R_cw[i + 3 * i9];
-      }
+  b_QuatFromRotJ(dv303);
+  for (j = 0; j < 3; j++) {
+    for (rankR = 0; rankR < 3; rankR++) {
+      b_cameraparams_R_lr[rankR + 3 * j] = cameraparams_R_lr[j + 3 * rankR];
     }
   }
 
-  QuatFromRotJ(b_cameraparams_R_lr, dv618);
-  for (i8 = 0; i8 < 4; i8++) {
-    rot[i8] = dv617[i8];
-    rot[4 + i8] = dv618[i8];
+  QuatFromRotJ(b_cameraparams_R_lr, dv304);
+  for (j = 0; j < 4; j++) {
+    rot[j] = dv303[j];
+    rot[4 + j] = dv304[j];
   }
 
-  zn_d_l[0] = (z_l[0] - 370.875239827556) / 538.062556767505;
-  zn_d_l[1] = (z_l[1] - 233.561696038582) / 540.300263920769;
-  zn_d_r[0] = (z_r[0] - 390.89484296851) / 538.360393533763;
-  zn_d_r[1] = (z_r[1] - 222.869843438459) / 540.849047073219;
+  zn_d_l[0] = (z_l[0] - 370.467750713497) / 537.083588825387;
+  zn_d_l[1] = (z_l[1] - 226.640025353723) / 539.036743091681;
+  zn_d_r[0] = (z_r[0] - 390.576377367293) / 538.369043959143;
+  zn_d_r[1] = (z_r[1] - 218.634996583338) / 539.436438304934;
   rad_d_l = sqrt(zn_d_l[0] * zn_d_l[0] + zn_d_l[1] * zn_d_l[1]);
 
   //  the radius for the undistortion
@@ -476,31 +462,36 @@ void initializePoint(const emxArray_real_T *b_xt, const double
   //    Detailed explanation goes here
   r_u_r = 1.0;
   for (i = 0; i < 10; i++) {
-    r_u_l -= (((r_u_l + -0.403158360273884 * rt_powd_snf(r_u_l, 3.0)) +
-               0.203403755605372 * rt_powd_snf(r_u_l, 5.0)) - rad_d_l) / ((1.0 +
-      -1.2094750808216521 * (r_u_l * r_u_l)) + 0.813615022421488 * rt_powd_snf
-      (r_u_l, 3.0));
-    r_u_r -= (((r_u_r + -0.397408316532857 * rt_powd_snf(r_u_r, 3.0)) +
-               0.190419257967814 * rt_powd_snf(r_u_r, 5.0)) - rad_d_r) / ((1.0 +
-      -1.1922249495985711 * (r_u_r * r_u_r)) + 0.761677031871256 * rt_powd_snf
-      (r_u_r, 3.0));
+    // ru=ru-(ru+k1*ru^3+k2*ru^5-rd)/(1+3*k1*ru^2+5*k2*ru^4);
+    r_u_l -= ((((r_u_l + -0.41042183437511 * rt_powd_snf(r_u_l, 3.0)) +
+                0.221265330302933 * rt_powd_snf(r_u_l, 5.0)) +
+               -0.0619354263198911 * rt_powd_snf(r_u_l, 7.0)) - rad_d_l) /
+      (((1.0 + -1.23126550312533 * (r_u_l * r_u_l)) + 1.106326651514665 *
+        rt_powd_snf(r_u_l, 4.0)) + -0.43354798423923768 * rt_powd_snf(r_u_l, 6.0));
+
+    // ru=ru-(ru+k1*ru^3+k2*ru^5-rd)/(1+3*k1*ru^2+5*k2*ru^4);
+    r_u_r -= ((((r_u_r + -0.403776514266162 * rt_powd_snf(r_u_r, 3.0)) +
+                0.212756636184267 * rt_powd_snf(r_u_r, 5.0)) +
+               -0.0594355697055105 * rt_powd_snf(r_u_r, 7.0)) - rad_d_r) /
+      (((1.0 + -1.211329542798486 * (r_u_r * r_u_r)) + 1.0637831809213349 *
+        rt_powd_snf(r_u_r, 4.0)) + -0.41604898793857348 * rt_powd_snf(r_u_r, 6.0));
   }
 
   b_r_u_l[0] = r_u_l;
   b_r_u_l[1] = r_u_r;
-  for (i8 = 0; i8 < 2; i8++) {
-    b[i8] = rtIsNaN(b_r_u_l[i8]);
+  for (j = 0; j < 2; j++) {
+    b[j] = rtIsNaN(b_r_u_l[j]);
   }
 
   y = false;
-  i = 0;
-  exitg2 = false;
-  while ((!exitg2) && (i < 2)) {
-    if (!!b[i]) {
+  rankR = 0;
+  exitg3 = false;
+  while ((!exitg3) && (rankR < 2)) {
+    if (!!b[rankR]) {
       y = true;
-      exitg2 = true;
+      exitg3 = true;
     } else {
-      i++;
+      rankR++;
     }
   }
 
@@ -508,45 +499,47 @@ void initializePoint(const emxArray_real_T *b_xt, const double
   if (!y) {
     c_r_u_l[0] = r_u_l;
     c_r_u_l[1] = r_u_r;
-    for (i8 = 0; i8 < 2; i8++) {
-      b[i8] = rtIsInf(c_r_u_l[i8]);
+    for (j = 0; j < 2; j++) {
+      b[j] = rtIsInf(c_r_u_l[j]);
     }
 
     y = false;
-    i = 0;
-    exitg1 = false;
-    while ((!exitg1) && (i < 2)) {
-      if (!!b[i]) {
+    rankR = 0;
+    exitg2 = false;
+    while ((!exitg2) && (rankR < 2)) {
+      if (!!b[rankR]) {
         y = true;
-        exitg1 = true;
+        exitg2 = true;
       } else {
-        i++;
+        rankR++;
       }
     }
 
     if (!y) {
-      B = (1.0 + -0.403158360273884 * (r_u_l * r_u_l)) + 0.203403755605372 *
-        rt_powd_snf(r_u_l, 4.0);
+      B = ((1.0 + -0.41042183437511 * (r_u_l * r_u_l)) + 0.221265330302933 *
+           rt_powd_snf(r_u_l, 4.0)) + -0.0619354263198911 * rt_powd_snf(r_u_l,
+        6.0);
 
       // undistort points
-      tol = (1.0 + -0.397408316532857 * (r_u_r * r_u_r)) + 0.190419257967814 *
-        rt_powd_snf(r_u_r, 4.0);
-      for (i8 = 0; i8 < 2; i8++) {
-        zn_d_l[i8] /= B;
-        zn_d_r[i8] /= tol;
+      absxk = ((1.0 + -0.403776514266162 * (r_u_r * r_u_r)) + 0.212756636184267 *
+               rt_powd_snf(r_u_r, 4.0)) + -0.0594355697055105 * rt_powd_snf
+        (r_u_r, 6.0);
+      for (j = 0; j < 2; j++) {
+        zn_d_l[j] /= B;
+        zn_d_r[j] /= absxk;
       }
 
-      ml[0] = zn_d_l[0];
-      ml[1] = zn_d_l[1];
-      ml[2] = 1.0;
+      m_out[0] = zn_d_l[0];
+      m_out[1] = zn_d_l[1];
+      m_out[2] = 1.0;
       mr[0] = zn_d_r[0];
       mr[1] = zn_d_r[1];
       mr[2] = 1.0;
-      B = norm(ml);
-      tol = norm(mr);
-      for (i8 = 0; i8 < 3; i8++) {
-        m[i8] = ml[i8] / B;
-        m[3 + i8] = mr[i8] / tol;
+      B = norm(m_out);
+      absxk = norm(mr);
+      for (j = 0; j < 3; j++) {
+        m[j] = m_out[j] / B;
+        m[3 + j] = mr[j] / absxk;
       }
 
       // TRIANGULATIONN Triangulate a point from several measurements
@@ -565,93 +558,186 @@ void initializePoint(const emxArray_real_T *b_xt, const double
       //  condition: the condition number of the least squares problem. High
       //      numbers mean a badly conditiond problem and a bad result
       memset(&A[0], 0, 30U * sizeof(double));
-      for (rankR = 0; rankR < 2; rankR++) {
-        j = rankR * 3;
-        b_rot[0] = ((rot[rankR << 2] * rot[rankR << 2] - rot[1 + (rankR << 2)] *
-                     rot[1 + (rankR << 2)]) - rot[2 + (rankR << 2)] * rot[2 +
-                    (rankR << 2)]) + rot[3 + (rankR << 2)] * rot[3 + (rankR << 2)];
-        b_rot[1] = 2.0 * (rot[rankR << 2] * rot[1 + (rankR << 2)] + rot[2 +
-                          (rankR << 2)] * rot[3 + (rankR << 2)]);
-        b_rot[2] = 2.0 * (rot[rankR << 2] * rot[2 + (rankR << 2)] - rot[1 +
-                          (rankR << 2)] * rot[3 + (rankR << 2)]);
-        b_rot[3] = 2.0 * (rot[rankR << 2] * rot[1 + (rankR << 2)] - rot[2 +
-                          (rankR << 2)] * rot[3 + (rankR << 2)]);
-        b_rot[4] = ((-(rot[rankR << 2] * rot[rankR << 2]) + rot[1 + (rankR << 2)]
-                     * rot[1 + (rankR << 2)]) - rot[2 + (rankR << 2)] * rot[2 +
-                    (rankR << 2)]) + rot[3 + (rankR << 2)] * rot[3 + (rankR << 2)];
-        b_rot[5] = 2.0 * (rot[1 + (rankR << 2)] * rot[2 + (rankR << 2)] +
-                          rot[rankR << 2] * rot[3 + (rankR << 2)]);
-        b_rot[6] = 2.0 * (rot[rankR << 2] * rot[2 + (rankR << 2)] + rot[1 +
-                          (rankR << 2)] * rot[3 + (rankR << 2)]);
-        b_rot[7] = 2.0 * (rot[1 + (rankR << 2)] * rot[2 + (rankR << 2)] -
-                          rot[rankR << 2] * rot[3 + (rankR << 2)]);
-        b_rot[8] = ((-(rot[rankR << 2] * rot[rankR << 2]) - rot[1 + (rankR << 2)]
-                     * rot[1 + (rankR << 2)]) + rot[2 + (rankR << 2)] * rot[2 +
-                    (rankR << 2)]) + rot[3 + (rankR << 2)] * rot[3 + (rankR << 2)];
-        for (i8 = 0; i8 < 3; i8++) {
-          A[(i8 + j) + 6 * rankR] = 0.0;
-          for (i9 = 0; i9 < 3; i9++) {
-            A[(i8 + j) + 6 * rankR] += b_rot[i8 + 3 * i9] * m[i9 + 3 * rankR];
+      for (i = 0; i < 2; i++) {
+        //  if ~all(size(q) == [4, 1])
+        //      error('q does not have the size of a quaternion')
+        //  end
+        //  if abs(norm(q) - 1) > 1e-3
+        //      error('The provided quaternion is not a valid rotation quaternion because it does not have norm 1') 
+        //  end
+        anchorIdx = i * 3;
+        b_rot[0] = ((rot[i << 2] * rot[i << 2] - rot[1 + (i << 2)] * rot[1 + (i <<
+          2)]) - rot[2 + (i << 2)] * rot[2 + (i << 2)]) + rot[3 + (i << 2)] *
+          rot[3 + (i << 2)];
+        b_rot[1] = 2.0 * (rot[i << 2] * rot[1 + (i << 2)] + rot[2 + (i << 2)] *
+                          rot[3 + (i << 2)]);
+        b_rot[2] = 2.0 * (rot[i << 2] * rot[2 + (i << 2)] - rot[1 + (i << 2)] *
+                          rot[3 + (i << 2)]);
+        b_rot[3] = 2.0 * (rot[i << 2] * rot[1 + (i << 2)] - rot[2 + (i << 2)] *
+                          rot[3 + (i << 2)]);
+        b_rot[4] = ((-(rot[i << 2] * rot[i << 2]) + rot[1 + (i << 2)] * rot[1 +
+                     (i << 2)]) - rot[2 + (i << 2)] * rot[2 + (i << 2)]) + rot[3
+          + (i << 2)] * rot[3 + (i << 2)];
+        b_rot[5] = 2.0 * (rot[1 + (i << 2)] * rot[2 + (i << 2)] + rot[i << 2] *
+                          rot[3 + (i << 2)]);
+        b_rot[6] = 2.0 * (rot[i << 2] * rot[2 + (i << 2)] + rot[1 + (i << 2)] *
+                          rot[3 + (i << 2)]);
+        b_rot[7] = 2.0 * (rot[1 + (i << 2)] * rot[2 + (i << 2)] - rot[i << 2] *
+                          rot[3 + (i << 2)]);
+        b_rot[8] = ((-(rot[i << 2] * rot[i << 2]) - rot[1 + (i << 2)] * rot[1 +
+                     (i << 2)]) + rot[2 + (i << 2)] * rot[2 + (i << 2)]) + rot[3
+          + (i << 2)] * rot[3 + (i << 2)];
+        for (j = 0; j < 3; j++) {
+          A[(j + anchorIdx) + 6 * i] = 0.0;
+          for (rankR = 0; rankR < 3; rankR++) {
+            A[(j + anchorIdx) + 6 * i] += b_rot[j + 3 * rankR] * m[rankR + 3 * i];
           }
         }
 
-        memset(&R_cw[0], 0, 9U * sizeof(double));
-        j = rankR * 3;
-        for (i = 0; i < 3; i++) {
-          R_cw[i + 3 * i] = 1.0;
-          for (i8 = 0; i8 < 3; i8++) {
-            A[(i8 + j) + 6 * (2 + i)] = -R_cw[i8 + 3 * i];
+        for (j = 0; j < 9; j++) {
+          I[j] = 0;
+        }
+
+        anchorIdx = i * 3;
+        for (rankR = 0; rankR < 3; rankR++) {
+          I[rankR + 3 * rankR] = 1;
+          for (j = 0; j < 3; j++) {
+            A[(j + anchorIdx) + 6 * (2 + rankR)] = -(double)I[j + 3 * rankR];
           }
         }
 
-        j = rankR * 3;
-        for (i8 = 0; i8 < 3; i8++) {
-          b_b[i8 + j] = -pos[i8 + 3 * rankR];
+        anchorIdx = i * 3;
+        for (j = 0; j < 3; j++) {
+          b_b[j + anchorIdx] = -pos[j + 3 * i];
         }
       }
 
-      svd(A, unusedExpr);
-      b_eml_xgeqp3(A, tau, jpvt);
+      B = 0.0;
+      svd(A, s);
+      absxk = fabs(s[0]);
+      if ((!rtIsInf(absxk)) && (!rtIsNaN(absxk))) {
+        if (absxk <= 2.2250738585072014E-308) {
+          absxk = 4.94065645841247E-324;
+        } else {
+          frexp(absxk, &exponent);
+          absxk = ldexp(1.0, exponent - 53);
+        }
+      } else {
+        absxk = rtNaN;
+      }
+
+      absxk *= 6.0;
       rankR = 0;
-      tol = 6.0 * fabs(A[0]) * 2.2204460492503131E-16;
-      while ((rankR < 5) && (fabs(A[rankR + 6 * rankR]) >= tol)) {
+      while ((rankR < 5) && (s[rankR] > absxk)) {
+        B++;
         rankR++;
       }
 
-      for (i = 0; i < 5; i++) {
-        x[i] = 0.0;
-      }
+      if (B < 4.0) {
+        for (i = 0; i < 3; i++) {
+          mr[i] = rtNaN;
+        }
+      } else {
+        svd(A, unusedExpr);
+        b_eml_xgeqp3(A, s, jpvt);
+        rankR = 0;
+        absxk = 6.0 * fabs(A[0]) * 2.2204460492503131E-16;
+        while ((rankR < 5) && (fabs(A[rankR + 6 * rankR]) >= absxk)) {
+          rankR++;
+        }
 
-      for (j = 0; j < 5; j++) {
-        if (tau[j] != 0.0) {
-          tol = b_b[j];
-          for (i = j + 1; i + 1 < 7; i++) {
-            tol += A[i + 6 * j] * b_b[i];
-          }
+        for (i = 0; i < 5; i++) {
+          x[i] = 0.0;
+        }
 
-          tol *= tau[j];
-          if (tol != 0.0) {
-            b_b[j] -= tol;
+        for (j = 0; j < 5; j++) {
+          if (s[j] != 0.0) {
+            absxk = b_b[j];
             for (i = j + 1; i + 1 < 7; i++) {
-              b_b[i] -= A[i + 6 * j] * tol;
+              absxk += A[i + 6 * j] * b_b[i];
+            }
+
+            absxk *= s[j];
+            if (absxk != 0.0) {
+              b_b[j] -= absxk;
+              for (i = j + 1; i + 1 < 7; i++) {
+                b_b[i] -= A[i + 6 * j] * absxk;
+              }
             }
           }
         }
-      }
 
-      for (i = 0; i + 1 <= rankR; i++) {
-        x[jpvt[i] - 1] = b_b[i];
-      }
+        for (i = 0; i + 1 <= rankR; i++) {
+          x[jpvt[i] - 1] = b_b[i];
+        }
 
-      for (j = rankR - 1; j + 1 > 0; j--) {
-        x[jpvt[j] - 1] /= A[j + 6 * j];
-        for (i = 0; i + 1 <= j; i++) {
-          x[jpvt[i] - 1] -= x[jpvt[j] - 1] * A[i + 6 * j];
+        for (j = rankR - 1; j + 1 > 0; j--) {
+          x[jpvt[j] - 1] /= A[j + 6 * j];
+          for (i = 0; i + 1 <= j; i++) {
+            x[jpvt[i] - 1] -= x[jpvt[j] - 1] * A[i + 6 * j];
+          }
+        }
+
+        for (i = 0; i < 2; i++) {
+          b[i] = (x[i] < 0.0);
+        }
+
+        y = false;
+        rankR = 0;
+        exitg1 = false;
+        while ((!exitg1) && (rankR < 2)) {
+          if (!!b[rankR]) {
+            y = true;
+            exitg1 = true;
+          } else {
+            rankR++;
+          }
+        }
+
+        if (y) {
+          for (i = 0; i < 3; i++) {
+            mr[i] = rtNaN;
+          }
+        } else {
+          for (i = 0; i < 3; i++) {
+            mr[i] = x[i + 2];
+          }
         }
       }
 
-      for (i = 0; i < 3; i++) {
-        fp[i] = x[i + 2];
+      // transform to world coordinates
+      c_xt[0] = ((b_xt->data[3] * b_xt->data[3] - b_xt->data[4] * b_xt->data[4])
+                 - b_xt->data[5] * b_xt->data[5]) + b_xt->data[6] * b_xt->data[6];
+      c_xt[1] = 2.0 * (b_xt->data[3] * b_xt->data[4] + b_xt->data[5] *
+                       b_xt->data[6]);
+      c_xt[2] = 2.0 * (b_xt->data[3] * b_xt->data[5] - b_xt->data[4] *
+                       b_xt->data[6]);
+      c_xt[3] = 2.0 * (b_xt->data[3] * b_xt->data[4] - b_xt->data[5] *
+                       b_xt->data[6]);
+      c_xt[4] = ((-(b_xt->data[3] * b_xt->data[3]) + b_xt->data[4] * b_xt->data
+                  [4]) - b_xt->data[5] * b_xt->data[5]) + b_xt->data[6] *
+        b_xt->data[6];
+      c_xt[5] = 2.0 * (b_xt->data[4] * b_xt->data[5] + b_xt->data[3] *
+                       b_xt->data[6]);
+      c_xt[6] = 2.0 * (b_xt->data[3] * b_xt->data[5] + b_xt->data[4] *
+                       b_xt->data[6]);
+      c_xt[7] = 2.0 * (b_xt->data[4] * b_xt->data[5] - b_xt->data[3] *
+                       b_xt->data[6]);
+      c_xt[8] = ((-(b_xt->data[3] * b_xt->data[3]) - b_xt->data[4] * b_xt->data
+                  [4]) + b_xt->data[5] * b_xt->data[5]) + b_xt->data[6] *
+        b_xt->data[6];
+      for (j = 0; j < 3; j++) {
+        absxk = 0.0;
+        for (rankR = 0; rankR < 3; rankR++) {
+          absxk += c_xt[j + 3 * rankR] * mr[rankR];
+        }
+
+        fp[j] = absxk + b_xt->data[j];
+      }
+
+      B = norm(m_out);
+      for (j = 0; j < 3; j++) {
+        m_out[j] /= B;
       }
     } else {
       guard1 = true;
@@ -663,6 +749,7 @@ void initializePoint(const emxArray_real_T *b_xt, const double
   if (guard1) {
     for (i = 0; i < 3; i++) {
       fp[i] = rtNaN;
+      m_out[i] = rtNaN;
     }
   }
 }
