@@ -5,7 +5,7 @@
 // File: getH_R_res.cpp
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 31-Jul-2015 14:58:50
+// C/C++ source code generated on  : 03-Aug-2015 13:58:52
 //
 
 // Include Files
@@ -49,7 +49,7 @@
 // Arguments    : const emxArray_real_T *b_xt
 //                double errorStateSize
 //                double stateSize
-//                const double z_all_l[64]
+//                const double z_all_l[32]
 //                const double indMeas_data[]
 //                const int indMeas_size[1]
 //                const emxArray_real_T *map
@@ -69,7 +69,7 @@
 // Return Type  : void
 //
 void b_getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
-                  stateSize, const double z_all_l[64], const double
+                  stateSize, const double z_all_l[32], const double
                   indMeas_data[], const int indMeas_size[1], const
                   emxArray_real_T *map, double c_numAnchors, double
                   numPointsPerAnchor, const emxArray_real_T *anchorIdx, const
@@ -161,7 +161,7 @@ void b_getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
   int ar;
   int ia;
   emxArray_real_T *r2;
-  double A_data[1024];
+  double A_data[256];
   emxInit_real_T(&H_xm, 2);
 
   //  if ~all(size(q) == [4, 1])
@@ -892,7 +892,7 @@ void b_getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
 // Arguments    : const emxArray_real_T *b_xt
 //                double errorStateSize
 //                double stateSize
-//                const double z_all_l[64]
+//                const double z_all_l[32]
 //                double indMeas
 //                const emxArray_real_T *map
 //                double c_numAnchors
@@ -908,7 +908,7 @@ void b_getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
 // Return Type  : void
 //
 void getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
-                stateSize, const double z_all_l[64], double indMeas, const
+                stateSize, const double z_all_l[32], double indMeas, const
                 emxArray_real_T *map, double c_numAnchors, double
                 numPointsPerAnchor, const emxArray_real_T *anchorIdx, const
                 emxArray_real_T *featureAnchorIdx, const emxArray_real_T

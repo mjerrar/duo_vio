@@ -5,7 +5,7 @@
 // File: SLAM_initialize.cpp
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 31-Jul-2015 14:58:50
+// C/C++ source code generated on  : 03-Aug-2015 13:58:52
 //
 
 // Include Files
@@ -20,12 +20,12 @@
 // Named Constants
 #define b_normalGravity                (true)
 #define b_numStates                    (12.0)
-#define b_numTrackFeatures             (32.0)
+#define b_numTrackFeatures             (16.0)
 #define b_numStatesxt                  (13.0)
-#define b_minFeatureThreshold          (2.6666666666666665)
+#define b_minFeatureThreshold          (1.3333333333333333)
 #define b_numAnchors                   (4.0)
-#define b_numStatesPerAnchor           (10.0)
-#define b_maxEKFIterations             (10.0)
+#define b_numStatesPerAnchor           (14.0)
+#define b_maxEKFIterations             (1.0)
 
 // Variable Definitions
 static double numTrackFeatures;
