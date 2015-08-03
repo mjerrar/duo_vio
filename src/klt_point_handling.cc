@@ -147,12 +147,12 @@ static void initMorePoints(
 
 	if ( descriptorsL.empty() )
 	{
-		ROS_ERROR("Left descriptor empty in %s:%d",__FILE__,__LINE__);
+		printf("WARNING: Left descriptor empty in %s:%d",__FILE__,__LINE__);
 		return;
 	}
 	if ( descriptorsR.empty() )
 	{
-		ROS_ERROR("Left descriptor empty in %s:%d",__FILE__,__LINE__);
+		printf("WARNING: Right descriptor empty in %s:%d",__FILE__,__LINE__);
 		return;
 	}
 
