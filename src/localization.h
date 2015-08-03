@@ -31,7 +31,7 @@ public:
   ~Localization();
 
 private:
-  int loopCounter;
+  ros::Duration max_duration;
   ros::NodeHandle nh_;
 
   message_filters::Subscriber<sensor_msgs::Image> left_image_sub_;

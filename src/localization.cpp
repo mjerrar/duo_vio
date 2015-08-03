@@ -21,7 +21,7 @@ process_noise_(4,0.0),
 im_noise_(4,0.0),
 camera_params_(4,0.0),
 camera_info_initialized_(false),
-loopCounter(0)
+max_duration(0)
 {
     SLAM_initialize();
     emxInitArray_real_T(&h_u_apo_,1);
@@ -85,6 +85,8 @@ Localization::~Localization()
 {
     emxDestroyArray_real_T(h_u_apo_);
     SLAM_terminate();
+
+    printf("\nMax duration: %f ms. Min frequency: %f Hz\n", max_duration.toSec()*1000, 1/max_duration.toSec());
 }
 
 void Localization::synchronized_callback(const sensor_msgs::ImageConstPtr& left_image,
@@ -171,21 +173,9 @@ void Localization::update(double dt, const cv::Mat& left_image, const cv::Mat& r
     std::vector<double> z_all_r(num_points_*2, 0.0);
 
     ros::Time tic = ros::Time::now();
-
-//    printf("updateVect before point tracker: [");
-//    for (int i = 0; i < update_vec_.size(); i++)
-//    {
-//    	printf("%d, ", update_vec_[i]);
-//    }
-//    printf("]\n");
+    ros::Time tic_total = tic;
 
     handle_points_klt(left_image, right_image, z_all_l, z_all_r, update_vec_);
-
-//    printf("z_all_l,\t\t\tz_all_r\t\t\tupdateVect:\n");
-//    for (int i = 0; i < num_points_; i++)
-//    {
-//    	printf("%2d: %+3f, %+3f\t%+3f, %+3f\t%d\n", i, z_all_l[2*i], z_all_l[2*i+1], z_all_r[2*i], z_all_r[2*i+1], update_vec_[i]);
-//    }
 
     double update_vec_array[num_points_];
     double update_vec_array_out[num_points_];
@@ -193,6 +183,8 @@ void Localization::update(double dt, const cv::Mat& left_image, const cv::Mat& r
     {
     	update_vec_array[i] = update_vec_[i];
     }
+
+    ROS_INFO("Time point tracker: %f ms", (ros::Time::now() - tic).toSec()*1000);
 
     //*********************************************************************
     // SLAM
@@ -216,10 +208,10 @@ void Localization::update(double dt, const cv::Mat& left_image, const cv::Mat& r
 
 //    double b_map[96];
 
-    clock_t t1 = clock();
+//    clock_t t1 = clock();
     SLAM(update_vec_array, &z_all_l[0], &z_all_r[0], 0.03, &process_noise_[0], &inertial[0], &im_noise_[0], num_points_per_anchor_,num_anchors_, h_u_apo, xt_out, P_apo_out, map);
-    clock_t t2 = clock();
-    printf("SLAM took: %d clicks, %f msec\n", int(t2 - t1), 1000*float(t2 - t1)/CLOCKS_PER_SEC);
+//    clock_t t2 = clock();
+//    printf("SLAM took: %d clicks, %f msec\n", int(t2 - t1), 1000*float(t2 - t1)/CLOCKS_PER_SEC);
 
 //    update_vec_.assign(update_vec_array_out, update_vec_array_out + num_anchors_);
     for(int i = 0; i < update_vec_.size(); i++)
@@ -227,17 +219,12 @@ void Localization::update(double dt, const cv::Mat& left_image, const cv::Mat& r
     	update_vec_[i] = update_vec_array[i];
     }
 
-//    printf("updateVect aft SLAM:             [");
-//    for(int i = 0; i < update_vec_.size(); i++)
-//    	printf("%d, ", update_vec_[i]);
-//    printf("]\n");
-
     if (show_tracker_images_)
     {
     	display_tracks(left_image, &z_all_l[0], &z_all_r[0], update_vec_, h_u_apo);
     }
 
-//    ROS_INFO("Time SLAM: %f", (ros::Time::now() - tic).toSec());
+    ROS_INFO("Time SLAM         : %f ms", (ros::Time::now() - tic).toSec()*1000);
 
     // Publish feature position in world frame
     publishPointCloud(map->data);
@@ -264,6 +251,11 @@ void Localization::update(double dt, const cv::Mat& left_image, const cv::Mat& r
     emxDestroyArray_real_T(P_apo_out);
     emxDestroyArray_real_T(h_u_apo);
     emxDestroyArray_real_T(map);
+
+    ros::Duration duration = ros::Time::now() - tic_total;
+
+    if (duration > max_duration)
+    	max_duration = duration;
 
 }
 
