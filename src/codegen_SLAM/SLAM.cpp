@@ -5,7 +5,7 @@
 // File: SLAM.cpp
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 03-Aug-2015 13:58:52
+// C/C++ source code generated on  : 04-Aug-2015 14:03:28
 //
 
 // Include Files
@@ -16,6 +16,7 @@
 #include "Att_pred.h"
 #include "fprintf.h"
 #include "SLAM_updIT.h"
+#include "predictMeasurement_stereo.h"
 #include "SLAM_pred.h"
 #include "blkdiag.h"
 #include "repmat.h"
@@ -25,6 +26,7 @@
 #include "norm.h"
 #include "cross.h"
 #include "rdivide.h"
+#include "SLAM_rtwutil.h"
 #include "SLAM_data.h"
 #include <stdio.h>
 
@@ -48,7 +50,7 @@ static double x_att[4];
 //                const double IMU_measurements[13]
 //                const double imNoise[2]
 //                double numPointsPerAnchor
-//                double c_numAnchors
+//                double numAnchors
 //                emxArray_real_T *h_u_apo_out
 //                emxArray_real_T *xt_out
 //                emxArray_real_T *P_apo_out
@@ -58,7 +60,7 @@ static double x_att[4];
 void SLAM(double updateVect[16], const double z_all_l[32], const double z_all_r
           [32], double dt, const double processNoise[4], const double
           IMU_measurements[13], const double imNoise[2], double
-          numPointsPerAnchor, double c_numAnchors, emxArray_real_T *h_u_apo_out,
+          numPointsPerAnchor, double numAnchors, emxArray_real_T *h_u_apo_out,
           emxArray_real_T *xt_out, emxArray_real_T *P_apo_out, emxArray_real_T
           *map_out)
 {
@@ -66,7 +68,7 @@ void SLAM(double updateVect[16], const double z_all_l[32], const double z_all_r
   double z_n_b[3];
   int rtemp;
   double y_n_b[3];
-  static const double dv326[3] = { 1.0, 0.0, 0.0 };
+  static const double dv331[3] = { 1.0, 0.0, 0.0 };
 
   double b_y_n_b[3];
   double x_n_b[3];
@@ -76,8 +78,10 @@ void SLAM(double updateVect[16], const double z_all_l[32], const double z_all_r
   emxArray_real_T *r5;
   emxArray_real_T *r6;
   emxArray_real_T *r7;
-  static const double y[9] = { 0.001, 0.0, 0.0, 0.0, 0.001, 0.0, 0.0, 0.0, 0.001
-  };
+  static const signed char y[9] = { 100, 0, 0, 0, 100, 0, 0, 0, 100 };
+
+  static const double b_y[9] = { 0.001, 0.0, 0.0, 0.0, 0.001, 0.0, 0.0, 0.0,
+    0.001 };
 
   double S[9];
   double H[9];
@@ -86,17 +90,18 @@ void SLAM(double updateVect[16], const double z_all_l[32], const double z_all_r
   double b_S[9];
   static const signed char b[9] = { 1, 0, 0, 0, 1, 0, 0, 0, 1 };
 
-  double b_y[9];
+  double c_y[9];
   int r2;
   int r3;
   double K[9];
   double b_IMU_measurements[3];
   double q[4];
-  double dv327[16];
+  double dv332[16];
   double b_q[4];
   int tmp_data[16];
 
   //  persistents for attitude estimator
+  //  for coder
   if (!initialized_not_empty) {
     //  initialization for attitude filter
     maxval = norm(*(double (*)[3])&IMU_measurements[3]);
@@ -104,7 +109,8 @@ void SLAM(double updateVect[16], const double z_all_l[32], const double z_all_r
       z_n_b[rtemp] = IMU_measurements[rtemp + 3] / maxval;
     }
 
-    cross(z_n_b, dv326, y_n_b);
+    // m_n_b=IMU_measurements(11:13);
+    cross(z_n_b, dv331, y_n_b);
     for (rtemp = 0; rtemp < 3; rtemp++) {
       b_y_n_b[rtemp] = y_n_b[rtemp];
     }
@@ -141,7 +147,7 @@ void SLAM(double updateVect[16], const double z_all_l[32], const double z_all_r
     }
 
     b_emxInit_real_T(&r5, 1);
-    repmat(r4, c_numAnchors, r5);
+    repmat(r4, numAnchors, r5);
     r1 = xt->size[0];
     xt->size[0] = 13 + r5->size[0];
     emxEnsureCapacity((emxArray__common *)xt, r1, (int)sizeof(double));
@@ -169,7 +175,7 @@ void SLAM(double updateVect[16], const double z_all_l[32], const double z_all_r
     emxInit_real_T(&r6, 2);
 
     //  initial real vector
-    maxval = c_numAnchors * (6.0 + numPointsPerAnchor);
+    maxval = numAnchors * (6.0 + numPointsPerAnchor);
     r1 = r6->size[0] * r6->size[1];
     r6->size[0] = (int)numStates;
     r6->size[1] = (int)numStates;
@@ -203,7 +209,7 @@ void SLAM(double updateVect[16], const double z_all_l[32], const double z_all_r
     //  position
     for (r1 = 0; r1 < 3; r1++) {
       for (rtemp = 0; rtemp < 3; rtemp++) {
-        P->data[(rtemp + P->size[0] * (3 + r1)) + 3] = 0.0;
+        P->data[(rtemp + P->size[0] * (3 + r1)) + 3] = y[rtemp + 3 * r1];
       }
     }
 
@@ -219,14 +225,14 @@ void SLAM(double updateVect[16], const double z_all_l[32], const double z_all_r
     //  velocity
     for (r1 = 0; r1 < 3; r1++) {
       for (rtemp = 0; rtemp < 3; rtemp++) {
-        P->data[(rtemp + P->size[0] * (9 + r1)) + 9] = y[rtemp + 3 * r1];
+        P->data[(rtemp + P->size[0] * (9 + r1)) + 9] = b_y[rtemp + 3 * r1];
       }
     }
 
     //  gyro bias
   }
 
-  if (init_counter < 40.0) {
+  if (init_counter < 1.0) {
     Att_pred(x_att, P_att, *(double (*)[3])&IMU_measurements[0], processNoise[1],
              dt);
 
@@ -293,9 +299,9 @@ void SLAM(double updateVect[16], const double z_all_l[32], const double z_all_r
 
     for (r1 = 0; r1 < 3; r1++) {
       for (rtemp = 0; rtemp < 3; rtemp++) {
-        b_y[r1 + 3 * rtemp] = 0.0;
+        c_y[r1 + 3 * rtemp] = 0.0;
         for (k = 0; k < 3; k++) {
-          b_y[r1 + 3 * rtemp] += P_att[r1 + 3 * k] * H[rtemp + 3 * k];
+          c_y[r1 + 3 * rtemp] += P_att[r1 + 3 * k] * H[rtemp + 3 * k];
         }
       }
     }
@@ -332,9 +338,9 @@ void SLAM(double updateVect[16], const double z_all_l[32], const double z_all_r
     b_S[3 + r3] /= b_S[3 + r2];
     b_S[6 + r3] -= b_S[3 + r3] * b_S[6 + r2];
     for (k = 0; k < 3; k++) {
-      K[k + 3 * r1] = b_y[k] / b_S[r1];
-      K[k + 3 * r2] = b_y[3 + k] - K[k + 3 * r1] * b_S[3 + r1];
-      K[k + 3 * r3] = b_y[6 + k] - K[k + 3 * r1] * b_S[6 + r1];
+      K[k + 3 * r1] = c_y[k] / b_S[r1];
+      K[k + 3 * r2] = c_y[3 + k] - K[k + 3 * r1] * b_S[3 + r1];
+      K[k + 3 * r3] = c_y[6 + k] - K[k + 3 * r1] * b_S[6 + r1];
       K[k + 3 * r2] /= b_S[3 + r2];
       K[k + 3 * r3] -= K[k + 3 * r2] * b_S[6 + r2];
       K[k + 3 * r3] /= b_S[6 + r3];
@@ -360,22 +366,22 @@ void SLAM(double updateVect[16], const double z_all_l[32], const double z_all_r
       b_S[k + 3 * k] = 1.0;
     }
 
-    dv327[0] = x_att[3];
-    dv327[4] = -x_att[2];
-    dv327[8] = x_att[1];
-    dv327[12] = x_att[0];
-    dv327[1] = x_att[2];
-    dv327[5] = x_att[3];
-    dv327[9] = -x_att[0];
-    dv327[13] = x_att[1];
-    dv327[2] = -x_att[1];
-    dv327[6] = x_att[0];
-    dv327[10] = x_att[3];
-    dv327[14] = x_att[2];
-    dv327[3] = -x_att[0];
-    dv327[7] = -x_att[1];
-    dv327[11] = -x_att[2];
-    dv327[15] = x_att[3];
+    dv332[0] = x_att[3];
+    dv332[4] = -x_att[2];
+    dv332[8] = x_att[1];
+    dv332[12] = x_att[0];
+    dv332[1] = x_att[2];
+    dv332[5] = x_att[3];
+    dv332[9] = -x_att[0];
+    dv332[13] = x_att[1];
+    dv332[2] = -x_att[1];
+    dv332[6] = x_att[0];
+    dv332[10] = x_att[3];
+    dv332[14] = x_att[2];
+    dv332[3] = -x_att[0];
+    dv332[7] = -x_att[1];
+    dv332[11] = -x_att[2];
+    dv332[15] = x_att[3];
     b_q[0] = q[0];
     b_q[1] = q[1];
     b_q[2] = q[2];
@@ -383,7 +389,7 @@ void SLAM(double updateVect[16], const double z_all_l[32], const double z_all_r
     for (r1 = 0; r1 < 4; r1++) {
       x_att[r1] = 0.0;
       for (rtemp = 0; rtemp < 4; rtemp++) {
-        x_att[r1] += dv327[r1 + (rtemp << 2)] * b_q[rtemp];
+        x_att[r1] += dv332[r1 + (rtemp << 2)] * b_q[rtemp];
       }
     }
 
@@ -449,8 +455,8 @@ void SLAM(double updateVect[16], const double z_all_l[32], const double z_all_r
       map_out->data[r1] = rtNaN;
     }
 
-    init_counter++;
-  } else if (init_counter == 40.0) {
+    init_counter = 1.0;
+  } else if (init_counter == 1.0) {
     //  done initializing attitude. Insert the estimated attitude and the covariance into the whole state, request features 
     b_fprintf();
     for (rtemp = 0; rtemp < 16; rtemp++) {
@@ -517,11 +523,13 @@ void SLAM(double updateVect[16], const double z_all_l[32], const double z_all_r
       map_out->data[r1] = rtNaN;
     }
 
-    init_counter = 41.0;
-  } else if (init_counter == 41.0) {
+    init_counter = 2.0;
+  } else if (init_counter == 2.0) {
     SLAM_updIT(P, xt, cameraparams.r_lr, cameraparams.R_lr, cameraparams.R_rl,
-               updateVect, z_all_l, z_all_r, imNoise, numPointsPerAnchor,
-               c_numAnchors, h_u_apo_out, map_out);
+               updateVect, z_all_l, z_all_r, imNoise, IMU_measurements,
+               numPointsPerAnchor, numAnchors, (1.0 - rt_powd_snf
+                (IMU_measurements[9] / 101325.0, 0.190284)) * 145366.45,
+               h_u_apo_out, map_out);
     r1 = xt_out->size[0];
     xt_out->size[0] = xt->size[0];
     emxEnsureCapacity((emxArray__common *)xt_out, r1, (int)sizeof(double));
@@ -539,14 +547,14 @@ void SLAM(double updateVect[16], const double z_all_l[32], const double z_all_r
       P_apo_out->data[r1] = P->data[r1];
     }
 
-    init_counter = 42.0;
+    init_counter = 3.0;
   } else {
     SLAM_pred(P, xt, dt, processNoise, IMU_measurements, numStates);
 
     //  [xt,P] =  SLAM_pred_euler(P, xt, dt, processNoise, IMU_measurements, numStates); 
     SLAM_updIT(P, xt, cameraparams.r_lr, cameraparams.R_lr, cameraparams.R_rl,
-               updateVect, z_all_l, z_all_r, imNoise, numPointsPerAnchor,
-               c_numAnchors, h_u_apo_out, map_out);
+               updateVect, z_all_l, z_all_r, imNoise, IMU_measurements,
+               numPointsPerAnchor, numAnchors, 0.0, h_u_apo_out, map_out);
     r1 = xt_out->size[0];
     xt_out->size[0] = xt->size[0];
     emxEnsureCapacity((emxArray__common *)xt_out, r1, (int)sizeof(double));

@@ -2,13 +2,13 @@
 // Academic License - for use in teaching, academic research, and meeting
 // course requirements at degree granting institutions only.  Not for
 // government, commercial, or other organizational use.
-// File: svd.h
+// File: power.h
 //
 // MATLAB Coder version            : 2.8
 // C/C++ source code generated on  : 04-Aug-2015 14:03:28
 //
-#ifndef __SVD_H__
-#define __SVD_H__
+#ifndef __POWER_H__
+#define __POWER_H__
 
 // Include Files
 #include <math.h>
@@ -20,12 +20,12 @@
 #include "SLAM_types.h"
 
 // Function Declarations
-extern void svd(const double A[30], double U[5]);
+extern void power(const double a[2], double y[2]);
 
 #endif
 
 //
-// File trailer for svd.h
+// File trailer for power.h
 //
 // [EOF]
 //

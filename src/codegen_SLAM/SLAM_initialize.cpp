@@ -5,7 +5,7 @@
 // File: SLAM_initialize.cpp
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 03-Aug-2015 13:58:52
+// C/C++ source code generated on  : 04-Aug-2015 14:03:28
 //
 
 // Include Files
@@ -18,13 +18,14 @@
 #include <stdio.h>
 
 // Named Constants
+#define b_gravityUpdate                (true)
+#define b_useAirPressure               (false)
 #define b_normalGravity                (true)
 #define b_numStates                    (12.0)
 #define b_numTrackFeatures             (16.0)
 #define b_numStatesxt                  (13.0)
 #define b_minFeatureThreshold          (1.3333333333333333)
-#define b_numAnchors                   (4.0)
-#define b_numStatesPerAnchor           (14.0)
+#define b_sigma_Init                   (0.001)
 #define b_maxEKFIterations             (1.0)
 
 // Variable Definitions
@@ -40,9 +41,10 @@ void SLAM_initialize()
 {
   rt_InitInfAndNaN(8U);
   normalGravity = b_normalGravity;
+  useAirPressure = b_useAirPressure;
+  gravityUpdate = b_gravityUpdate;
   maxEKFIterations = b_maxEKFIterations;
-  numStatesPerAnchor = b_numStatesPerAnchor;
-  numAnchors = b_numAnchors;
+  sigma_Init = b_sigma_Init;
   minFeatureThreshold = b_minFeatureThreshold;
   numStatesxt = b_numStatesxt;
   numTrackFeatures = b_numTrackFeatures;

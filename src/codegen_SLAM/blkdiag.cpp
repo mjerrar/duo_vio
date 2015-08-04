@@ -5,7 +5,7 @@
 // File: blkdiag.cpp
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 03-Aug-2015 13:58:52
+// C/C++ source code generated on  : 04-Aug-2015 14:03:28
 //
 
 // Include Files
@@ -16,6 +16,47 @@
 #include <stdio.h>
 
 // Function Definitions
+
+//
+// Arguments    : const double varargin_1[4]
+//                const double varargin_2_data[]
+//                const int varargin_2_size[2]
+//                double y_data[]
+//                int y_size[2]
+// Return Type  : void
+//
+void b_blkdiag(const double varargin_1[4], const double varargin_2_data[], const
+               int varargin_2_size[2], double y_data[], int y_size[2])
+{
+  int loop_ub;
+  int i8;
+  int i9;
+  int b_loop_ub;
+  y_size[0] = (signed char)(2 + varargin_2_size[0]);
+  y_size[1] = (signed char)(2 + varargin_2_size[1]);
+  loop_ub = (signed char)(2 + varargin_2_size[0]) * (signed char)(2 +
+    varargin_2_size[1]);
+  for (i8 = 0; i8 < loop_ub; i8++) {
+    y_data[i8] = 0.0;
+  }
+
+  for (i8 = 0; i8 < 2; i8++) {
+    for (i9 = 0; i9 < 2; i9++) {
+      y_data[i9 + y_size[0] * i8] = varargin_1[i9 + (i8 << 1)];
+    }
+  }
+
+  if ((varargin_2_size[0] > 0) && (varargin_2_size[1] > 0)) {
+    loop_ub = varargin_2_size[1];
+    for (i8 = 0; i8 < loop_ub; i8++) {
+      b_loop_ub = varargin_2_size[0];
+      for (i9 = 0; i9 < b_loop_ub; i9++) {
+        y_data[(i9 + y_size[0] * (2 + i8)) + 2] = varargin_2_data[i9 +
+          varargin_2_size[0] * i8];
+      }
+    }
+  }
+}
 
 //
 // Arguments    : const emxArray_real_T *varargin_1
@@ -80,6 +121,21 @@ void blkdiag(const emxArray_real_T *varargin_1, const emxArray_real_T
       }
     }
   }
+}
+
+//
+// Arguments    : const int varargin_1_size[2]
+//                const int varargin_2_size[2]
+//                const int varargin_3_size[2]
+//                int *nrows
+//                int *ncols
+// Return Type  : void
+//
+void output_size(const int varargin_1_size[2], const int varargin_2_size[2],
+                 const int varargin_3_size[2], int *nrows, int *ncols)
+{
+  *nrows = (varargin_1_size[0] + varargin_2_size[0]) + varargin_3_size[0];
+  *ncols = (varargin_1_size[1] + varargin_2_size[1]) + varargin_3_size[1];
 }
 
 //
