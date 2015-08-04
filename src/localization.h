@@ -56,8 +56,6 @@ private:
 
   void synchronized_callback(const duo3d_ros::Duo3d& msg);
 
-  void camera_info_callback(const sensor_msgs::CameraInfoConstPtr& info);
-
   void update(double dt, const cv::Mat& left_image, const cv::Mat& right_image, const sensor_msgs::Imu& imu,
       const sensor_msgs::MagneticField& mag, geometry_msgs::Pose& pose, geometry_msgs::Twist& velocity);
 
