@@ -13,14 +13,9 @@
 
 Localization::Localization()
 : nh_("~"),
-left_image_sub_(nh_, "/left_image", 1),
-right_image_sub_(nh_, "/right_image", 1),
-imu_sub_(nh_, "/imu", 1),
-time_synchronizer_(left_image_sub_, right_image_sub_, imu_sub_, 10),
 process_noise_(4,0.0),
 im_noise_(4,0.0),
 camera_params_(4,0.0),
-camera_info_initialized_(false),
 max_duration(0)
 {
     SLAM_initialize();
@@ -28,10 +23,8 @@ max_duration(0)
 
     pose_pub_ = nh_.advertise<geometry_msgs::PoseStamped>("/pose",1);
     velocity_pub_ = nh_.advertise<geometry_msgs::Twist>("/velocity",1);
-    time_synchronizer_.registerCallback(boost::bind(&Localization::synchronized_callback,
-            this, _1, _2, _3));
-    camera_info_sub_ = nh_.subscribe<sensor_msgs::CameraInfo>("/duo3d_camera/right/camera_info",1,
-        &Localization::camera_info_callback,this);
+    combined_sub = nh_.subscribe("/duo3d_camera/combined",1,
+    		&Localization::synchronized_callback,this);
     point_cloud_pub_ = nh_.advertise<sensor_msgs::PointCloud>("/vio/features_point_cloud",1); //TODO: add to debug parameter
     path_pub_ = nh_.advertise<nav_msgs::Path>("/vio/SLAM_path",1);
     vis_pub_ = nh_.advertise<visualization_msgs::Marker>( "drone", 0 );
@@ -89,25 +82,16 @@ Localization::~Localization()
     printf("\nMax duration: %f ms. Min frequency: %f Hz\n", max_duration.toSec()*1000, 1/max_duration.toSec());
 }
 
-void Localization::synchronized_callback(const sensor_msgs::ImageConstPtr& left_image,
-    const sensor_msgs::ImageConstPtr& right_image,
-    const sensor_msgs::ImuConstPtr& imu)
+void Localization::synchronized_callback(const duo3d_ros::Duo3d& msg)
 {
-
     sensor_msgs::MagneticField mag; // TODO Subscribe to mag topic
-
-    if (!camera_info_initialized_)
-    {
-        ROS_ERROR("Camera info not initialized!");
-        return;
-    }
 
     cv_bridge::CvImagePtr cv_left_image;
     cv_bridge::CvImagePtr cv_right_image;
     try
     {
-        cv_left_image = cv_bridge::toCvCopy(left_image,"mono8");
-        cv_right_image = cv_bridge::toCvCopy(right_image,"mono8");
+        cv_left_image = cv_bridge::toCvCopy(msg.left_image, "mono8");
+        cv_right_image = cv_bridge::toCvCopy(msg.right_image,"mono8");
     }
     catch(cv_bridge::Exception& e)
     {
@@ -123,19 +107,19 @@ void Localization::synchronized_callback(const sensor_msgs::ImageConstPtr& left_
     // Init time on first call
     if (prev_time_.isZero())
     {
-        prev_time_ = left_image->header.stamp;
+        prev_time_ = msg.header.stamp;
     }
 
-    double dt = (left_image->header.stamp - prev_time_).toSec();
-    prev_time_ = left_image->header.stamp;
+    double dt = (msg.header.stamp - prev_time_).toSec();
+    prev_time_ = msg.header.stamp;
 
     geometry_msgs::PoseStamped pose_stamped;
     geometry_msgs::Pose pose;
     geometry_msgs::Twist velocity;
-    pose_stamped.header.stamp = left_image->header.stamp;
+    pose_stamped.header.stamp = msg.header.stamp;
     pose_stamped.header.frame_id = "world";
 
-    update(dt, cv_left_image->image, cv_right_image->image, *imu, mag, pose, velocity);
+    update(dt, cv_left_image->image, cv_right_image->image, msg.imu, mag, pose, velocity);
 
     pose_stamped.pose = pose;
     pose_pub_.publish(pose_stamped);
@@ -184,7 +168,7 @@ void Localization::update(double dt, const cv::Mat& left_image, const cv::Mat& r
     	update_vec_array[i] = update_vec_[i];
     }
 
-    ROS_INFO("Time point tracker: %f ms", (ros::Time::now() - tic).toSec()*1000);
+    ROS_INFO("Time point tracker: %6.2f ms", (ros::Time::now() - tic).toSec()*1000);
 
     //*********************************************************************
     // SLAM
@@ -224,7 +208,7 @@ void Localization::update(double dt, const cv::Mat& left_image, const cv::Mat& r
     	display_tracks(left_image, &z_all_l[0], &z_all_r[0], update_vec_, h_u_apo);
     }
 
-    ROS_INFO("Time SLAM         : %f ms", (ros::Time::now() - tic).toSec()*1000);
+    ROS_INFO("Time SLAM         : %6.2f ms", (ros::Time::now() - tic).toSec()*1000);
 
     // Publish feature position in world frame
     publishPointCloud(map->data);
@@ -257,15 +241,6 @@ void Localization::update(double dt, const cv::Mat& left_image, const cv::Mat& r
     if (duration > max_duration)
     	max_duration = duration;
 
-}
-
-void Localization::camera_info_callback(const sensor_msgs::CameraInfoConstPtr& info)
-{
-    camera_info_initialized_ = true;
-    camera_params_[0] = (info->K[0] + info->K[0]) / 2.0; // focal length
-    camera_params_[1] = info->K[2]; // Cx
-    camera_params_[2] = info->K[4]; // Cy
-    camera_params_[3] = -0.1 * info->P[3] / info->P[0]; // baseline
 }
 
 void Localization::get_inertial_vector(const sensor_msgs::Imu& imu, const sensor_msgs::MagneticField& mag, std::vector<double>& inertial_vec)
