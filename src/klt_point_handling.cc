@@ -38,7 +38,7 @@ void handle_points_klt(
 		vector<double> &z_all_r,
 		vector<int> &updateVect)
 {
-	clock_t t1 = clock();
+//	clock_t t1 = clock();
 
 	unsigned int numPoints = updateVect.size();
 	z_all_l.resize(numPoints * 2);
@@ -65,7 +65,7 @@ void handle_points_klt(
 	{
 		if (!prev_corners.empty())
 		{
-			cv::calcOpticalFlowPyrLK(prev_img, img_l, prev_corners, cur_corners, status, error, cv::Size(64,64), 4);
+			cv::calcOpticalFlowPyrLK(prev_img, img_l, prev_corners, cur_corners, status, error, cv::Size(21,21), 4);
 			prev_corners = cur_corners;
 
 
@@ -109,8 +109,8 @@ void handle_points_klt(
 		printf("Right image is empty!\n");
 	}
 
-	clock_t t2 = clock();
-	printf("Point tracker took: %d clicks, %f msec\n", int(t2 - t1), 1000*float(t2 - t1)/CLOCKS_PER_SEC);
+//	clock_t t2 = clock();
+//	printf("Point tracker took: %d clicks, %f msec\n", int(t2 - t1), 1000*float(t2 - t1)/CLOCKS_PER_SEC);
 }
 
 // ==== local functions, hidden from outside this file ====
@@ -147,12 +147,12 @@ static void initMorePoints(
 
 	if ( descriptorsL.empty() )
 	{
-		ROS_ERROR("Left descriptor empty in %s:%d",__FILE__,__LINE__);
+		printf("WARNING: Left descriptor empty in %s:%d",__FILE__,__LINE__);
 		return;
 	}
 	if ( descriptorsR.empty() )
 	{
-		ROS_ERROR("Left descriptor empty in %s:%d",__FILE__,__LINE__);
+		printf("WARNING: Right descriptor empty in %s:%d",__FILE__,__LINE__);
 		return;
 	}
 

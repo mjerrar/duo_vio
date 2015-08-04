@@ -24,7 +24,7 @@
     <param name="im_noise_4" type="double" value="5" />
 
     <!-- note that these parameters are not free. The total number of points num_anchors*num_points_per_anchor must equal the total number of points with wich SLAM was codered in Matlab. -->
-    <param name="num_points_per_anchor" type="int" value="8" />
+    <param name="num_points_per_anchor" type="int" value="4" />
     <param name="num_anchors" type="int" value="4" />
 
     <param name="show_tracker_images" type="bool" value="$(arg show_tracker_images)" />

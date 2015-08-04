@@ -5,7 +5,7 @@
 // File: SLAM_rtwutil.cpp
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 31-Jul-2015 14:58:50
+// C/C++ source code generated on  : 04-Aug-2015 14:03:28
 //
 
 // Include Files
@@ -93,17 +93,17 @@ double rt_hypotd_snf(double u0, double u1)
 double rt_powd_snf(double u0, double u1)
 {
   double y;
-  double d2;
   double d3;
+  double d4;
   if (rtIsNaN(u0) || rtIsNaN(u1)) {
     y = rtNaN;
   } else {
-    d2 = fabs(u0);
-    d3 = fabs(u1);
+    d3 = fabs(u0);
+    d4 = fabs(u1);
     if (rtIsInf(u1)) {
-      if (d2 == 1.0) {
+      if (d3 == 1.0) {
         y = rtNaN;
-      } else if (d2 > 1.0) {
+      } else if (d3 > 1.0) {
         if (u1 > 0.0) {
           y = rtInf;
         } else {
@@ -114,9 +114,9 @@ double rt_powd_snf(double u0, double u1)
       } else {
         y = rtInf;
       }
-    } else if (d3 == 0.0) {
+    } else if (d4 == 0.0) {
       y = 1.0;
-    } else if (d3 == 1.0) {
+    } else if (d4 == 1.0) {
       if (u1 > 0.0) {
         y = u0;
       } else {

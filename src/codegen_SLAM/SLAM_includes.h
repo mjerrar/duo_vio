@@ -3,6 +3,7 @@
 #include <any.h>
 #include <Att_pred.h>
 #include <blkdiag.h>
+#include <Ch_dn_To_h_un.h>
 #include <colon.h>
 #include <cross.h>
 #include <diag.h>
@@ -14,9 +15,11 @@
 #include <getH_R_res.h>
 #include <getMap.h>
 #include <initializePoint.h>
+#include <kron.h>
 #include <mrdivide.h>
 #include <norm.h>
 #include <OnePointRANSAC_EKF.h>
+#include <power.h>
 #include <predictMeasurement_left.h>
 #include <predictMeasurement_stereo.h>
 #include <QuatFromRotJ.h>

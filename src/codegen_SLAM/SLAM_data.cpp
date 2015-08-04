@@ -5,7 +5,7 @@
 // File: SLAM_data.cpp
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 31-Jul-2015 14:58:50
+// C/C++ source code generated on  : 04-Aug-2015 14:03:28
 //
 
 // Include Files
@@ -18,10 +18,11 @@
 double numStates;
 double numStatesxt;
 double minFeatureThreshold;
-double numAnchors;
-double numStatesPerAnchor;
+double sigma_Init;
 double maxEKFIterations;
 unsigned int state[625];
+boolean_T gravityUpdate;
+boolean_T useAirPressure;
 boolean_T normalGravity;
 
 //
