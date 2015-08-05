@@ -2,13 +2,13 @@
 // Academic License - for use in teaching, academic research, and meeting
 // course requirements at degree granting institutions only.  Not for
 // government, commercial, or other organizational use.
-// File: svd.h
+// File: Ch_dn_To_h_un.h
 //
 // MATLAB Coder version            : 2.8
 // C/C++ source code generated on  : 04-Aug-2015 14:03:28
 //
-#ifndef __SVD_H__
-#define __SVD_H__
+#ifndef __CH_DN_TO_H_UN_H__
+#define __CH_DN_TO_H_UN_H__
 
 // Include Files
 #include <math.h>
@@ -20,12 +20,12 @@
 #include "SLAM_types.h"
 
 // Function Declarations
-extern void svd(const double A[30], double U[5]);
+extern void Ch_dn_To_h_un(double x, double y, double h_dn_l_To_h_un_l[4]);
 
 #endif
 
 //
-// File trailer for svd.h
+// File trailer for Ch_dn_To_h_un.h
 //
 // [EOF]
 //
