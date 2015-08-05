@@ -5,7 +5,7 @@
 // File: SLAM_data.h
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 04-Aug-2015 14:03:28
+// C/C++ source code generated on  : 05-Aug-2015 15:44:55
 //
 #ifndef __SLAM_DATA_H__
 #define __SLAM_DATA_H__
@@ -27,6 +27,7 @@ extern double sigma_Init;
 extern double maxEKFIterations;
 extern unsigned int state[625];
 extern boolean_T gravityUpdate;
+extern double gravAlignNoise;
 extern boolean_T useAirPressure;
 extern boolean_T normalGravity;
 

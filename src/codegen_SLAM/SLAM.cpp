@@ -5,7 +5,7 @@
 // File: SLAM.cpp
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 04-Aug-2015 14:03:28
+// C/C++ source code generated on  : 05-Aug-2015 15:44:55
 //
 
 // Include Files
@@ -80,9 +80,6 @@ void SLAM(double updateVect[16], const double z_all_l[32], const double z_all_r
   emxArray_real_T *r7;
   static const signed char y[9] = { 100, 0, 0, 0, 100, 0, 0, 0, 100 };
 
-  static const double b_y[9] = { 0.001, 0.0, 0.0, 0.0, 0.001, 0.0, 0.0, 0.0,
-    0.001 };
-
   double S[9];
   double H[9];
   double a21;
@@ -90,7 +87,7 @@ void SLAM(double updateVect[16], const double z_all_l[32], const double z_all_r
   double b_S[9];
   static const signed char b[9] = { 1, 0, 0, 0, 1, 0, 0, 0, 1 };
 
-  double c_y[9];
+  double b_y[9];
   int r2;
   int r3;
   double K[9];
@@ -225,14 +222,14 @@ void SLAM(double updateVect[16], const double z_all_l[32], const double z_all_r
     //  velocity
     for (r1 = 0; r1 < 3; r1++) {
       for (rtemp = 0; rtemp < 3; rtemp++) {
-        P->data[(rtemp + P->size[0] * (9 + r1)) + 9] = b_y[rtemp + 3 * r1];
+        P->data[(rtemp + P->size[0] * (9 + r1)) + 9] = 0.0;
       }
     }
 
     //  gyro bias
   }
 
-  if (init_counter < 1.0) {
+  if (init_counter < 10.0) {
     Att_pred(x_att, P_att, *(double (*)[3])&IMU_measurements[0], processNoise[1],
              dt);
 
@@ -299,9 +296,9 @@ void SLAM(double updateVect[16], const double z_all_l[32], const double z_all_r
 
     for (r1 = 0; r1 < 3; r1++) {
       for (rtemp = 0; rtemp < 3; rtemp++) {
-        c_y[r1 + 3 * rtemp] = 0.0;
+        b_y[r1 + 3 * rtemp] = 0.0;
         for (k = 0; k < 3; k++) {
-          c_y[r1 + 3 * rtemp] += P_att[r1 + 3 * k] * H[rtemp + 3 * k];
+          b_y[r1 + 3 * rtemp] += P_att[r1 + 3 * k] * H[rtemp + 3 * k];
         }
       }
     }
@@ -338,9 +335,9 @@ void SLAM(double updateVect[16], const double z_all_l[32], const double z_all_r
     b_S[3 + r3] /= b_S[3 + r2];
     b_S[6 + r3] -= b_S[3 + r3] * b_S[6 + r2];
     for (k = 0; k < 3; k++) {
-      K[k + 3 * r1] = c_y[k] / b_S[r1];
-      K[k + 3 * r2] = c_y[3 + k] - K[k + 3 * r1] * b_S[3 + r1];
-      K[k + 3 * r3] = c_y[6 + k] - K[k + 3 * r1] * b_S[6 + r1];
+      K[k + 3 * r1] = b_y[k] / b_S[r1];
+      K[k + 3 * r2] = b_y[3 + k] - K[k + 3 * r1] * b_S[3 + r1];
+      K[k + 3 * r3] = b_y[6 + k] - K[k + 3 * r1] * b_S[6 + r1];
       K[k + 3 * r2] /= b_S[3 + r2];
       K[k + 3 * r3] -= K[k + 3 * r2] * b_S[6 + r2];
       K[k + 3 * r3] /= b_S[6 + r3];
@@ -455,8 +452,8 @@ void SLAM(double updateVect[16], const double z_all_l[32], const double z_all_r
       map_out->data[r1] = rtNaN;
     }
 
-    init_counter = 1.0;
-  } else if (init_counter == 1.0) {
+    init_counter++;
+  } else if (init_counter == 10.0) {
     //  done initializing attitude. Insert the estimated attitude and the covariance into the whole state, request features 
     b_fprintf();
     for (rtemp = 0; rtemp < 16; rtemp++) {
@@ -523,8 +520,8 @@ void SLAM(double updateVect[16], const double z_all_l[32], const double z_all_r
       map_out->data[r1] = rtNaN;
     }
 
-    init_counter = 2.0;
-  } else if (init_counter == 2.0) {
+    init_counter = 11.0;
+  } else if (init_counter == 11.0) {
     SLAM_updIT(P, xt, cameraparams.r_lr, cameraparams.R_lr, cameraparams.R_rl,
                updateVect, z_all_l, z_all_r, imNoise, IMU_measurements,
                numPointsPerAnchor, numAnchors, (1.0 - rt_powd_snf
@@ -547,7 +544,7 @@ void SLAM(double updateVect[16], const double z_all_l[32], const double z_all_r
       P_apo_out->data[r1] = P->data[r1];
     }
 
-    init_counter = 3.0;
+    init_counter = 12.0;
   } else {
     SLAM_pred(P, xt, dt, processNoise, IMU_measurements, numStates);
 

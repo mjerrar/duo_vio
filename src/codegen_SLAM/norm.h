@@ -5,7 +5,7 @@
 // File: norm.h
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 04-Aug-2015 14:03:28
+// C/C++ source code generated on  : 05-Aug-2015 15:44:55
 //
 #ifndef __NORM_H__
 #define __NORM_H__

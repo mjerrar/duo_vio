@@ -5,7 +5,7 @@
 // File: getH_R_res.cpp
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 04-Aug-2015 14:03:28
+// C/C++ source code generated on  : 05-Aug-2015 15:44:55
 //
 
 // Include Files
@@ -184,9 +184,6 @@ void b_getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
   static const signed char b_b[3] = { 0, 0, 1 };
 
   double dv307[9];
-  static const double d_y[9] = { 0.001, 0.0, 0.0, 0.0, 0.001, 0.0, 0.0, 0.0,
-    0.001 };
-
   double R_g_data[9];
   double r_g_data[3];
   double R_p_data[1];
@@ -822,7 +819,10 @@ void b_getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
 
     R_g_size[0] = 3;
     R_g_size[1] = 3;
-    memcpy(&R_g_data[0], &d_y[0], 9U * sizeof(double));
+    for (ic = 0; ic < 9; ic++) {
+      R_g_data[ic] = gravAlignNoise * (double)b[ic];
+    }
+
     nm1d2 = 3;
     for (ic = 0; ic < 3; ic++) {
       r_g_data[ic] = IMU_measurements[3 + ic] / anew - h_rz[ic];
@@ -1223,9 +1223,6 @@ void getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
 
   double dv299[9];
   double R_g_data[9];
-  static const double d_y[9] = { 0.001, 0.0, 0.0, 0.0, 0.001, 0.0, 0.0, 0.0,
-    0.001 };
-
   double r_g_data[3];
   double R_p_data[1];
   double r_p_data[1];
@@ -1830,7 +1827,10 @@ void getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
 
     R_g_size[0] = 3;
     R_g_size[1] = 3;
-    memcpy(&R_g_data[0], &d_y[0], 9U * sizeof(double));
+    for (ib = 0; ib < 9; ib++) {
+      R_g_data[ib] = gravAlignNoise * (double)b[ib];
+    }
+
     nm1d2 = 3;
     for (ib = 0; ib < 3; ib++) {
       r_g_data[ib] = IMU_measurements[3 + ib] / anew - h_ci_l[ib];
