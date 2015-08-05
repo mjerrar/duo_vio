@@ -5,7 +5,7 @@
 // File: predictMeasurement_stereo.cpp
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 05-Aug-2015 15:44:55
+// C/C++ source code generated on  : 05-Aug-2015 16:03:26
 //
 
 // Include Files
@@ -36,7 +36,7 @@ void predictMeasurement_stereo(const double fp_l[3], const double
   double fp_r[3];
   int i;
   double b_fp_r;
-  int i13;
+  int i12;
   double h_cin_l[3];
   double radsq_l;
   double b;
@@ -48,8 +48,8 @@ void predictMeasurement_stereo(const double fp_l[3], const double
   //  R_rl=R_lr';
   for (i = 0; i < 3; i++) {
     b_fp_r = 0.0;
-    for (i13 = 0; i13 < 3; i13++) {
-      b_fp_r += cameraparams_R_rl[i + 3 * i13] * fp_l[i13];
+    for (i12 = 0; i12 < 3; i12++) {
+      b_fp_r += cameraparams_R_rl[i + 3 * i12] * fp_l[i12];
     }
 
     fp_r[i] = b_fp_r - cameraparams_r_lr[i];
@@ -86,11 +86,11 @@ void predictMeasurement_stereo(const double fp_l[3], const double
   //  rad_l=sqrt(h_uin_l(1)^2+h_uin_l(2)^2);
   //  rad_r=sqrt(h_uin_r(1)^2+h_uin_r(2)^2);
   radsq_l = h_cin_l[0] * h_cin_l[0] + h_cin_l[1] * h_cin_l[1];
-  b = ((1.0 + -0.41042183437511 * radsq_l) + 0.221265330302933 * (radsq_l *
-        radsq_l)) + -0.0619354263198911 * rt_powd_snf(radsq_l, 4.0);
+  b = ((1.0 + -0.401250937863819 * radsq_l) + 0.193995986374922 * (radsq_l *
+        radsq_l)) + -0.0528652448245847 * rt_powd_snf(radsq_l, 4.0);
   radsq_r = fp_r[0] * fp_r[0] + fp_r[1] * fp_r[1];
-  b_fp_r = ((1.0 + -0.403776514266162 * radsq_r) + 0.212756636184267 * (radsq_r *
-             radsq_r)) + -0.0594355697055105 * rt_powd_snf(radsq_r, 4.0);
+  b_fp_r = ((1.0 + -0.401762803634968 * radsq_r) + 0.195993790045115 * (radsq_r *
+             radsq_r)) + -0.0547939131375746 * rt_powd_snf(radsq_r, 4.0);
   for (i = 0; i < 3; i++) {
     h_cin_l[i] *= b;
     fp_r[i] *= b_fp_r;
@@ -108,10 +108,10 @@ void predictMeasurement_stereo(const double fp_l[3], const double
   //  if any(isnan(h_din_r))
   //      ROS_ERROR('h_din_r')
   //  end
-  h_u_l[0] = 370.467750713497 + 537.083588825387 * h_cin_l[0];
-  h_u_l[1] = 226.640025353723 + 539.036743091681 * h_cin_l[1];
-  h_u_r[0] = 390.576377367293 + 538.369043959143 * fp_r[0];
-  h_u_r[1] = 218.634996583338 + 539.436438304934 * fp_r[1];
+  h_u_l[0] = 371.925237873738 + 541.959687988851 * h_cin_l[0];
+  h_u_l[1] = 229.149201322433 + 543.682179911237 * h_cin_l[1];
+  h_u_r[0] = 393.735383216623 + 543.308099976805 * fp_r[0];
+  h_u_r[1] = 218.682763638397 + 545.124896535452 * fp_r[1];
 
   //  if any(isnan(h_u_l))
   //      ROS_ERROR('h_di_l')

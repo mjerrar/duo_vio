@@ -5,7 +5,7 @@
 // File: blkdiag.h
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 05-Aug-2015 15:44:55
+// C/C++ source code generated on  : 05-Aug-2015 16:03:26
 //
 #ifndef __BLKDIAG_H__
 #define __BLKDIAG_H__

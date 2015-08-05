@@ -5,7 +5,7 @@
 // File: getH_R_res.cpp
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 05-Aug-2015 15:44:55
+// C/C++ source code generated on  : 05-Aug-2015 16:03:26
 //
 
 // Include Files
@@ -105,18 +105,18 @@ void b_getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
   int ia;
   double h_cin_l[3];
   int nm1d2;
-  double dv300[2];
+  double dv16[2];
   int r;
   double anew;
   signed char b_k;
   signed char iv3[2];
-  double dv301[4];
+  double dv17[4];
   double h_un_To_h_d_l[4];
-  double dv302[6];
+  double dv18[6];
   double b_h_un_To_h_d_l[6];
   double b_R_cw[36];
-  static const double c_h_un_To_h_d_l[4] = { 537.083588825387, 0.0, 0.0,
-    539.036743091681 };
+  static const double c_h_un_To_h_d_l[4] = { 541.959687988851, 0.0, 0.0,
+    543.682179911237 };
 
   double d_h_un_To_h_d_l[24];
   double b_stateSize;
@@ -158,7 +158,7 @@ void b_getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
   double anchorRot[9];
   double d2;
   double b_y[3];
-  double dv303[9];
+  double dv19[9];
   double b_anchorRot[9];
   static const signed char b[9] = { 1, 0, 0, 0, 1, 0, 0, 0, 1 };
 
@@ -167,14 +167,14 @@ void b_getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
   double ndbl;
   double cdiff;
   double absb;
-  double dv304[6];
+  double dv20[6];
   double c_y[6];
   int c;
   double b_z_data;
   emxArray_real_T *H_v;
   emxArray_real_T *r3;
-  double dv305[2];
-  double dv306[4];
+  double dv21[2];
+  double dv22[4];
   int R_v_size[2];
   double R_v_data[1024];
   emxArray_real_T *H_g;
@@ -183,7 +183,7 @@ void b_getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
   int R_p_size[2];
   static const signed char b_b[3] = { 0, 0, 1 };
 
-  double dv307[9];
+  double dv23[9];
   double R_g_data[9];
   double r_g_data[3];
   double R_p_data[1];
@@ -271,10 +271,10 @@ void b_getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
       h_cin_l[nm1d2] = h_rz[nm1d2] / h_rz[2];
     }
 
-    predictMeasurement_left(h_rz, dv300);
+    predictMeasurement_left(h_rz, dv16);
     r = k << 1;
     for (ic = 0; ic < 2; ic++) {
-      h_u_data[ic + r] = dv300[ic];
+      h_u_data[ic + r] = dv16[ic];
     }
 
     r = k << 1;
@@ -297,19 +297,19 @@ void b_getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
       r2->data[ic] = ic;
     }
 
-    Ch_dn_To_h_un(h_cin_l[0], h_cin_l[1], dv301);
-    dv302[0] = 1.0 / h_rz[2];
-    dv302[2] = 0.0;
-    dv302[4] = -h_rz[0] / (h_rz[2] * h_rz[2]);
-    dv302[1] = 0.0;
-    dv302[3] = 1.0 / h_rz[2];
-    dv302[5] = -h_rz[1] / (h_rz[2] * h_rz[2]);
+    Ch_dn_To_h_un(h_cin_l[0], h_cin_l[1], dv17);
+    dv18[0] = 1.0 / h_rz[2];
+    dv18[2] = 0.0;
+    dv18[4] = -h_rz[0] / (h_rz[2] * h_rz[2]);
+    dv18[1] = 0.0;
+    dv18[3] = 1.0 / h_rz[2];
+    dv18[5] = -h_rz[1] / (h_rz[2] * h_rz[2]);
     for (ic = 0; ic < 2; ic++) {
       for (ia = 0; ia < 2; ia++) {
         h_un_To_h_d_l[ic + (ia << 1)] = 0.0;
         for (r = 0; r < 2; r++) {
           h_un_To_h_d_l[ic + (ia << 1)] += c_h_un_To_h_d_l[ic + (r << 1)] *
-            dv301[r + (ia << 1)];
+            dv17[r + (ia << 1)];
         }
       }
 
@@ -317,7 +317,7 @@ void b_getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
         b_h_un_To_h_d_l[ic + (ia << 1)] = 0.0;
         for (r = 0; r < 2; r++) {
           b_h_un_To_h_d_l[ic + (ia << 1)] += h_un_To_h_d_l[ic + (r << 1)] *
-            dv302[r + (ia << 1)];
+            dv18[r + (ia << 1)];
         }
       }
     }
@@ -499,15 +499,15 @@ void b_getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
       (anchorIdx->data[(int)indMeas_data[k] - 1] - 1.0) * (7.0 +
       numPointsPerAnchor)) + 7.0) + featureAnchorIdx->data[(int)indMeas_data[k]
       - 1]) - 1];
-    dv303[0] = 0.0;
-    dv303[3] = -b_y[2];
-    dv303[6] = b_y[1];
-    dv303[1] = b_y[2];
-    dv303[4] = 0.0;
-    dv303[7] = -b_y[0];
-    dv303[2] = -b_y[1];
-    dv303[5] = b_y[0];
-    dv303[8] = 0.0;
+    dv19[0] = 0.0;
+    dv19[3] = -b_y[2];
+    dv19[6] = b_y[1];
+    dv19[1] = b_y[2];
+    dv19[4] = 0.0;
+    dv19[7] = -b_y[0];
+    dv19[2] = -b_y[1];
+    dv19[5] = b_y[0];
+    dv19[8] = 0.0;
     nm1d2 = (int)(featureAnchorIdx->data[(int)indMeas_data[k] - 1] - 1.0);
     for (ic = 0; ic < 3; ic++) {
       for (ia = 0; ia < 3; ia++) {
@@ -539,7 +539,7 @@ void b_getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
 
     for (ic = 0; ic < 3; ic++) {
       for (ia = 0; ia < 3; ia++) {
-        H_iy->data[ia + H_iy->size[0] * (ic + 3)] = -dv303[ia + 3 * ic];
+        H_iy->data[ia + H_iy->size[0] * (ic + 3)] = -dv19[ia + 3 * ic];
       }
     }
 
@@ -635,19 +635,19 @@ void b_getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
       r2->data[ic] = (int)(anew + y->data[y->size[0] * ic]) - 1;
     }
 
-    Ch_dn_To_h_un(h_cin_l[0], h_cin_l[1], dv301);
-    dv304[0] = 1.0 / h_rz[2];
-    dv304[2] = 0.0;
-    dv304[4] = -h_rz[0] / (h_rz[2] * h_rz[2]);
-    dv304[1] = 0.0;
-    dv304[3] = 1.0 / h_rz[2];
-    dv304[5] = -h_rz[1] / (h_rz[2] * h_rz[2]);
+    Ch_dn_To_h_un(h_cin_l[0], h_cin_l[1], dv17);
+    dv20[0] = 1.0 / h_rz[2];
+    dv20[2] = 0.0;
+    dv20[4] = -h_rz[0] / (h_rz[2] * h_rz[2]);
+    dv20[1] = 0.0;
+    dv20[3] = 1.0 / h_rz[2];
+    dv20[5] = -h_rz[1] / (h_rz[2] * h_rz[2]);
     for (ic = 0; ic < 2; ic++) {
       for (ia = 0; ia < 2; ia++) {
         h_un_To_h_d_l[ic + (ia << 1)] = 0.0;
         for (r = 0; r < 2; r++) {
           h_un_To_h_d_l[ic + (ia << 1)] += c_h_un_To_h_d_l[ic + (r << 1)] *
-            dv301[r + (ia << 1)];
+            dv17[r + (ia << 1)];
         }
       }
 
@@ -655,7 +655,7 @@ void b_getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
         b_h_un_To_h_d_l[ic + (ia << 1)] = 0.0;
         for (r = 0; r < 2; r++) {
           b_h_un_To_h_d_l[ic + (ia << 1)] += h_un_To_h_d_l[ic + (r << 1)] *
-            dv304[r + (ia << 1)];
+            dv20[r + (ia << 1)];
         }
       }
 
@@ -730,9 +730,9 @@ void b_getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
 
   //  residual with respect to camera measurements
   b_eye((double)indMeas_size[0], r3);
-  power(imNoise, dv305);
-  diag(dv305, dv306);
-  kron(r3->data, r3->size, dv306, R_v_data, R_v_size);
+  power(imNoise, dv21);
+  diag(dv21, dv22);
+  kron(r3->data, r3->size, dv22, R_v_data, R_v_size);
   nm1d2 = 0;
 
   //  gravity residual
@@ -802,18 +802,18 @@ void b_getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
       H_g->data[ic] = 0.0;
     }
 
-    dv307[0] = 0.0;
-    dv307[3] = -h_rz[2];
-    dv307[6] = h_rz[1];
-    dv307[1] = h_rz[2];
-    dv307[4] = 0.0;
-    dv307[7] = -h_rz[0];
-    dv307[2] = -h_rz[1];
-    dv307[5] = h_rz[0];
-    dv307[8] = 0.0;
+    dv23[0] = 0.0;
+    dv23[3] = -h_rz[2];
+    dv23[6] = h_rz[1];
+    dv23[1] = h_rz[2];
+    dv23[4] = 0.0;
+    dv23[7] = -h_rz[0];
+    dv23[2] = -h_rz[1];
+    dv23[5] = h_rz[0];
+    dv23[8] = 0.0;
     for (ic = 0; ic < 3; ic++) {
       for (ia = 0; ia < 3; ia++) {
-        H_g->data[ia + H_g->size[0] * (3 + ic)] = dv307[ia + 3 * ic];
+        H_g->data[ia + H_g->size[0] * (3 + ic)] = dv23[ia + 3 * ic];
       }
     }
 
@@ -1150,11 +1150,11 @@ void getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
   emxArray_int32_T *r0;
   double d[4];
   double h_un_To_h_d_l[4];
-  double dv296[6];
+  double dv12[6];
   double b_h_un_To_h_d_l[6];
   double b_R_cw[36];
-  static const double c_h_un_To_h_d_l[4] = { 537.083588825387, 0.0, 0.0,
-    539.036743091681 };
+  static const double c_h_un_To_h_d_l[4] = { 541.959687988851, 0.0, 0.0,
+    543.682179911237 };
 
   double d_h_un_To_h_d_l[24];
   double b_stateSize;
@@ -1196,7 +1196,7 @@ void getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
   double anchorRot[9];
   double d1;
   double y[3];
-  double dv297[9];
+  double dv13[9];
   double b_anchorRot[9];
   emxArray_real_T *H_iy;
   int k;
@@ -1207,7 +1207,7 @@ void getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
   double cdiff;
   double absb;
   emxArray_real_T *b_y;
-  double dv298[6];
+  double dv14[6];
   double c_y[6];
   emxArray_real_T *H_v;
   double v[2];
@@ -1221,7 +1221,7 @@ void getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
   int R_p_size[2];
   static const signed char b_b[3] = { 0, 0, 1 };
 
-  double dv299[9];
+  double dv15[9];
   double R_g_data[9];
   double r_g_data[3];
   double R_p_data[1];
@@ -1307,12 +1307,12 @@ void getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
   }
 
   Ch_dn_To_h_un(h_cin_l[0], h_cin_l[1], d);
-  dv296[0] = 1.0 / h_ci_l[2];
-  dv296[2] = 0.0;
-  dv296[4] = -h_ci_l[0] / (h_ci_l[2] * h_ci_l[2]);
-  dv296[1] = 0.0;
-  dv296[3] = 1.0 / h_ci_l[2];
-  dv296[5] = -h_ci_l[1] / (h_ci_l[2] * h_ci_l[2]);
+  dv12[0] = 1.0 / h_ci_l[2];
+  dv12[2] = 0.0;
+  dv12[4] = -h_ci_l[0] / (h_ci_l[2] * h_ci_l[2]);
+  dv12[1] = 0.0;
+  dv12[3] = 1.0 / h_ci_l[2];
+  dv12[5] = -h_ci_l[1] / (h_ci_l[2] * h_ci_l[2]);
   for (ib = 0; ib < 2; ib++) {
     for (ar = 0; ar < 2; ar++) {
       h_un_To_h_d_l[ib + (ar << 1)] = 0.0;
@@ -1326,7 +1326,7 @@ void getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
       b_h_un_To_h_d_l[ib + (ar << 1)] = 0.0;
       for (nm1d2 = 0; nm1d2 < 2; nm1d2++) {
         b_h_un_To_h_d_l[ib + (ar << 1)] += h_un_To_h_d_l[ib + (nm1d2 << 1)] *
-          dv296[nm1d2 + (ar << 1)];
+          dv12[nm1d2 + (ar << 1)];
       }
     }
   }
@@ -1507,15 +1507,15 @@ void getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
     1]) - 1] * b_xt->data[(int)(((stateSize + (anchorIdx->data[(int)indMeas - 1]
     - 1.0) * (7.0 + numPointsPerAnchor)) + 7.0) + featureAnchorIdx->data[(int)
     indMeas - 1]) - 1];
-  dv297[0] = 0.0;
-  dv297[3] = -y[2];
-  dv297[6] = y[1];
-  dv297[1] = y[2];
-  dv297[4] = 0.0;
-  dv297[7] = -y[0];
-  dv297[2] = -y[1];
-  dv297[5] = y[0];
-  dv297[8] = 0.0;
+  dv13[0] = 0.0;
+  dv13[3] = -y[2];
+  dv13[6] = y[1];
+  dv13[1] = y[2];
+  dv13[4] = 0.0;
+  dv13[7] = -y[0];
+  dv13[2] = -y[1];
+  dv13[5] = y[0];
+  dv13[8] = 0.0;
   nm1d2 = (int)(featureAnchorIdx->data[(int)indMeas - 1] - 1.0);
   for (ib = 0; ib < 3; ib++) {
     for (ar = 0; ar < 3; ar++) {
@@ -1547,7 +1547,7 @@ void getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
 
   for (ib = 0; ib < 3; ib++) {
     for (ar = 0; ar < 3; ar++) {
-      H_iy->data[ar + H_iy->size[0] * (ib + 3)] = -dv297[ar + 3 * ib];
+      H_iy->data[ar + H_iy->size[0] * (ib + 3)] = -dv13[ar + 3 * ib];
     }
   }
 
@@ -1640,12 +1640,12 @@ void getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
 
   emxFree_real_T(&b_y);
   Ch_dn_To_h_un(h_cin_l[0], h_cin_l[1], d);
-  dv298[0] = 1.0 / h_ci_l[2];
-  dv298[2] = 0.0;
-  dv298[4] = -h_ci_l[0] / (h_ci_l[2] * h_ci_l[2]);
-  dv298[1] = 0.0;
-  dv298[3] = 1.0 / h_ci_l[2];
-  dv298[5] = -h_ci_l[1] / (h_ci_l[2] * h_ci_l[2]);
+  dv14[0] = 1.0 / h_ci_l[2];
+  dv14[2] = 0.0;
+  dv14[4] = -h_ci_l[0] / (h_ci_l[2] * h_ci_l[2]);
+  dv14[1] = 0.0;
+  dv14[3] = 1.0 / h_ci_l[2];
+  dv14[5] = -h_ci_l[1] / (h_ci_l[2] * h_ci_l[2]);
   for (ib = 0; ib < 2; ib++) {
     for (ar = 0; ar < 2; ar++) {
       h_un_To_h_d_l[ib + (ar << 1)] = 0.0;
@@ -1659,7 +1659,7 @@ void getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
       b_h_un_To_h_d_l[ib + (ar << 1)] = 0.0;
       for (nm1d2 = 0; nm1d2 < 2; nm1d2++) {
         b_h_un_To_h_d_l[ib + (ar << 1)] += h_un_To_h_d_l[ib + (nm1d2 << 1)] *
-          dv298[nm1d2 + (ar << 1)];
+          dv14[nm1d2 + (ar << 1)];
       }
     }
 
@@ -1810,18 +1810,18 @@ void getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
       H_g->data[ib] = 0.0;
     }
 
-    dv299[0] = 0.0;
-    dv299[3] = -h_ci_l[2];
-    dv299[6] = h_ci_l[1];
-    dv299[1] = h_ci_l[2];
-    dv299[4] = 0.0;
-    dv299[7] = -h_ci_l[0];
-    dv299[2] = -h_ci_l[1];
-    dv299[5] = h_ci_l[0];
-    dv299[8] = 0.0;
+    dv15[0] = 0.0;
+    dv15[3] = -h_ci_l[2];
+    dv15[6] = h_ci_l[1];
+    dv15[1] = h_ci_l[2];
+    dv15[4] = 0.0;
+    dv15[7] = -h_ci_l[0];
+    dv15[2] = -h_ci_l[1];
+    dv15[5] = h_ci_l[0];
+    dv15[8] = 0.0;
     for (ib = 0; ib < 3; ib++) {
       for (ar = 0; ar < 3; ar++) {
-        H_g->data[ar + H_g->size[0] * (3 + ib)] = dv299[ar + 3 * ib];
+        H_g->data[ar + H_g->size[0] * (3 + ib)] = dv15[ar + 3 * ib];
       }
     }
 

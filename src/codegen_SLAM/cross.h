@@ -5,7 +5,7 @@
 // File: cross.h
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 05-Aug-2015 15:44:55
+// C/C++ source code generated on  : 05-Aug-2015 16:03:26
 //
 #ifndef __CROSS_H__
 #define __CROSS_H__

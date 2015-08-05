@@ -5,7 +5,7 @@
 // File: predictMeasurement_left.cpp
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 05-Aug-2015 15:44:55
+// C/C++ source code generated on  : 05-Aug-2015 16:03:26
 //
 
 // Include Files
@@ -67,8 +67,8 @@ void predictMeasurement_left(const double fp_l[3], double h_u_l[2])
   //  rad_l=sqrt(h_uin_l(1)^2+h_uin_l(2)^2);
   //  rad_r=sqrt(h_uin_r(1)^2+h_uin_r(2)^2);
   radsq_l = h_cin_l[0] * h_cin_l[0] + h_cin_l[1] * h_cin_l[1];
-  b = ((1.0 + -0.41042183437511 * radsq_l) + 0.221265330302933 * (radsq_l *
-        radsq_l)) + -0.0619354263198911 * rt_powd_snf(radsq_l, 4.0);
+  b = ((1.0 + -0.401250937863819 * radsq_l) + 0.193995986374922 * (radsq_l *
+        radsq_l)) + -0.0528652448245847 * rt_powd_snf(radsq_l, 4.0);
   for (i = 0; i < 3; i++) {
     h_cin_l[i] *= b;
   }
@@ -85,8 +85,8 @@ void predictMeasurement_left(const double fp_l[3], double h_u_l[2])
   //  if any(isnan(h_din_r))
   //      ROS_ERROR('h_din_r')
   //  end
-  h_u_l[0] = 370.467750713497 + 537.083588825387 * h_cin_l[0];
-  h_u_l[1] = 226.640025353723 + 539.036743091681 * h_cin_l[1];
+  h_u_l[0] = 371.925237873738 + 541.959687988851 * h_cin_l[0];
+  h_u_l[1] = 229.149201322433 + 543.682179911237 * h_cin_l[1];
 
   //  if any(isnan(h_u_l))
   //      ROS_ERROR('h_di_l')
