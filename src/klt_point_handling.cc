@@ -23,8 +23,8 @@ static BriefDescriptorExtractor extractor(64); //this is really 16 x 8 matches s
 
 //local functions
 static void initMorePoints(const cv::Mat &img_l, const cv::Mat &img_r, std::vector<int> &updateVect, vector<double> &z_all_l, vector<double> &z_all_r);
-bool compareMatch(DMatch &first, DMatch &second);
-bool compareKeypoints(KeyPoint &first, KeyPoint &second);
+bool compareMatch(const DMatch &first, const DMatch &second);
+bool compareKeypoints(const KeyPoint &first, const KeyPoint &second);
 
 // local functions for KLT version
 static void initMorePoints_KLT(const cv::Mat &img_l, const cv::Mat &img_r,	vector<int> &updateVect, vector<double> &z_all_l, vector<double> &z_all_r, int gridSizeX, int gridSizeY, double minDistSqr, double minScore);
@@ -254,12 +254,12 @@ static void initMorePoints(
 	}
 }
 
-bool compareMatch(DMatch &first, DMatch &second)
+bool compareMatch(const DMatch &first, const DMatch &second)
 {
 	return first.distance < second.distance;
 }
 
-bool compareKeypoints(cv::KeyPoint &first, cv::KeyPoint &second)
+bool compareKeypoints(const cv::KeyPoint &first, const cv::KeyPoint &second)
 {
 	return first.response > second.response;
 }

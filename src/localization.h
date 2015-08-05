@@ -20,7 +20,6 @@
 
 #include "SLAM.h"
 #include "SLAM_includes.h"
-#include <duo3d_ros/Duo3d.h>
 
 #include <vector>
 #include <cstdio>
@@ -35,12 +34,20 @@ private:
   ros::Duration max_duration;
   ros::NodeHandle nh_;
 
-  ros::Subscriber combined_sub;
+  message_filters::Subscriber<sensor_msgs::Image> left_image_sub_;
+  message_filters::Subscriber<sensor_msgs::Image> right_image_sub_;
+  message_filters::Subscriber<sensor_msgs::Imu>   imu_sub_;
+
+  ros::Subscriber camera_info_sub_;
+
+  message_filters::TimeSynchronizer
+    <sensor_msgs::Image, sensor_msgs::Image, sensor_msgs::Imu> time_synchronizer_;
 
   ros::Publisher pose_pub_;
   ros::Publisher velocity_pub_;
   tf::TransformBroadcaster tf_broadcaster_;
 
+  bool camera_info_initialized_;
   ros::Time prev_time_;
   std::vector<int> update_vec_;
 
@@ -54,7 +61,11 @@ private:
   bool show_tracker_images_;
   emxArray_real_T *h_u_apo_;
 
-  void synchronized_callback(const duo3d_ros::Duo3d& msg);
+  void synchronized_callback(const sensor_msgs::ImageConstPtr& left_image,
+      const sensor_msgs::ImageConstPtr& right_image,
+      const sensor_msgs::ImuConstPtr& imu);
+
+  void camera_info_callback(const sensor_msgs::CameraInfoConstPtr& info);
 
   void update(double dt, const cv::Mat& left_image, const cv::Mat& right_image, const sensor_msgs::Imu& imu,
       const sensor_msgs::MagneticField& mag, geometry_msgs::Pose& pose, geometry_msgs::Twist& velocity);
