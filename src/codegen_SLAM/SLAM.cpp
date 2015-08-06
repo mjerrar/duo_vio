@@ -5,7 +5,7 @@
 // File: SLAM.cpp
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 05-Aug-2015 16:03:26
+// C/C++ source code generated on  : 06-Aug-2015 16:40:53
 //
 
 // Include Files
@@ -68,7 +68,7 @@ void SLAM(double updateVect[16], const double z_all_l[32], const double z_all_r
   double z_n_b[3];
   int rtemp;
   double y_n_b[3];
-  static const double dv47[3] = { 1.0, 0.0, 0.0 };
+  static const double dv44[3] = { 1.0, 0.0, 0.0 };
 
   double b_y_n_b[3];
   double x_n_b[3];
@@ -93,7 +93,7 @@ void SLAM(double updateVect[16], const double z_all_l[32], const double z_all_r
   double K[9];
   double b_IMU_measurements[3];
   double q[4];
-  double dv48[16];
+  double dv45[16];
   double b_q[4];
   int tmp_data[16];
 
@@ -107,7 +107,7 @@ void SLAM(double updateVect[16], const double z_all_l[32], const double z_all_r
     }
 
     // m_n_b=IMU_measurements(11:13);
-    cross(z_n_b, dv47, y_n_b);
+    cross(z_n_b, dv44, y_n_b);
     for (rtemp = 0; rtemp < 3; rtemp++) {
       b_y_n_b[rtemp] = y_n_b[rtemp];
     }
@@ -363,22 +363,22 @@ void SLAM(double updateVect[16], const double z_all_l[32], const double z_all_r
       b_S[k + 3 * k] = 1.0;
     }
 
-    dv48[0] = x_att[3];
-    dv48[4] = -x_att[2];
-    dv48[8] = x_att[1];
-    dv48[12] = x_att[0];
-    dv48[1] = x_att[2];
-    dv48[5] = x_att[3];
-    dv48[9] = -x_att[0];
-    dv48[13] = x_att[1];
-    dv48[2] = -x_att[1];
-    dv48[6] = x_att[0];
-    dv48[10] = x_att[3];
-    dv48[14] = x_att[2];
-    dv48[3] = -x_att[0];
-    dv48[7] = -x_att[1];
-    dv48[11] = -x_att[2];
-    dv48[15] = x_att[3];
+    dv45[0] = x_att[3];
+    dv45[4] = -x_att[2];
+    dv45[8] = x_att[1];
+    dv45[12] = x_att[0];
+    dv45[1] = x_att[2];
+    dv45[5] = x_att[3];
+    dv45[9] = -x_att[0];
+    dv45[13] = x_att[1];
+    dv45[2] = -x_att[1];
+    dv45[6] = x_att[0];
+    dv45[10] = x_att[3];
+    dv45[14] = x_att[2];
+    dv45[3] = -x_att[0];
+    dv45[7] = -x_att[1];
+    dv45[11] = -x_att[2];
+    dv45[15] = x_att[3];
     b_q[0] = q[0];
     b_q[1] = q[1];
     b_q[2] = q[2];
@@ -386,7 +386,7 @@ void SLAM(double updateVect[16], const double z_all_l[32], const double z_all_r
     for (r1 = 0; r1 < 4; r1++) {
       x_att[r1] = 0.0;
       for (rtemp = 0; rtemp < 4; rtemp++) {
-        x_att[r1] += dv48[r1 + (rtemp << 2)] * b_q[rtemp];
+        x_att[r1] += dv45[r1 + (rtemp << 2)] * b_q[rtemp];
       }
     }
 

@@ -14,7 +14,7 @@
     <remap from="/left_image" to="/duo3d_camera/left/image_raw"/>
     <remap from="/right_image" to="/duo3d_camera/right/image_raw"/>
 
-    <param name="process_noise_1" type="double" value="1000" />
+    <param name="process_noise_1" type="double" value="1" />
     <param name="process_noise_2" type="double" value="1" />
     <param name="process_noise_3" type="double" value="0.0" />
 

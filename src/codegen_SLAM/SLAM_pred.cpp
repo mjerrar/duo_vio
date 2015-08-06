@@ -5,7 +5,7 @@
 // File: SLAM_pred.cpp
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 05-Aug-2015 16:03:26
+// C/C++ source code generated on  : 06-Aug-2015 16:40:53
 //
 
 // Include Files
@@ -70,9 +70,9 @@ static void b_dxdt_dPdt(double dt, const double meas[6], const emxArray_real_T
   int i;
   double w[3];
   int br;
-  double dv34[9];
+  double dv31[9];
   double b_R_cw[9];
-  double dv35[9];
+  double dv32[9];
   double c_R_cw[9];
   int cr;
   static const signed char iv8[36] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -89,16 +89,16 @@ static void b_dxdt_dPdt(double dt, const double meas[6], const emxArray_real_T
     0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1 };
 
   double grav[3];
-  static const double dv36[3] = { 0.0, 0.0, 9.81 };
+  static const double dv33[3] = { 0.0, 0.0, 9.81 };
 
-  static const double dv37[3] = { 0.0, 0.0, -9.81 };
+  static const double dv34[3] = { 0.0, 0.0, -9.81 };
 
   unsigned int unnamed_idx_0;
-  double dv38[9];
-  double dv39[16];
-  double dv40[16];
+  double dv35[9];
+  double dv36[16];
+  double dv37[16];
   double b_x[4];
-  double dv41[4];
+  double dv38[4];
   double d_R_cw[3];
   double b_G[108];
   double FP[144];
@@ -145,35 +145,35 @@ static void b_dxdt_dPdt(double dt, const double meas[6], const emxArray_real_T
     w[br] = 0.0 * (meas[br] - x->data[10 + br]);
   }
 
-  dv34[0] = 0.0;
-  dv34[3] = -w[2];
-  dv34[6] = w[1];
-  dv34[1] = w[2];
-  dv34[4] = 0.0;
-  dv34[7] = -w[0];
-  dv34[2] = -w[1];
-  dv34[5] = w[0];
-  dv34[8] = 0.0;
+  dv31[0] = 0.0;
+  dv31[3] = -w[2];
+  dv31[6] = w[1];
+  dv31[1] = w[2];
+  dv31[4] = 0.0;
+  dv31[7] = -w[0];
+  dv31[2] = -w[1];
+  dv31[5] = w[0];
+  dv31[8] = 0.0;
   for (br = 0; br < 3; br++) {
     for (i = 0; i < 3; i++) {
       b_R_cw[i + 3 * br] = -R_cw[br + 3 * i];
     }
   }
 
-  dv35[0] = 0.0;
-  dv35[3] = -m_a[2];
-  dv35[6] = m_a[1];
-  dv35[1] = m_a[2];
-  dv35[4] = 0.0;
-  dv35[7] = -m_a[0];
-  dv35[2] = -m_a[1];
-  dv35[5] = m_a[0];
-  dv35[8] = 0.0;
+  dv32[0] = 0.0;
+  dv32[3] = -m_a[2];
+  dv32[6] = m_a[1];
+  dv32[1] = m_a[2];
+  dv32[4] = 0.0;
+  dv32[7] = -m_a[0];
+  dv32[2] = -m_a[1];
+  dv32[5] = m_a[0];
+  dv32[8] = 0.0;
   for (br = 0; br < 3; br++) {
     for (i = 0; i < 3; i++) {
       c_R_cw[br + 3 * i] = 0.0;
       for (cr = 0; cr < 3; cr++) {
-        c_R_cw[br + 3 * i] += b_R_cw[br + 3 * cr] * dv35[cr + 3 * i];
+        c_R_cw[br + 3 * i] += b_R_cw[br + 3 * cr] * dv32[cr + 3 * i];
       }
     }
   }
@@ -192,7 +192,7 @@ static void b_dxdt_dPdt(double dt, const double meas[6], const emxArray_real_T
 
   for (br = 0; br < 3; br++) {
     for (i = 0; i < 3; i++) {
-      F[(i + 12 * (br + 3)) + 3] = -dv34[i + 3 * br];
+      F[(i + 12 * (br + 3)) + 3] = -dv31[i + 3 * br];
     }
   }
 
@@ -274,11 +274,11 @@ static void b_dxdt_dPdt(double dt, const double meas[6], const emxArray_real_T
 
   if (normalGravity) {
     for (i = 0; i < 3; i++) {
-      grav[i] = dv36[i];
+      grav[i] = dv33[i];
     }
   } else {
     for (i = 0; i < 3; i++) {
-      grav[i] = dv37[i];
+      grav[i] = dv34[i];
     }
   }
 
@@ -297,33 +297,33 @@ static void b_dxdt_dPdt(double dt, const double meas[6], const emxArray_real_T
   }
 
   //  position
-  dv38[0] = 0.0;
-  dv38[3] = -w[2];
-  dv38[6] = w[1];
-  dv38[1] = w[2];
-  dv38[4] = 0.0;
-  dv38[7] = -w[0];
-  dv38[2] = -w[1];
-  dv38[5] = w[0];
-  dv38[8] = 0.0;
+  dv35[0] = 0.0;
+  dv35[3] = -w[2];
+  dv35[6] = w[1];
+  dv35[1] = w[2];
+  dv35[4] = 0.0;
+  dv35[7] = -w[0];
+  dv35[2] = -w[1];
+  dv35[5] = w[0];
+  dv35[8] = 0.0;
   for (br = 0; br < 3; br++) {
     for (i = 0; i < 3; i++) {
-      dv39[i + (br << 2)] = -dv38[i + 3 * br];
+      dv36[i + (br << 2)] = -dv35[i + 3 * br];
     }
   }
 
   for (br = 0; br < 3; br++) {
-    dv39[12 + br] = w[br];
+    dv36[12 + br] = w[br];
   }
 
   for (br = 0; br < 3; br++) {
-    dv39[3 + (br << 2)] = -w[br];
+    dv36[3 + (br << 2)] = -w[br];
   }
 
-  dv39[15] = 0.0;
+  dv36[15] = 0.0;
   for (br = 0; br < 4; br++) {
     for (i = 0; i < 4; i++) {
-      dv40[i + (br << 2)] = 0.5 * dv39[i + (br << 2)];
+      dv37[i + (br << 2)] = 0.5 * dv36[i + (br << 2)];
     }
   }
 
@@ -332,14 +332,14 @@ static void b_dxdt_dPdt(double dt, const double meas[6], const emxArray_real_T
   }
 
   for (br = 0; br < 4; br++) {
-    dv41[br] = 0.0;
+    dv38[br] = 0.0;
     for (i = 0; i < 4; i++) {
-      dv41[br] += dv40[br + (i << 2)] * b_x[i];
+      dv38[br] += dv37[br + (i << 2)] * b_x[i];
     }
   }
 
   for (br = 0; br < 4; br++) {
-    x_dot->data[3 + br] = dv41[br];
+    x_dot->data[3 + br] = dv38[br];
   }
 
   //  rot angle
@@ -490,10 +490,10 @@ static void dxdt_dPdt(double dt, const double meas[6], const emxArray_real_T *x,
   double m_a[3];
   int i;
   double w[3];
-  double dv26[9];
+  double dv23[9];
   double b_R_cw[9];
   int br;
-  double dv27[9];
+  double dv24[9];
   double c_R_cw[9];
   int ar;
   static const signed char iv4[36] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -510,17 +510,17 @@ static void dxdt_dPdt(double dt, const double meas[6], const emxArray_real_T *x,
     0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1 };
 
   double grav[3];
-  static const double dv28[3] = { 0.0, 0.0, 9.81 };
+  static const double dv25[3] = { 0.0, 0.0, 9.81 };
 
-  static const double dv29[3] = { 0.0, 0.0, -9.81 };
+  static const double dv26[3] = { 0.0, 0.0, -9.81 };
 
   unsigned int unnamed_idx_0;
   int cr;
-  double dv30[9];
-  double dv31[16];
-  double dv32[16];
+  double dv27[9];
+  double dv28[16];
+  double dv29[16];
   double b_x[4];
-  double dv33[4];
+  double dv30[4];
   double d_R_cw[3];
   emxArray_real_T *FP;
   int ic;
@@ -567,35 +567,35 @@ static void dxdt_dPdt(double dt, const double meas[6], const emxArray_real_T *x,
     w[i] = 0.0 * (meas[i] - x->data[10 + i]);
   }
 
-  dv26[0] = 0.0;
-  dv26[3] = -w[2];
-  dv26[6] = w[1];
-  dv26[1] = w[2];
-  dv26[4] = 0.0;
-  dv26[7] = -w[0];
-  dv26[2] = -w[1];
-  dv26[5] = w[0];
-  dv26[8] = 0.0;
+  dv23[0] = 0.0;
+  dv23[3] = -w[2];
+  dv23[6] = w[1];
+  dv23[1] = w[2];
+  dv23[4] = 0.0;
+  dv23[7] = -w[0];
+  dv23[2] = -w[1];
+  dv23[5] = w[0];
+  dv23[8] = 0.0;
   for (i = 0; i < 3; i++) {
     for (br = 0; br < 3; br++) {
       b_R_cw[br + 3 * i] = -R_cw[i + 3 * br];
     }
   }
 
-  dv27[0] = 0.0;
-  dv27[3] = -m_a[2];
-  dv27[6] = m_a[1];
-  dv27[1] = m_a[2];
-  dv27[4] = 0.0;
-  dv27[7] = -m_a[0];
-  dv27[2] = -m_a[1];
-  dv27[5] = m_a[0];
-  dv27[8] = 0.0;
+  dv24[0] = 0.0;
+  dv24[3] = -m_a[2];
+  dv24[6] = m_a[1];
+  dv24[1] = m_a[2];
+  dv24[4] = 0.0;
+  dv24[7] = -m_a[0];
+  dv24[2] = -m_a[1];
+  dv24[5] = m_a[0];
+  dv24[8] = 0.0;
   for (i = 0; i < 3; i++) {
     for (br = 0; br < 3; br++) {
       c_R_cw[i + 3 * br] = 0.0;
       for (ar = 0; ar < 3; ar++) {
-        c_R_cw[i + 3 * br] += b_R_cw[i + 3 * ar] * dv27[ar + 3 * br];
+        c_R_cw[i + 3 * br] += b_R_cw[i + 3 * ar] * dv24[ar + 3 * br];
       }
     }
   }
@@ -614,7 +614,7 @@ static void dxdt_dPdt(double dt, const double meas[6], const emxArray_real_T *x,
 
   for (i = 0; i < 3; i++) {
     for (br = 0; br < 3; br++) {
-      F[(br + 12 * (i + 3)) + 3] = -dv26[br + 3 * i];
+      F[(br + 12 * (i + 3)) + 3] = -dv23[br + 3 * i];
     }
   }
 
@@ -696,11 +696,11 @@ static void dxdt_dPdt(double dt, const double meas[6], const emxArray_real_T *x,
 
   if (normalGravity) {
     for (i = 0; i < 3; i++) {
-      grav[i] = dv28[i];
+      grav[i] = dv25[i];
     }
   } else {
     for (i = 0; i < 3; i++) {
-      grav[i] = dv29[i];
+      grav[i] = dv26[i];
     }
   }
 
@@ -719,33 +719,33 @@ static void dxdt_dPdt(double dt, const double meas[6], const emxArray_real_T *x,
   }
 
   //  position
-  dv30[0] = 0.0;
-  dv30[3] = -w[2];
-  dv30[6] = w[1];
-  dv30[1] = w[2];
-  dv30[4] = 0.0;
-  dv30[7] = -w[0];
-  dv30[2] = -w[1];
-  dv30[5] = w[0];
-  dv30[8] = 0.0;
+  dv27[0] = 0.0;
+  dv27[3] = -w[2];
+  dv27[6] = w[1];
+  dv27[1] = w[2];
+  dv27[4] = 0.0;
+  dv27[7] = -w[0];
+  dv27[2] = -w[1];
+  dv27[5] = w[0];
+  dv27[8] = 0.0;
   for (i = 0; i < 3; i++) {
     for (br = 0; br < 3; br++) {
-      dv31[br + (i << 2)] = -dv30[br + 3 * i];
+      dv28[br + (i << 2)] = -dv27[br + 3 * i];
     }
   }
 
   for (i = 0; i < 3; i++) {
-    dv31[12 + i] = w[i];
+    dv28[12 + i] = w[i];
   }
 
   for (i = 0; i < 3; i++) {
-    dv31[3 + (i << 2)] = -w[i];
+    dv28[3 + (i << 2)] = -w[i];
   }
 
-  dv31[15] = 0.0;
+  dv28[15] = 0.0;
   for (i = 0; i < 4; i++) {
     for (br = 0; br < 4; br++) {
-      dv32[br + (i << 2)] = 0.5 * dv31[br + (i << 2)];
+      dv29[br + (i << 2)] = 0.5 * dv28[br + (i << 2)];
     }
   }
 
@@ -754,14 +754,14 @@ static void dxdt_dPdt(double dt, const double meas[6], const emxArray_real_T *x,
   }
 
   for (i = 0; i < 4; i++) {
-    dv33[i] = 0.0;
+    dv30[i] = 0.0;
     for (br = 0; br < 4; br++) {
-      dv33[i] += dv32[i + (br << 2)] * b_x[br];
+      dv30[i] += dv29[i + (br << 2)] * b_x[br];
     }
   }
 
   for (i = 0; i < 4; i++) {
-    x_dot->data[3 + i] = dv33[i];
+    x_dot->data[3 + i] = dv30[i];
   }
 
   //  rot angle
@@ -1046,7 +1046,7 @@ void SLAM_pred(emxArray_real_T *P_apo, emxArray_real_T *x, double dt, const
     c_processNoise[i28] = b_processNoise[i28] * c;
   }
 
-  b_diag(c_processNoise, b_Q);
+  diag(c_processNoise, b_Q);
   if (1.0 > c_numStates) {
     loop_ub = 0;
   } else {
