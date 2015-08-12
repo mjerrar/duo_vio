@@ -31,9 +31,9 @@ max_duration(0)
 
     mavros_imu_sub_ = nh_.subscribe("/mavros/imu/data", 1,
             &Localization::mavrosImuCb, this);
-    mavros_mag_sub_ = nh_.subscribe("/mavros/mag/data", 1,
+    mavros_mag_sub_ = nh_.subscribe("/mavros/imu/mag", 1,
             &Localization::mavrosMagCb, this);
-    mavros_pressure_sub_ = nh_.subscribe("/mavros/imu/data", 1,
+    mavros_pressure_sub_ = nh_.subscribe("/mavros/imu/atm_pressure", 1,
             &Localization::mavrosPressureCb, this);
 
     // Init parameters
