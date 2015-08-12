@@ -215,7 +215,7 @@ void Localization::update(double dt, const cv::Mat& left_image, const cv::Mat& r
 //    double b_map[96];
 
 //    clock_t t1 = clock();
-    SLAM(update_vec_array, &z_all_l[0], &z_all_r[0], 0.03, &process_noise_[0], &inertial[0], &im_noise_[0], num_points_per_anchor_,num_anchors_, h_u_apo, xt_out, P_apo_out, map);
+    SLAM(update_vec_array, &z_all_l[0], &z_all_r[0], dt, &process_noise_[0], &inertial[0], &im_noise_[0], num_points_per_anchor_,num_anchors_, h_u_apo, xt_out, P_apo_out, map);
 //    clock_t t2 = clock();
 //    printf("SLAM took: %d clicks, %f msec\n", int(t2 - t1), 1000*float(t2 - t1)/CLOCKS_PER_SEC);
 
