@@ -14,6 +14,7 @@
 #include <sensor_msgs/MagneticField.h>
 #include <sensor_msgs/CameraInfo.h>
 #include <sensor_msgs/PointCloud.h>
+#include <sensor_msgs/FluidPressure.h>
 #include <nav_msgs/Path.h>
 
 #include <opencv2/opencv.hpp>
@@ -36,6 +37,9 @@ private:
   ros::NodeHandle nh_;
 
   ros::Subscriber combined_sub;
+  ros::Subscriber mavros_imu_sub_;
+  ros::Subscriber mavros_mag_sub_;
+  ros::Subscriber mavros_pressure_sub_;
 
   ros::Publisher pose_pub_;
   ros::Publisher velocity_pub_;
@@ -55,6 +59,9 @@ private:
   emxArray_real_T *h_u_apo_;
 
   void synchronized_callback(const duo3d_ros::Duo3d& msg);
+  void mavrosImuCb(const sensor_msgs::Imu msg);
+  void mavrosMagCb(const sensor_msgs::MagneticField msg);
+  void mavrosPressureCb(const sensor_msgs::FluidPressure msg);
 
   void update(double dt, const cv::Mat& left_image, const cv::Mat& right_image, const sensor_msgs::Imu& imu,
       const sensor_msgs::MagneticField& mag, geometry_msgs::Pose& pose, geometry_msgs::Twist& velocity);
@@ -72,6 +79,10 @@ private:
   ros::Publisher path_pub_;
   nav_msgs::Path slam_path_;
   ros::Publisher vis_pub_;
+
+  sensor_msgs::Imu mavros_imu_data_;
+  sensor_msgs::MagneticField mavros_mag_data_;
+  sensor_msgs::FluidPressure mavros_pressure_data_;
 
   void visMarker(void);
 };
