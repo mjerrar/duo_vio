@@ -29,6 +29,13 @@ max_duration(0)
     path_pub_ = nh_.advertise<nav_msgs::Path>("/vio/SLAM_path",1);
     vis_pub_ = nh_.advertise<visualization_msgs::Marker>( "drone", 0 );
 
+    mavros_imu_sub_ = nh_.subscribe("/mavros/imu/data", 1,
+            &Localization::mavrosImuCb, this);
+    mavros_mag_sub_ = nh_.subscribe("/mavros/mag/data", 1,
+            &Localization::mavrosMagCb, this);
+    mavros_pressure_sub_ = nh_.subscribe("/mavros/imu/data", 1,
+            &Localization::mavrosPressureCb, this);
+
     // Init parameters
     // TODO Check default values and give meaningful names
     nh_.param<bool>("show_tracker_images", show_tracker_images_, false);
@@ -142,6 +149,21 @@ void Localization::synchronized_callback(const duo3d_ros::Duo3d& msg)
     visMarker();
 }
 
+void Localization::mavrosImuCb(const sensor_msgs::Imu msg)
+{
+  mavros_imu_data_ = msg;
+}
+
+void Localization::mavrosMagCb(const sensor_msgs::MagneticField msg)
+{
+  mavros_mag_data_ = msg;
+}
+
+void Localization::mavrosPressureCb(const sensor_msgs::FluidPressure msg)
+{
+  mavros_pressure_data_ = msg;
+}
+
 void Localization::update(double dt, const cv::Mat& left_image, const cv::Mat& right_image, const sensor_msgs::Imu& imu,
     const sensor_msgs::MagneticField& mag, geometry_msgs::Pose& pose, geometry_msgs::Twist& velocity)
 {
@@ -174,7 +196,7 @@ void Localization::update(double dt, const cv::Mat& left_image, const cv::Mat& r
     // SLAM
     //*********************************************************************
 
-    std::vector<double> inertial(9,0.0);
+    std::vector<double> inertial(23,0.0);
     get_inertial_vector(imu,mag,inertial);
 
     emxArray_real_T *xt_out; // result
@@ -258,6 +280,28 @@ void Localization::get_inertial_vector(const sensor_msgs::Imu& imu, const sensor
     inertial_vec.at(6) = +mag.magnetic_field.x;
     inertial_vec.at(7) = +mag.magnetic_field.y;
     inertial_vec.at(8) = +mag.magnetic_field.z;
+
+    inertial_vec.at(9) = mavros_pressure_data_.fluid_pressure;
+
+    inertial_vec.at(10) = mavros_mag_data_.magnetic_field.x;
+    inertial_vec.at(11) = mavros_mag_data_.magnetic_field.y;
+    inertial_vec.at(12) = mavros_mag_data_.magnetic_field.z;
+
+    inertial_vec.at(13) = mavros_imu_data_.angular_velocity.x;
+    inertial_vec.at(14) = mavros_imu_data_.angular_velocity.y;
+    inertial_vec.at(15) = mavros_imu_data_.angular_velocity.z;
+
+    inertial_vec.at(16) = mavros_imu_data_.linear_acceleration.x;
+    inertial_vec.at(17) = mavros_imu_data_.linear_acceleration.y;
+    inertial_vec.at(18) = mavros_imu_data_.linear_acceleration.z;
+
+    //quaternion from attitude controller on FMU TODO: add this to FMU and mavros
+
+    inertial_vec.at(19) = 0.0;
+    inertial_vec.at(20) = 0.0;
+    inertial_vec.at(21) = 1.0;
+    inertial_vec.at(22) = 0.0;
+
 }
 
 void Localization::display_tracks(const cv::Mat& left_image,
