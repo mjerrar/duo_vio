@@ -16,7 +16,8 @@ Localization::Localization()
 process_noise_(4,0.0),
 im_noise_(4,0.0),
 camera_params_(4,0.0),
-t_avg(0)
+t_avg(0.0),
+plot_cnt(0)
 {
     SLAM_initialize();
     emxInitArray_real_T(&h_u_apo_,1);
@@ -91,7 +92,7 @@ Localization::~Localization()
 
 void Localization::synchronized_callback(const duo3d_ros::Duo3d& msg)
 {
-	ros::Time tic_total = ros::Time::now();
+	double tic_total = ros::Time::now().toSec();
     sensor_msgs::MagneticField mag; // TODO Subscribe to mag topic
 
     cv_bridge::CvImagePtr cv_left_image;
@@ -118,7 +119,7 @@ void Localization::synchronized_callback(const duo3d_ros::Duo3d& msg)
         prev_time_ = msg.header.stamp;
     }
 
-    double dt = (msg.header.stamp - prev_time_).toSec();
+
     prev_time_ = msg.header.stamp;
 
     geometry_msgs::PoseStamped pose_stamped;
@@ -126,7 +127,7 @@ void Localization::synchronized_callback(const duo3d_ros::Duo3d& msg)
     geometry_msgs::Twist velocity;
     pose_stamped.header.stamp = msg.header.stamp;
     pose_stamped.header.frame_id = "world";
-
+    double dt = (msg.header.stamp - prev_time_).toSec();
     update(dt, cv_left_image->image, cv_right_image->image, msg.imu, mag, pose, velocity);
 
     pose_stamped.pose = pose;
@@ -149,10 +150,10 @@ void Localization::synchronized_callback(const duo3d_ros::Duo3d& msg)
     updateDronePose();
     visMarker();
 
-    ros::Duration time_measurement = ros::Time::now() - tic_total;
+double time_measurement = ros::Time::now().toSec() - tic_total;
 
     t_avg=0.05*time_measurement+(1-0.05)*t_avg;
-    printf("\nMax duration: %f ms. Min frequency: %f Hz\n", t_avg.toSec()*1000, 1/t_avg.toSec());
+    printf("\nMax duration: %f ms. Min frequency: %f Hz\n", t_avg, 1/t_avg);
 }
 
 void Localization::mavrosImuCb(const sensor_msgs::Imu msg)
@@ -231,11 +232,14 @@ void Localization::update(double dt, const cv::Mat& left_image, const cv::Mat& r
     	update_vec_[i] = update_vec_array[i];
     }
 
-    if (show_tracker_images_)
+    if (plot_cnt%10==0)
     {
-    	display_tracks(left_image, &z_all_l[0], &z_all_r[0], update_vec_, h_u_apo);
+    	if (show_tracker_images_)
+    	{
+    		display_tracks(left_image, &z_all_l[0], &z_all_r[0], update_vec_, h_u_apo);
+    	}
     }
-
+    plot_cnt++;
     //ROS_INFO("Time SLAM         : %6.2f ms", (ros::Time::now() - tic).toSec()*1000);
 
     // Publish feature position in world frame

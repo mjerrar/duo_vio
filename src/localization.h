@@ -33,7 +33,8 @@ public:
   ~Localization();
 
 private:
-  ros::Duration t_avg;
+  double t_avg;
+  int plot_cnt;
   ros::NodeHandle nh_;
 
   ros::Subscriber combined_sub;
