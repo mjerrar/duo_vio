@@ -16,7 +16,7 @@ Localization::Localization()
 process_noise_(4,0.0),
 im_noise_(4,0.0),
 camera_params_(4,0.0),
-max_duration(0)
+t_avg(0)
 {
     SLAM_initialize();
     emxInitArray_real_T(&h_u_apo_,1);
@@ -86,11 +86,12 @@ Localization::~Localization()
     emxDestroyArray_real_T(h_u_apo_);
     SLAM_terminate();
 
-    printf("\nMax duration: %f ms. Min frequency: %f Hz\n", max_duration.toSec()*1000, 1/max_duration.toSec());
+
 }
 
 void Localization::synchronized_callback(const duo3d_ros::Duo3d& msg)
 {
+	ros::Time tic_total = ros::Time::now();
     sensor_msgs::MagneticField mag; // TODO Subscribe to mag topic
 
     cv_bridge::CvImagePtr cv_left_image;
@@ -147,6 +148,11 @@ void Localization::synchronized_callback(const duo3d_ros::Duo3d& msg)
 
     updateDronePose();
     visMarker();
+
+    ros::Duration time_measurement = ros::Time::now() - tic_total;
+
+    t_avg=0.05*time_measurement+(1-0.05)*t_avg;
+    printf("\nMax duration: %f ms. Min frequency: %f Hz\n", t_avg.toSec()*1000, 1/t_avg.toSec());
 }
 
 void Localization::mavrosImuCb(const sensor_msgs::Imu msg)
@@ -190,7 +196,7 @@ void Localization::update(double dt, const cv::Mat& left_image, const cv::Mat& r
     	update_vec_array[i] = update_vec_[i];
     }
 
-    ROS_INFO("Time point tracker: %6.2f ms", (ros::Time::now() - tic).toSec()*1000);
+    //ROS_INFO("Time point tracker: %6.2f ms", (ros::Time::now() - tic).toSec()*1000);
 
     //*********************************************************************
     // SLAM
@@ -230,7 +236,7 @@ void Localization::update(double dt, const cv::Mat& left_image, const cv::Mat& r
     	display_tracks(left_image, &z_all_l[0], &z_all_r[0], update_vec_, h_u_apo);
     }
 
-    ROS_INFO("Time SLAM         : %6.2f ms", (ros::Time::now() - tic).toSec()*1000);
+    //ROS_INFO("Time SLAM         : %6.2f ms", (ros::Time::now() - tic).toSec()*1000);
 
     // Publish feature position in world frame
     publishPointCloud(map->data);
@@ -258,10 +264,6 @@ void Localization::update(double dt, const cv::Mat& left_image, const cv::Mat& r
     emxDestroyArray_real_T(h_u_apo);
     emxDestroyArray_real_T(map);
 
-    ros::Duration duration = ros::Time::now() - tic_total;
-
-    if (duration > max_duration)
-    	max_duration = duration;
 
 }
 

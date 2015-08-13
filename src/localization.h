@@ -33,7 +33,7 @@ public:
   ~Localization();
 
 private:
-  ros::Duration max_duration;
+  ros::Duration t_avg;
   ros::NodeHandle nh_;
 
   ros::Subscriber combined_sub;
