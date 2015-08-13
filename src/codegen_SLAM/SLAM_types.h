@@ -5,7 +5,7 @@
 // File: SLAM_types.h
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 12-Aug-2015 16:47:49
+// C/C++ source code generated on  : 12-Aug-2015 17:13:50
 //
 #ifndef __SLAM_TYPES_H__
 #define __SLAM_TYPES_H__
