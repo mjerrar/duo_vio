@@ -232,7 +232,7 @@ void Localization::update(double dt, const cv::Mat& left_image, const cv::Mat& r
     	update_vec_[i] = update_vec_array[i];
     }
 
-    if (plot_cnt%10==0)
+    if (plot_cnt%1==0)
     {
     	if (show_tracker_images_)
     	{
