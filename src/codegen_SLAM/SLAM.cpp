@@ -5,7 +5,7 @@
 // File: SLAM.cpp
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 13-Aug-2015 21:10:40
+// C/C++ source code generated on  : 14-Aug-2015 08:32:48
 //
 
 // Include Files
@@ -132,7 +132,7 @@ typedef struct {
 #define b_numStatesxt                  (13.0)
 #define b_minFeatureThreshold          (2.0)
 #define b_sigma_Init                   (1.0E-5)
-#define b_maxEKFIterations             (2.0)
+#define b_maxEKFIterations             (1.0)
 #define b_gravAlignNoise               (0.01)
 
 // Variable Definitions
