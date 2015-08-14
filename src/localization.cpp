@@ -30,7 +30,7 @@ plot_cnt(0)
     path_pub_ = nh_.advertise<nav_msgs::Path>("/vio/SLAM_path",1);
     vis_pub_ = nh_.advertise<visualization_msgs::Marker>( "drone", 0 );
 
-    mavros_imu_sub_ = nh_.subscribe("/mavros/imu/data_raw", 1,
+    mavros_imu_sub_ = nh_.subscribe("/mavros/imu/data", 1,
             &Localization::mavrosImuCb, this);
     mavros_mag_sub_ = nh_.subscribe("/mavros/imu/mag", 1,
             &Localization::mavrosMagCb, this);
@@ -119,15 +119,13 @@ void Localization::synchronized_callback(const duo3d_ros::Duo3d& msg)
         prev_time_ = msg.header.stamp;
     }
 
-
-    prev_time_ = msg.header.stamp;
-
     geometry_msgs::PoseStamped pose_stamped;
     geometry_msgs::Pose pose;
     geometry_msgs::Twist velocity;
     pose_stamped.header.stamp = msg.header.stamp;
     pose_stamped.header.frame_id = "world";
     double dt = (msg.header.stamp - prev_time_).toSec();
+    prev_time_ = msg.header.stamp;
     update(dt, cv_left_image->image, cv_right_image->image, msg.imu, mag, pose, velocity);
 
     pose_stamped.pose = pose;
@@ -153,22 +151,22 @@ void Localization::synchronized_callback(const duo3d_ros::Duo3d& msg)
 double time_measurement = ros::Time::now().toSec() - tic_total;
 
     t_avg=0.05*time_measurement+(1-0.05)*t_avg;
-  // printf("\nMax duration: %f ms. Min frequency: %f Hz\n", t_avg, 1/t_avg);
+    printf("\nMax duration: %f ms. Min frequency: %f Hz\n", t_avg, 1/t_avg);
 }
 
 void Localization::mavrosImuCb(const sensor_msgs::Imu msg)
 {
-	mavros_imu_data_ = msg;
+  mavros_imu_data_ = msg;
 }
 
 void Localization::mavrosMagCb(const sensor_msgs::MagneticField msg)
 {
-	mavros_mag_data_ = msg;
+  mavros_mag_data_ = msg;
 }
 
 void Localization::mavrosPressureCb(const sensor_msgs::FluidPressure msg)
 {
-	mavros_pressure_data_ = msg;
+  mavros_pressure_data_ = msg;
 }
 
 void Localization::update(double dt, const cv::Mat& left_image, const cv::Mat& right_image, const sensor_msgs::Imu& imu,
@@ -219,16 +217,8 @@ void Localization::update(double dt, const cv::Mat& left_image, const cv::Mat& r
     // Update SLAM and get pose estimation
     tic = ros::Time::now();
 
-//    double b_map[96];
-
-//    clock_t t1 = clock();
     SLAM(update_vec_array, &z_all_l[0], &z_all_r[0], dt, &process_noise_[0], &inertial[0], &im_noise_[0], num_points_per_anchor_,num_anchors_, h_u_apo, xt_out, P_apo_out, map);
-//    clock_t t2 = clock();
-//    printf("SLAM took: %d clicks, %f msec\n", int(t2 - t1), 1000*float(t2 - t1)/CLOCKS_PER_SEC);
 
-    printf("gyro_fmu: %f,%f %f \n",inertial[13],inertial[14],inertial[15]);
-    printf("h_u_apo: %f,%f %f \n",h_u_apo->data[0],h_u_apo->data[1],h_u_apo->data[2]);
-//    update_vec_.assign(update_vec_array_out, update_vec_array_out + num_anchors_);
     for(int i = 0; i < update_vec_.size(); i++)
     {
     	update_vec_[i] = update_vec_array[i];

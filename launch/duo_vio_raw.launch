@@ -1,12 +1,11 @@
 <launch>
 
-  <arg name="exposure_duo" default="50" />
-  <arg name="gain_duo" default="50" />
-  <arg name="show_tracker_images" default="1" />
-
   <include file="$(find duo3d_ros)/launch/duo.launch">
-    <arg name="exposure" value="$(arg exposure_duo)" />
-    <arg name="gain" value="$(arg gain_duo)" />
+    <arg name="exposure" value="50" />
+    <arg name="gain" value="50" />
+    <arg name="FPS" value="60" />
+    <arg name="resolution_width" value="320" />
+    <arg name="resolution_height" value="240" />
   </include>
 
   <node name="vio_ros_node" pkg="vio_ros" type="vio_ros_node" output="screen" >
@@ -27,7 +26,7 @@
     <param name="num_points_per_anchor" type="int" value="4" />
     <param name="num_anchors" type="int" value="4" />
 
-    <param name="show_tracker_images" type="bool" value="$(arg show_tracker_images)" />
+    <param name="show_tracker_images" type="bool" value="1" />
   </node>
 
 </launch>
