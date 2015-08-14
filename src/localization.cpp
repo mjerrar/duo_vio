@@ -30,7 +30,7 @@ plot_cnt(0)
     path_pub_ = nh_.advertise<nav_msgs::Path>("/vio/SLAM_path",1);
     vis_pub_ = nh_.advertise<visualization_msgs::Marker>( "drone", 0 );
 
-    mavros_imu_sub_ = nh_.subscribe("/mavros/imu/data", 1,
+    mavros_imu_sub_ = nh_.subscribe("/mavros/imu/data_raw", 1,
             &Localization::mavrosImuCb, this);
     mavros_mag_sub_ = nh_.subscribe("/mavros/imu/mag", 1,
             &Localization::mavrosMagCb, this);
@@ -158,17 +158,17 @@ double time_measurement = ros::Time::now().toSec() - tic_total;
 
 void Localization::mavrosImuCb(const sensor_msgs::Imu msg)
 {
-  mavros_imu_data_ = msg;
+	mavros_imu_data_ = msg;
 }
 
 void Localization::mavrosMagCb(const sensor_msgs::MagneticField msg)
 {
-  mavros_mag_data_ = msg;
+	mavros_mag_data_ = msg;
 }
 
 void Localization::mavrosPressureCb(const sensor_msgs::FluidPressure msg)
 {
-  mavros_pressure_data_ = msg;
+	mavros_pressure_data_ = msg;
 }
 
 void Localization::update(double dt, const cv::Mat& left_image, const cv::Mat& right_image, const sensor_msgs::Imu& imu,
@@ -226,8 +226,8 @@ void Localization::update(double dt, const cv::Mat& left_image, const cv::Mat& r
 //    clock_t t2 = clock();
 //    printf("SLAM took: %d clicks, %f msec\n", int(t2 - t1), 1000*float(t2 - t1)/CLOCKS_PER_SEC);
 
-    printf("gyro_imu: %f,%f %f \n",inertial[13],inertial[14],inertial[15]);
-    printf("gyro_duo: %f,%f %f \n",h_u_apo[0],h_u_apo[1],h_u_apo[2]);
+    printf("gyro_fmu: %f,%f %f \n",inertial[13],inertial[14],inertial[15]);
+    printf("h_u_apo: %f,%f %f \n",h_u_apo->data[0],h_u_apo->data[1],h_u_apo->data[2]);
 //    update_vec_.assign(update_vec_array_out, update_vec_array_out + num_anchors_);
     for(int i = 0; i < update_vec_.size(); i++)
     {
