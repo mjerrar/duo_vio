@@ -5,7 +5,7 @@
 // File: fileManager.h
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 14-Aug-2015 12:23:30
+// C/C++ source code generated on  : 14-Aug-2015 13:34:16
 //
 #ifndef __FILEMANAGER_H__
 #define __FILEMANAGER_H__

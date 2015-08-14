@@ -5,7 +5,7 @@
 // File: initializePoint.cpp
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 14-Aug-2015 12:23:30
+// C/C++ source code generated on  : 14-Aug-2015 13:34:16
 //
 
 // Include Files
@@ -34,7 +34,7 @@ static double f_eml_xnrm2(int n, const double x[30], int ix0);
 static void b_eml_xgeqp3(double A[30], double tau[5], int jpvt[5])
 {
   double work[5];
-  int i25;
+  int i26;
   double vn1[5];
   double vn2[5];
   int k;
@@ -53,9 +53,9 @@ static void b_eml_xgeqp3(double A[30], double tau[5], int jpvt[5])
   int lastc;
   boolean_T exitg2;
   int32_T exitg1;
-  for (i25 = 0; i25 < 5; i25++) {
-    jpvt[i25] = 1 + i25;
-    work[i25] = 0.0;
+  for (i26 = 0; i26 < 5; i26++) {
+    jpvt[i26] = 1 + i26;
+    work[i26] = 0.0;
   }
 
   k = 1;
@@ -128,8 +128,8 @@ static void b_eml_xgeqp3(double A[30], double tau[5], int jpvt[5])
         itemp = 0;
         do {
           itemp++;
-          i25 = i_i - i;
-          for (k = i_i + 1; k + 1 <= i25 + 6; k++) {
+          i26 = i_i - i;
+          for (k = i_i + 1; k + 1 <= i26 + 6; k++) {
             A[k] *= 9.9792015476736E+291;
           }
 
@@ -144,8 +144,8 @@ static void b_eml_xgeqp3(double A[30], double tau[5], int jpvt[5])
 
         temp2 = (smax - absxk) / smax;
         absxk = 1.0 / (absxk - smax);
-        i25 = i_i - i;
-        for (k = i_i + 1; k + 1 <= i25 + 6; k++) {
+        i26 = i_i - i;
+        for (k = i_i + 1; k + 1 <= i26 + 6; k++) {
           A[k] *= absxk;
         }
 
@@ -157,8 +157,8 @@ static void b_eml_xgeqp3(double A[30], double tau[5], int jpvt[5])
       } else {
         temp2 = (smax - A[i_i]) / smax;
         absxk = 1.0 / (A[i_i] - smax);
-        i25 = i_i - i;
-        for (k = i_i + 1; k + 1 <= i25 + 6; k++) {
+        i26 = i_i - i;
+        for (k = i_i + 1; k + 1 <= i26 + 6; k++) {
           A[k] *= absxk;
         }
 
@@ -216,8 +216,8 @@ static void b_eml_xgeqp3(double A[30], double tau[5], int jpvt[5])
           }
 
           iy = 0;
-          i25 = i_ip1 + 6 * (lastc - 1);
-          for (itemp = i_ip1; itemp <= i25; itemp += 6) {
+          i26 = i_ip1 + 6 * (lastc - 1);
+          for (itemp = i_ip1; itemp <= i26; itemp += 6) {
             ix = i_i;
             smax = 0.0;
             pvt = (itemp + lastv) - 1;
@@ -239,8 +239,8 @@ static void b_eml_xgeqp3(double A[30], double tau[5], int jpvt[5])
             if (work[pvt] != 0.0) {
               smax = work[pvt] * -tau[i];
               ix = i_i;
-              i25 = lastv + itemp;
-              for (k = itemp; k + 1 <= i25; k++) {
+              i26 = lastv + itemp;
+              for (k = itemp; k + 1 <= i26; k++) {
                 A[k] += A[ix] * smax;
                 ix++;
               }
@@ -445,10 +445,10 @@ void initializePoint(const emxArray_real_T *b_xt, const double
     rot[4 + j] = dv12[j];
   }
 
-  zn_d_l[0] = (z_l[0] - 156.807897369143) / 268.918969857515;
-  zn_d_l[1] = (z_l[1] - 113.687513761586) / 269.522862126881;
-  zn_d_r[0] = (z_r[0] - 167.786307456798) / 269.714365530132;
-  zn_d_r[1] = (z_r[1] - 108.530266304343) / 270.236657710464;
+  zn_d_l[0] = (z_l[0] - 155.972717007495) / 268.155648020127;
+  zn_d_l[1] = (z_l[1] - 113.206085625994) / 268.867732741683;
+  zn_d_r[0] = (z_r[0] - 167.100031218981) / 268.839577384212;
+  zn_d_r[1] = (z_r[1] - 107.901779803044) / 269.510643351885;
   rad_d_l = sqrt(zn_d_l[0] * zn_d_l[0] + zn_d_l[1] * zn_d_l[1]);
 
   //  the radius for the undistortion
@@ -463,18 +463,18 @@ void initializePoint(const emxArray_real_T *b_xt, const double
   r_u_r = 1.0;
   for (i = 0; i < 10; i++) {
     // ru=ru-(ru+k1*ru^3+k2*ru^5-rd)/(1+3*k1*ru^2+5*k2*ru^4);
-    r_u_l -= ((((r_u_l + -0.409008681589769 * rt_powd_snf(r_u_l, 3.0)) +
-                0.234049866705913 * rt_powd_snf(r_u_l, 5.0)) +
-               -0.0867772601866113 * rt_powd_snf(r_u_l, 7.0)) - rad_d_l) /
-      (((1.0 + -1.2270260447693069 * (r_u_l * r_u_l)) + 1.170249333529565 *
-        rt_powd_snf(r_u_l, 4.0)) + -0.60744082130627919 * rt_powd_snf(r_u_l, 6.0));
+    r_u_l -= ((((r_u_l + -0.414085141240295 * rt_powd_snf(r_u_l, 3.0)) +
+                0.236451305145822 * rt_powd_snf(r_u_l, 5.0)) +
+               -0.0871296995623235 * rt_powd_snf(r_u_l, 7.0)) - rad_d_l) /
+      (((1.0 + -1.2422554237208849 * (r_u_l * r_u_l)) + 1.18225652572911 *
+        rt_powd_snf(r_u_l, 4.0)) + -0.60990789693626446 * rt_powd_snf(r_u_l, 6.0));
 
     // ru=ru-(ru+k1*ru^3+k2*ru^5-rd)/(1+3*k1*ru^2+5*k2*ru^4);
-    r_u_r -= ((((r_u_r + -0.409992516931617 * rt_powd_snf(r_u_r, 3.0)) +
-                0.235605376364123 * rt_powd_snf(r_u_r, 5.0)) +
-               -0.0900012925785762 * rt_powd_snf(r_u_r, 7.0)) - rad_d_r) /
-      (((1.0 + -1.2299775507948509 * (r_u_r * r_u_r)) + 1.178026881820615 *
-        rt_powd_snf(r_u_r, 4.0)) + -0.63000904805003333 * rt_powd_snf(r_u_r, 6.0));
+    r_u_r -= ((((r_u_r + -0.410786366925601 * rt_powd_snf(r_u_r, 3.0)) +
+                0.222940449996276 * rt_powd_snf(r_u_r, 5.0)) +
+               -0.0755554113677893 * rt_powd_snf(r_u_r, 7.0)) - rad_d_r) /
+      (((1.0 + -1.2323591007768031 * (r_u_r * r_u_r)) + 1.11470224998138 *
+        rt_powd_snf(r_u_r, 4.0)) + -0.5288878795745251 * rt_powd_snf(r_u_r, 6.0));
   }
 
   b_r_u_l[0] = r_u_l;
@@ -516,13 +516,13 @@ void initializePoint(const emxArray_real_T *b_xt, const double
     }
 
     if (!y) {
-      B = ((1.0 + -0.409008681589769 * (r_u_l * r_u_l)) + 0.234049866705913 *
-           rt_powd_snf(r_u_l, 4.0)) + -0.0867772601866113 * rt_powd_snf(r_u_l,
+      B = ((1.0 + -0.414085141240295 * (r_u_l * r_u_l)) + 0.236451305145822 *
+           rt_powd_snf(r_u_l, 4.0)) + -0.0871296995623235 * rt_powd_snf(r_u_l,
         6.0);
 
       // undistort points
-      absxk = ((1.0 + -0.409992516931617 * (r_u_r * r_u_r)) + 0.235605376364123 *
-               rt_powd_snf(r_u_r, 4.0)) + -0.0900012925785762 * rt_powd_snf
+      absxk = ((1.0 + -0.410786366925601 * (r_u_r * r_u_r)) + 0.222940449996276 *
+               rt_powd_snf(r_u_r, 4.0)) + -0.0755554113677893 * rt_powd_snf
         (r_u_r, 6.0);
       for (j = 0; j < 2; j++) {
         zn_d_l[j] /= B;

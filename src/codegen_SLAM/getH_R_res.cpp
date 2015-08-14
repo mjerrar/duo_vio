@@ -5,7 +5,7 @@
 // File: getH_R_res.cpp
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 14-Aug-2015 12:23:30
+// C/C++ source code generated on  : 14-Aug-2015 13:34:16
 //
 
 // Include Files
@@ -62,7 +62,7 @@
 //                const emxArray_real_T *featureAnchorIdx
 //                const emxArray_real_T *b_m_vect
 //                const double imNoise[2]
-//                const double IMU_measurements[13]
+//                const double IMU_measurements[23]
 //                double height_offset_pressure
 //                double r_data[]
 //                int r_size[1]
@@ -80,7 +80,7 @@ void b_getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
                   numPointsPerAnchor, const emxArray_real_T *anchorIdx, const
                   emxArray_real_T *featureAnchorIdx, const emxArray_real_T
                   *b_m_vect, const double imNoise[2], const double
-                  IMU_measurements[13], double height_offset_pressure, double
+                  IMU_measurements[23], double height_offset_pressure, double
                   r_data[], int r_size[1], emxArray_real_T *H, double h_u_data[],
                   int h_u_size[1], double R_data[], int R_size[2])
 {
@@ -110,8 +110,8 @@ void b_getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
   double dv6[6];
   double b_h_un_To_h_d_l[6];
   double b_R_cw[36];
-  static const double c_h_un_To_h_d_l[4] = { 268.918969857515, 0.0, 0.0,
-    269.522862126881 };
+  static const double c_h_un_To_h_d_l[4] = { 268.155648020127, 0.0, 0.0,
+    268.867732741683 };
 
   double d_h_un_To_h_d_l[24];
   int kidx;
@@ -1147,7 +1147,7 @@ void b_getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
 //                const emxArray_real_T *featureAnchorIdx
 //                const emxArray_real_T *b_m_vect
 //                const double imNoise[2]
-//                const double IMU_measurements[13]
+//                const double IMU_measurements[23]
 //                double height_offset_pressure
 //                double r_data[]
 //                int r_size[1]
@@ -1163,7 +1163,7 @@ void getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
                 numPointsPerAnchor, const emxArray_real_T *anchorIdx, const
                 emxArray_real_T *featureAnchorIdx, const emxArray_real_T
                 *b_m_vect, const double imNoise[2], const double
-                IMU_measurements[13], double height_offset_pressure, double
+                IMU_measurements[23], double height_offset_pressure, double
                 r_data[], int r_size[1], emxArray_real_T *H, double h_u[2],
                 double R_data[], int R_size[2])
 {
@@ -1185,8 +1185,8 @@ void getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
   double dv0[6];
   double b_h_un_To_h_d_l[6];
   double b_R_cw[36];
-  static const double c_h_un_To_h_d_l[4] = { 268.918969857515, 0.0, 0.0,
-    269.522862126881 };
+  static const double c_h_un_To_h_d_l[4] = { 268.155648020127, 0.0, 0.0,
+    268.867732741683 };
 
   double d_h_un_To_h_d_l[24];
   double b_stateSize;

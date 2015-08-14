@@ -5,7 +5,7 @@
 // File: QuatFromRotJ.cpp
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 14-Aug-2015 12:23:30
+// C/C++ source code generated on  : 14-Aug-2015 13:34:16
 //
 
 // Include Files
@@ -26,12 +26,12 @@
 //  The implementation is copied from qGetQ(R), but we are careful about the
 //  ordering of the output vector
 // Arguments    : const double R[9]
-//                double Q[4]
+//                double b_Q[4]
 // Return Type  : void
 //
-void QuatFromRotJ(const double R[9], double Q[4])
+void QuatFromRotJ(const double R[9], double b_Q[4])
 {
-  double T;
+  double b_T;
   double mtmp;
   double b_mtmp;
   double x;
@@ -53,8 +53,8 @@ void QuatFromRotJ(const double R[9], double Q[4])
   //  if( r ~= 3 || c ~= 3 )
   //      error( 'R must be a 3x3 matrix\n\r' );
   //  end
-  T = (R[0] + R[4]) + R[8];
-  mtmp = (1.0 + 2.0 * R[0]) - T;
+  b_T = (R[0] + R[4]) + R[8];
+  mtmp = (1.0 + 2.0 * R[0]) - b_T;
   if (mtmp >= 2.2204460492503131E-16) {
     b_mtmp = mtmp;
   } else {
@@ -63,7 +63,7 @@ void QuatFromRotJ(const double R[9], double Q[4])
 
   x = sqrt(b_mtmp);
   pivot[0] = x / 2.0;
-  mtmp = (1.0 + 2.0 * R[4]) - T;
+  mtmp = (1.0 + 2.0 * R[4]) - b_T;
   if (mtmp >= 2.2204460492503131E-16) {
     c_mtmp = mtmp;
   } else {
@@ -71,7 +71,7 @@ void QuatFromRotJ(const double R[9], double Q[4])
   }
 
   pivot[1] = sqrt(c_mtmp) / 2.0;
-  mtmp = (1.0 + 2.0 * R[8]) - T;
+  mtmp = (1.0 + 2.0 * R[8]) - b_T;
   if (mtmp >= 2.2204460492503131E-16) {
     d_mtmp = mtmp;
   } else {
@@ -79,8 +79,8 @@ void QuatFromRotJ(const double R[9], double Q[4])
   }
 
   pivot[2] = sqrt(d_mtmp) / 2.0;
-  if (1.0 + T >= 2.2204460492503131E-16) {
-    d0 = 1.0 + T;
+  if (1.0 + b_T >= 2.2204460492503131E-16) {
+    d0 = 1.0 + b_T;
   } else {
     d0 = 2.2204460492503131E-16;
   }
@@ -140,33 +140,33 @@ void QuatFromRotJ(const double R[9], double Q[4])
   }
 
   if (index_data[0] == 1) {
-    x = sqrt((1.0 + 2.0 * R[0]) - T);
+    x = sqrt((1.0 + 2.0 * R[0]) - b_T);
     mtmp = x / 2.0;
-    Q[0] = x / 2.0;
-    Q[1] = (R[3] + R[1]) / (4.0 * mtmp);
-    Q[2] = (R[6] + R[2]) / (4.0 * mtmp);
-    Q[3] = (R[7] - R[5]) / (4.0 * mtmp);
+    b_Q[0] = x / 2.0;
+    b_Q[1] = (R[3] + R[1]) / (4.0 * mtmp);
+    b_Q[2] = (R[6] + R[2]) / (4.0 * mtmp);
+    b_Q[3] = (R[7] - R[5]) / (4.0 * mtmp);
   } else if (index_data[0] == 2) {
-    x = sqrt((1.0 + 2.0 * R[4]) - T);
+    x = sqrt((1.0 + 2.0 * R[4]) - b_T);
     mtmp = x / 2.0;
-    Q[1] = x / 2.0;
-    Q[0] = (R[3] + R[1]) / (4.0 * mtmp);
-    Q[2] = (R[7] + R[5]) / (4.0 * mtmp);
-    Q[3] = (R[2] - R[6]) / (4.0 * mtmp);
+    b_Q[1] = x / 2.0;
+    b_Q[0] = (R[3] + R[1]) / (4.0 * mtmp);
+    b_Q[2] = (R[7] + R[5]) / (4.0 * mtmp);
+    b_Q[3] = (R[2] - R[6]) / (4.0 * mtmp);
   } else if (index_data[0] == 3) {
-    x = sqrt((1.0 + 2.0 * R[8]) - T);
+    x = sqrt((1.0 + 2.0 * R[8]) - b_T);
     mtmp = x / 2.0;
-    Q[2] = x / 2.0;
-    Q[0] = (R[6] + R[2]) / (4.0 * mtmp);
-    Q[1] = (R[7] + R[5]) / (4.0 * mtmp);
-    Q[3] = (R[3] - R[1]) / (4.0 * mtmp);
+    b_Q[2] = x / 2.0;
+    b_Q[0] = (R[6] + R[2]) / (4.0 * mtmp);
+    b_Q[1] = (R[7] + R[5]) / (4.0 * mtmp);
+    b_Q[3] = (R[3] - R[1]) / (4.0 * mtmp);
   } else {
-    x = sqrt(1.0 + T);
+    x = sqrt(1.0 + b_T);
     mtmp = x / 2.0;
-    Q[3] = x / 2.0;
-    Q[0] = (R[7] - R[5]) / (4.0 * mtmp);
-    Q[1] = (R[2] - R[6]) / (4.0 * mtmp);
-    Q[2] = (R[3] - R[1]) / (4.0 * mtmp);
+    b_Q[3] = x / 2.0;
+    b_Q[0] = (R[7] - R[5]) / (4.0 * mtmp);
+    b_Q[1] = (R[2] - R[6]) / (4.0 * mtmp);
+    b_Q[2] = (R[3] - R[1]) / (4.0 * mtmp);
   }
 }
 
@@ -177,10 +177,10 @@ void QuatFromRotJ(const double R[9], double Q[4])
 //    Returns a quaternion in JPL notation
 //  The implementation is copied from qGetQ(R), but we are careful about the
 //  ordering of the output vector
-// Arguments    : double Q[4]
+// Arguments    : double b_Q[4]
 // Return Type  : void
 //
-void b_QuatFromRotJ(double Q[4])
+void b_QuatFromRotJ(double b_Q[4])
 {
   int idx;
   signed char ii_data[4];
@@ -245,25 +245,25 @@ void b_QuatFromRotJ(double Q[4])
   }
 
   if (index_data[0] == 1) {
-    Q[0] = 0.0;
-    Q[1] = rtNaN;
-    Q[2] = rtNaN;
-    Q[3] = rtNaN;
+    b_Q[0] = 0.0;
+    b_Q[1] = rtNaN;
+    b_Q[2] = rtNaN;
+    b_Q[3] = rtNaN;
   } else if (index_data[0] == 2) {
-    Q[1] = 0.0;
-    Q[0] = rtNaN;
-    Q[2] = rtNaN;
-    Q[3] = rtNaN;
+    b_Q[1] = 0.0;
+    b_Q[0] = rtNaN;
+    b_Q[2] = rtNaN;
+    b_Q[3] = rtNaN;
   } else if (index_data[0] == 3) {
-    Q[2] = 0.0;
-    Q[0] = rtNaN;
-    Q[1] = rtNaN;
-    Q[3] = rtNaN;
+    b_Q[2] = 0.0;
+    b_Q[0] = rtNaN;
+    b_Q[1] = rtNaN;
+    b_Q[3] = rtNaN;
   } else {
-    Q[3] = 1.0;
-    Q[0] = 0.0;
-    Q[1] = 0.0;
-    Q[2] = 0.0;
+    b_Q[3] = 1.0;
+    b_Q[0] = 0.0;
+    b_Q[1] = 0.0;
+    b_Q[2] = 0.0;
   }
 }
 
