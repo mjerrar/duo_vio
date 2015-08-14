@@ -5,7 +5,7 @@
 // File: SLAM_pred.h
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 14-Aug-2015 12:23:30
+// C/C++ source code generated on  : 14-Aug-2015 13:34:16
 //
 #ifndef __SLAM_PRED_H__
 #define __SLAM_PRED_H__
@@ -22,7 +22,7 @@
 // Function Declarations
 extern void SLAM_pred(emxArray_real_T *P_apo, emxArray_real_T *x, double dt,
                       const double processNoise[4], const double
-                      IMU_measurements[13], double c_numStates);
+                      IMU_measurements[23], double c_numStates);
 
 #endif
 

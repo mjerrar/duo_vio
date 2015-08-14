@@ -5,7 +5,7 @@
 // File: getH_R_res.h
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 14-Aug-2015 12:23:30
+// C/C++ source code generated on  : 14-Aug-2015 13:34:16
 //
 #ifndef __GETH_R_RES_H__
 #define __GETH_R_RES_H__
@@ -25,7 +25,7 @@ extern void b_getH_R_res(const emxArray_real_T *b_xt, double errorStateSize,
   int indMeas_size[1], const emxArray_real_T *map, double numAnchors, double
   numPointsPerAnchor, const emxArray_real_T *anchorIdx, const emxArray_real_T
   *featureAnchorIdx, const emxArray_real_T *b_m_vect, const double imNoise[2],
-  const double IMU_measurements[13], double height_offset_pressure, double
+  const double IMU_measurements[23], double height_offset_pressure, double
   r_data[], int r_size[1], emxArray_real_T *H, double h_u_data[], int h_u_size[1],
   double R_data[], int R_size[2]);
 extern void getH_R_res(const emxArray_real_T *b_xt, double errorStateSize,
@@ -33,7 +33,7 @@ extern void getH_R_res(const emxArray_real_T *b_xt, double errorStateSize,
   emxArray_real_T *map, double numAnchors, double numPointsPerAnchor, const
   emxArray_real_T *anchorIdx, const emxArray_real_T *featureAnchorIdx, const
   emxArray_real_T *b_m_vect, const double imNoise[2], const double
-  IMU_measurements[13], double height_offset_pressure, double r_data[], int
+  IMU_measurements[23], double height_offset_pressure, double r_data[], int
   r_size[1], emxArray_real_T *H, double h_u[2], double R_data[], int R_size[2]);
 
 #endif
