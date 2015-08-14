@@ -5,7 +5,7 @@
 // File: OnePointRANSAC_EKF.cpp
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 14-Aug-2015 13:34:16
+// C/C++ source code generated on  : 14-Aug-2015 15:27:50
 //
 
 // Include Files
@@ -21,6 +21,7 @@
 #include "mrdivide.h"
 #include "getH_R_res.h"
 #include "rand.h"
+#include "fprintf.h"
 #include "eye.h"
 #include "getMap.h"
 #include "SLAM_data.h"
@@ -1014,6 +1015,10 @@ void OnePointRANSAC_EKF(emxArray_real_T *b_xt, emxArray_real_T *b_P, const
                    anchorInd, featureAnchorInd, b_m_vect, imNoise,
                    IMU_measurements, height_offset_pressure, b_r_data, r_size, H,
                    unusedU2_data, unusedU2_size, b_R_data, b_R_size);
+      if ((indMeas_data[0] == 1) && LI_inlierStatus_data[0]) {
+        d_fprintf(b_r_data[0], b_r_data[1]);
+      }
+
       if ((H->size[1] == 1) || (b_P->size[0] == 1)) {
         i20 = y->size[0] * y->size[1];
         y->size[0] = H->size[0];
@@ -1660,6 +1665,10 @@ void OnePointRANSAC_EKF(emxArray_real_T *b_xt, emxArray_real_T *b_P, const
                  anchorInd, featureAnchorInd, b_m_vect, imNoise,
                  IMU_measurements, height_offset_pressure, b_r_data, r_size, H,
                  unusedU2_data, unusedU2_size, b_R_data, b_R_size);
+    if ((indMeas_data[0] == 1) && HI_inlierStatus_data[0]) {
+      d_fprintf(b_r_data[0], b_r_data[1]);
+    }
+
     if (1.0 + (double)it == 1.0) {
       //  only do outlier rejection in first iteration
       if ((H->size[1] == 1) || (b_P->size[0] == 1)) {
@@ -1878,18 +1887,6 @@ void OnePointRANSAC_EKF(emxArray_real_T *b_xt, emxArray_real_T *b_P, const
           }
         }
       }
-
-      //          S = (H*P*H'+R);
-      //      else
-      //          for k = 1:numMeas
-      //              if ~HI_inlierStatus(k)
-      //                  r((k-1)*residualDim + (1:2)) = 0;
-      //                  H((k-1)*residualDim + (1:2), :) = 0;
-      //                  HI_inlierStatus(k) = false;
-      //              end
-      //          end
-      //
-      //          S = (H*P*H'+R);
     }
 
     if ((H->size[1] == 1) || (b_P->size[0] == 1)) {

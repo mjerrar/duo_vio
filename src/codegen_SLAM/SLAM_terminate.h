@@ -5,7 +5,7 @@
 // File: SLAM_terminate.h
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 14-Aug-2015 13:34:16
+// C/C++ source code generated on  : 14-Aug-2015 15:27:50
 //
 #ifndef __SLAM_TERMINATE_H__
 #define __SLAM_TERMINATE_H__

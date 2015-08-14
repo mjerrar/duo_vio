@@ -5,7 +5,7 @@
 // File: SLAM_updIT.cpp
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 14-Aug-2015 13:34:16
+// C/C++ source code generated on  : 14-Aug-2015 15:27:50
 //
 
 // Include Files
@@ -15,9 +15,9 @@
 #include "SLAM_emxutil.h"
 #include "predictMeasurement_stereo.h"
 #include "any.h"
+#include "fprintf.h"
 #include "getMap.h"
 #include "eye.h"
-#include "fprintf.h"
 #include "norm.h"
 #include "initializePoint.h"
 #include "OnePointRANSAC_EKF.h"
@@ -71,8 +71,8 @@ void SLAM_updIT(emxArray_real_T *P_apr, emxArray_real_T *b_xt, const double
   int nx;
   int idx;
   int nm1d2;
-  boolean_T exitg7;
-  boolean_T guard7 = false;
+  boolean_T exitg8;
+  boolean_T guard8 = false;
   int n;
   int k;
   int i15;
@@ -80,27 +80,27 @@ void SLAM_updIT(emxArray_real_T *P_apr, emxArray_real_T *b_xt, const double
   emxArray_boolean_T *r9;
   boolean_T b_x[16];
   int ii_data[16];
-  boolean_T exitg6;
-  boolean_T guard6 = false;
+  boolean_T exitg7;
+  boolean_T guard7 = false;
   signed char indMeas_data[16];
   int i16;
   int validFeatures_size[1];
   double validFeatures_data[16];
   emxArray_real_T *c_anchorIdx;
-  boolean_T exitg5;
-  boolean_T guard5 = false;
+  boolean_T exitg6;
+  boolean_T guard6 = false;
   emxArray_real_T *sigmaInits;
   double initializeNewAnchor;
   int minNumValidFeatures;
-  boolean_T exitg4;
-  boolean_T guard4 = false;
+  boolean_T exitg5;
+  boolean_T guard5 = false;
   double R_cw[9];
   double r_wc[3];
-  double anew;
+  double d6;
   double c_xt[7];
   emxArray_boolean_T *r10;
-  boolean_T exitg3;
-  boolean_T guard3 = false;
+  boolean_T exitg4;
+  boolean_T guard4 = false;
   int ii_size_idx_0;
   unsigned int featureAnchorIdx;
   int unusedFeatureIdx;
@@ -116,6 +116,7 @@ void SLAM_updIT(emxArray_real_T *P_apr, emxArray_real_T *b_xt, const double
   double b_h_u_l[2];
   boolean_T guard1 = false;
   signed char i17;
+  double anew;
   double apnd;
   double ndbl;
   double cdiff;
@@ -133,14 +134,17 @@ void SLAM_updIT(emxArray_real_T *P_apr, emxArray_real_T *b_xt, const double
   int ib;
   int ia;
   emxArray_real_T *b;
-  boolean_T exitg2;
-  boolean_T guard2 = false;
+  boolean_T exitg3;
+  boolean_T guard3 = false;
   double newFeaturesRequested;
   emxArray_boolean_T *r11;
-  boolean_T exitg1;
-  boolean_T b_guard1 = false;
+  boolean_T exitg2;
+  boolean_T guard2 = false;
   emxArray_real_T *unusedU1;
   emxArray_boolean_T *r12;
+  boolean_T exitg1;
+  boolean_T b_guard1 = false;
+  double rho;
   c_numTrackFeatures = numAnchors * numPointsPerAnchor;
   if (!m_vect_not_empty) {
     i14 = m_vect->size[0] * m_vect->size[1];
@@ -194,22 +198,22 @@ void SLAM_updIT(emxArray_real_T *P_apr, emxArray_real_T *b_xt, const double
     ii->size[1] = x->size[1];
     emxEnsureCapacity((emxArray__common *)ii, i14, (int)sizeof(int));
     nm1d2 = 1;
-    exitg7 = false;
-    while ((!exitg7) && (nm1d2 <= nx)) {
-      guard7 = false;
+    exitg8 = false;
+    while ((!exitg8) && (nm1d2 <= nx)) {
+      guard8 = false;
       if (x->data[nm1d2 - 1]) {
         idx++;
         ii->data[idx - 1] = nm1d2;
         if (idx >= nx) {
-          exitg7 = true;
+          exitg8 = true;
         } else {
-          guard7 = true;
+          guard8 = true;
         }
       } else {
-        guard7 = true;
+        guard8 = true;
       }
 
-      if (guard7) {
+      if (guard8) {
         nm1d2++;
       }
     }
@@ -339,22 +343,22 @@ void SLAM_updIT(emxArray_real_T *P_apr, emxArray_real_T *b_xt, const double
   idx = 0;
   nm1d2 = 1;
   emxFree_boolean_T(&r9);
-  exitg6 = false;
-  while ((!exitg6) && (nm1d2 < 17)) {
-    guard6 = false;
+  exitg7 = false;
+  while ((!exitg7) && (nm1d2 < 17)) {
+    guard7 = false;
     if (b_x[nm1d2 - 1]) {
       idx++;
       ii_data[idx - 1] = nm1d2;
       if (idx >= 16) {
-        exitg6 = true;
+        exitg7 = true;
       } else {
-        guard6 = true;
+        guard7 = true;
       }
     } else {
-      guard6 = true;
+      guard7 = true;
     }
 
-    if (guard6) {
+    if (guard7) {
       nm1d2++;
     }
   }
@@ -420,22 +424,22 @@ void SLAM_updIT(emxArray_real_T *P_apr, emxArray_real_T *b_xt, const double
       ii->size[1] = x->size[1];
       emxEnsureCapacity((emxArray__common *)ii, i14, (int)sizeof(int));
       nm1d2 = 1;
-      exitg5 = false;
-      while ((!exitg5) && (nm1d2 <= nx)) {
-        guard5 = false;
+      exitg6 = false;
+      while ((!exitg6) && (nm1d2 <= nx)) {
+        guard6 = false;
         if (x->data[nm1d2 - 1]) {
           idx++;
           ii->data[idx - 1] = nm1d2;
           if (idx >= nx) {
-            exitg5 = true;
+            exitg6 = true;
           } else {
-            guard5 = true;
+            guard6 = true;
           }
         } else {
-          guard5 = true;
+          guard6 = true;
         }
 
-        if (guard5) {
+        if (guard6) {
           nm1d2++;
         }
       }
@@ -552,9 +556,6 @@ void SLAM_updIT(emxArray_real_T *P_apr, emxArray_real_T *b_xt, const double
     emxFree_real_T(&c_anchorIdx);
   }
 
-  emxFree_int32_T(&ii);
-  emxFree_boolean_T(&x);
-
   // % Initialize new anchors
   for (i = 0; i < 16; i++) {
     b_x[i] = (updateVect[i] == 2.0);
@@ -566,8 +567,8 @@ void SLAM_updIT(emxArray_real_T *P_apr, emxArray_real_T *b_xt, const double
     initializeNewAnchor = 0.0;
     minNumValidFeatures = 10000;
     nm1d2 = 0;
-    exitg4 = false;
-    while ((!exitg4) && (nm1d2 <= (int)numAnchors - 1)) {
+    exitg5 = false;
+    while ((!exitg5) && (nm1d2 <= (int)numAnchors - 1)) {
       for (i14 = 0; i14 < 16; i14++) {
         b_x[i14] = ((anchorFeatures->data[i14 + anchorFeatures->size[0] * nm1d2]
                      == 1.0) && (updateVect[i14] == 1.0));
@@ -580,20 +581,20 @@ void SLAM_updIT(emxArray_real_T *P_apr, emxArray_real_T *b_xt, const double
         }
       }
 
-      guard4 = false;
+      guard5 = false;
       if ((n < minFeatureThreshold) && (n < minNumValidFeatures)) {
         minNumValidFeatures = n;
         initializeNewAnchor = 1.0 + (double)nm1d2;
         if (!(n != 0)) {
-          exitg4 = true;
+          exitg5 = true;
         } else {
-          guard4 = true;
+          guard5 = true;
         }
       } else {
-        guard4 = true;
+        guard5 = true;
       }
 
-      if (guard4) {
+      if (guard5) {
         nm1d2++;
       }
     }
@@ -660,14 +661,13 @@ void SLAM_updIT(emxArray_real_T *P_apr, emxArray_real_T *b_xt, const double
           initializeNewAnchor - 1)] = 0.0;
       }
 
-      anew = numStatesxt + (initializeNewAnchor - 1.0) * (7.0 +
-        numPointsPerAnchor);
+      d6 = numStatesxt + (initializeNewAnchor - 1.0) * (7.0 + numPointsPerAnchor);
       for (i14 = 0; i14 < 7; i14++) {
         c_xt[i14] = b_xt->data[i14];
       }
 
       for (i14 = 0; i14 < 7; i14++) {
-        b_xt->data[(int)(anew + (1.0 + (double)i14)) - 1] = c_xt[i14];
+        b_xt->data[(int)(d6 + (1.0 + (double)i14)) - 1] = c_xt[i14];
       }
 
       i14 = sigmaInits->size[0];
@@ -696,22 +696,22 @@ void SLAM_updIT(emxArray_real_T *P_apr, emxArray_real_T *b_xt, const double
 
       idx = 0;
       nm1d2 = 1;
-      exitg3 = false;
-      while ((!exitg3) && (nm1d2 < 17)) {
-        guard3 = false;
+      exitg4 = false;
+      while ((!exitg4) && (nm1d2 < 17)) {
+        guard4 = false;
         if (b_x[nm1d2 - 1] && (updateVect[nm1d2 - 1] == 2.0)) {
           idx++;
           ii_data[idx - 1] = nm1d2;
           if (idx >= 16) {
-            exitg3 = true;
+            exitg4 = true;
           } else {
-            guard3 = true;
+            guard4 = true;
           }
         } else {
-          guard3 = true;
+          guard4 = true;
         }
 
-        if (guard3) {
+        if (guard4) {
           nm1d2++;
         }
       }
@@ -750,7 +750,7 @@ void SLAM_updIT(emxArray_real_T *P_apr, emxArray_real_T *b_xt, const double
         }
 
         if (c_any(bv0)) {
-          d_fprintf();
+          f_fprintf();
           updateVect[indMeas_data[unusedFeatureIdx] - 1] = 0.0;
         } else {
           //  check reprojection error
@@ -806,7 +806,7 @@ void SLAM_updIT(emxArray_real_T *P_apr, emxArray_real_T *b_xt, const double
           if (guard1) {
             i14 = (int)rt_roundd_snf((double)indMeas_data[unusedFeatureIdx]);
             i17 = (signed char)i14;
-            f_fprintf(i17);
+            h_fprintf(i17);
             updateVect[indMeas_data[unusedFeatureIdx] - 1] = 0.0;
           }
         }
@@ -814,14 +814,14 @@ void SLAM_updIT(emxArray_real_T *P_apr, emxArray_real_T *b_xt, const double
         unusedFeatureIdx++;
       }
 
-      anew = rt_roundd_snf((double)featureAnchorIdx - 1.0);
-      if (anew < 2.147483648E+9) {
-        i14 = (int)anew;
+      d6 = rt_roundd_snf((double)featureAnchorIdx - 1.0);
+      if (d6 < 2.147483648E+9) {
+        i14 = (int)d6;
       } else {
         i14 = MAX_int32_T;
       }
 
-      h_fprintf(i14, (int)initializeNewAnchor);
+      j_fprintf(i14, (int)initializeNewAnchor);
       if (rtIsInf(6.0 + numPointsPerAnchor)) {
         n = 0;
         anew = rtNaN;
@@ -866,13 +866,13 @@ void SLAM_updIT(emxArray_real_T *P_apr, emxArray_real_T *b_xt, const double
         }
       }
 
-      anew = numStates + (initializeNewAnchor - 1.0) * (6.0 + numPointsPerAnchor);
+      d6 = numStates + (initializeNewAnchor - 1.0) * (6.0 + numPointsPerAnchor);
       i14 = r8->size[0];
       r8->size[0] = anchorIdx->size[1];
       emxEnsureCapacity((emxArray__common *)r8, i14, (int)sizeof(int));
       loop_ub = anchorIdx->size[1];
       for (i14 = 0; i14 < loop_ub; i14++) {
-        r8->data[i14] = (int)(anew + anchorIdx->data[anchorIdx->size[0] * i14]);
+        r8->data[i14] = (int)(d6 + anchorIdx->data[anchorIdx->size[0] * i14]);
       }
 
       loop_ub = P_apr->size[1];
@@ -927,13 +927,13 @@ void SLAM_updIT(emxArray_real_T *P_apr, emxArray_real_T *b_xt, const double
         }
       }
 
-      anew = numStates + (initializeNewAnchor - 1.0) * (6.0 + numPointsPerAnchor);
+      d6 = numStates + (initializeNewAnchor - 1.0) * (6.0 + numPointsPerAnchor);
       i14 = r8->size[0];
       r8->size[0] = anchorIdx->size[1];
       emxEnsureCapacity((emxArray__common *)r8, i14, (int)sizeof(int));
       loop_ub = anchorIdx->size[1];
       for (i14 = 0; i14 < loop_ub; i14++) {
-        r8->data[i14] = (int)(anew + anchorIdx->data[anchorIdx->size[0] * i14]);
+        r8->data[i14] = (int)(d6 + anchorIdx->data[anchorIdx->size[0] * i14]);
       }
 
       loop_ub = P_apr->size[0];
@@ -994,13 +994,13 @@ void SLAM_updIT(emxArray_real_T *P_apr, emxArray_real_T *b_xt, const double
         }
       }
 
-      anew = numStates + (initializeNewAnchor - 1.0) * (6.0 + numPointsPerAnchor);
+      d6 = numStates + (initializeNewAnchor - 1.0) * (6.0 + numPointsPerAnchor);
       i14 = r8->size[0];
       r8->size[0] = anchorIdx->size[1];
       emxEnsureCapacity((emxArray__common *)r8, i14, (int)sizeof(int));
       loop_ub = anchorIdx->size[1];
       for (i14 = 0; i14 < loop_ub; i14++) {
-        r8->data[i14] = (int)(anew + anchorIdx->data[anchorIdx->size[0] * i14]);
+        r8->data[i14] = (int)(d6 + anchorIdx->data[anchorIdx->size[0] * i14]);
       }
 
       loop_ub = J->size[1];
@@ -1055,14 +1055,14 @@ void SLAM_updIT(emxArray_real_T *P_apr, emxArray_real_T *b_xt, const double
         }
       }
 
-      anew = numStates + (initializeNewAnchor - 1.0) * (6.0 + numPointsPerAnchor);
+      d6 = numStates + (initializeNewAnchor - 1.0) * (6.0 + numPointsPerAnchor);
       i14 = r8->size[0];
       r8->size[0] = anchorIdx->size[1];
       emxEnsureCapacity((emxArray__common *)r8, i14, (int)sizeof(int));
       loop_ub = anchorIdx->size[1];
       for (i14 = 0; i14 < loop_ub; i14++) {
-        r8->data[i14] = (int)(anew + anchorIdx->data[anchorIdx->size[0] * i14])
-          - 1;
+        r8->data[i14] = (int)(d6 + anchorIdx->data[anchorIdx->size[0] * i14]) -
+          1;
       }
 
       for (i14 = 0; i14 < 3; i14++) {
@@ -1276,19 +1276,18 @@ void SLAM_updIT(emxArray_real_T *P_apr, emxArray_real_T *b_xt, const double
           sigmaInits->data[nm1d2];
       }
     } else {
-      j_fprintf();
+      l_fprintf();
     }
   }
 
   emxFree_int32_T(&r8);
-  emxFree_real_T(&anchorIdx);
 
   //  determine if a new anchor needs to be initialized, and request stereo
   //  measurements for it
   minNumValidFeatures = 10000;
   nm1d2 = 0;
-  exitg2 = false;
-  while ((!exitg2) && (nm1d2 <= (int)numAnchors - 1)) {
+  exitg3 = false;
+  while ((!exitg3) && (nm1d2 <= (int)numAnchors - 1)) {
     for (i14 = 0; i14 < 16; i14++) {
       b_x[i14] = ((anchorFeatures->data[i14 + anchorFeatures->size[0] * nm1d2] ==
                    1.0) && (updateVect[i14] == 1.0));
@@ -1301,20 +1300,20 @@ void SLAM_updIT(emxArray_real_T *P_apr, emxArray_real_T *b_xt, const double
       }
     }
 
-    guard2 = false;
+    guard3 = false;
     if ((n < minFeatureThreshold) && (n < minNumValidFeatures)) {
       minNumValidFeatures = n;
       initializeNewAnchor = 1.0 + (double)nm1d2;
       if (!(n != 0)) {
-        exitg2 = true;
+        exitg3 = true;
       } else {
-        guard2 = true;
+        guard3 = true;
       }
     } else {
-      guard2 = true;
+      guard3 = true;
     }
 
-    if (guard2) {
+    if (guard3) {
       nm1d2++;
     }
   }
@@ -1323,8 +1322,8 @@ void SLAM_updIT(emxArray_real_T *P_apr, emxArray_real_T *b_xt, const double
     newFeaturesRequested = 0.0;
     i = 0;
     emxInit_boolean_T(&r11, 2);
-    exitg1 = false;
-    while ((!exitg1) && (i < 16)) {
+    exitg2 = false;
+    while ((!exitg2) && (i < 16)) {
       loop_ub = anchorFeatures->size[1];
       i14 = r11->size[0] * r11->size[1];
       r11->size[0] = 1;
@@ -1335,21 +1334,21 @@ void SLAM_updIT(emxArray_real_T *P_apr, emxArray_real_T *b_xt, const double
           anchorFeatures->size[0] * i14] == 1.0);
       }
 
-      b_guard1 = false;
+      guard2 = false;
       if ((!d_any(r11)) || (anchorFeatures->data[i + anchorFeatures->size[0] *
                             ((int)initializeNewAnchor - 1)] == 1.0)) {
         updateVect[i] = 2.0;
         newFeaturesRequested++;
         if (newFeaturesRequested == numPointsPerAnchor) {
-          exitg1 = true;
+          exitg2 = true;
         } else {
-          b_guard1 = true;
+          guard2 = true;
         }
       } else {
-        b_guard1 = true;
+        guard2 = true;
       }
 
-      if (b_guard1) {
+      if (guard2) {
         i++;
       }
     }
@@ -1430,6 +1429,78 @@ void SLAM_updIT(emxArray_real_T *P_apr, emxArray_real_T *b_xt, const double
   }
 
   emxFree_boolean_T(&r12);
+  n_fprintf(h_u_apo->data[0], h_u_apo->data[1]);
+  loop_ub = anchorFeatures->size[1];
+  i14 = x->size[0] * x->size[1];
+  x->size[0] = 1;
+  x->size[1] = loop_ub;
+  emxEnsureCapacity((emxArray__common *)x, i14, (int)sizeof(boolean_T));
+  for (i14 = 0; i14 < loop_ub; i14++) {
+    x->data[x->size[0] * i14] = (anchorFeatures->data[anchorFeatures->size[0] *
+      i14] == 1.0);
+  }
+
+  nx = x->size[1];
+  idx = 0;
+  i14 = ii->size[0] * ii->size[1];
+  ii->size[0] = 1;
+  ii->size[1] = x->size[1];
+  emxEnsureCapacity((emxArray__common *)ii, i14, (int)sizeof(int));
+  nm1d2 = 1;
+  exitg1 = false;
+  while ((!exitg1) && (nm1d2 <= nx)) {
+    b_guard1 = false;
+    if (x->data[nm1d2 - 1]) {
+      idx++;
+      ii->data[idx - 1] = nm1d2;
+      if (idx >= nx) {
+        exitg1 = true;
+      } else {
+        b_guard1 = true;
+      }
+    } else {
+      b_guard1 = true;
+    }
+
+    if (b_guard1) {
+      nm1d2++;
+    }
+  }
+
+  if (x->size[1] == 1) {
+    if (idx == 0) {
+      i14 = ii->size[0] * ii->size[1];
+      ii->size[0] = 1;
+      ii->size[1] = 0;
+      emxEnsureCapacity((emxArray__common *)ii, i14, (int)sizeof(int));
+    }
+  } else {
+    i14 = ii->size[0] * ii->size[1];
+    if (1 > idx) {
+      ii->size[1] = 0;
+    } else {
+      ii->size[1] = idx;
+    }
+
+    emxEnsureCapacity((emxArray__common *)ii, i14, (int)sizeof(int));
+  }
+
+  emxFree_boolean_T(&x);
+  i14 = anchorIdx->size[0] * anchorIdx->size[1];
+  anchorIdx->size[0] = 1;
+  anchorIdx->size[1] = ii->size[1];
+  emxEnsureCapacity((emxArray__common *)anchorIdx, i14, (int)sizeof(double));
+  loop_ub = ii->size[0] * ii->size[1];
+  for (i14 = 0; i14 < loop_ub; i14++) {
+    anchorIdx->data[i14] = ii->data[i14];
+  }
+
+  emxFree_int32_T(&ii);
+  rho = b_xt->data[(int)(((numStatesxt + (anchorIdx->data[0] - 1.0) * (7.0 +
+    numPointsPerAnchor)) + 7.0) + 1.0) - 1];
+  p_fprintf(b_xt->data[(int)(((numStatesxt + (anchorIdx->data[0] - 1.0) * (7.0 +
+    numPointsPerAnchor)) + 7.0) + 1.0) - 1], 1.0 / rho);
+  emxFree_real_T(&anchorIdx);
 }
 
 //
