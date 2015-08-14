@@ -5,7 +5,7 @@
 // File: SLAM.cpp
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 14-Aug-2015 08:32:48
+// C/C++ source code generated on  : 14-Aug-2015 08:52:56
 //
 
 // Include Files
@@ -12431,11 +12431,11 @@ void SLAM(double updateVect[16], const double z_all_l[32], const double z_all_r
   }
 
   for (i13 = 0; i13 < 3; i13++) {
-    delayBuffer_k[i13] = IMU_measurements[13 + i13];
+    delayBuffer_k[i13] = 0.0 * IMU_measurements[13 + i13];
   }
 
   for (i13 = 0; i13 < 3; i13++) {
-    delayBuffer_k[i13 + 3] = IMU_measurements[16 + i13];
+    delayBuffer_k[i13 + 3] = 0.0 * IMU_measurements[16 + i13];
   }
 
   for (i13 = 0; i13 < 3; i13++) {
