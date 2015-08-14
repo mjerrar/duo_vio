@@ -5,7 +5,7 @@
 // File: SLAM.cpp
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 14-Aug-2015 13:34:16
+// C/C++ source code generated on  : 14-Aug-2015 14:49:08
 //
 
 // Include Files
@@ -225,8 +225,6 @@ void SLAM(double updateVect[16], const double z_all_l[32], const double z_all_r
   // % imu hack
   //  IMU_measurements(14:19);
   //  IMU_measurements(1:6);
-  // 0*IMU_measurements(14:16);
-  // 0%*IMU_measurements(17:19);
   // % finish imu hack
   if (!initialized_not_empty) {
     //  initialization for attitude filter
@@ -550,13 +548,16 @@ void SLAM(double updateVect[16], const double z_all_l[32], const double z_all_r
     //  gyro bias
   }
 
-  memset(&delayBuffer_k[1], 0, 13U * sizeof(double));
-  for (i13 = 0; i13 < 3; i13++) {
-    delayBuffer_k[i13] = 0.0;
+  for (k = 0; k < 13; k++) {
+    delayBuffer_k[1 + k] = delayBuffer_k[k];
   }
 
   for (i13 = 0; i13 < 3; i13++) {
-    delayBuffer_k[i13 + 3] = 0.0;
+    delayBuffer_k[i13] = 0.0 * IMU_measurements[13 + i13];
+  }
+
+  for (i13 = 0; i13 < 3; i13++) {
+    delayBuffer_k[i13 + 3] = 0.0 * IMU_measurements[16 + i13];
   }
 
   for (i13 = 0; i13 < 3; i13++) {
