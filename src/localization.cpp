@@ -153,7 +153,7 @@ void Localization::synchronized_callback(const duo3d_ros::Duo3d& msg)
 double time_measurement = ros::Time::now().toSec() - tic_total;
 
     t_avg=0.05*time_measurement+(1-0.05)*t_avg;
-    printf("\nMax duration: %f ms. Min frequency: %f Hz\n", t_avg, 1/t_avg);
+  // printf("\nMax duration: %f ms. Min frequency: %f Hz\n", t_avg, 1/t_avg);
 }
 
 void Localization::mavrosImuCb(const sensor_msgs::Imu msg)
@@ -226,13 +226,15 @@ void Localization::update(double dt, const cv::Mat& left_image, const cv::Mat& r
 //    clock_t t2 = clock();
 //    printf("SLAM took: %d clicks, %f msec\n", int(t2 - t1), 1000*float(t2 - t1)/CLOCKS_PER_SEC);
 
+    printf("gyro_imu: %f,%f %f \n",inertial[13],inertial[14],inertial[15]);
+    printf("gyro_duo: %f,%f %f \n",h_u_apo[0],h_u_apo[1],h_u_apo[2]);
 //    update_vec_.assign(update_vec_array_out, update_vec_array_out + num_anchors_);
     for(int i = 0; i < update_vec_.size(); i++)
     {
     	update_vec_[i] = update_vec_array[i];
     }
 
-    if (plot_cnt%10==0)
+    if (plot_cnt%1==0)
     {
     	if (show_tracker_images_)
     	{
