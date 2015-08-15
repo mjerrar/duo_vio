@@ -38,4 +38,6 @@
 #include <SLAM_types.h>
 #include <SLAM_updIT.h>
 #include <svd.h>
+#include <kron.h>
+#include <power.h>
 #endif
