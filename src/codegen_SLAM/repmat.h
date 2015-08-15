@@ -5,7 +5,7 @@
 // File: repmat.h
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 15-Aug-2015 13:16:41
+// C/C++ source code generated on  : 15-Aug-2015 13:53:01
 //
 #ifndef __REPMAT_H__
 #define __REPMAT_H__
