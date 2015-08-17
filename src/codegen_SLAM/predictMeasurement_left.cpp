@@ -5,7 +5,7 @@
 // File: predictMeasurement_left.cpp
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 14-Aug-2015 18:03:58
+// C/C++ source code generated on  : 17-Aug-2015 14:51:33
 //
 
 // Include Files
@@ -24,10 +24,16 @@
 //    Get the pixel coordinates where a feature given in the left camera
 //    frame would be visible in both cameras
 // Arguments    : const double fp_l[3]
+//                const double c_cameraparams_CameraParameters[3]
+//                const double d_cameraparams_CameraParameters[2]
+//                const double e_cameraparams_CameraParameters[2]
 //                double h_u_l[2]
 // Return Type  : void
 //
-void predictMeasurement_left(const double fp_l[3], double h_u_l[2])
+void predictMeasurement_left(const double fp_l[3], const double
+  c_cameraparams_CameraParameters[3], const double
+  d_cameraparams_CameraParameters[2], const double
+  e_cameraparams_CameraParameters[2], double h_u_l[2])
 {
   double h_cin_l[3];
   int i;
@@ -67,8 +73,9 @@ void predictMeasurement_left(const double fp_l[3], double h_u_l[2])
   //  rad_l=sqrt(h_uin_l(1)^2+h_uin_l(2)^2);
   //  rad_r=sqrt(h_uin_r(1)^2+h_uin_r(2)^2);
   radsq_l = h_cin_l[0] * h_cin_l[0] + h_cin_l[1] * h_cin_l[1];
-  b = ((1.0 + -0.414085141240295 * radsq_l) + 0.236451305145822 * (radsq_l *
-        radsq_l)) + -0.0871296995623235 * rt_powd_snf(radsq_l, 4.0);
+  b = ((1.0 + c_cameraparams_CameraParameters[0] * radsq_l) +
+       c_cameraparams_CameraParameters[1] * (radsq_l * radsq_l)) +
+    c_cameraparams_CameraParameters[2] * rt_powd_snf(radsq_l, 4.0);
   for (i = 0; i < 3; i++) {
     h_cin_l[i] *= b;
   }
@@ -85,8 +92,10 @@ void predictMeasurement_left(const double fp_l[3], double h_u_l[2])
   //  if any(isnan(h_din_r))
   //      ROS_ERROR('h_din_r')
   //  end
-  h_u_l[0] = 155.972717007495 + 268.155648020127 * h_cin_l[0];
-  h_u_l[1] = 113.206085625994 + 268.867732741683 * h_cin_l[1];
+  h_u_l[0] = e_cameraparams_CameraParameters[0] +
+    d_cameraparams_CameraParameters[0] * h_cin_l[0];
+  h_u_l[1] = e_cameraparams_CameraParameters[1] +
+    d_cameraparams_CameraParameters[1] * h_cin_l[1];
 
   //  if any(isnan(h_u_l))
   //      ROS_ERROR('h_di_l')

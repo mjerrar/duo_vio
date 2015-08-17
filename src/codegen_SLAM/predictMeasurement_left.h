@@ -5,7 +5,7 @@
 // File: predictMeasurement_left.h
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 14-Aug-2015 18:03:58
+// C/C++ source code generated on  : 17-Aug-2015 14:51:33
 //
 #ifndef __PREDICTMEASUREMENT_LEFT_H__
 #define __PREDICTMEASUREMENT_LEFT_H__
@@ -20,7 +20,10 @@
 #include "SLAM_types.h"
 
 // Function Declarations
-extern void predictMeasurement_left(const double fp_l[3], double h_u_l[2]);
+extern void predictMeasurement_left(const double fp_l[3], const double
+  c_cameraparams_CameraParameters[3], const double
+  d_cameraparams_CameraParameters[2], const double
+  e_cameraparams_CameraParameters[2], double h_u_l[2]);
 
 #endif
 

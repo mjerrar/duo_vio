@@ -5,7 +5,7 @@
 // File: Ch_dn_To_h_un.h
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 14-Aug-2015 18:03:58
+// C/C++ source code generated on  : 17-Aug-2015 14:51:33
 //
 #ifndef __CH_DN_TO_H_UN_H__
 #define __CH_DN_TO_H_UN_H__
@@ -20,7 +20,8 @@
 #include "SLAM_types.h"
 
 // Function Declarations
-extern void Ch_dn_To_h_un(double x, double y, double h_dn_l_To_h_un_l[4]);
+extern void Ch_dn_To_h_un(double k1, double k2, double k3, double x, double y,
+  double h_dn_l_To_h_un_l[4]);
 
 #endif
 

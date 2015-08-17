@@ -5,7 +5,7 @@
 // File: getH_R_res.cpp
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 14-Aug-2015 18:03:58
+// C/C++ source code generated on  : 17-Aug-2015 14:51:33
 //
 
 // Include Files
@@ -56,6 +56,9 @@
 //                const double indMeas_data[]
 //                const int indMeas_size[1]
 //                const emxArray_real_T *map
+//                const double c_cameraparams_CameraParameters[3]
+//                const double d_cameraparams_CameraParameters[2]
+//                const double e_cameraparams_CameraParameters[2]
 //                double numAnchors
 //                double numPointsPerAnchor
 //                const emxArray_real_T *anchorIdx
@@ -76,7 +79,10 @@
 void b_getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
                   stateSize, const double z_all_l[32], const double
                   indMeas_data[], const int indMeas_size[1], const
-                  emxArray_real_T *map, double numAnchors, double
+                  emxArray_real_T *map, const double
+                  c_cameraparams_CameraParameters[3], const double
+                  d_cameraparams_CameraParameters[2], const double
+                  e_cameraparams_CameraParameters[2], double numAnchors, double
                   numPointsPerAnchor, const emxArray_real_T *anchorIdx, const
                   emxArray_real_T *featureAnchorIdx, const emxArray_real_T
                   *b_m_vect, const double imNoise[2], const double
@@ -86,6 +92,11 @@ void b_getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
 {
   emxArray_real_T *H_xm;
   double R_cw[9];
+  double fx_l;
+  double fy_l;
+  double k1_l;
+  double k2_l;
+  double k3_l;
   int i1;
   int ia;
   emxArray_real_T *H_xc;
@@ -106,14 +117,12 @@ void b_getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
   signed char b_k;
   signed char iv0[2];
   double d[4];
-  double h_un_To_h_d_l[4];
+  double b_fx_l[4];
+  double c_fx_l[4];
   double dv6[6];
-  double b_h_un_To_h_d_l[6];
+  double d_fx_l[6];
   double b_R_cw[36];
-  static const double c_h_un_To_h_d_l[4] = { 268.155648020127, 0.0, 0.0,
-    268.867732741683 };
-
-  double d_h_un_To_h_d_l[24];
+  double e_fx_l[24];
   int kidx;
   double b_stateSize;
   double a;
@@ -167,6 +176,7 @@ void b_getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
   double cdiff;
   double absb;
   double b_anchorIdx;
+  double f_fx_l[4];
   double dv8[6];
   double c_y[6];
   double d_y[2];
@@ -216,8 +226,14 @@ void b_getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
              + b_xt->data[5] * b_xt->data[5]) + b_xt->data[6] * b_xt->data[6];
 
   //  camera parameters for the left and right camera
+  fx_l = d_cameraparams_CameraParameters[0];
+  fy_l = d_cameraparams_CameraParameters[1];
+
   //  Cx_l = cameraparams.CameraParameters1.PrincipalPoint(1);
   //  Cy_l = cameraparams.CameraParameters1.PrincipalPoint(2);
+  k1_l = c_cameraparams_CameraParameters[0];
+  k2_l = c_cameraparams_CameraParameters[1];
+  k3_l = c_cameraparams_CameraParameters[2];
   i1 = H_xm->size[0] * H_xm->size[1];
   H_xm->size[0] = indMeas_size[0] << 1;
   emxEnsureCapacity((emxArray__common *)H_xm, i1, (int)sizeof(double));
@@ -275,7 +291,8 @@ void b_getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
       h_cin_l[r] = h_rz[r] / h_rz[2];
     }
 
-    predictMeasurement_left(h_rz, dv5);
+    predictMeasurement_left(h_rz, c_cameraparams_CameraParameters,
+      d_cameraparams_CameraParameters, e_cameraparams_CameraParameters, dv5);
     r = k << 1;
     for (i1 = 0; i1 < 2; i1++) {
       h_u_data[i1 + r] = dv5[i1];
@@ -301,7 +318,11 @@ void b_getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
       r2->data[i1] = i1;
     }
 
-    Ch_dn_To_h_un(h_cin_l[0], h_cin_l[1], d);
+    Ch_dn_To_h_un(k1_l, k2_l, k3_l, h_cin_l[0], h_cin_l[1], d);
+    b_fx_l[0] = fx_l;
+    b_fx_l[2] = 0.0;
+    b_fx_l[1] = 0.0;
+    b_fx_l[3] = fy_l;
     dv6[0] = 1.0 / h_rz[2];
     dv6[2] = 0.0;
     dv6[4] = -h_rz[0] / (h_rz[2] * h_rz[2]);
@@ -310,18 +331,16 @@ void b_getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
     dv6[5] = -h_rz[1] / (h_rz[2] * h_rz[2]);
     for (i1 = 0; i1 < 2; i1++) {
       for (ic = 0; ic < 2; ic++) {
-        h_un_To_h_d_l[i1 + (ic << 1)] = 0.0;
+        c_fx_l[i1 + (ic << 1)] = 0.0;
         for (r = 0; r < 2; r++) {
-          h_un_To_h_d_l[i1 + (ic << 1)] += c_h_un_To_h_d_l[i1 + (r << 1)] * d[r
-            + (ic << 1)];
+          c_fx_l[i1 + (ic << 1)] += b_fx_l[i1 + (r << 1)] * d[r + (ic << 1)];
         }
       }
 
       for (ic = 0; ic < 3; ic++) {
-        b_h_un_To_h_d_l[i1 + (ic << 1)] = 0.0;
+        d_fx_l[i1 + (ic << 1)] = 0.0;
         for (r = 0; r < 2; r++) {
-          b_h_un_To_h_d_l[i1 + (ic << 1)] += h_un_To_h_d_l[i1 + (r << 1)] *
-            dv6[r + (ic << 1)];
+          d_fx_l[i1 + (ic << 1)] += c_fx_l[i1 + (r << 1)] * dv6[r + (ic << 1)];
         }
       }
     }
@@ -349,10 +368,9 @@ void b_getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
 
     for (i1 = 0; i1 < 2; i1++) {
       for (ic = 0; ic < 12; ic++) {
-        d_h_un_To_h_d_l[i1 + (ic << 1)] = 0.0;
+        e_fx_l[i1 + (ic << 1)] = 0.0;
         for (r = 0; r < 3; r++) {
-          d_h_un_To_h_d_l[i1 + (ic << 1)] += b_h_un_To_h_d_l[i1 + (r << 1)] *
-            b_R_cw[r + 3 * ic];
+          e_fx_l[i1 + (ic << 1)] += d_fx_l[i1 + (r << 1)] * b_R_cw[r + 3 * ic];
         }
       }
     }
@@ -360,8 +378,8 @@ void b_getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
     kidx = r2->size[0];
     for (i1 = 0; i1 < kidx; i1++) {
       for (ic = 0; ic < 2; ic++) {
-        H_xc->data[iv0[ic] + H_xc->size[0] * r2->data[i1]] = d_h_un_To_h_d_l[ic
-          + (i1 << 1)];
+        H_xc->data[iv0[ic] + H_xc->size[0] * r2->data[i1]] = e_fx_l[ic + (i1 <<
+          1)];
       }
     }
 
@@ -639,7 +657,11 @@ void b_getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
       r2->data[i1] = (int)(b_anchorIdx + y->data[y->size[0] * i1]) - 1;
     }
 
-    Ch_dn_To_h_un(h_cin_l[0], h_cin_l[1], d);
+    Ch_dn_To_h_un(k1_l, k2_l, k3_l, h_cin_l[0], h_cin_l[1], d);
+    f_fx_l[0] = fx_l;
+    f_fx_l[2] = 0.0;
+    f_fx_l[1] = 0.0;
+    f_fx_l[3] = fy_l;
     dv8[0] = 1.0 / h_rz[2];
     dv8[2] = 0.0;
     dv8[4] = -h_rz[0] / (h_rz[2] * h_rz[2]);
@@ -648,26 +670,23 @@ void b_getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
     dv8[5] = -h_rz[1] / (h_rz[2] * h_rz[2]);
     for (i1 = 0; i1 < 2; i1++) {
       for (ic = 0; ic < 2; ic++) {
-        h_un_To_h_d_l[i1 + (ic << 1)] = 0.0;
+        c_fx_l[i1 + (ic << 1)] = 0.0;
         for (r = 0; r < 2; r++) {
-          h_un_To_h_d_l[i1 + (ic << 1)] += c_h_un_To_h_d_l[i1 + (r << 1)] * d[r
-            + (ic << 1)];
+          c_fx_l[i1 + (ic << 1)] += f_fx_l[i1 + (r << 1)] * d[r + (ic << 1)];
         }
       }
 
       for (ic = 0; ic < 3; ic++) {
-        b_h_un_To_h_d_l[i1 + (ic << 1)] = 0.0;
+        d_fx_l[i1 + (ic << 1)] = 0.0;
         for (r = 0; r < 2; r++) {
-          b_h_un_To_h_d_l[i1 + (ic << 1)] += h_un_To_h_d_l[i1 + (r << 1)] *
-            dv8[r + (ic << 1)];
+          d_fx_l[i1 + (ic << 1)] += c_fx_l[i1 + (r << 1)] * dv8[r + (ic << 1)];
         }
       }
 
       for (ic = 0; ic < 3; ic++) {
         c_y[i1 + (ic << 1)] = 0.0;
         for (r = 0; r < 3; r++) {
-          c_y[i1 + (ic << 1)] += b_h_un_To_h_d_l[i1 + (r << 1)] * R_cw[r + 3 *
-            ic];
+          c_y[i1 + (ic << 1)] += d_fx_l[i1 + (r << 1)] * R_cw[r + 3 * ic];
         }
       }
     }
@@ -1141,6 +1160,9 @@ void b_getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
 //                const double z_all_l[32]
 //                double indMeas
 //                const emxArray_real_T *map
+//                const double c_cameraparams_CameraParameters[3]
+//                const double d_cameraparams_CameraParameters[2]
+//                const double e_cameraparams_CameraParameters[2]
 //                double numAnchors
 //                double numPointsPerAnchor
 //                const emxArray_real_T *anchorIdx
@@ -1159,7 +1181,10 @@ void b_getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
 //
 void getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
                 stateSize, const double z_all_l[32], double indMeas, const
-                emxArray_real_T *map, double numAnchors, double
+                emxArray_real_T *map, const double
+                c_cameraparams_CameraParameters[3], const double
+                d_cameraparams_CameraParameters[2], const double
+                e_cameraparams_CameraParameters[2], double numAnchors, double
                 numPointsPerAnchor, const emxArray_real_T *anchorIdx, const
                 emxArray_real_T *featureAnchorIdx, const emxArray_real_T
                 *b_m_vect, const double imNoise[2], const double
@@ -1181,14 +1206,12 @@ void getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
   double z[2];
   emxArray_int32_T *r0;
   double d[4];
-  double h_un_To_h_d_l[4];
+  double f_cameraparams_CameraParameters[4];
+  double g_cameraparams_CameraParameters[4];
   double dv0[6];
-  double b_h_un_To_h_d_l[6];
+  double h_cameraparams_CameraParameters[6];
   double b_R_cw[36];
-  static const double c_h_un_To_h_d_l[4] = { 268.155648020127, 0.0, 0.0,
-    268.867732741683 };
-
-  double d_h_un_To_h_d_l[24];
+  double i_cameraparams_CameraParameters[24];
   double b_stateSize;
   double a;
   double b_a;
@@ -1238,6 +1261,7 @@ void getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
   double cdiff;
   double absb;
   emxArray_real_T *b_y;
+  double j_cameraparams_CameraParameters[4];
   double dv2[6];
   double c_y[6];
   emxArray_real_T *H_v;
@@ -1323,7 +1347,8 @@ void getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
     h_cin_l[nm1d2] = h_ci_l[nm1d2] / h_ci_l[2];
   }
 
-  predictMeasurement_left(h_ci_l, h_u);
+  predictMeasurement_left(h_ci_l, c_cameraparams_CameraParameters,
+    d_cameraparams_CameraParameters, e_cameraparams_CameraParameters, h_u);
   anew = (indMeas - 1.0) * 2.0;
   for (ar = 0; ar < 2; ar++) {
     z[ar] = z_all_l[(int)(anew + (1.0 + (double)ar)) - 1];
@@ -1340,7 +1365,13 @@ void getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
     r0->data[ar] = ar;
   }
 
-  Ch_dn_To_h_un(h_cin_l[0], h_cin_l[1], d);
+  Ch_dn_To_h_un(c_cameraparams_CameraParameters[0],
+                c_cameraparams_CameraParameters[1],
+                c_cameraparams_CameraParameters[2], h_cin_l[0], h_cin_l[1], d);
+  f_cameraparams_CameraParameters[0] = d_cameraparams_CameraParameters[0];
+  f_cameraparams_CameraParameters[2] = 0.0;
+  f_cameraparams_CameraParameters[1] = 0.0;
+  f_cameraparams_CameraParameters[3] = d_cameraparams_CameraParameters[1];
   dv0[0] = 1.0 / h_ci_l[2];
   dv0[2] = 0.0;
   dv0[4] = -h_ci_l[0] / (h_ci_l[2] * h_ci_l[2]);
@@ -1349,18 +1380,20 @@ void getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
   dv0[5] = -h_ci_l[1] / (h_ci_l[2] * h_ci_l[2]);
   for (ar = 0; ar < 2; ar++) {
     for (br = 0; br < 2; br++) {
-      h_un_To_h_d_l[ar + (br << 1)] = 0.0;
+      g_cameraparams_CameraParameters[ar + (br << 1)] = 0.0;
       for (nm1d2 = 0; nm1d2 < 2; nm1d2++) {
-        h_un_To_h_d_l[ar + (br << 1)] += c_h_un_To_h_d_l[ar + (nm1d2 << 1)] *
-          d[nm1d2 + (br << 1)];
+        g_cameraparams_CameraParameters[ar + (br << 1)] +=
+          f_cameraparams_CameraParameters[ar + (nm1d2 << 1)] * d[nm1d2 + (br <<
+          1)];
       }
     }
 
     for (br = 0; br < 3; br++) {
-      b_h_un_To_h_d_l[ar + (br << 1)] = 0.0;
+      h_cameraparams_CameraParameters[ar + (br << 1)] = 0.0;
       for (nm1d2 = 0; nm1d2 < 2; nm1d2++) {
-        b_h_un_To_h_d_l[ar + (br << 1)] += h_un_To_h_d_l[ar + (nm1d2 << 1)] *
-          dv0[nm1d2 + (br << 1)];
+        h_cameraparams_CameraParameters[ar + (br << 1)] +=
+          g_cameraparams_CameraParameters[ar + (nm1d2 << 1)] * dv0[nm1d2 + (br <<
+          1)];
       }
     }
   }
@@ -1388,10 +1421,11 @@ void getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
 
   for (ar = 0; ar < 2; ar++) {
     for (br = 0; br < 12; br++) {
-      d_h_un_To_h_d_l[ar + (br << 1)] = 0.0;
+      i_cameraparams_CameraParameters[ar + (br << 1)] = 0.0;
       for (nm1d2 = 0; nm1d2 < 3; nm1d2++) {
-        d_h_un_To_h_d_l[ar + (br << 1)] += b_h_un_To_h_d_l[ar + (nm1d2 << 1)] *
-          b_R_cw[nm1d2 + 3 * br];
+        i_cameraparams_CameraParameters[ar + (br << 1)] +=
+          h_cameraparams_CameraParameters[ar + (nm1d2 << 1)] * b_R_cw[nm1d2 + 3 *
+          br];
       }
     }
   }
@@ -1399,8 +1433,8 @@ void getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
   nm1d2 = r0->size[0];
   for (ar = 0; ar < nm1d2; ar++) {
     for (br = 0; br < 2; br++) {
-      H_xc->data[br + H_xc->size[0] * r0->data[ar]] = d_h_un_To_h_d_l[br + (ar <<
-        1)];
+      H_xc->data[br + H_xc->size[0] * r0->data[ar]] =
+        i_cameraparams_CameraParameters[br + (ar << 1)];
     }
   }
 
@@ -1673,7 +1707,13 @@ void getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
   }
 
   emxFree_real_T(&b_y);
-  Ch_dn_To_h_un(h_cin_l[0], h_cin_l[1], d);
+  Ch_dn_To_h_un(c_cameraparams_CameraParameters[0],
+                c_cameraparams_CameraParameters[1],
+                c_cameraparams_CameraParameters[2], h_cin_l[0], h_cin_l[1], d);
+  j_cameraparams_CameraParameters[0] = d_cameraparams_CameraParameters[0];
+  j_cameraparams_CameraParameters[2] = 0.0;
+  j_cameraparams_CameraParameters[1] = 0.0;
+  j_cameraparams_CameraParameters[3] = d_cameraparams_CameraParameters[1];
   dv2[0] = 1.0 / h_ci_l[2];
   dv2[2] = 0.0;
   dv2[4] = -h_ci_l[0] / (h_ci_l[2] * h_ci_l[2]);
@@ -1682,26 +1722,28 @@ void getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
   dv2[5] = -h_ci_l[1] / (h_ci_l[2] * h_ci_l[2]);
   for (ar = 0; ar < 2; ar++) {
     for (br = 0; br < 2; br++) {
-      h_un_To_h_d_l[ar + (br << 1)] = 0.0;
+      f_cameraparams_CameraParameters[ar + (br << 1)] = 0.0;
       for (nm1d2 = 0; nm1d2 < 2; nm1d2++) {
-        h_un_To_h_d_l[ar + (br << 1)] += c_h_un_To_h_d_l[ar + (nm1d2 << 1)] *
-          d[nm1d2 + (br << 1)];
+        f_cameraparams_CameraParameters[ar + (br << 1)] +=
+          j_cameraparams_CameraParameters[ar + (nm1d2 << 1)] * d[nm1d2 + (br <<
+          1)];
       }
     }
 
     for (br = 0; br < 3; br++) {
-      b_h_un_To_h_d_l[ar + (br << 1)] = 0.0;
+      h_cameraparams_CameraParameters[ar + (br << 1)] = 0.0;
       for (nm1d2 = 0; nm1d2 < 2; nm1d2++) {
-        b_h_un_To_h_d_l[ar + (br << 1)] += h_un_To_h_d_l[ar + (nm1d2 << 1)] *
-          dv2[nm1d2 + (br << 1)];
+        h_cameraparams_CameraParameters[ar + (br << 1)] +=
+          f_cameraparams_CameraParameters[ar + (nm1d2 << 1)] * dv2[nm1d2 + (br <<
+          1)];
       }
     }
 
     for (br = 0; br < 3; br++) {
       c_y[ar + (br << 1)] = 0.0;
       for (nm1d2 = 0; nm1d2 < 3; nm1d2++) {
-        c_y[ar + (br << 1)] += b_h_un_To_h_d_l[ar + (nm1d2 << 1)] * R_cw[nm1d2 +
-          3 * br];
+        c_y[ar + (br << 1)] += h_cameraparams_CameraParameters[ar + (nm1d2 << 1)]
+          * R_cw[nm1d2 + 3 * br];
       }
     }
   }
