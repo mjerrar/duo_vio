@@ -69,8 +69,8 @@ t_avg(0.0)
     	cameraParams = parseYaml(YamlNode);
     }
 
-    int debug_publish_freq;
-    nh_.param<int>("debug_publish_freq", debug_publish_freq, 1);
+    double debug_publish_freq;
+    nh_.param<double>("debug_publish_freq", debug_publish_freq, 1);
     debug_publish_delay = 1.0/debug_publish_freq;
     last_debug_publish = ros::Time::now();
 
