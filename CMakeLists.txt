@@ -14,6 +14,7 @@ find_package(
   geometry_msgs
   tf
   cv_bridge
+  roslib
 )
 
 ## System dependencies are found with CMake's conventions
@@ -126,6 +127,7 @@ add_executable(vio_ros_node
 ## Specify libraries to link a library or executable target against
 target_link_libraries(vio_ros_node
   ${catkin_LIBRARIES}
+  yaml-cpp
 )
 
 #############
