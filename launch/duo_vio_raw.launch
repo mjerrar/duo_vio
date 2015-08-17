@@ -6,7 +6,11 @@
   <arg name="resolution_width_duo" default="320" />
   <arg name="resolution_height_duo" default="240" />
 
+  <arg name="camera_name" default="101" /> <!-- the camera name is equal to the last 3 digits of the odroid's IP -->
+  <arg name="lense_type" default="FS3028B13M8" />
+
   <arg name="show_tracker_images" default="1" />
+  <arg name="debug_publish_freq" default="10" />
 
   <include file="$(find duo3d_ros)/launch/duo.launch">
     <arg name="exposure" value="$(arg exposure_duo)" />
@@ -35,6 +39,13 @@
     <param name="num_anchors" type="int" value="4" />
 
     <param name="show_tracker_images" type="bool" value="$(arg show_tracker_images)" />
+   
+    <param name="camera_name" type="string" value="$(arg camera_name)" />
+    <param name="lense_type" type="string" value="$(arg lense_type)" />
+    <param name="resolution_width" type="int" value="$(arg resolution_width_duo)" />
+    <param name="resolution_height" type="int" value="$(arg resolution_height_duo)" />
+
+    <param name="debug_publish_freq" type="int" value="$(arg debug_publish_freq)" />
   </node>
 
 </launch>

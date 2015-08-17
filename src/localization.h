@@ -2,6 +2,7 @@
 #define _LOCALIZATION_H_
 
 #include <ros/ros.h>
+#include <ros/package.h>
 
 #include <message_filters/subscriber.h>
 #include <message_filters/time_synchronizer.h>
@@ -21,6 +22,7 @@
 
 #include "SLAM.h"
 #include "SLAM_includes.h"
+#include "cameraParameters.h"
 #include <duo3d_ros/Duo3d.h>
 
 #include <vector>
@@ -34,7 +36,10 @@ public:
 
 private:
   double t_avg;
-  int plot_cnt;
+  double debug_publish_delay;
+  ros::Time last_debug_publish;
+
+  stereoParameters cameraParams;
   ros::NodeHandle nh_;
 
   ros::Subscriber combined_sub;
@@ -59,13 +64,13 @@ private:
   bool show_tracker_images_;
   emxArray_real_T *h_u_apo_;
 
-  void synchronized_callback(const duo3d_ros::Duo3d& msg);
+  void duo3d_callback(const duo3d_ros::Duo3d& msg);
   void mavrosImuCb(const sensor_msgs::Imu msg);
   void mavrosMagCb(const sensor_msgs::MagneticField msg);
   void mavrosPressureCb(const sensor_msgs::FluidPressure msg);
 
   void update(double dt, const cv::Mat& left_image, const cv::Mat& right_image, const sensor_msgs::Imu& imu,
-      const sensor_msgs::MagneticField& mag, geometry_msgs::Pose& pose, geometry_msgs::Twist& velocity);
+      const sensor_msgs::MagneticField& mag, geometry_msgs::Pose& pose, geometry_msgs::Twist& velocity, bool debug_publish);
 
   void get_inertial_vector(const sensor_msgs::Imu& imu, const sensor_msgs::MagneticField& mag, std::vector<double>& inertial_vec);
 

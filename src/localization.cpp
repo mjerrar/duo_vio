@@ -16,8 +16,7 @@ Localization::Localization()
 process_noise_(4,0.0),
 im_noise_(4,0.0),
 camera_params_(4,0.0),
-t_avg(0.0),
-plot_cnt(0)
+t_avg(0.0)
 {
     SLAM_initialize();
     emxInitArray_real_T(&h_u_apo_,1);
@@ -25,7 +24,7 @@ plot_cnt(0)
     pose_pub_ = nh_.advertise<geometry_msgs::PoseStamped>("/pose",1);
     velocity_pub_ = nh_.advertise<geometry_msgs::Twist>("/velocity",1);
     combined_sub = nh_.subscribe("/duo3d_camera/combined",1,
-    		&Localization::synchronized_callback,this);
+    		&Localization::duo3d_callback,this);
     point_cloud_pub_ = nh_.advertise<sensor_msgs::PointCloud>("/vio/features_point_cloud",1); //TODO: add to debug parameter
     path_pub_ = nh_.advertise<nav_msgs::Path>("/vio/SLAM_path",1);
     vis_pub_ = nh_.advertise<visualization_msgs::Marker>( "drone", 0 );
@@ -51,6 +50,31 @@ plot_cnt(0)
     nh_.param<double>("im_noise_3", im_noise_[2], 2.0);
     nh_.param<double>("im_noise_3", im_noise_[3], 2.0);
 
+    std::string camera_name;
+    nh_.param<std::string>("camera_name", camera_name, "NoName");
+    std::string lense_type;
+    nh_.param<std::string>("lense_type", lense_type, "NoType");
+    int resolution_width;
+    nh_.param<int>("resolution_width", resolution_width, 0);
+    int resolution_height;
+    nh_.param<int>("resolution_height", resolution_height, 0);
+
+    std::stringstream res;
+    res << resolution_height << "x" << resolution_width;
+    std::string path = ros::package::getPath("vio_ros") + "/calib/" + camera_name + "/" + lense_type + "/" + res.str() + "/cameraParams.yaml";
+
+    YAML::Node YamlNode = YAML::LoadFile(path);
+    if (YamlNode.IsNull())
+    {
+    	ROS_ERROR("Failed to open camera calibration at %s", path.c_str());
+    }else {
+    	cameraParams = parseYaml(YamlNode);
+    }
+
+    int debug_publish_freq;
+    nh_.param<int>("debug_publish_freq", debug_publish_freq, 1);
+    debug_publish_delay = 1.0/debug_publish_freq;
+    last_debug_publish = ros::Time::now();
 
     int num_points_per_anchor, num_anchors;
     nh_.param<int>("num_points_per_anchor", num_points_per_anchor, 1);
@@ -79,18 +103,15 @@ plot_cnt(0)
     num_points_ = num_anchors_*num_points_per_anchor_;
 
     update_vec_.assign(num_points_, 0);
-//    fill(update_vec_.begin(), update_vec_.begin() + num_points_per_anchor_, 2); // request new features for the first anchor initially
 }
 
 Localization::~Localization()
 {
     emxDestroyArray_real_T(h_u_apo_);
     SLAM_terminate();
-
-
 }
 
-void Localization::synchronized_callback(const duo3d_ros::Duo3d& msg)
+void Localization::duo3d_callback(const duo3d_ros::Duo3d& msg)
 {
 	double tic_total = ros::Time::now().toSec();
     sensor_msgs::MagneticField mag; // TODO Subscribe to mag topic
@@ -126,27 +147,38 @@ void Localization::synchronized_callback(const duo3d_ros::Duo3d& msg)
     pose_stamped.header.frame_id = "world";
     double dt = (msg.header.stamp - prev_time_).toSec();
     prev_time_ = msg.header.stamp;
-    update(dt, cv_left_image->image, cv_right_image->image, msg.imu, mag, pose, velocity);
+
+    bool debug_publish = (ros::Time::now() - last_debug_publish).toSec() > debug_publish_delay;
+    if (debug_publish)
+    	last_debug_publish = ros::Time::now();
+
+    update(dt, cv_left_image->image, cv_right_image->image, msg.imu, mag, pose, velocity, debug_publish);
 
     pose_stamped.pose = pose;
     pose_pub_.publish(pose_stamped);
     velocity_pub_.publish(velocity);
 
-    // Generate and publish pose as transform
-    tf::Transform transform;
-    transform.setOrigin(tf::Vector3(pose.position.x, pose.position.y, pose.position.z));
+    if (debug_publish)
+    {
+    	// Generate and publish pose as transform
+    	tf::Transform transform;
+    	transform.setOrigin(tf::Vector3(pose.position.x, pose.position.y, pose.position.z));
 
-    transform.setRotation(tf::Quaternion(pose.orientation.x,pose.orientation.y,
-        pose.orientation.z,pose.orientation.w));
+    	transform.setRotation(tf::Quaternion(pose.orientation.x,pose.orientation.y,
+    			pose.orientation.z,pose.orientation.w));
 
-    tf_broadcaster_.sendTransform(tf::StampedTransform(transform, /*pose_stamped.header.stamp*/ ros::Time::now(), "world", "SLAM"));
+    	tf_broadcaster_.sendTransform(tf::StampedTransform(transform, /*pose_stamped.header.stamp*/ ros::Time::now(), "world", "SLAM"));
 
-    slam_path_.poses.push_back(pose_stamped);
-    slam_path_.header = pose_stamped.header;
-    path_pub_.publish(slam_path_);
+    	slam_path_.poses.push_back(pose_stamped);
+    	slam_path_.header = pose_stamped.header;
+    	path_pub_.publish(slam_path_);
 
-    updateDronePose();
-    visMarker();
+
+    	updateDronePose();
+    	visMarker();
+
+
+    }
 
 double time_measurement = ros::Time::now().toSec() - tic_total;
 
@@ -170,7 +202,7 @@ void Localization::mavrosPressureCb(const sensor_msgs::FluidPressure msg)
 }
 
 void Localization::update(double dt, const cv::Mat& left_image, const cv::Mat& right_image, const sensor_msgs::Imu& imu,
-    const sensor_msgs::MagneticField& mag, geometry_msgs::Pose& pose, geometry_msgs::Twist& velocity)
+    const sensor_msgs::MagneticField& mag, geometry_msgs::Pose& pose, geometry_msgs::Twist& velocity, bool debug_publish)
 {
 
     //*********************************************************************
@@ -217,25 +249,37 @@ void Localization::update(double dt, const cv::Mat& left_image, const cv::Mat& r
     // Update SLAM and get pose estimation
     tic = ros::Time::now();
 
-    SLAM(update_vec_array, &z_all_l[0], &z_all_r[0], dt, &process_noise_[0], &inertial[0], &im_noise_[0], num_points_per_anchor_,num_anchors_, h_u_apo, xt_out, P_apo_out, map);
+    SLAM(update_vec_array,
+         &z_all_l[0],
+		 &z_all_r[0],
+		 dt,
+		 &process_noise_[0],
+		 &inertial[0],
+		 &im_noise_[0],
+		 num_points_per_anchor_,
+		 num_anchors_,
+		 &cameraParams,
+		 h_u_apo,
+		 xt_out,
+		 P_apo_out,
+		 map);
 
     for(int i = 0; i < update_vec_.size(); i++)
     {
     	update_vec_[i] = update_vec_array[i];
     }
 
-    if (plot_cnt%1==0)
+    if (debug_publish)
     {
     	if (show_tracker_images_)
     	{
     		display_tracks(left_image, &z_all_l[0], &z_all_r[0], update_vec_, h_u_apo);
     	}
+    	// Publish feature position in world frame
+    	publishPointCloud(map->data);
     }
-    plot_cnt++;
-    //ROS_INFO("Time SLAM         : %6.2f ms", (ros::Time::now() - tic).toSec()*1000);
 
-    // Publish feature position in world frame
-    publishPointCloud(map->data);
+    //ROS_INFO("Time SLAM         : %6.2f ms", (ros::Time::now() - tic).toSec()*1000);
 
     // Set the pose
     pose.position.x = xt_out->data[0];
