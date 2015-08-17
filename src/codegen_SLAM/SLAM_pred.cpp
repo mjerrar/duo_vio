@@ -5,7 +5,7 @@
 // File: SLAM_pred.cpp
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 17-Aug-2015 14:51:33
+// C/C++ source code generated on  : 17-Aug-2015 20:14:43
 //
 
 // Include Files
@@ -1052,7 +1052,7 @@ void SLAM_pred(emxArray_real_T *P_apo, emxArray_real_T *x, double dt, const
   }
 
   for (i = 0; i < 3; i++) {
-    meas_0[i + 3] = IMU_measurements[i + 3];
+    meas_0[i + 3] = 0.0 * IMU_measurements[i + 3];
   }
 
   if (1.0 > c_numStates + 1.0) {

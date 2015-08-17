@@ -228,7 +228,8 @@ static void initMorePoints(
 	if (prev_corners.size() < updateVect.size())
 		prev_corners.resize(updateVect.size());
 
-	printf("Number of good matches: %d, desired: %d\n", (int) good_matches.size(), targetNumPoints);
+	if (good_matches.size() ~= targetNumPoints)
+		printf("Number of good matches: %d, desired: %d\n", (int) good_matches.size(), targetNumPoints);
 
 	int good_matches_idx = 0;
 	for (int i = 0; i < updateVect.size(); i++)

@@ -14,7 +14,7 @@
 Localization::Localization()
 : nh_("~"),
 process_noise_(4,0.0),
-im_noise_(4,0.0),
+im_noise_(2,0.0),
 camera_params_(4,0.0),
 t_avg(0.0)
 {
@@ -47,8 +47,6 @@ t_avg(0.0)
 
     nh_.param<double>("im_noise_1", im_noise_[0], 2.0);
     nh_.param<double>("im_noise_2", im_noise_[1], 2.0);
-    nh_.param<double>("im_noise_3", im_noise_[2], 2.0);
-    nh_.param<double>("im_noise_3", im_noise_[3], 2.0);
 
     std::string camera_name;
     nh_.param<std::string>("camera_name", camera_name, "NoName");
@@ -180,10 +178,10 @@ void Localization::duo3d_callback(const duo3d_ros::Duo3d& msg)
 
     }
 
-double time_measurement = ros::Time::now().toSec() - tic_total;
+    double time_measurement = ros::Time::now().toSec() - tic_total;
 
     t_avg=0.05*time_measurement+(1-0.05)*t_avg;
-    printf("\nMax duration: %f ms. Min frequency: %f Hz\n", t_avg, 1/t_avg);
+    printf("\nDuration: %f ms. Theoretical max frequency: %.3f Hz\n", t_avg, 1/t_avg);
 }
 
 void Localization::mavrosImuCb(const sensor_msgs::Imu msg)

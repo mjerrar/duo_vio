@@ -5,7 +5,7 @@
 // File: SLAM_initialize.cpp
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 17-Aug-2015 14:51:33
+// C/C++ source code generated on  : 17-Aug-2015 20:14:43
 //
 
 // Include Files
@@ -22,12 +22,12 @@
 #define b_useAirPressure               (false)
 #define b_normalGravity                (true)
 #define b_numStates                    (12.0)
-#define b_numTrackFeatures             (16.0)
+#define b_numTrackFeatures             (32.0)
 #define b_numStatesxt                  (13.0)
 #define b_minFeatureThreshold          (2.0)
 #define b_sigma_Init                   (1.0E-5)
 #define b_maxEKFIterations             (1.0)
-#define b_gravAlignNoise               (0.01)
+#define b_gravAlignNoise               (0.0001)
 
 // Variable Definitions
 static double numTrackFeatures;

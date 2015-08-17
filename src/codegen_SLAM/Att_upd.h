@@ -2,13 +2,13 @@
 // Academic License - for use in teaching, academic research, and meeting
 // course requirements at degree granting institutions only.  Not for
 // government, commercial, or other organizational use.
-// File: QuatFromRotJ.h
+// File: Att_upd.h
 //
 // MATLAB Coder version            : 2.8
 // C/C++ source code generated on  : 17-Aug-2015 20:14:43
 //
-#ifndef __QUATFROMROTJ_H__
-#define __QUATFROMROTJ_H__
+#ifndef __ATT_UPD_H__
+#define __ATT_UPD_H__
 
 // Include Files
 #include <math.h>
@@ -20,13 +20,13 @@
 #include "SLAM_types.h"
 
 // Function Declarations
-extern void QuatFromRotJ(const double R[9], double Q[4]);
-extern void b_QuatFromRotJ(double Q[4]);
+extern void Att_upd(double x[4], double b_P[9], const double z[3], double n,
+                    double dt);
 
 #endif
 
 //
-// File trailer for QuatFromRotJ.h
+// File trailer for Att_upd.h
 //
 // [EOF]
 //
