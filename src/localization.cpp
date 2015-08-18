@@ -183,7 +183,8 @@ void Localization::duo3d_callback(const duo3d_ros::Duo3d& msg)
     double time_measurement = ros::Time::now().toSec() - tic_total;
 
     t_avg=0.05*time_measurement+(1-0.05)*t_avg;
-    printf("\nDuration: %f ms. Theoretical max frequency: %.3f Hz\n", t_avg, 1/t_avg);
+    if (debug_publish)
+    	ROS_INFO("Duration: %f ms. Theoretical max frequency: %.3f Hz\n", t_avg, 1/t_avg);
 }
 
 void Localization::mavrosImuCb(const sensor_msgs::Imu msg)
