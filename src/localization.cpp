@@ -158,26 +158,28 @@ void Localization::duo3d_callback(const duo3d_ros::Duo3d& msg)
     pose_pub_.publish(pose_stamped);
     velocity_pub_.publish(velocity);
 
+
+    // Generate and publish pose as transform
+    tf::Transform transform;
+    transform.setOrigin(tf::Vector3(pose.position.x, pose.position.y, pose.position.z));
+    transform.setRotation(tf::Quaternion(pose.orientation.x,pose.orientation.y,
+            pose.orientation.z,pose.orientation.w));
+
+    tf_broadcaster_.sendTransform(tf::StampedTransform(transform, /*pose_stamped.header.stamp*/ ros::Time::now(), "world", "SLAM"));
     if (debug_publish)
     {
-    	// Generate and publish pose as transform
-    	tf::Transform transform;
-    	transform.setOrigin(tf::Vector3(pose.position.x, pose.position.y, pose.position.z));
+      tf_broadcaster_.sendTransform(tf::StampedTransform(transform, /*pose_stamped.header.stamp*/ ros::Time::now(), "world", "SLAM_rviz"));
+    }
 
-    	transform.setRotation(tf::Quaternion(pose.orientation.x,pose.orientation.y,
-    			pose.orientation.z,pose.orientation.w));
+    updateDronePose(debug_publish);
 
-    	tf_broadcaster_.sendTransform(tf::StampedTransform(transform, /*pose_stamped.header.stamp*/ ros::Time::now(), "world", "SLAM"));
-
+    if (debug_publish)
+    {
     	slam_path_.poses.push_back(pose_stamped);
     	slam_path_.header = pose_stamped.header;
     	path_pub_.publish(slam_path_);
 
-
-    	updateDronePose();
     	visMarker();
-
-
     }
 
     double time_measurement = ros::Time::now().toSec() - tic_total;
@@ -427,7 +429,7 @@ void Localization::publishPointCloud(double *map)
 
 
 
-void Localization::updateDronePose(void)
+void Localization::updateDronePose(bool debug_publish)
 {
     /*tf::Transform camera2drone;
     camera2drone.setOrigin(tf::Vector3(0.0, 0.0, -0.10));
@@ -450,6 +452,11 @@ void Localization::updateDronePose(void)
     slam2camera.setRotation(q_s2d);
     tf_broadcaster_.sendTransform(tf::StampedTransform(slam2camera, ros::Time::now(), "SLAM", "camera"));
 
+    if (debug_publish)
+    {
+      tf_broadcaster_.sendTransform(tf::StampedTransform(slam2camera, ros::Time::now(), "SLAM_rviz", "camera_rviz"));
+    }
+
     /*tf::Transform drone2camera;
     drone2camera.setOrigin(tf::Vector3(1.0, 0.0, 0.0));
     tf::Quaternion q_d2c;
@@ -463,6 +470,11 @@ void Localization::updateDronePose(void)
     q_d2c.setEuler(-M_PI/2, -M_PI/2, 0.0);
     camera2drone.setRotation(q_d2c);
     tf_broadcaster_.sendTransform(tf::StampedTransform(camera2drone, ros::Time::now(), "camera", "drone_base"));
+
+    if (debug_publish)
+    {
+      tf_broadcaster_.sendTransform(tf::StampedTransform(camera2drone, ros::Time::now(), "camera_rviz", "drone_base_rviz"));
+    }
 }
 
 void Localization::visMarker(void)
