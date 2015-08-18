@@ -2,30 +2,35 @@
 // Academic License - for use in teaching, academic research, and meeting
 // course requirements at degree granting institutions only.  Not for
 // government, commercial, or other organizational use.
-// File: quatPlusThetaJ.h
+// File: power.cpp
 //
 // MATLAB Coder version            : 2.8
 // C/C++ source code generated on  : 18-Aug-2015 11:00:04
 //
-#ifndef __QUATPLUSTHETAJ_H__
-#define __QUATPLUSTHETAJ_H__
 
 // Include Files
-#include <math.h>
-#include <stddef.h>
-#include <stdlib.h>
-#include <string.h>
 #include "rt_nonfinite.h"
-#include "rtwtypes.h"
-#include "SLAM_types.h"
+#include "SLAM.h"
+#include "power.h"
+#include <stdio.h>
 
-// Function Declarations
-extern void quatPlusThetaJ(const double dtheta[3], double dq[4]);
-
-#endif
+// Function Definitions
 
 //
-// File trailer for quatPlusThetaJ.h
+// Arguments    : const double a[2]
+//                double y[2]
+// Return Type  : void
+//
+void power(const double a[2], double y[2])
+{
+  int k;
+  for (k = 0; k < 2; k++) {
+    y[k] = a[k] * a[k];
+  }
+}
+
+//
+// File trailer for power.cpp
 //
 // [EOF]
 //

@@ -247,6 +247,7 @@ void Localization::update(double dt, const cv::Mat& left_image, const cv::Mat& r
     // Update SLAM and get pose estimation
     tic = ros::Time::now();
 
+    bool resetFlag = false;
     SLAM(update_vec_array,
          &z_all_l[0],
 		 &z_all_r[0],
@@ -257,6 +258,7 @@ void Localization::update(double dt, const cv::Mat& left_image, const cv::Mat& r
 		 num_points_per_anchor_,
 		 num_anchors_,
 		 &cameraParams,
+		 resetFlag,
 		 h_u_apo,
 		 xt_out,
 		 P_apo_out,

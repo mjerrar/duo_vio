@@ -5,7 +5,7 @@
 // File: SLAM_updIT.cpp
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 18-Aug-2015 09:45:37
+// C/C++ source code generated on  : 18-Aug-2015 11:00:04
 //
 
 // Include Files
@@ -94,8 +94,8 @@ void SLAM_updIT(emxArray_real_T *P_apr, emxArray_real_T *b_xt, const double
   int ii_data[32];
   boolean_T exitg6;
   boolean_T guard6 = false;
-  int ii_size_idx_0;
   signed char indMeas_data[32];
+  int i15;
   int validFeatures_size[1];
   double validFeatures_data[32];
   emxArray_real_T *c_anchorIdx;
@@ -113,6 +113,7 @@ void SLAM_updIT(emxArray_real_T *P_apr, emxArray_real_T *b_xt, const double
   emxArray_boolean_T *r9;
   boolean_T exitg3;
   boolean_T guard3 = false;
+  int ii_size_idx_0;
   unsigned int featureAnchorIdx;
   int unusedFeatureIdx;
   double z_curr_l[2];
@@ -120,7 +121,7 @@ void SLAM_updIT(emxArray_real_T *P_apr, emxArray_real_T *b_xt, const double
   double m[3];
   double fp[3];
   boolean_T bv0[3];
-  signed char i15;
+  signed char i16;
   double b_R_cw[3];
   double b_fp[3];
   double h_u_r[2];
@@ -135,7 +136,7 @@ void SLAM_updIT(emxArray_real_T *P_apr, emxArray_real_T *b_xt, const double
 
   emxArray_real_T *y;
   int b_loop_ub;
-  int i16;
+  int i17;
   int b_m;
   int cr;
   int ic;
@@ -376,19 +377,17 @@ void SLAM_updIT(emxArray_real_T *P_apr, emxArray_real_T *b_xt, const double
     loop_ub = idx;
   }
 
-  if (1 > idx) {
-    ii_size_idx_0 = 0;
-  } else {
-    ii_size_idx_0 = idx;
-  }
-
   for (i13 = 0; i13 < loop_ub; i13++) {
     indMeas_data[i13] = (signed char)ii_data[i13];
   }
 
-  if (!(ii_size_idx_0 == 0)) {
-    d_fprintf(ii_size_idx_0);
+  if (1 > idx) {
+    i15 = 0;
+  } else {
+    i15 = idx;
+  }
 
+  if (!(i15 == 0)) {
     //   [ xt, P_apo, validFeatures ] = Mahalanobis_EKF(xt, P_apr, z_all_l, numStatesxt, numStates, numPointsPerAnchor, cameraparams, anchorFeatures, m_vect, imNoise,IMU_measurements,height_offset_pressure); 
     OnePointRANSAC_EKF(b_xt, P_apr, z_all_l, numStatesxt, numStates,
                        numPointsPerAnchor, c_cameraparams_CameraParameters,
@@ -396,7 +395,6 @@ void SLAM_updIT(emxArray_real_T *P_apr, emxArray_real_T *b_xt, const double
                        e_cameraparams_CameraParameters, anchorFeatures, m_vect,
                        imNoise, IMU_measurements, height_offset_pressure,
                        validFeatures_data, validFeatures_size);
-    j_fprintf(validFeatures_size[0]);
     for (i13 = 0; i13 < loop_ub; i13++) {
       ii_data[i13] = indMeas_data[i13];
     }
@@ -773,8 +771,8 @@ void SLAM_updIT(emxArray_real_T *P_apr, emxArray_real_T *b_xt, const double
         if (c_any(bv0)) {
           updateVect[indMeas_data[unusedFeatureIdx] - 1] = 0.0;
           i13 = (int)rt_roundd_snf((double)indMeas_data[unusedFeatureIdx]);
-          i15 = (signed char)i13;
-          l_fprintf(i15);
+          i16 = (signed char)i13;
+          h_fprintf(i16);
         } else {
           //  check reprojection error
           for (i13 = 0; i13 < 3; i13++) {
@@ -831,8 +829,8 @@ void SLAM_updIT(emxArray_real_T *P_apr, emxArray_real_T *b_xt, const double
 
           if (guard1) {
             i13 = (int)rt_roundd_snf((double)indMeas_data[unusedFeatureIdx]);
-            i15 = (signed char)i13;
-            n_fprintf(i15);
+            i16 = (signed char)i13;
+            j_fprintf(i16);
             updateVect[indMeas_data[unusedFeatureIdx] - 1] = 0.0;
           }
         }
@@ -847,7 +845,7 @@ void SLAM_updIT(emxArray_real_T *P_apr, emxArray_real_T *b_xt, const double
         i13 = MAX_int32_T;
       }
 
-      p_fprintf(i13, (int)initializeNewAnchor);
+      l_fprintf(i13, (int)initializeNewAnchor);
       if (rtIsInf(6.0 + numPointsPerAnchor)) {
         n = 0;
         anew = rtNaN;
@@ -1150,9 +1148,9 @@ void SLAM_updIT(emxArray_real_T *P_apr, emxArray_real_T *b_xt, const double
           for (i14 = 0; i14 < nm1d2; i14++) {
             y->data[i13 + y->size[0] * i14] = 0.0;
             b_loop_ub = J->size[1];
-            for (i16 = 0; i16 < b_loop_ub; i16++) {
-              y->data[i13 + y->size[0] * i14] += J->data[i13 + J->size[0] * i16]
-                * P_apr->data[i16 + P_apr->size[0] * i14];
+            for (i17 = 0; i17 < b_loop_ub; i17++) {
+              y->data[i13 + y->size[0] * i14] += J->data[i13 + J->size[0] * i17]
+                * P_apr->data[i17 + P_apr->size[0] * i14];
             }
           }
         }
@@ -1234,9 +1232,9 @@ void SLAM_updIT(emxArray_real_T *P_apr, emxArray_real_T *b_xt, const double
           for (i14 = 0; i14 < nm1d2; i14++) {
             P_apr->data[i13 + P_apr->size[0] * i14] = 0.0;
             b_loop_ub = y->size[1];
-            for (i16 = 0; i16 < b_loop_ub; i16++) {
+            for (i17 = 0; i17 < b_loop_ub; i17++) {
               P_apr->data[i13 + P_apr->size[0] * i14] += y->data[i13 + y->size[0]
-                * i16] * b->data[i16 + b->size[0] * i14];
+                * i17] * b->data[i17 + b->size[0] * i14];
             }
           }
         }
@@ -1302,7 +1300,7 @@ void SLAM_updIT(emxArray_real_T *P_apr, emxArray_real_T *b_xt, const double
           sigmaInits->data[nm1d2];
       }
     } else {
-      r_fprintf();
+      n_fprintf();
     }
   }
 

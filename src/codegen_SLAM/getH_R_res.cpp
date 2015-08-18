@@ -5,7 +5,7 @@
 // File: getH_R_res.cpp
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 18-Aug-2015 09:45:37
+// C/C++ source code generated on  : 18-Aug-2015 11:00:04
 //
 
 // Include Files
@@ -15,8 +15,11 @@
 #include "SLAM_emxutil.h"
 #include "blkdiag.h"
 #include "predictMeasurement_stereo.h"
+#include "norm.h"
 #include "Ch_dn_To_h_un.h"
 #include "predictMeasurement_left.h"
+#include "diag.h"
+#include "power.h"
 #include "eye.h"
 #include "SLAM_rtwutil.h"
 #include "SLAM_data.h"
@@ -111,19 +114,19 @@ void b_getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
   double h_rz[3];
   int ic;
   double h_cin_l[3];
+  int kidx;
+  double dv4[2];
   int r;
-  double dv5[2];
-  double indMeas;
+  double anew;
   signed char b_k;
   signed char iv0[2];
-  double d[4];
+  double B[4];
   double b_fx_l[4];
   double c_fx_l[4];
-  double dv6[6];
+  double dv5[6];
   double d_fx_l[6];
   double b_R_cw[36];
   double e_fx_l[24];
-  int kidx;
   double b_stateSize;
   double a;
   double b_a;
@@ -161,45 +164,41 @@ void b_getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
   double x_stateSize;
   double y_stateSize;
   double anchorRot[9];
-  double c_xt;
   double d3;
   double b_y[3];
-  double c;
-  double dv7[9];
+  double dv6[9];
   double b_anchorRot[9];
   static const signed char b[9] = { 1, 0, 0, 0, 1, 0, 0, 0, 1 };
 
   int ar;
-  double anew;
   double apnd;
   double ndbl;
   double cdiff;
   double absb;
-  double b_anchorIdx;
   double f_fx_l[4];
-  double dv8[6];
+  double dv7[6];
   double c_y[6];
-  double d_y[2];
-  int b_c;
+  int c;
   double b_z_data;
   emxArray_real_T *H_v;
-  int r_g_size_idx_0;
   int r_p_size_idx_0;
   emxArray_real_T *H_g;
   emxArray_real_T *H_p;
+  emxArray_real_T *r3;
   int R_g_size[2];
   int R_p_size[2];
-  emxArray_real_T *r3;
   double A_data[1024];
+  double dv8[2];
   double R_v_data[4096];
   int R_v_size[2];
+  boolean_T x[3];
+  boolean_T d_y;
+  boolean_T exitg1;
+  double r_g_data[3];
   static const signed char b_b[3] = { 0, 0, 1 };
 
   double dv9[9];
   double R_g_data[9];
-  double r_g_data[3];
-  static const double dv10[3] = { 0.0934, -0.9946, 0.0459 };
-
   double R_p_data[1];
   double r_p_data[1];
   emxArray_real_T b_R_v_data;
@@ -287,21 +286,21 @@ void b_getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
       }
     }
 
-    for (r = 0; r < 3; r++) {
-      h_cin_l[r] = h_rz[r] / h_rz[2];
+    for (kidx = 0; kidx < 3; kidx++) {
+      h_cin_l[kidx] = h_rz[kidx] / h_rz[2];
     }
 
     predictMeasurement_left(h_rz, c_cameraparams_CameraParameters,
-      d_cameraparams_CameraParameters, e_cameraparams_CameraParameters, dv5);
+      d_cameraparams_CameraParameters, e_cameraparams_CameraParameters, dv4);
     r = k << 1;
     for (i1 = 0; i1 < 2; i1++) {
-      h_u_data[i1 + r] = dv5[i1];
+      h_u_data[i1 + r] = dv4[i1];
     }
 
     r = k << 1;
-    indMeas = (indMeas_data[k] - 1.0) * 2.0;
+    anew = (indMeas_data[k] - 1.0) * 2.0;
     for (i1 = 0; i1 < 2; i1++) {
-      z_data[i1 + r] = z_all_l[(int)(indMeas + (1.0 + (double)i1)) - 1];
+      z_data[i1 + r] = z_all_l[(int)(anew + (1.0 + (double)i1)) - 1];
     }
 
     //     %% computation of H(x)
@@ -318,29 +317,29 @@ void b_getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
       r2->data[i1] = i1;
     }
 
-    Ch_dn_To_h_un(k1_l, k2_l, k3_l, h_cin_l[0], h_cin_l[1], d);
+    Ch_dn_To_h_un(k1_l, k2_l, k3_l, h_cin_l[0], h_cin_l[1], B);
     b_fx_l[0] = fx_l;
     b_fx_l[2] = 0.0;
     b_fx_l[1] = 0.0;
     b_fx_l[3] = fy_l;
-    dv6[0] = 1.0 / h_rz[2];
-    dv6[2] = 0.0;
-    dv6[4] = -h_rz[0] / (h_rz[2] * h_rz[2]);
-    dv6[1] = 0.0;
-    dv6[3] = 1.0 / h_rz[2];
-    dv6[5] = -h_rz[1] / (h_rz[2] * h_rz[2]);
+    dv5[0] = 1.0 / h_rz[2];
+    dv5[2] = 0.0;
+    dv5[4] = -h_rz[0] / (h_rz[2] * h_rz[2]);
+    dv5[1] = 0.0;
+    dv5[3] = 1.0 / h_rz[2];
+    dv5[5] = -h_rz[1] / (h_rz[2] * h_rz[2]);
     for (i1 = 0; i1 < 2; i1++) {
       for (ic = 0; ic < 2; ic++) {
         c_fx_l[i1 + (ic << 1)] = 0.0;
         for (r = 0; r < 2; r++) {
-          c_fx_l[i1 + (ic << 1)] += b_fx_l[i1 + (r << 1)] * d[r + (ic << 1)];
+          c_fx_l[i1 + (ic << 1)] += b_fx_l[i1 + (r << 1)] * B[r + (ic << 1)];
         }
       }
 
       for (ic = 0; ic < 3; ic++) {
         d_fx_l[i1 + (ic << 1)] = 0.0;
         for (r = 0; r < 2; r++) {
-          d_fx_l[i1 + (ic << 1)] += c_fx_l[i1 + (r << 1)] * dv6[r + (ic << 1)];
+          d_fx_l[i1 + (ic << 1)] += c_fx_l[i1 + (r << 1)] * dv5[r + (ic << 1)];
         }
       }
     }
@@ -502,7 +501,7 @@ void b_getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
                           (x_stateSize + 4.0) - 1] * b_xt->data[(int)
                           (y_stateSize + 7.0) - 1]);
     anchorRot[8] = ((-(i_a * i_a) - j_a * j_a) + k_a * k_a) + l_a * l_a;
-    c_xt = b_xt->data[(int)(((stateSize + (anchorIdx->data[(int)indMeas_data[k]
+    anew = b_xt->data[(int)(((stateSize + (anchorIdx->data[(int)indMeas_data[k]
       - 1] - 1.0) * (7.0 + numPointsPerAnchor)) + 7.0) + featureAnchorIdx->data
       [(int)indMeas_data[k] - 1]) - 1];
     for (i1 = 0; i1 < 3; i1++) {
@@ -512,24 +511,24 @@ void b_getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
           ((int)indMeas_data[k] - 1)];
       }
 
-      b_y[i1] = d3 / c_xt;
+      b_y[i1] = d3 / anew;
     }
 
-    c = b_xt->data[(int)(((stateSize + (anchorIdx->data[(int)indMeas_data[k] - 1]
-      - 1.0) * (7.0 + numPointsPerAnchor)) + 7.0) + featureAnchorIdx->data[(int)
-                         indMeas_data[k] - 1]) - 1] * b_xt->data[(int)
-      (((stateSize + (anchorIdx->data[(int)indMeas_data[k] - 1] - 1.0) * (7.0 +
-          numPointsPerAnchor)) + 7.0) + featureAnchorIdx->data[(int)
-       indMeas_data[k] - 1]) - 1];
-    dv7[0] = 0.0;
-    dv7[3] = -b_y[2];
-    dv7[6] = b_y[1];
-    dv7[1] = b_y[2];
-    dv7[4] = 0.0;
-    dv7[7] = -b_y[0];
-    dv7[2] = -b_y[1];
-    dv7[5] = b_y[0];
-    dv7[8] = 0.0;
+    anew = b_xt->data[(int)(((stateSize + (anchorIdx->data[(int)indMeas_data[k]
+      - 1] - 1.0) * (7.0 + numPointsPerAnchor)) + 7.0) + featureAnchorIdx->data
+      [(int)indMeas_data[k] - 1]) - 1] * b_xt->data[(int)(((stateSize +
+      (anchorIdx->data[(int)indMeas_data[k] - 1] - 1.0) * (7.0 +
+      numPointsPerAnchor)) + 7.0) + featureAnchorIdx->data[(int)indMeas_data[k]
+      - 1]) - 1];
+    dv6[0] = 0.0;
+    dv6[3] = -b_y[2];
+    dv6[6] = b_y[1];
+    dv6[1] = b_y[2];
+    dv6[4] = 0.0;
+    dv6[7] = -b_y[0];
+    dv6[2] = -b_y[1];
+    dv6[5] = b_y[0];
+    dv6[8] = 0.0;
     kidx = (int)(featureAnchorIdx->data[(int)indMeas_data[k] - 1] - 1.0);
     for (i1 = 0; i1 < 3; i1++) {
       for (ic = 0; ic < 3; ic++) {
@@ -544,7 +543,7 @@ void b_getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
           ((int)indMeas_data[k] - 1)];
       }
 
-      b_map[i1] = d3 / c;
+      b_map[i1] = d3 / anew;
     }
 
     r = (int)(numPointsPerAnchor - featureAnchorIdx->data[(int)indMeas_data[k] -
@@ -561,7 +560,7 @@ void b_getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
 
     for (i1 = 0; i1 < 3; i1++) {
       for (ic = 0; ic < 3; ic++) {
-        H_iy->data[ic + H_iy->size[0] * (i1 + 3)] = -dv7[ic + 3 * i1];
+        H_iy->data[ic + H_iy->size[0] * (i1 + 3)] = -dv6[ic + 3 * i1];
       }
     }
 
@@ -647,39 +646,39 @@ void b_getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
       }
     }
 
-    b_anchorIdx = (anchorIdx->data[(int)indMeas_data[k] - 1] - 1.0) * (6.0 +
+    anew = (anchorIdx->data[(int)indMeas_data[k] - 1] - 1.0) * (6.0 +
       numPointsPerAnchor);
     i1 = r2->size[0];
     r2->size[0] = y->size[1];
     emxEnsureCapacity((emxArray__common *)r2, i1, (int)sizeof(int));
     ia = y->size[1];
     for (i1 = 0; i1 < ia; i1++) {
-      r2->data[i1] = (int)(b_anchorIdx + y->data[y->size[0] * i1]) - 1;
+      r2->data[i1] = (int)(anew + y->data[y->size[0] * i1]) - 1;
     }
 
-    Ch_dn_To_h_un(k1_l, k2_l, k3_l, h_cin_l[0], h_cin_l[1], d);
+    Ch_dn_To_h_un(k1_l, k2_l, k3_l, h_cin_l[0], h_cin_l[1], B);
     f_fx_l[0] = fx_l;
     f_fx_l[2] = 0.0;
     f_fx_l[1] = 0.0;
     f_fx_l[3] = fy_l;
-    dv8[0] = 1.0 / h_rz[2];
-    dv8[2] = 0.0;
-    dv8[4] = -h_rz[0] / (h_rz[2] * h_rz[2]);
-    dv8[1] = 0.0;
-    dv8[3] = 1.0 / h_rz[2];
-    dv8[5] = -h_rz[1] / (h_rz[2] * h_rz[2]);
+    dv7[0] = 1.0 / h_rz[2];
+    dv7[2] = 0.0;
+    dv7[4] = -h_rz[0] / (h_rz[2] * h_rz[2]);
+    dv7[1] = 0.0;
+    dv7[3] = 1.0 / h_rz[2];
+    dv7[5] = -h_rz[1] / (h_rz[2] * h_rz[2]);
     for (i1 = 0; i1 < 2; i1++) {
       for (ic = 0; ic < 2; ic++) {
         c_fx_l[i1 + (ic << 1)] = 0.0;
         for (r = 0; r < 2; r++) {
-          c_fx_l[i1 + (ic << 1)] += f_fx_l[i1 + (r << 1)] * d[r + (ic << 1)];
+          c_fx_l[i1 + (ic << 1)] += f_fx_l[i1 + (r << 1)] * B[r + (ic << 1)];
         }
       }
 
       for (ic = 0; ic < 3; ic++) {
         d_fx_l[i1 + (ic << 1)] = 0.0;
         for (r = 0; r < 2; r++) {
-          d_fx_l[i1 + (ic << 1)] += c_fx_l[i1 + (r << 1)] * dv8[r + (ic << 1)];
+          d_fx_l[i1 + (ic << 1)] += c_fx_l[i1 + (r << 1)] * dv7[r + (ic << 1)];
         }
       }
 
@@ -691,27 +690,27 @@ void b_getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
       }
     }
 
-    d_y[1] = H_iy->size[1];
+    kidx = H_iy->size[1];
     i1 = C->size[0] * C->size[1];
     C->size[0] = 2;
     emxEnsureCapacity((emxArray__common *)C, i1, (int)sizeof(double));
     i1 = C->size[0] * C->size[1];
-    C->size[1] = (int)d_y[1];
+    C->size[1] = kidx;
     emxEnsureCapacity((emxArray__common *)C, i1, (int)sizeof(double));
-    ia = (int)d_y[1] << 1;
+    ia = kidx << 1;
     for (i1 = 0; i1 < ia; i1++) {
       C->data[i1] = 0.0;
     }
 
-    b_c = (H_iy->size[1] - 1) << 1;
-    for (kidx = 0; kidx <= b_c; kidx += 2) {
+    c = (H_iy->size[1] - 1) << 1;
+    for (kidx = 0; kidx <= c; kidx += 2) {
       for (ic = kidx + 1; ic <= kidx + 2; ic++) {
         C->data[ic - 1] = 0.0;
       }
     }
 
     r = 0;
-    for (kidx = 0; kidx <= b_c; kidx += 2) {
+    for (kidx = 0; kidx <= c; kidx += 2) {
       ar = 0;
       for (i1 = r; i1 + 1 <= r + 3; i1++) {
         if (H_iy->data[i1] != 0.0) {
@@ -751,7 +750,7 @@ void b_getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
   emxInit_real_T(&H_v, 2);
 
   //  residual with respect to camera measurements
-  r_g_size_idx_0 = 0;
+  k = 0;
 
   //  gravity residual
   r_p_size_idx_0 = 0;
@@ -782,6 +781,7 @@ void b_getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
   emxFree_real_T(&H_xm);
   emxInit_real_T(&H_g, 2);
   emxInit_real_T(&H_p, 2);
+  emxInit_real_T(&r3, 2);
   i1 = H_g->size[0] * H_g->size[1];
   H_g->size[0] = 0;
   H_g->size[1] = 0;
@@ -798,52 +798,69 @@ void b_getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
   R_g_size[1] = 0;
   R_p_size[0] = 0;
   R_p_size[1] = 0;
-  for (k = 0; k < 2; k++) {
-    d_y[k] = imNoise[k] * imNoise[k];
-  }
-
-  for (i1 = 0; i1 < 4; i1++) {
-    d[i1] = 0.0;
-  }
-
-  for (r = 0; r < 2; r++) {
-    d[r + (r << 1)] = d_y[r];
-  }
-
-  emxInit_real_T(&r3, 2);
   eye((double)indMeas_size[0], r3);
   ic = r3->size[0];
-  b_c = r3->size[1];
+  c = r3->size[1];
   ia = r3->size[0] * r3->size[1];
   for (i1 = 0; i1 < ia; i1++) {
     A_data[i1] = r3->data[i1];
   }
 
+  power(imNoise, dv8);
+  diag(dv8, B);
   R_v_size[0] = ic << 1;
-  R_v_size[1] = b_c << 1;
+  R_v_size[1] = c << 1;
   kidx = -1;
-  for (r = 1; r <= b_c; r++) {
+  for (r = 1; r <= c; r++) {
     for (ar = 0; ar < 2; ar++) {
       for (i1 = 1; i1 <= ic; i1++) {
         for (ia = 0; ia < 2; ia++) {
           kidx++;
-          R_v_data[kidx] = A_data[(i1 + ic * (r - 1)) - 1] * d[ia + (ar << 1)];
+          R_v_data[kidx] = A_data[(i1 + ic * (r - 1)) - 1] * B[ia + (ar << 1)];
         }
       }
     }
   }
 
   if (gravityUpdate) {
-    //  normalize the acceleration measurement
-    //  normalize the magnetometer measurement
-    for (i1 = 0; i1 < 3; i1++) {
-      h_rz[i1] = 0.0;
-      for (ic = 0; ic < 3; ic++) {
-        h_rz[i1] += R_cw[i1 + 3 * ic] * (double)b_b[ic];
+    for (kidx = 0; kidx < 3; kidx++) {
+      x[kidx] = (IMU_measurements[kidx + 3] == 0.0);
+    }
+
+    d_y = true;
+    k = 0;
+    exitg1 = false;
+    while ((!exitg1) && (k < 3)) {
+      if (!x[k]) {
+        d_y = false;
+        exitg1 = true;
+      } else {
+        k++;
       }
     }
 
-    //  the earth-z axis transformed into the body frame
+    if (!d_y) {
+      anew = norm(*(double (*)[3])&IMU_measurements[3]);
+
+      //  normalize the acceleration measurement
+      //  the earth-z axis transformed into the body frame
+      k = 3;
+      for (i1 = 0; i1 < 3; i1++) {
+        h_rz[i1] = 0.0;
+        for (ic = 0; ic < 3; ic++) {
+          h_rz[i1] += R_cw[i1 + 3 * ic] * (double)b_b[ic];
+        }
+
+        r_g_data[i1] = IMU_measurements[3 + i1] / anew - h_rz[i1];
+      }
+    } else {
+      k = 3;
+      for (kidx = 0; kidx < 3; kidx++) {
+        h_rz[kidx] = 0.0;
+        r_g_data[kidx] = 0.0;
+      }
+    }
+
     i1 = H_g->size[0] * H_g->size[1];
     H_g->size[0] = 3;
     H_g->size[1] = (int)(errorStateSize + numAnchors * (6.0 + numPointsPerAnchor));
@@ -873,11 +890,6 @@ void b_getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
     for (i1 = 0; i1 < 9; i1++) {
       R_g_data[i1] = gravAlignNoise * (double)b[i1];
     }
-
-    r_g_size_idx_0 = 3;
-    for (i1 = 0; i1 < 3; i1++) {
-      r_g_data[i1] = dv10[i1] - h_rz[i1];
-    }
   }
 
   if (useAirPressure) {
@@ -901,18 +913,18 @@ void b_getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
 
   if (gravityUpdate) {
     if (useAirPressure) {
-      r_size[0] = (z_size_idx_0 + r_g_size_idx_0) + r_p_size_idx_0;
+      r_size[0] = (z_size_idx_0 + k) + r_p_size_idx_0;
       for (i1 = 0; i1 < z_size_idx_0; i1++) {
         r_data[i1] = z_data[i1];
       }
 
-      for (i1 = 0; i1 < r_g_size_idx_0; i1++) {
+      for (i1 = 0; i1 < k; i1++) {
         r_data[i1 + z_size_idx_0] = r_g_data[i1];
       }
 
       i1 = 0;
       while (i1 <= r_p_size_idx_0 - 1) {
-        r_data[z_size_idx_0 + r_g_size_idx_0] = r_p_data[0];
+        r_data[z_size_idx_0 + k] = r_p_data[0];
         i1 = 1;
       }
 
@@ -946,10 +958,10 @@ void b_getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
         }
       }
 
-      output_size(R_v_size, R_g_size, R_p_size, &r, &kidx);
-      R_size[0] = r;
-      R_size[1] = kidx;
-      ia = r * kidx;
+      output_size(R_v_size, R_g_size, R_p_size, &kidx, &r);
+      R_size[0] = kidx;
+      R_size[1] = r;
+      ia = kidx * r;
       for (i1 = 0; i1 < ia; i1++) {
         R_data[i1] = 0.0;
       }
@@ -990,24 +1002,24 @@ void b_getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
       }
 
       r = R_v_size[0] + R_g_size[0];
-      b_c = R_v_size[1] + R_g_size[1];
+      c = R_v_size[1] + R_g_size[1];
       if ((R_p_size[0] > 0) && (R_p_size[1] > 0)) {
         ia = R_p_size[1];
         for (i1 = 0; i1 < ia; i1++) {
           ar = R_p_size[0];
           for (ic = 0; ic < ar; ic++) {
-            R_data[(r + ic) + R_size[0] * (b_c + i1)] = R_p_data[ic + R_p_size[0]
-              * i1];
+            R_data[(r + ic) + R_size[0] * (c + i1)] = R_p_data[ic + R_p_size[0] *
+              i1];
           }
         }
       }
     } else {
-      r_size[0] = z_size_idx_0 + r_g_size_idx_0;
+      r_size[0] = z_size_idx_0 + k;
       for (i1 = 0; i1 < z_size_idx_0; i1++) {
         r_data[i1] = z_data[i1];
       }
 
-      for (i1 = 0; i1 < r_g_size_idx_0; i1++) {
+      for (i1 = 0; i1 < k; i1++) {
         r_data[i1 + z_size_idx_0] = r_g_data[i1];
       }
 
@@ -1275,13 +1287,14 @@ void getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
   int R_g_size[2];
   int R_p_size[2];
   double R_v[4];
+  boolean_T x[3];
+  boolean_T e_y;
+  boolean_T exitg1;
+  double r_g_data[3];
   static const signed char b_b[3] = { 0, 0, 1 };
 
   double dv3[9];
   double R_g_data[9];
-  double r_g_data[3];
-  static const double dv4[3] = { 0.0934, -0.9946, 0.0459 };
-
   double R_p_data[1];
   double r_p_data[1];
   signed char unnamed_idx_0;
@@ -1868,16 +1881,44 @@ void getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
   }
 
   if (gravityUpdate) {
-    //  normalize the acceleration measurement
-    //  normalize the magnetometer measurement
-    for (ar = 0; ar < 3; ar++) {
-      h_ci_l[ar] = 0.0;
-      for (br = 0; br < 3; br++) {
-        h_ci_l[ar] += R_cw[ar + 3 * br] * (double)b_b[br];
+    for (nm1d2 = 0; nm1d2 < 3; nm1d2++) {
+      x[nm1d2] = (IMU_measurements[nm1d2 + 3] == 0.0);
+    }
+
+    e_y = true;
+    br = 0;
+    exitg1 = false;
+    while ((!exitg1) && (br < 3)) {
+      if (!x[br]) {
+        e_y = false;
+        exitg1 = true;
+      } else {
+        br++;
       }
     }
 
-    //  the earth-z axis transformed into the body frame
+    if (!e_y) {
+      anew = norm(*(double (*)[3])&IMU_measurements[3]);
+
+      //  normalize the acceleration measurement
+      //  the earth-z axis transformed into the body frame
+      ib = 3;
+      for (ar = 0; ar < 3; ar++) {
+        h_ci_l[ar] = 0.0;
+        for (br = 0; br < 3; br++) {
+          h_ci_l[ar] += R_cw[ar + 3 * br] * (double)b_b[br];
+        }
+
+        r_g_data[ar] = IMU_measurements[3 + ar] / anew - h_ci_l[ar];
+      }
+    } else {
+      ib = 3;
+      for (nm1d2 = 0; nm1d2 < 3; nm1d2++) {
+        h_ci_l[nm1d2] = 0.0;
+        r_g_data[nm1d2] = 0.0;
+      }
+    }
+
     ar = H_g->size[0] * H_g->size[1];
     H_g->size[0] = 3;
     H_g->size[1] = (int)(errorStateSize + numAnchors * (6.0 + numPointsPerAnchor));
@@ -1906,11 +1947,6 @@ void getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
     R_g_size[1] = 3;
     for (ar = 0; ar < 9; ar++) {
       R_g_data[ar] = gravAlignNoise * (double)b[ar];
-    }
-
-    ib = 3;
-    for (ar = 0; ar < 3; ar++) {
-      r_g_data[ar] = dv4[ar] - h_ci_l[ar];
     }
   }
 

@@ -5,6 +5,7 @@
 #include <blkdiag.h>
 #include <Ch_dn_To_h_un.h>
 #include <colon.h>
+#include <cross.h>
 #include <diag.h>
 #include <eml_rand_mt19937ar_stateful.h>
 #include <eye.h>
@@ -16,12 +17,14 @@
 #include <mrdivide.h>
 #include <norm.h>
 #include <OnePointRANSAC_EKF.h>
+#include <power.h>
 #include <predictMeasurement_left.h>
 #include <predictMeasurement_stereo.h>
 #include <QuatFromRotJ.h>
 #include <quatmultJ.h>
 #include <quatPlusThetaJ.h>
 #include <rand.h>
+#include <rdivide.h>
 #include <rtGetInf.h>
 #include <rtGetNaN.h>
 #include <rt_nonfinite.h>

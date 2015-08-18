@@ -5,7 +5,7 @@
 // File: diag.h
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 18-Aug-2015 09:45:37
+// C/C++ source code generated on  : 18-Aug-2015 11:00:04
 //
 #ifndef __DIAG_H__
 #define __DIAG_H__
@@ -20,7 +20,8 @@
 #include "SLAM_types.h"
 
 // Function Declarations
-extern void diag(const double v[9], double d[81]);
+extern void b_diag(const double v[9], double d[81]);
+extern void diag(const double v[2], double d[4]);
 
 #endif
 

@@ -2,13 +2,13 @@
 // Academic License - for use in teaching, academic research, and meeting
 // course requirements at degree granting institutions only.  Not for
 // government, commercial, or other organizational use.
-// File: eml_rand_mt19937ar_stateful.h
+// File: power.h
 //
 // MATLAB Coder version            : 2.8
 // C/C++ source code generated on  : 18-Aug-2015 11:00:04
 //
-#ifndef __EML_RAND_MT19937AR_STATEFUL_H__
-#define __EML_RAND_MT19937AR_STATEFUL_H__
+#ifndef __POWER_H__
+#define __POWER_H__
 
 // Include Files
 #include <math.h>
@@ -20,12 +20,12 @@
 #include "SLAM_types.h"
 
 // Function Declarations
-extern void c_eml_rand_mt19937ar_stateful_i();
+extern void power(const double a[2], double y[2]);
 
 #endif
 
 //
-// File trailer for eml_rand_mt19937ar_stateful.h
+// File trailer for power.h
 //
 // [EOF]
 //
