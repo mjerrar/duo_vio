@@ -5,7 +5,7 @@
 // File: SLAM_initialize.cpp
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 17-Aug-2015 20:14:43
+// C/C++ source code generated on  : 18-Aug-2015 09:45:37
 //
 
 // Include Files
@@ -18,7 +18,7 @@
 #include <stdio.h>
 
 // Named Constants
-#define b_gravityUpdate                (true)
+#define b_gravityUpdate                (false)
 #define b_useAirPressure               (false)
 #define b_normalGravity                (true)
 #define b_numStates                    (12.0)

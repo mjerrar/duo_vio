@@ -5,7 +5,7 @@
 // File: Ch_dn_To_h_un.h
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 17-Aug-2015 20:14:43
+// C/C++ source code generated on  : 18-Aug-2015 09:45:37
 //
 #ifndef __CH_DN_TO_H_UN_H__
 #define __CH_DN_TO_H_UN_H__

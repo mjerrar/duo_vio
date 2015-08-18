@@ -5,7 +5,7 @@
 // File: getH_R_res.cpp
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 17-Aug-2015 20:14:43
+// C/C++ source code generated on  : 18-Aug-2015 09:45:37
 //
 
 // Include Files
@@ -52,7 +52,7 @@
 // Arguments    : const emxArray_real_T *b_xt
 //                double errorStateSize
 //                double stateSize
-//                const double z_all_l[32]
+//                const double z_all_l[64]
 //                const double indMeas_data[]
 //                const int indMeas_size[1]
 //                const emxArray_real_T *map
@@ -77,7 +77,7 @@
 // Return Type  : void
 //
 void b_getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
-                  stateSize, const double z_all_l[32], const double
+                  stateSize, const double z_all_l[64], const double
                   indMeas_data[], const int indMeas_size[1], const
                   emxArray_real_T *map, const double
                   c_cameraparams_CameraParameters[3], const double
@@ -101,7 +101,7 @@ void b_getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
   int ia;
   emxArray_real_T *H_xc;
   int z_size_idx_0;
-  double z_data[32];
+  double z_data[64];
   int k;
   emxArray_real_T *H_iy;
   emxArray_int32_T *r2;
@@ -190,8 +190,8 @@ void b_getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
   int R_g_size[2];
   int R_p_size[2];
   emxArray_real_T *r3;
-  double A_data[256];
-  double R_v_data[1024];
+  double A_data[1024];
+  double R_v_data[4096];
   int R_v_size[2];
   static const signed char b_b[3] = { 0, 0, 1 };
 
@@ -1034,7 +1034,7 @@ void b_getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
 
       b_R_v_data.data = (double *)&R_v_data;
       b_R_v_data.size = (int *)&R_v_size;
-      b_R_v_data.allocatedSize = 1024;
+      b_R_v_data.allocatedSize = 4096;
       b_R_v_data.numDimensions = 2;
       b_R_v_data.canFreeData = false;
       b_R_p_data.data = (double *)&R_g_data;
@@ -1085,7 +1085,7 @@ void b_getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
 
     b_R_v_data.data = (double *)&R_v_data;
     b_R_v_data.size = (int *)&R_v_size;
-    b_R_v_data.allocatedSize = 1024;
+    b_R_v_data.allocatedSize = 4096;
     b_R_v_data.numDimensions = 2;
     b_R_v_data.canFreeData = false;
     b_R_p_data.data = (double *)&R_p_data;
@@ -1157,7 +1157,7 @@ void b_getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
 // Arguments    : const emxArray_real_T *b_xt
 //                double errorStateSize
 //                double stateSize
-//                const double z_all_l[32]
+//                const double z_all_l[64]
 //                double indMeas
 //                const emxArray_real_T *map
 //                const double c_cameraparams_CameraParameters[3]
@@ -1180,7 +1180,7 @@ void b_getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
 // Return Type  : void
 //
 void getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
-                stateSize, const double z_all_l[32], double indMeas, const
+                stateSize, const double z_all_l[64], double indMeas, const
                 emxArray_real_T *map, const double
                 c_cameraparams_CameraParameters[3], const double
                 d_cameraparams_CameraParameters[2], const double

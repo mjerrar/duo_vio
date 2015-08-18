@@ -5,7 +5,7 @@
 // File: SLAM.cpp
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 17-Aug-2015 20:14:43
+// C/C++ source code generated on  : 18-Aug-2015 09:45:37
 //
 
 // Include Files
@@ -37,9 +37,9 @@ static double x_att[4];
 // Function Definitions
 
 //
-// Arguments    : double updateVect[16]
-//                const double z_all_l[32]
-//                const double z_all_r[32]
+// Arguments    : double updateVect[32]
+//                const double z_all_l[64]
+//                const double z_all_r[64]
 //                double dt
 //                const double processNoise[4]
 //                double IMU_measurements[23]
@@ -53,8 +53,8 @@ static double x_att[4];
 //                emxArray_real_T *map_out
 // Return Type  : void
 //
-void SLAM(double updateVect[16], const double z_all_l[32], const double z_all_r
-          [32], double dt, const double processNoise[4], double
+void SLAM(double updateVect[32], const double z_all_l[64], const double z_all_r
+          [64], double dt, const double processNoise[4], double
           IMU_measurements[23], const double imNoise[2], double
           numPointsPerAnchor, double numAnchors, const stereoParameters
           *cameraParams, emxArray_real_T *h_u_apo_out, emxArray_real_T *xt_out,
@@ -103,7 +103,7 @@ void SLAM(double updateVect[16], const double z_all_l[32], const double z_all_r
 
   static const signed char h_a[9] = { -1, 0, 0, 0, -1, 0, 0, 0, -1 };
 
-  int tmp_data[16];
+  int tmp_data[32];
 
   //  persistents for attitude estimator
   //  for coder
@@ -427,17 +427,17 @@ void SLAM(double updateVect[16], const double z_all_l[32], const double z_all_r
     }
 
     ibcol = h_u_apo_out->size[0];
-    h_u_apo_out->size[0] = 64;
+    h_u_apo_out->size[0] = 128;
     emxEnsureCapacity((emxArray__common *)h_u_apo_out, ibcol, (int)sizeof(double));
-    for (ibcol = 0; ibcol < 64; ibcol++) {
+    for (ibcol = 0; ibcol < 128; ibcol++) {
       h_u_apo_out->data[ibcol] = -100.0;
     }
 
     ibcol = map_out->size[0] * map_out->size[1];
     map_out->size[0] = 3;
-    map_out->size[1] = 16;
+    map_out->size[1] = 32;
     emxEnsureCapacity((emxArray__common *)map_out, ibcol, (int)sizeof(double));
-    for (ibcol = 0; ibcol < 48; ibcol++) {
+    for (ibcol = 0; ibcol < 96; ibcol++) {
       map_out->data[ibcol] = rtNaN;
     }
 
@@ -445,7 +445,7 @@ void SLAM(double updateVect[16], const double z_all_l[32], const double z_all_r
   } else if (init_counter == 10.0) {
     //  done initializing attitude. Insert the estimated attitude and the covariance into the whole state, request features 
     b_fprintf();
-    for (outsize_idx_0 = 0; outsize_idx_0 < 16; outsize_idx_0++) {
+    for (outsize_idx_0 = 0; outsize_idx_0 < 32; outsize_idx_0++) {
       updateVect[outsize_idx_0] = 0.0;
     }
 
@@ -496,17 +496,17 @@ void SLAM(double updateVect[16], const double z_all_l[32], const double z_all_r
     }
 
     ibcol = h_u_apo_out->size[0];
-    h_u_apo_out->size[0] = 64;
+    h_u_apo_out->size[0] = 128;
     emxEnsureCapacity((emxArray__common *)h_u_apo_out, ibcol, (int)sizeof(double));
-    for (ibcol = 0; ibcol < 64; ibcol++) {
+    for (ibcol = 0; ibcol < 128; ibcol++) {
       h_u_apo_out->data[ibcol] = -100.0;
     }
 
     ibcol = map_out->size[0] * map_out->size[1];
     map_out->size[0] = 3;
-    map_out->size[1] = 16;
+    map_out->size[1] = 32;
     emxEnsureCapacity((emxArray__common *)map_out, ibcol, (int)sizeof(double));
-    for (ibcol = 0; ibcol < 48; ibcol++) {
+    for (ibcol = 0; ibcol < 96; ibcol++) {
       map_out->data[ibcol] = rtNaN;
     }
 

@@ -29,8 +29,8 @@
     <param name="process_noise_2" type="double" value="10" />
     <param name="process_noise_3" type="double" value="0.0" />
 
-    <param name="im_noise_1" type="double" value="0.1" />
-    <param name="im_noise_2" type="double" value="0.1" />
+    <param name="im_noise_1" type="double" value="1" />
+    <param name="im_noise_2" type="double" value="1" />
     <param name="im_noise_3" type="double" value="0.1" />
     <param name="im_noise_4" type="double" value="0.1" />
 
