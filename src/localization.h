@@ -85,7 +85,7 @@ private:
    ros::Publisher point_cloud_pub_;
    void publishPointCloud(double * map );
 
-  void updateDronePose(void);
+  void updateDronePose(bool debug_publish);
 
   ros::Publisher path_pub_;
   nav_msgs::Path slam_path_;
