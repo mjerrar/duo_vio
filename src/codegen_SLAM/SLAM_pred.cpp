@@ -5,7 +5,7 @@
 // File: SLAM_pred.cpp
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 18-Aug-2015 11:22:44
+// C/C++ source code generated on  : 18-Aug-2015 14:23:32
 //
 
 // Include Files
@@ -134,7 +134,7 @@ static void b_dxdt_dPdt(double dt, const double meas[6], const emxArray_real_T
 
   // oa=x(14:16)
   for (br = 0; br < 3; br++) {
-    w[br] = meas[br] - x->data[10 + br];
+    w[br] = 0.0 * (meas[br] - x->data[10 + br]);
   }
 
   dv21[0] = 0.0;
@@ -544,7 +544,7 @@ static void dxdt_dPdt(double dt, const double meas[6], const emxArray_real_T *x,
 
   // oa=x(14:16)
   for (i = 0; i < 3; i++) {
-    w[i] = meas[i] - x->data[10 + i];
+    w[i] = 0.0 * (meas[i] - x->data[10 + i]);
   }
 
   dv12[0] = 0.0;

@@ -5,7 +5,7 @@
 // File: mrdivide.cpp
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 18-Aug-2015 11:22:44
+// C/C++ source code generated on  : 18-Aug-2015 14:23:32
 //
 
 // Include Files
@@ -239,9 +239,9 @@ static void eml_lusolve(const double A_data[], const int A_size[2], const
   int b_A_size[2];
   int info;
   int jp;
-  double b_A_data[4624];
+  double b_A_data[1296];
   int ipiv_size[2];
-  int ipiv_data[68];
+  int ipiv_data[36];
   int xi;
   double temp;
   b_A_size[0] = A_size[0];
@@ -468,12 +468,12 @@ static void eml_qrsolve(const double A_data[], const int A_size[2], const
   int b_A_size[2];
   int j;
   int k;
-  double b_A_data[4624];
+  double b_A_data[1296];
   emxArray_real_T *b_B;
   int jpvt_size[2];
-  int jpvt_data[68];
+  int jpvt_data[36];
   int tau_size[1];
-  double tau_data[68];
+  double tau_data[36];
   int rankR;
   int m;
   int nb;
@@ -575,9 +575,9 @@ static void eml_xgeqp3(double A_data[], int A_size[2], double tau_data[], int
   int mn;
   int k;
   int itemp;
-  double work_data[68];
-  double vn1_data[68];
-  double vn2_data[68];
+  double work_data[36];
+  double vn1_data[36];
+  double vn2_data[36];
   int i;
   int i_i;
   int nmi;
@@ -950,7 +950,7 @@ void mrdivide(const emxArray_real_T *A, const double B_data[], const int B_size
   unsigned int unnamed_idx_0;
   int i9;
   int loop_ub;
-  double b_B_data[4624];
+  double b_B_data[1296];
   int b_B_size[2];
   int A_idx_1;
   int i10;

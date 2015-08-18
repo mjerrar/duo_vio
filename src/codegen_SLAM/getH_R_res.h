@@ -5,7 +5,7 @@
 // File: getH_R_res.h
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 18-Aug-2015 11:22:44
+// C/C++ source code generated on  : 18-Aug-2015 14:23:32
 //
 #ifndef __GETH_R_RES_H__
 #define __GETH_R_RES_H__
@@ -21,7 +21,7 @@
 
 // Function Declarations
 extern void b_getH_R_res(const emxArray_real_T *b_xt, double errorStateSize,
-  double stateSize, const double z_all_l[64], const double indMeas_data[], const
+  double stateSize, const double z_all_l[32], const double indMeas_data[], const
   int indMeas_size[1], const emxArray_real_T *map, const double
   c_cameraparams_CameraParameters[3], const double
   d_cameraparams_CameraParameters[2], const double
@@ -32,7 +32,7 @@ extern void b_getH_R_res(const emxArray_real_T *b_xt, double errorStateSize,
   r_data[], int r_size[1], emxArray_real_T *H, double h_u_data[], int h_u_size[1],
   double R_data[], int R_size[2]);
 extern void getH_R_res(const emxArray_real_T *b_xt, double errorStateSize,
-  double stateSize, const double z_all_l[64], double indMeas, const
+  double stateSize, const double z_all_l[32], double indMeas, const
   emxArray_real_T *map, const double c_cameraparams_CameraParameters[3], const
   double d_cameraparams_CameraParameters[2], const double
   e_cameraparams_CameraParameters[2], double numAnchors, double

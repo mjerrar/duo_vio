@@ -5,7 +5,7 @@
 // File: OnePointRANSAC_EKF.h
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 18-Aug-2015 11:22:44
+// C/C++ source code generated on  : 18-Aug-2015 14:23:32
 //
 #ifndef __ONEPOINTRANSAC_EKF_H__
 #define __ONEPOINTRANSAC_EKF_H__
@@ -21,7 +21,7 @@
 
 // Function Declarations
 extern void OnePointRANSAC_EKF(emxArray_real_T *b_xt, emxArray_real_T *b_P,
-  const double z_all_l[64], double c_numStatesxt, double c_numStates, double
+  const double z_all_l[32], double c_numStatesxt, double c_numStates, double
   numPointsPerAnchor, const double c_cameraparams_CameraParameters[3], const
   double d_cameraparams_CameraParameters[2], const double
   e_cameraparams_CameraParameters[2], const emxArray_real_T *b_anchorFeatures,

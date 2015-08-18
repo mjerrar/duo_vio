@@ -26,13 +26,13 @@
     <remap from="/right_image" to="/duo3d_camera/right/image_raw"/>
 
     <param name="process_noise_1" type="double" value="10" />
-    <param name="process_noise_2" type="double" value="10" />
+    <param name="process_noise_2" type="double" value="1" />
     <param name="process_noise_3" type="double" value="0.0" />
 
     <param name="im_noise_1" type="double" value="1" />
     <param name="im_noise_2" type="double" value="1" />
-    <param name="im_noise_3" type="double" value="0.1" />
-    <param name="im_noise_4" type="double" value="0.1" />
+    <param name="im_noise_3" type="double" value="1" />
+    <param name="im_noise_4" type="double" value="1" />
 
     <!-- note that these parameters are not free. The total number of points num_anchors*num_points_per_anchor must equal the total number of points with wich SLAM was codered in Matlab. -->
     <param name="num_points_per_anchor" type="int" value="4" />

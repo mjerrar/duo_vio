@@ -5,7 +5,7 @@
 // File: OnePointRANSAC_EKF.cpp
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 18-Aug-2015 11:22:44
+// C/C++ source code generated on  : 18-Aug-2015 14:23:32
 //
 
 // Include Files
@@ -34,7 +34,7 @@
 // the state
 // Arguments    : emxArray_real_T *b_xt
 //                emxArray_real_T *b_P
-//                const double z_all_l[64]
+//                const double z_all_l[32]
 //                double c_numStatesxt
 //                double c_numStates
 //                double numPointsPerAnchor
@@ -51,7 +51,7 @@
 // Return Type  : void
 //
 void OnePointRANSAC_EKF(emxArray_real_T *b_xt, emxArray_real_T *b_P, const
-  double z_all_l[64], double c_numStatesxt, double c_numStates, double
+  double z_all_l[32], double c_numStatesxt, double c_numStates, double
   numPointsPerAnchor, const double c_cameraparams_CameraParameters[3], const
   double d_cameraparams_CameraParameters[2], const double
   e_cameraparams_CameraParameters[2], const emxArray_real_T *b_anchorFeatures,
@@ -63,20 +63,20 @@ void OnePointRANSAC_EKF(emxArray_real_T *b_xt, emxArray_real_T *b_P, const
   int numAnchors;
   int i18;
   int loop_ub;
-  boolean_T x[32];
+  boolean_T x[16];
   int idx;
-  int ii_data[32];
+  int ii_data[16];
   int ii;
   boolean_T exitg3;
   boolean_T guard2 = false;
   int ar;
-  signed char indMeas_data[32];
+  signed char indMeas_data[16];
   emxArray_real_T *K;
   emxArray_real_T *H;
   int numMeas;
   double n_hyp;
   int LI_inlierStatus_size_idx_0;
-  boolean_T LI_inlierStatus_data[32];
+  boolean_T LI_inlierStatus_data[16];
   emxArray_real_T *map;
   emxArray_real_T *anchorInd;
   emxArray_real_T *featureAnchorInd;
@@ -118,12 +118,12 @@ void OnePointRANSAC_EKF(emxArray_real_T *b_xt, emxArray_real_T *b_P, const
   double d_xt[4];
   double dv40[4];
   double R_cw[9];
-  boolean_T HI_inlierStatus_data[32];
+  boolean_T HI_inlierStatus_data[16];
   int indMeasIdx;
   double featureAnchorIdx;
   boolean_T exitg2;
   boolean_T guard1 = false;
-  signed char featureIdxVect_data[32];
+  signed char featureIdxVect_data[16];
   double anchorPos[3];
   double c_x_apo_prev[9];
   double b_anchorPos[3];
@@ -135,14 +135,14 @@ void OnePointRANSAC_EKF(emxArray_real_T *b_xt, emxArray_real_T *b_P, const
   emxArray_real_T *b_a;
   int iter;
   emxArray_real_T *e_xt;
-  double b_indMeas_data[32];
+  double b_indMeas_data[16];
   int indMeas_size[1];
   int b_R_size[2];
-  double b_R_data[4624];
-  double unusedU2_data[64];
+  double b_R_data[1296];
+  double unusedU2_data[32];
   int r_size[1];
-  double b_r_data[68];
-  double b_C_data[4624];
+  double b_r_data[36];
+  double b_C_data[1296];
   int b_C_size[2];
   double dv41[4];
   double dv42[4];
@@ -152,7 +152,7 @@ void OnePointRANSAC_EKF(emxArray_real_T *b_xt, emxArray_real_T *b_P, const
   emxArray_real_T *f_xt;
   boolean_T exitg1;
   int b_indMeas_size[1];
-  double S_data[4624];
+  double S_data[1296];
   int c_C_size[2];
   double dv43[4];
   double dv44[4];
@@ -165,7 +165,7 @@ void OnePointRANSAC_EKF(emxArray_real_T *b_xt, emxArray_real_T *b_P, const
   //  threshold for minimum LI supporter
   numAnchors = b_anchorFeatures->size[1];
   i18 = c_anchorFeatures->size[0] * c_anchorFeatures->size[1];
-  c_anchorFeatures->size[0] = 32;
+  c_anchorFeatures->size[0] = 16;
   c_anchorFeatures->size[1] = b_anchorFeatures->size[1];
   emxEnsureCapacity((emxArray__common *)c_anchorFeatures, i18, (int)sizeof
                     (boolean_T));
@@ -179,12 +179,12 @@ void OnePointRANSAC_EKF(emxArray_real_T *b_xt, emxArray_real_T *b_P, const
   ii = 1;
   emxFree_boolean_T(&c_anchorFeatures);
   exitg3 = false;
-  while ((!exitg3) && (ii < 33)) {
+  while ((!exitg3) && (ii < 17)) {
     guard2 = false;
     if (x[ii - 1]) {
       idx++;
       ii_data[idx - 1] = ii;
-      if (idx >= 32) {
+      if (idx >= 16) {
         exitg3 = true;
       } else {
         guard2 = true;
@@ -667,7 +667,7 @@ void OnePointRANSAC_EKF(emxArray_real_T *b_xt, emxArray_real_T *b_P, const
     }
 
     for (br = 0; br < numAnchors; br++) {
-      for (i18 = 0; i18 < 32; i18++) {
+      for (i18 = 0; i18 < 16; i18++) {
         x[i18] = (b_anchorFeatures->data[i18 + b_anchorFeatures->size[0] * br] ==
                   1.0);
       }
@@ -758,13 +758,13 @@ void OnePointRANSAC_EKF(emxArray_real_T *b_xt, emxArray_real_T *b_P, const
       idx = 0;
       ii = 1;
       exitg2 = false;
-      while ((!exitg2) && (ii < 33)) {
+      while ((!exitg2) && (ii < 17)) {
         guard1 = false;
         if (b_anchorFeatures->data[(ii + b_anchorFeatures->size[0] * br) - 1] !=
             0.0) {
           idx++;
           ii_data[idx - 1] = ii;
-          if (idx >= 32) {
+          if (idx >= 16) {
             exitg2 = true;
           } else {
             guard1 = true;
@@ -1388,7 +1388,7 @@ void OnePointRANSAC_EKF(emxArray_real_T *b_xt, emxArray_real_T *b_P, const
       }
 
       for (br = 0; br < numAnchors; br++) {
-        for (i19 = 0; i19 < 32; i19++) {
+        for (i19 = 0; i19 < 16; i19++) {
           x[i19] = (b_anchorFeatures->data[i19 + b_anchorFeatures->size[0] * br]
                     == 1.0);
         }
@@ -1634,7 +1634,7 @@ void OnePointRANSAC_EKF(emxArray_real_T *b_xt, emxArray_real_T *b_P, const
     // ROS_WARN Print to ROS_WARN in ROS or to console in Matlab
     //      coder.cinclude('<ros/console.h>')
     //      coder.ceval('ROS_WARN', [str, 0], varargin{:});
-    h_fprintf(idx);
+    d_fprintf(idx);
   }
 
   // % D Partial EKF update using high-innovation inliers
@@ -2269,7 +2269,7 @@ void OnePointRANSAC_EKF(emxArray_real_T *b_xt, emxArray_real_T *b_P, const
     }
 
     for (br = 0; br < numAnchors; br++) {
-      for (i19 = 0; i19 < 32; i19++) {
+      for (i19 = 0; i19 < 16; i19++) {
         x[i19] = (b_anchorFeatures->data[i19 + b_anchorFeatures->size[0] * br] ==
                   1.0);
       }
@@ -2565,7 +2565,7 @@ void OnePointRANSAC_EKF(emxArray_real_T *b_xt, emxArray_real_T *b_P, const
     // ROS_WARN Print to ROS_WARN in ROS or to console in Matlab
     //      coder.cinclude('<ros/console.h>')
     //      coder.ceval('ROS_WARN', [str, 0], varargin{:});
-    j_fprintf();
+    f_fprintf();
   }
 }
 
