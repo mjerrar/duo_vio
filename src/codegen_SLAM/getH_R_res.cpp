@@ -5,7 +5,7 @@
 // File: getH_R_res.cpp
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 18-Aug-2015 11:00:04
+// C/C++ source code generated on  : 18-Aug-2015 11:22:44
 //
 
 // Include Files

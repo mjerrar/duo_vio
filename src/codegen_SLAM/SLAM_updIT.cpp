@@ -5,7 +5,7 @@
 // File: SLAM_updIT.cpp
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 18-Aug-2015 11:00:04
+// C/C++ source code generated on  : 18-Aug-2015 11:22:44
 //
 
 // Include Files
@@ -772,7 +772,7 @@ void SLAM_updIT(emxArray_real_T *P_apr, emxArray_real_T *b_xt, const double
           updateVect[indMeas_data[unusedFeatureIdx] - 1] = 0.0;
           i13 = (int)rt_roundd_snf((double)indMeas_data[unusedFeatureIdx]);
           i16 = (signed char)i13;
-          h_fprintf(i16);
+          l_fprintf(i16);
         } else {
           //  check reprojection error
           for (i13 = 0; i13 < 3; i13++) {
@@ -830,7 +830,7 @@ void SLAM_updIT(emxArray_real_T *P_apr, emxArray_real_T *b_xt, const double
           if (guard1) {
             i13 = (int)rt_roundd_snf((double)indMeas_data[unusedFeatureIdx]);
             i16 = (signed char)i13;
-            j_fprintf(i16);
+            n_fprintf(i16);
             updateVect[indMeas_data[unusedFeatureIdx] - 1] = 0.0;
           }
         }
@@ -845,7 +845,7 @@ void SLAM_updIT(emxArray_real_T *P_apr, emxArray_real_T *b_xt, const double
         i13 = MAX_int32_T;
       }
 
-      l_fprintf(i13, (int)initializeNewAnchor);
+      p_fprintf(i13, (int)initializeNewAnchor);
       if (rtIsInf(6.0 + numPointsPerAnchor)) {
         n = 0;
         anew = rtNaN;
@@ -1300,7 +1300,7 @@ void SLAM_updIT(emxArray_real_T *P_apr, emxArray_real_T *b_xt, const double
           sigmaInits->data[nm1d2];
       }
     } else {
-      n_fprintf();
+      r_fprintf();
     }
   }
 

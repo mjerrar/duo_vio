@@ -5,7 +5,7 @@
 // File: fprintf.h
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 18-Aug-2015 11:00:04
+// C/C++ source code generated on  : 18-Aug-2015 11:22:44
 //
 #ifndef __FPRINTF_H__
 #define __FPRINTF_H__
@@ -20,13 +20,15 @@
 #include "SLAM_types.h"
 
 // Function Declarations
-extern void b_fprintf();
-extern void d_fprintf(int formatSpec);
+extern void b_fprintf(double formatSpec, double varargin_1, double varargin_2);
+extern void d_fprintf(double formatSpec, double varargin_1, double varargin_2);
 extern void f_fprintf();
-extern void h_fprintf(signed char formatSpec);
-extern void j_fprintf(signed char formatSpec);
-extern void l_fprintf(int formatSpec, int varargin_1);
-extern void n_fprintf();
+extern void h_fprintf(int formatSpec);
+extern void j_fprintf();
+extern void l_fprintf(signed char formatSpec);
+extern void n_fprintf(signed char formatSpec);
+extern void p_fprintf(int formatSpec, int varargin_1);
+extern void r_fprintf();
 
 #endif
 

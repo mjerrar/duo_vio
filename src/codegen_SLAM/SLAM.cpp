@@ -5,7 +5,7 @@
 // File: SLAM.cpp
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 18-Aug-2015 11:00:04
+// C/C++ source code generated on  : 18-Aug-2015 11:22:44
 //
 
 // Include Files
@@ -88,28 +88,27 @@ void SLAM(double updateVect[32], const double z_all_l[64], const double z_all_r
   static const double b_y[9] = { 0.01, 0.0, 0.0, 0.0, 0.01, 0.0, 0.0, 0.0, 0.01
   };
 
-  static const double b_a[3] = { -0.0132, -0.4398, 0.2673 };
-
-  double c_a[3];
-  double d_a[3];
-  static const double e_a[9] = { -0.0077435500000000435, 0.0086606800000000872,
-    0.99989175999999991, -0.99987860000000006, -0.010132990000000119,
-    -0.0076556800000000536, 0.010066000000000075, -0.9998704,
-    0.0087384500000000087 };
-
   signed char I[9];
-  double f_a[9];
+  double b_a[9];
   double Phi[9];
   double dq[4];
   double dv37[16];
   double b_dq[4];
   double b_Phi[9];
-  double g_a[9];
+  double c_a[9];
   static const signed char b_b[9] = { 1, 0, 0, 0, 1, 0, 0, 0, 1 };
 
-  static const signed char h_a[9] = { -1, 0, 0, 0, -1, 0, 0, 0, -1 };
+  static const signed char d_a[9] = { -1, 0, 0, 0, -1, 0, 0, 0, -1 };
 
   int tmp_data[32];
+  static const double e_a[3] = { -0.0132, -0.4398, 0.2673 };
+
+  double f_a[3];
+  double g_a[3];
+  static const double h_a[9] = { -0.0077435500000000435, 0.0086606800000000872,
+    0.99989175999999991, -0.99987860000000006, -0.010132990000000119,
+    -0.0076556800000000536, 0.010066000000000075, -0.9998704,
+    0.0087384500000000087 };
 
   //  persistents for attitude estimator
   //  for coder
@@ -131,6 +130,7 @@ void SLAM(double updateVect[32], const double z_all_l[64], const double z_all_r
     memset(&delayBuffer_k[0], 0, 84U * sizeof(double));
 
     // delayBuffer_k_1=[0;0;0;0;0;0];
+    b_fprintf(IMU_measurements[3], IMU_measurements[4], IMU_measurements[5]);
     B = norm(*(double (*)[3])&IMU_measurements[3]);
     for (outsize_idx_0 = 0; outsize_idx_0 < 3; outsize_idx_0++) {
       z_n_b[outsize_idx_0] = IMU_measurements[outsize_idx_0 + 3] / B;
@@ -268,52 +268,10 @@ void SLAM(double updateVect[32], const double z_all_l[64], const double z_all_r
   emxFree_real_T(&r5);
   emxFree_real_T(&a);
   emxFree_real_T(&b);
-  for (k = 0; k < 13; k++) {
-    for (ibcol = 0; ibcol < 6; ibcol++) {
-      delayBuffer_k[ibcol + 6 * (13 - k)] = delayBuffer_k[ibcol + 6 * (12 - k)];
-    }
-  }
-
-  for (ibcol = 0; ibcol < 3; ibcol++) {
-    delayBuffer_k[ibcol] = IMU_measurements[13 + ibcol];
-  }
-
-  for (ibcol = 0; ibcol < 3; ibcol++) {
-    delayBuffer_k[ibcol + 3] = IMU_measurements[16 + ibcol];
-  }
-
-  for (ibcol = 0; ibcol < 3; ibcol++) {
-    b_y_n_b[ibcol] = delayBuffer_k[78 + ibcol] + b_a[ibcol];
-  }
-
-  for (ibcol = 0; ibcol < 3; ibcol++) {
-    c_a[ibcol] = 0.0;
-    for (outsize_idx_0 = 0; outsize_idx_0 < 3; outsize_idx_0++) {
-      c_a[ibcol] += e_a[ibcol + 3 * outsize_idx_0] * b_y_n_b[outsize_idx_0];
-    }
-
-    IMU_measurements[ibcol] = c_a[ibcol];
-    d_a[ibcol] = 0.0;
-    for (outsize_idx_0 = 0; outsize_idx_0 < 3; outsize_idx_0++) {
-      d_a[ibcol] += e_a[ibcol + 3 * outsize_idx_0] * delayBuffer_k[outsize_idx_0
-        + 81];
-    }
-  }
-
-  for (ibcol = 0; ibcol < 3; ibcol++) {
-    IMU_measurements[3 + ibcol] = d_a[ibcol];
-  }
-
   if (init_counter < 10.0) {
-    //      zw = IMU_measurements(1:3);
-    //      za = IMU_measurements(4:6);
-    for (ibcol = 0; ibcol < 3; ibcol++) {
-      z_n_b[ibcol] = 0.0;
-      for (outsize_idx_0 = 0; outsize_idx_0 < 3; outsize_idx_0++) {
-        z_n_b[ibcol] += e_a[ibcol + 3 * outsize_idx_0] * IMU_measurements[13 +
-          outsize_idx_0];
-      }
-    }
+    //      zw = R_ci * IMU_measurements(14:16);
+    //      za = R_ci * IMU_measurements(17:19);
+    d_fprintf(IMU_measurements[3], IMU_measurements[4], IMU_measurements[5]);
 
     // ATT_PRED Prediction step of the attitude estimator
     //    INPUT ARGUMENTS:
@@ -326,23 +284,23 @@ void SLAM(double updateVect[32], const double z_all_l[64], const double z_all_r
       I[ibcol] = 0;
     }
 
-    f_a[0] = 0.0;
-    f_a[3] = -z_n_b[2];
-    f_a[6] = z_n_b[1];
-    f_a[1] = z_n_b[2];
-    f_a[4] = 0.0;
-    f_a[7] = -z_n_b[0];
-    f_a[2] = -z_n_b[1];
-    f_a[5] = z_n_b[0];
-    f_a[8] = 0.0;
+    b_a[0] = 0.0;
+    b_a[3] = -IMU_measurements[2];
+    b_a[6] = IMU_measurements[1];
+    b_a[1] = IMU_measurements[2];
+    b_a[4] = 0.0;
+    b_a[7] = -IMU_measurements[0];
+    b_a[2] = -IMU_measurements[1];
+    b_a[5] = IMU_measurements[0];
+    b_a[8] = 0.0;
     B = dt * dt;
     for (k = 0; k < 3; k++) {
       I[k + 3 * k] = 1;
       for (ibcol = 0; ibcol < 3; ibcol++) {
-        Phi[ibcol + 3 * k] = (double)I[ibcol + 3 * k] + -f_a[ibcol + 3 * k] * dt;
+        Phi[ibcol + 3 * k] = (double)I[ibcol + 3 * k] + -b_a[ibcol + 3 * k] * dt;
       }
 
-      b_y_n_b[k] = z_n_b[k] * dt;
+      b_y_n_b[k] = IMU_measurements[k] * dt;
     }
 
     quatPlusThetaJ(b_y_n_b, dq);
@@ -381,9 +339,9 @@ void SLAM(double updateVect[32], const double z_all_l[64], const double z_all_r
             P_att[itilerow + 3 * outsize_idx_0];
         }
 
-        f_a[ibcol + 3 * outsize_idx_0] = 0.0;
+        b_a[ibcol + 3 * outsize_idx_0] = 0.0;
         for (itilerow = 0; itilerow < 3; itilerow++) {
-          f_a[ibcol + 3 * outsize_idx_0] += (double)h_a[ibcol + 3 * itilerow] *
+          b_a[ibcol + 3 * outsize_idx_0] += (double)d_a[ibcol + 3 * itilerow] *
             ((double)b_b[itilerow + 3 * outsize_idx_0] * processNoise[1] * B);
         }
       }
@@ -395,10 +353,10 @@ void SLAM(double updateVect[32], const double z_all_l[64], const double z_all_r
             Phi[outsize_idx_0 + 3 * itilerow];
         }
 
-        g_a[ibcol + 3 * outsize_idx_0] = 0.0;
+        c_a[ibcol + 3 * outsize_idx_0] = 0.0;
         for (itilerow = 0; itilerow < 3; itilerow++) {
-          g_a[ibcol + 3 * outsize_idx_0] += f_a[ibcol + 3 * itilerow] * (double)
-            h_a[itilerow + 3 * outsize_idx_0];
+          c_a[ibcol + 3 * outsize_idx_0] += b_a[ibcol + 3 * itilerow] * (double)
+            d_a[itilerow + 3 * outsize_idx_0];
         }
       }
     }
@@ -406,17 +364,12 @@ void SLAM(double updateVect[32], const double z_all_l[64], const double z_all_r
     for (ibcol = 0; ibcol < 3; ibcol++) {
       for (outsize_idx_0 = 0; outsize_idx_0 < 3; outsize_idx_0++) {
         P_att[outsize_idx_0 + 3 * ibcol] = b_Phi[outsize_idx_0 + 3 * ibcol] +
-          g_a[outsize_idx_0 + 3 * ibcol];
-      }
-
-      c_a[ibcol] = 0.0;
-      for (outsize_idx_0 = 0; outsize_idx_0 < 3; outsize_idx_0++) {
-        c_a[ibcol] += e_a[ibcol + 3 * outsize_idx_0] * IMU_measurements[16 +
-          outsize_idx_0];
+          c_a[outsize_idx_0 + 3 * ibcol];
       }
     }
 
-    Att_upd(x_att, P_att, c_a, processNoise[0], dt);
+    Att_upd(x_att, P_att, *(double (*)[3])&IMU_measurements[3], processNoise[0],
+            dt);
     ibcol = xt_out->size[0];
     xt_out->size[0] = xt->size[0];
     emxEnsureCapacity((emxArray__common *)xt_out, ibcol, (int)sizeof(double));
@@ -456,7 +409,7 @@ void SLAM(double updateVect[32], const double z_all_l[64], const double z_all_r
     init_counter++;
   } else if (init_counter == 10.0) {
     //  done initializing attitude. Insert the estimated attitude and the covariance into the whole state, request features 
-    b_fprintf();
+    f_fprintf();
     for (outsize_idx_0 = 0; outsize_idx_0 < 32; outsize_idx_0++) {
       updateVect[outsize_idx_0] = 0.0;
     }
@@ -554,6 +507,42 @@ void SLAM(double updateVect[32], const double z_all_l[64], const double z_all_r
 
     init_counter = 12.0;
   } else {
+    for (k = 0; k < 13; k++) {
+      for (ibcol = 0; ibcol < 6; ibcol++) {
+        delayBuffer_k[ibcol + 6 * (13 - k)] = delayBuffer_k[ibcol + 6 * (12 - k)];
+      }
+    }
+
+    for (ibcol = 0; ibcol < 3; ibcol++) {
+      delayBuffer_k[ibcol] = IMU_measurements[13 + ibcol];
+    }
+
+    for (ibcol = 0; ibcol < 3; ibcol++) {
+      delayBuffer_k[ibcol + 3] = IMU_measurements[16 + ibcol];
+    }
+
+    for (ibcol = 0; ibcol < 3; ibcol++) {
+      b_y_n_b[ibcol] = delayBuffer_k[78 + ibcol] + e_a[ibcol];
+    }
+
+    for (ibcol = 0; ibcol < 3; ibcol++) {
+      f_a[ibcol] = 0.0;
+      for (outsize_idx_0 = 0; outsize_idx_0 < 3; outsize_idx_0++) {
+        f_a[ibcol] += h_a[ibcol + 3 * outsize_idx_0] * b_y_n_b[outsize_idx_0];
+      }
+
+      IMU_measurements[ibcol] = f_a[ibcol];
+      g_a[ibcol] = 0.0;
+      for (outsize_idx_0 = 0; outsize_idx_0 < 3; outsize_idx_0++) {
+        g_a[ibcol] += h_a[ibcol + 3 * outsize_idx_0] *
+          delayBuffer_k[outsize_idx_0 + 81];
+      }
+    }
+
+    for (ibcol = 0; ibcol < 3; ibcol++) {
+      IMU_measurements[3 + ibcol] = g_a[ibcol];
+    }
+
     SLAM_pred(P, xt, dt, processNoise, IMU_measurements, numStates);
 
     //  [xt,P] =  SLAM_pred_euler(P, xt, dt, processNoise, IMU_measurements, numStates); 
