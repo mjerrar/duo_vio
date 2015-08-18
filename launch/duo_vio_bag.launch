@@ -2,6 +2,9 @@
 
   <arg name="resolution_width_duo" default="320" />
   <arg name="resolution_height_duo" default="240" />
+  <arg name="im_noise" default="1" />
+  <arg name="acc_noise" default="1" />
+  <arg name="gyro_noise" default="1" />
 
   <arg name="camera_name" default="101" /> <!-- the camera name is equal to the last 3 digits of the odroid's IP -->
   <arg name="lense_type" default="FS3028B13M8" />
@@ -14,14 +17,12 @@
     <remap from="/left_image" to="/duo3d_camera/left/image_raw"/>
     <remap from="/right_image" to="/duo3d_camera/right/image_raw"/>
 
-    <param name="process_noise_1" type="double" value="10" />
-    <param name="process_noise_2" type="double" value="1" />
+    <param name="process_noise_1" type="double" value="$(arg acc_noise)" />
+    <param name="process_noise_2" type="double" value="$(arg gyro_noise)" />
     <param name="process_noise_3" type="double" value="0.0" />
 
-    <param name="im_noise_1" type="double" value="1" />
-    <param name="im_noise_2" type="double" value="1" />
-    <param name="im_noise_3" type="double" value="1" />
-    <param name="im_noise_4" type="double" value="1" />
+    <param name="im_noise_1" type="double" value="$(arg im_noise)" />
+    <param name="im_noise_2" type="double" value="$(arg im_noise)" />
 
     <!-- note that these parameters are not free. The total number of points num_anchors*num_points_per_anchor must equal the total number of points with wich SLAM was codered in Matlab. -->
     <param name="num_points_per_anchor" type="int" value="4" />
