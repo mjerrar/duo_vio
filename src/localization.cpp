@@ -16,7 +16,8 @@ Localization::Localization()
 process_noise_(4,0.0),
 im_noise_(2,0.0),
 camera_params_(4,0.0),
-t_avg(0.0)
+t_avg(0.0),
+SLAM_reset_flag(0)
 {
     SLAM_initialize();
     emxInitArray_real_T(&h_u_apo_,1);
@@ -35,6 +36,7 @@ t_avg(0.0)
             &Localization::mavrosMagCb, this);
     mavros_pressure_sub_ = nh_.subscribe("/mavros/imu/atm_pressure", 1,
             &Localization::mavrosPressureCb, this);
+    joy_sub_ = nh_.subscribe("/joy",1, &Localization::joystickCb, this);
 
     // Init parameters
     // TODO Check default values and give meaningful names
@@ -199,6 +201,15 @@ void Localization::mavrosPressureCb(const sensor_msgs::FluidPressure msg)
   mavros_pressure_data_ = msg;
 }
 
+void Localization::joystickCb(const sensor_msgs::Joy::ConstPtr& joy)
+{
+	if (joy->buttons[0] && !SLAM_reset_flag)
+	{
+		SLAM_reset_flag = true;
+		ROS_INFO("resetting SLAM");
+	}
+}
+
 void Localization::update(double dt, const cv::Mat& left_image, const cv::Mat& right_image, const sensor_msgs::Imu& imu,
     const sensor_msgs::MagneticField& mag, geometry_msgs::Pose& pose, geometry_msgs::Twist& velocity, bool debug_publish)
 {
@@ -247,7 +258,6 @@ void Localization::update(double dt, const cv::Mat& left_image, const cv::Mat& r
     // Update SLAM and get pose estimation
     tic = ros::Time::now();
 
-    bool resetFlag = false;
     SLAM(update_vec_array,
          &z_all_l[0],
 		 &z_all_r[0],
@@ -258,11 +268,13 @@ void Localization::update(double dt, const cv::Mat& left_image, const cv::Mat& r
 		 num_points_per_anchor_,
 		 num_anchors_,
 		 &cameraParams,
-		 resetFlag,
+		 SLAM_reset_flag,
 		 h_u_apo,
 		 xt_out,
 		 P_apo_out,
 		 map);
+
+    SLAM_reset_flag = false;
 
     for(int i = 0; i < update_vec_.size(); i++)
     {

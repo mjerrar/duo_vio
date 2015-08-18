@@ -20,6 +20,8 @@
 
 #include <opencv2/opencv.hpp>
 
+#include "sensor_msgs/Joy.h"
+
 #include "SLAM.h"
 #include "SLAM_includes.h"
 #include "cameraParameters.h"
@@ -37,6 +39,7 @@ public:
 private:
   double t_avg;
   double debug_publish_delay;
+  bool SLAM_reset_flag;
   ros::Time last_debug_publish;
 
   stereoParameters cameraParams;
@@ -46,6 +49,7 @@ private:
   ros::Subscriber mavros_imu_sub_;
   ros::Subscriber mavros_mag_sub_;
   ros::Subscriber mavros_pressure_sub_;
+  ros::Subscriber joy_sub_;
 
   ros::Publisher pose_pub_;
   ros::Publisher velocity_pub_;
@@ -68,6 +72,7 @@ private:
   void mavrosImuCb(const sensor_msgs::Imu msg);
   void mavrosMagCb(const sensor_msgs::MagneticField msg);
   void mavrosPressureCb(const sensor_msgs::FluidPressure msg);
+  void joystickCb(const sensor_msgs::Joy::ConstPtr& joy);
 
   void update(double dt, const cv::Mat& left_image, const cv::Mat& right_image, const sensor_msgs::Imu& imu,
       const sensor_msgs::MagneticField& mag, geometry_msgs::Pose& pose, geometry_msgs::Twist& velocity, bool debug_publish);
