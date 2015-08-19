@@ -5,7 +5,7 @@
 // File: SLAM_data.h
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 19-Aug-2015 11:35:06
+// C/C++ source code generated on  : 19-Aug-2015 17:44:31
 //
 #ifndef __SLAM_DATA_H__
 #define __SLAM_DATA_H__
@@ -22,9 +22,13 @@
 
 // Variable Declarations
 extern double numStates;
+extern double K_pos[2];
+extern double K_yaw;
 extern double numStatesxt;
 extern double minFeatureThreshold;
 extern double sigma_Init;
+extern double maxEKFIterations;
+extern unsigned int state[625];
 extern boolean_T gravityUpdate;
 extern double gravAlignNoise;
 extern boolean_T useAirPressure;

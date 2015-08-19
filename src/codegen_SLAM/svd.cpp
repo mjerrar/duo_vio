@@ -5,7 +5,7 @@
 // File: svd.cpp
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 19-Aug-2015 11:35:06
+// C/C++ source code generated on  : 19-Aug-2015 17:44:31
 //
 
 // Include Files
@@ -16,68 +16,17 @@
 #include <stdio.h>
 
 // Function Declarations
-static double b_eml_xdotc(int n, const double x[30], int ix0, const double y[30],
+static void b_eml_xaxpy(int n, double a, const double x[30], int ix0, double y[6],
   int iy0);
-static void d_eml_xaxpy(int n, double a, int ix0, double y[30], int iy0);
-static void e_eml_xaxpy(int n, double a, const double x[30], int ix0, double y[6],
+static void c_eml_xaxpy(int n, double a, const double x[6], int ix0, double y[30],
   int iy0);
-static void f_eml_xaxpy(int n, double a, const double x[6], int ix0, double y[30],
+static double e_eml_xnrm2(int n, const double x[5], int ix0);
+static void eml_xaxpy(int n, double a, int ix0, double y[30], int iy0);
+static double eml_xdotc(int n, const double x[30], int ix0, const double y[30],
   int iy0);
-static double f_eml_xnrm2(int n, const double x[5], int ix0);
+static void eml_xrotg(double *a, double *b, double *c, double *s);
 
 // Function Definitions
-
-//
-// Arguments    : int n
-//                const double x[30]
-//                int ix0
-//                const double y[30]
-//                int iy0
-// Return Type  : double
-//
-static double b_eml_xdotc(int n, const double x[30], int ix0, const double y[30],
-  int iy0)
-{
-  double d;
-  int ix;
-  int iy;
-  int k;
-  d = 0.0;
-  ix = ix0;
-  iy = iy0;
-  for (k = 1; k <= n; k++) {
-    d += x[ix - 1] * y[iy - 1];
-    ix++;
-    iy++;
-  }
-
-  return d;
-}
-
-//
-// Arguments    : int n
-//                double a
-//                int ix0
-//                double y[30]
-//                int iy0
-// Return Type  : void
-//
-static void d_eml_xaxpy(int n, double a, int ix0, double y[30], int iy0)
-{
-  int ix;
-  int iy;
-  int k;
-  if (a == 0.0) {
-  } else {
-    ix = ix0 - 1;
-    iy = iy0 - 1;
-    for (k = 0; k < n; k++) {
-      y[iy] += a * y[ix];
-      ix++;
-      iy++;
-    }
-  }
-}
 
 //
 // Arguments    : int n
@@ -88,7 +37,7 @@ static void d_eml_xaxpy(int n, double a, int ix0, double y[30], int iy0)
 //                int iy0
 // Return Type  : void
 //
-static void e_eml_xaxpy(int n, double a, const double x[30], int ix0, double y[6],
+static void b_eml_xaxpy(int n, double a, const double x[30], int ix0, double y[6],
   int iy0)
 {
   int ix;
@@ -115,7 +64,7 @@ static void e_eml_xaxpy(int n, double a, const double x[30], int ix0, double y[6
 //                int iy0
 // Return Type  : void
 //
-static void f_eml_xaxpy(int n, double a, const double x[6], int ix0, double y[30],
+static void c_eml_xaxpy(int n, double a, const double x[6], int ix0, double y[30],
   int iy0)
 {
   int ix;
@@ -139,7 +88,7 @@ static void f_eml_xaxpy(int n, double a, const double x[6], int ix0, double y[30
 //                int ix0
 // Return Type  : double
 //
-static double f_eml_xnrm2(int n, const double x[5], int ix0)
+static double e_eml_xnrm2(int n, const double x[5], int ix0)
 {
   double y;
   double scale;
@@ -166,13 +115,65 @@ static double f_eml_xnrm2(int n, const double x[5], int ix0)
 }
 
 //
+// Arguments    : int n
+//                double a
+//                int ix0
+//                double y[30]
+//                int iy0
+// Return Type  : void
+//
+static void eml_xaxpy(int n, double a, int ix0, double y[30], int iy0)
+{
+  int ix;
+  int iy;
+  int k;
+  if (a == 0.0) {
+  } else {
+    ix = ix0 - 1;
+    iy = iy0 - 1;
+    for (k = 0; k < n; k++) {
+      y[iy] += a * y[ix];
+      ix++;
+      iy++;
+    }
+  }
+}
+
+//
+// Arguments    : int n
+//                const double x[30]
+//                int ix0
+//                const double y[30]
+//                int iy0
+// Return Type  : double
+//
+static double eml_xdotc(int n, const double x[30], int ix0, const double y[30],
+  int iy0)
+{
+  double d;
+  int ix;
+  int iy;
+  int k;
+  d = 0.0;
+  ix = ix0;
+  iy = iy0;
+  for (k = 1; k <= n; k++) {
+    d += x[ix - 1] * y[iy - 1];
+    ix++;
+    iy++;
+  }
+
+  return d;
+}
+
+//
 // Arguments    : double *a
 //                double *b
 //                double *c
 //                double *s
 // Return Type  : void
 //
-void eml_xrotg(double *a, double *b, double *c, double *s)
+static void eml_xrotg(double *a, double *b, double *c, double *s)
 {
   double roe;
   double absa;
@@ -257,7 +258,7 @@ void svd(const double A[30], double U[5])
   for (q = 0; q < 5; q++) {
     qs = q + 6 * q;
     apply_transform = false;
-    ztest0 = e_eml_xnrm2(6 - q, b_A, qs + 1);
+    ztest0 = d_eml_xnrm2(6 - q, b_A, qs + 1);
     if (ztest0 > 0.0) {
       apply_transform = true;
       if (b_A[qs] < 0.0) {
@@ -288,15 +289,15 @@ void svd(const double A[30], double U[5])
     for (kase = q + 1; kase + 1 < 6; kase++) {
       ixstart = q + 6 * kase;
       if (apply_transform) {
-        d_eml_xaxpy(6 - q, -(b_eml_xdotc(6 - q, b_A, qs + 1, b_A, ixstart + 1) /
-                             b_A[q + 6 * q]), qs + 1, b_A, ixstart + 1);
+        eml_xaxpy(6 - q, -(eml_xdotc(6 - q, b_A, qs + 1, b_A, ixstart + 1) /
+                           b_A[q + 6 * q]), qs + 1, b_A, ixstart + 1);
       }
 
       e[kase] = b_A[ixstart];
     }
 
     if (q + 1 <= 3) {
-      ztest0 = f_eml_xnrm2(4 - q, e, q + 2);
+      ztest0 = e_eml_xnrm2(4 - q, e, q + 2);
       if (ztest0 == 0.0) {
         e[q] = 0.0;
       } else {
@@ -325,11 +326,11 @@ void svd(const double A[30], double U[5])
         }
 
         for (kase = q + 1; kase + 1 < 6; kase++) {
-          e_eml_xaxpy(5 - q, e[kase], b_A, (q + 6 * kase) + 2, work, q + 2);
+          b_eml_xaxpy(5 - q, e[kase], b_A, (q + 6 * kase) + 2, work, q + 2);
         }
 
         for (kase = q + 1; kase + 1 < 6; kase++) {
-          f_eml_xaxpy(5 - q, -e[kase] / e[q + 1], work, q + 2, b_A, (q + 6 *
+          c_eml_xaxpy(5 - q, -e[kase] / e[q + 1], work, q + 2, b_A, (q + 6 *
             kase) + 2);
         }
       }

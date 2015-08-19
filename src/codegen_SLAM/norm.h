@@ -5,7 +5,7 @@
 // File: norm.h
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 19-Aug-2015 11:35:06
+// C/C++ source code generated on  : 19-Aug-2015 17:44:31
 //
 #ifndef __NORM_H__
 #define __NORM_H__
@@ -22,8 +22,8 @@
 
 // Function Declarations
 extern double b_norm(const double x[4]);
-extern double c_norm(const emxArray_real_T *x);
-extern double d_norm(const double x[2]);
+extern double c_norm(const double x[2]);
+extern double d_norm(const emxArray_real_T *x);
 extern double norm(const double x[3]);
 
 #endif

@@ -5,7 +5,7 @@
 // File: svd.h
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 19-Aug-2015 11:35:06
+// C/C++ source code generated on  : 19-Aug-2015 17:44:31
 //
 #ifndef __SVD_H__
 #define __SVD_H__
@@ -21,7 +21,6 @@
 #include "SLAM_types.h"
 
 // Function Declarations
-extern void eml_xrotg(double *a, double *b, double *c, double *s);
 extern void svd(const double A[30], double U[5]);
 
 #endif

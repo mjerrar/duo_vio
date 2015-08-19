@@ -2,13 +2,13 @@
 // Academic License - for use in teaching, academic research, and meeting
 // course requirements at degree granting institutions only.  Not for
 // government, commercial, or other organizational use.
-// File: cross.h
+// File: rand.h
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 19-Aug-2015 11:35:06
+// C/C++ source code generated on  : 19-Aug-2015 17:44:31
 //
-#ifndef __CROSS_H__
-#define __CROSS_H__
+#ifndef __RAND_H__
+#define __RAND_H__
 
 // Include Files
 #include <math.h>
@@ -21,12 +21,12 @@
 #include "SLAM_types.h"
 
 // Function Declarations
-extern void cross(const double a[3], const double b[3], double c[3]);
+extern double b_rand();
 
 #endif
 
 //
-// File trailer for cross.h
+// File trailer for rand.h
 //
 // [EOF]
 //

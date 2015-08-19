@@ -30,6 +30,8 @@ SLAM_reset_flag(0)
     path_pub_ = nh_.advertise<nav_msgs::Path>("/vio/SLAM_path",1);
     vis_pub_ = nh_.advertise<visualization_msgs::Marker>( "drone", 0 );
 
+    controller_pub = nh_.advertise<onboard_localization::ControllerOut>("/onboard_localization/controller_output",10);
+
     mavros_imu_sub_ = nh_.subscribe("/mavros/imu/data", 1,
             &Localization::mavrosImuCb, this);
     mavros_mag_sub_ = nh_.subscribe("/mavros/imu/mag", 1,
@@ -258,6 +260,11 @@ void Localization::update(double dt, const cv::Mat& left_image, const cv::Mat& r
     emxInitArray_real_T(&h_u_apo,1);
     emxInitArray_real_T(&map,2);
 
+    std::vector<double> reference(4,0.0);
+    reference[3] = 0.5;
+
+    double u_out[4];
+
     // Update SLAM and get pose estimation
     tic = ros::Time::now();
 
@@ -272,10 +279,20 @@ void Localization::update(double dt, const cv::Mat& left_image, const cv::Mat& r
 		 num_anchors_,
 		 &cameraParams,
 		 SLAM_reset_flag,
+		 &reference[0],
 		 h_u_apo,
 		 xt_out,
 		 P_apo_out,
-		 map);
+		 map,
+		 u_out);
+
+    onboard_localization::ControllerOut controller_out_msg;
+    controller_out_msg.x = u_out[0];
+    controller_out_msg.y = u_out[1];
+    controller_out_msg.z = u_out[2];
+    controller_out_msg.yaw = u_out[3];
+
+    controller_pub.publish(controller_out_msg);
 
     SLAM_reset_flag = false;
 

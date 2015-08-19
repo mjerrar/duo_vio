@@ -5,7 +5,7 @@
 // File: mrdivide.cpp
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 19-Aug-2015 11:35:06
+// C/C++ source code generated on  : 19-Aug-2015 17:44:31
 //
 
 // Include Files
@@ -19,25 +19,49 @@
 #include <stdio.h>
 
 // Function Declarations
-static double c_eml_xnrm2(int n, const emxArray_real_T *x, int ix0);
-static double d_eml_xnrm2(int n, const emxArray_real_T *x, int ix0);
-static int eml_ixamax(int n, const emxArray_real_T *x, int ix0);
-static void eml_xgeqp3(emxArray_real_T *A, emxArray_real_T *tau,
-  emxArray_int32_T *jpvt);
-static void eml_xgetrf(int m, int n, emxArray_real_T *A, int lda,
-  emxArray_int32_T *ipiv, int *info);
-static void eml_xscal(int n, double a, emxArray_real_T *x, int ix0);
-static int rankFromQR(const emxArray_real_T *A);
+static double b_eml_matlab_zlarfg();
+static double b_eml_xnrm2(int n, const double x_data[], int ix0);
+static void b_eml_xswap(int n, double x_data[], int ix0, int iy0);
+static void b_eml_xtrsm(int m, int n, const double A_data[], int lda,
+  emxArray_real_T *B, int ldb);
+static double c_eml_xnrm2(int n, const double x_data[], int ix0);
+static int eml_ixamax(int n, const double x_data[], int ix0);
+static void eml_lusolve(const double A_data[], const int A_size[2], const
+  emxArray_real_T *B, emxArray_real_T *X);
+static void eml_matlab_zlarf(int m, int n, int iv0, double tau, double C_data[],
+  int ic0, int ldc, double work_data[]);
+static double eml_matlab_zlarfg(int n, double *alpha1, double x_data[], int ix0);
+static void eml_qrsolve(const double A_data[], const int A_size[2], const
+  emxArray_real_T *B, emxArray_real_T *Y);
+static void eml_xgeqp3(double A_data[], int A_size[2], double tau_data[], int
+  tau_size[1], int jpvt_data[], int jpvt_size[2]);
+static void eml_xgetrf(int m, int n, double A_data[], int A_size[2], int lda,
+  int ipiv_data[], int ipiv_size[2], int *info);
+static double eml_xnrm2(int n, const double x_data[], int ix0);
+static void eml_xswap(int n, double x_data[], int ix0, int incx, int iy0, int
+                      incy);
+static void eml_xtrsm(int m, int n, const double A_data[], int lda,
+                      emxArray_real_T *B, int ldb);
+static int rankFromQR(const double A_data[], const int A_size[2]);
 
 // Function Definitions
 
 //
+// Arguments    : void
+// Return Type  : double
+//
+static double b_eml_matlab_zlarfg()
+{
+  return 0.0;
+}
+
+//
 // Arguments    : int n
-//                const emxArray_real_T *x
+//                const double x_data[]
 //                int ix0
 // Return Type  : double
 //
-static double c_eml_xnrm2(int n, const emxArray_real_T *x, int ix0)
+static double b_eml_xnrm2(int n, const double x_data[], int ix0)
 {
   double y;
   double scale;
@@ -48,12 +72,12 @@ static double c_eml_xnrm2(int n, const emxArray_real_T *x, int ix0)
   y = 0.0;
   if (n < 1) {
   } else if (n == 1) {
-    y = fabs(x->data[ix0 - 1]);
+    y = fabs(x_data[ix0 - 1]);
   } else {
     scale = 2.2250738585072014E-308;
     kend = (ix0 + n) - 1;
     for (k = ix0; k <= kend; k++) {
-      absxk = fabs(x->data[k - 1]);
+      absxk = fabs(x_data[k - 1]);
       if (absxk > scale) {
         t = scale / absxk;
         y = 1.0 + y * t * t;
@@ -72,11 +96,70 @@ static double c_eml_xnrm2(int n, const emxArray_real_T *x, int ix0)
 
 //
 // Arguments    : int n
-//                const emxArray_real_T *x
+//                double x_data[]
+//                int ix0
+//                int iy0
+// Return Type  : void
+//
+static void b_eml_xswap(int n, double x_data[], int ix0, int iy0)
+{
+  int ix;
+  int iy;
+  int k;
+  double temp;
+  ix = ix0 - 1;
+  iy = iy0 - 1;
+  for (k = 1; k <= n; k++) {
+    temp = x_data[ix];
+    x_data[ix] = x_data[iy];
+    x_data[iy] = temp;
+    ix++;
+    iy++;
+  }
+}
+
+//
+// Arguments    : int m
+//                int n
+//                const double A_data[]
+//                int lda
+//                emxArray_real_T *B
+//                int ldb
+// Return Type  : void
+//
+static void b_eml_xtrsm(int m, int n, const double A_data[], int lda,
+  emxArray_real_T *B, int ldb)
+{
+  int j;
+  int jBcol;
+  int jAcol;
+  int k;
+  int kBcol;
+  int i;
+  if ((n == 0) || ((B->size[0] == 0) || (B->size[1] == 0))) {
+  } else {
+    for (j = n; j > 0; j--) {
+      jBcol = ldb * (j - 1) - 1;
+      jAcol = lda * (j - 1) - 1;
+      for (k = j + 1; k <= n; k++) {
+        kBcol = ldb * (k - 1);
+        if (A_data[k + jAcol] != 0.0) {
+          for (i = 1; i <= m; i++) {
+            B->data[i + jBcol] -= A_data[k + jAcol] * B->data[(i + kBcol) - 1];
+          }
+        }
+      }
+    }
+  }
+}
+
+//
+// Arguments    : int n
+//                const double x_data[]
 //                int ix0
 // Return Type  : double
 //
-static double d_eml_xnrm2(int n, const emxArray_real_T *x, int ix0)
+static double c_eml_xnrm2(int n, const double x_data[], int ix0)
 {
   double y;
   double scale;
@@ -87,12 +170,12 @@ static double d_eml_xnrm2(int n, const emxArray_real_T *x, int ix0)
   y = 0.0;
   if (n < 1) {
   } else if (n == 1) {
-    y = fabs(x->data[ix0 - 1]);
+    y = fabs(x_data[ix0 - 1]);
   } else {
     scale = 2.2250738585072014E-308;
     kend = (ix0 + n) - 1;
     for (k = ix0; k <= kend; k++) {
-      absxk = fabs(x->data[k - 1]);
+      absxk = fabs(x_data[k - 1]);
       if (absxk > scale) {
         t = scale / absxk;
         y = 1.0 + y * t * t;
@@ -111,11 +194,11 @@ static double d_eml_xnrm2(int n, const emxArray_real_T *x, int ix0)
 
 //
 // Arguments    : int n
-//                const emxArray_real_T *x
+//                const double x_data[]
 //                int ix0
 // Return Type  : int
 //
-static int eml_ixamax(int n, const emxArray_real_T *x, int ix0)
+static int eml_ixamax(int n, const double x_data[], int ix0)
 {
   int idxmax;
   int ix;
@@ -128,10 +211,10 @@ static int eml_ixamax(int n, const emxArray_real_T *x, int ix0)
     idxmax = 1;
     if (n > 1) {
       ix = ix0 - 1;
-      smax = fabs(x->data[ix0 - 1]);
+      smax = fabs(x_data[ix0 - 1]);
       for (k = 2; k <= n; k++) {
         ix++;
-        s = fabs(x->data[ix]);
+        s = fabs(x_data[ix]);
         if (s > smax) {
           idxmax = k;
           smax = s;
@@ -144,289 +227,466 @@ static int eml_ixamax(int n, const emxArray_real_T *x, int ix0)
 }
 
 //
-// Arguments    : emxArray_real_T *A
-//                emxArray_real_T *tau
-//                emxArray_int32_T *jpvt
+// Arguments    : const double A_data[]
+//                const int A_size[2]
+//                const emxArray_real_T *B
+//                emxArray_real_T *X
 // Return Type  : void
 //
-static void eml_xgeqp3(emxArray_real_T *A, emxArray_real_T *tau,
-  emxArray_int32_T *jpvt)
+static void eml_lusolve(const double A_data[], const int A_size[2], const
+  emxArray_real_T *B, emxArray_real_T *X)
 {
-  int m;
-  int n;
-  int mn;
-  int i24;
-  emxArray_real_T *work;
-  int itemp;
-  emxArray_real_T *vn1;
-  emxArray_real_T *vn2;
-  int k;
-  int iy;
-  int i;
-  int i_i;
-  int nmi;
-  int mmi;
-  int pvt;
-  int ix;
-  double xnorm;
-  double atmp;
-  double d3;
-  double beta1;
-  int i_ip1;
-  int lastv;
-  boolean_T exitg2;
-  int32_T exitg1;
-  m = A->size[0];
-  n = A->size[1];
-  if (A->size[0] <= A->size[1]) {
-    mn = A->size[0];
-  } else {
-    mn = A->size[1];
+  int b_A_size[2];
+  int info;
+  int jp;
+  double b_A_data[1296];
+  int ipiv_size[2];
+  int ipiv_data[36];
+  int xi;
+  double temp;
+  b_A_size[0] = A_size[0];
+  b_A_size[1] = A_size[1];
+  info = A_size[0] * A_size[1];
+  for (jp = 0; jp < info; jp++) {
+    b_A_data[jp] = A_data[jp];
   }
 
-  i24 = tau->size[0];
-  tau->size[0] = mn;
-  emxEnsureCapacity((emxArray__common *)tau, i24, (int)sizeof(double));
-  eml_signed_integer_colon(A->size[1], jpvt);
-  if ((A->size[0] == 0) || (A->size[1] == 0)) {
-  } else {
-    emxInit_real_T(&work, 1);
-    itemp = A->size[1];
-    i24 = work->size[0];
-    work->size[0] = itemp;
-    emxEnsureCapacity((emxArray__common *)work, i24, (int)sizeof(double));
-    for (i24 = 0; i24 < itemp; i24++) {
-      work->data[i24] = 0.0;
-    }
+  eml_xgetrf(A_size[1], A_size[1], b_A_data, b_A_size, A_size[1], ipiv_data,
+             ipiv_size, &info);
+  jp = X->size[0] * X->size[1];
+  X->size[0] = B->size[0];
+  X->size[1] = B->size[1];
+  emxEnsureCapacity((emxArray__common *)X, jp, (int)sizeof(double));
+  info = B->size[0] * B->size[1];
+  for (jp = 0; jp < info; jp++) {
+    X->data[jp] = B->data[jp];
+  }
 
-    emxInit_real_T(&vn1, 1);
-    emxInit_real_T(&vn2, 1);
-    itemp = A->size[1];
-    i24 = vn1->size[0];
-    vn1->size[0] = itemp;
-    emxEnsureCapacity((emxArray__common *)vn1, i24, (int)sizeof(double));
-    i24 = vn2->size[0];
-    vn2->size[0] = itemp;
-    emxEnsureCapacity((emxArray__common *)vn2, i24, (int)sizeof(double));
-    k = 1;
-    for (iy = 0; iy + 1 <= n; iy++) {
-      vn1->data[iy] = c_eml_xnrm2(m, A, k);
-      vn2->data[iy] = vn1->data[iy];
-      k += m;
-    }
-
-    for (i = 0; i + 1 <= mn; i++) {
-      i_i = i + i * m;
-      nmi = (n - i) - 1;
-      mmi = (m - i) - 1;
-      itemp = eml_ixamax(1 + nmi, vn1, i + 1);
-      pvt = (i + itemp) - 1;
-      if (pvt + 1 != i + 1) {
-        ix = m * pvt;
-        iy = m * i;
-        for (k = 1; k <= m; k++) {
-          xnorm = A->data[ix];
-          A->data[ix] = A->data[iy];
-          A->data[iy] = xnorm;
-          ix++;
-          iy++;
-        }
-
-        itemp = jpvt->data[pvt];
-        jpvt->data[pvt] = jpvt->data[i];
-        jpvt->data[i] = itemp;
-        vn1->data[pvt] = vn1->data[i];
-        vn2->data[pvt] = vn2->data[i];
-      }
-
-      if (i + 1 < m) {
-        atmp = A->data[i_i];
-        d3 = 0.0;
-        if (1 + mmi <= 0) {
-        } else {
-          xnorm = d_eml_xnrm2(mmi, A, i_i + 2);
-          if (xnorm != 0.0) {
-            beta1 = rt_hypotd_snf(A->data[i_i], xnorm);
-            if (A->data[i_i] >= 0.0) {
-              beta1 = -beta1;
-            }
-
-            if (fabs(beta1) < 1.0020841800044864E-292) {
-              itemp = 0;
-              do {
-                itemp++;
-                eml_xscal(mmi, 9.9792015476736E+291, A, i_i + 2);
-                beta1 *= 9.9792015476736E+291;
-                atmp *= 9.9792015476736E+291;
-              } while (!(fabs(beta1) >= 1.0020841800044864E-292));
-
-              xnorm = d_eml_xnrm2(mmi, A, i_i + 2);
-              beta1 = rt_hypotd_snf(atmp, xnorm);
-              if (atmp >= 0.0) {
-                beta1 = -beta1;
-              }
-
-              d3 = (beta1 - atmp) / beta1;
-              eml_xscal(mmi, 1.0 / (atmp - beta1), A, i_i + 2);
-              for (k = 1; k <= itemp; k++) {
-                beta1 *= 1.0020841800044864E-292;
-              }
-
-              atmp = beta1;
-            } else {
-              d3 = (beta1 - A->data[i_i]) / beta1;
-              eml_xscal(mmi, 1.0 / (A->data[i_i] - beta1), A, i_i + 2);
-              atmp = beta1;
-            }
-          }
-        }
-
-        tau->data[i] = d3;
-      } else {
-        xnorm = A->data[i_i];
-        atmp = A->data[i_i];
-        A->data[i_i] = xnorm;
-        tau->data[i] = 0.0;
-      }
-
-      A->data[i_i] = atmp;
-      if (i + 1 < n) {
-        atmp = A->data[i_i];
-        A->data[i_i] = 1.0;
-        i_ip1 = (i + (i + 1) * m) + 1;
-        if (tau->data[i] != 0.0) {
-          lastv = mmi;
-          itemp = i_i + mmi;
-          while ((lastv + 1 > 0) && (A->data[itemp] == 0.0)) {
-            lastv--;
-            itemp--;
-          }
-
-          exitg2 = false;
-          while ((!exitg2) && (nmi > 0)) {
-            itemp = i_ip1 + (nmi - 1) * m;
-            k = itemp;
-            do {
-              exitg1 = 0;
-              if (k <= itemp + lastv) {
-                if (A->data[k - 1] != 0.0) {
-                  exitg1 = 1;
-                } else {
-                  k++;
-                }
-              } else {
-                nmi--;
-                exitg1 = 2;
-              }
-            } while (exitg1 == 0);
-
-            if (exitg1 == 1) {
-              exitg2 = true;
-            }
-          }
-        } else {
-          lastv = -1;
-          nmi = 0;
-        }
-
-        if (lastv + 1 > 0) {
-          if (nmi == 0) {
-          } else {
-            for (iy = 1; iy <= nmi; iy++) {
-              work->data[iy - 1] = 0.0;
-            }
-
-            iy = 0;
-            i24 = i_ip1 + m * (nmi - 1);
-            itemp = i_ip1;
-            while ((m > 0) && (itemp <= i24)) {
-              ix = i_i;
-              xnorm = 0.0;
-              pvt = itemp + lastv;
-              for (k = itemp; k <= pvt; k++) {
-                xnorm += A->data[k - 1] * A->data[ix];
-                ix++;
-              }
-
-              work->data[iy] += xnorm;
-              iy++;
-              itemp += m;
-            }
-          }
-
-          if (-tau->data[i] == 0.0) {
-          } else {
-            itemp = 0;
-            for (iy = 1; iy <= nmi; iy++) {
-              if (work->data[itemp] != 0.0) {
-                xnorm = work->data[itemp] * -tau->data[i];
-                ix = i_i;
-                i24 = lastv + i_ip1;
-                for (pvt = i_ip1; pvt <= i24; pvt++) {
-                  A->data[pvt - 1] += A->data[ix] * xnorm;
-                  ix++;
-                }
-              }
-
-              itemp++;
-              i_ip1 += m;
-            }
-          }
-        }
-
-        A->data[i_i] = atmp;
-      }
-
-      for (iy = i + 1; iy + 1 <= n; iy++) {
-        if (vn1->data[iy] != 0.0) {
-          xnorm = fabs(A->data[i + A->size[0] * iy]) / vn1->data[iy];
-          xnorm = 1.0 - xnorm * xnorm;
-          if (xnorm < 0.0) {
-            xnorm = 0.0;
-          }
-
-          beta1 = vn1->data[iy] / vn2->data[iy];
-          beta1 = xnorm * (beta1 * beta1);
-          if (beta1 <= 1.4901161193847656E-8) {
-            if (i + 1 < m) {
-              vn1->data[iy] = eml_xnrm2(mmi, A, (i + m * iy) + 2);
-              vn2->data[iy] = vn1->data[iy];
-            } else {
-              vn1->data[iy] = 0.0;
-              vn2->data[iy] = 0.0;
-            }
-          } else {
-            vn1->data[iy] *= sqrt(xnorm);
-          }
-        }
+  eml_xtrsm(B->size[0], A_size[1], b_A_data, A_size[1], X, B->size[0]);
+  b_eml_xtrsm(B->size[0], A_size[1], b_A_data, A_size[1], X, B->size[0]);
+  for (info = A_size[1] - 2; info + 1 > 0; info--) {
+    if (ipiv_data[info] != info + 1) {
+      jp = ipiv_data[info] - 1;
+      for (xi = 0; xi + 1 <= B->size[0]; xi++) {
+        temp = X->data[xi + X->size[0] * info];
+        X->data[xi + X->size[0] * info] = X->data[xi + X->size[0] * jp];
+        X->data[xi + X->size[0] * jp] = temp;
       }
     }
-
-    emxFree_real_T(&vn2);
-    emxFree_real_T(&vn1);
-    emxFree_real_T(&work);
   }
 }
 
 //
 // Arguments    : int m
 //                int n
-//                emxArray_real_T *A
+//                int iv0
+//                double tau
+//                double C_data[]
+//                int ic0
+//                int ldc
+//                double work_data[]
+// Return Type  : void
+//
+static void eml_matlab_zlarf(int m, int n, int iv0, double tau, double C_data[],
+  int ic0, int ldc, double work_data[])
+{
+  int lastv;
+  int i;
+  int lastc;
+  boolean_T exitg2;
+  int ia;
+  int32_T exitg1;
+  int i25;
+  int jy;
+  int ix;
+  double c;
+  int j;
+  if (tau != 0.0) {
+    lastv = m;
+    i = iv0 + m;
+    while ((lastv > 0) && (C_data[i - 2] == 0.0)) {
+      lastv--;
+      i--;
+    }
+
+    lastc = n;
+    exitg2 = false;
+    while ((!exitg2) && (lastc > 0)) {
+      i = ic0 + (lastc - 1) * ldc;
+      ia = i;
+      do {
+        exitg1 = 0;
+        if (ia <= (i + lastv) - 1) {
+          if (C_data[ia - 1] != 0.0) {
+            exitg1 = 1;
+          } else {
+            ia++;
+          }
+        } else {
+          lastc--;
+          exitg1 = 2;
+        }
+      } while (exitg1 == 0);
+
+      if (exitg1 == 1) {
+        exitg2 = true;
+      }
+    }
+  } else {
+    lastv = 0;
+    lastc = 0;
+  }
+
+  if (lastv > 0) {
+    if (lastc == 0) {
+    } else {
+      for (i = 1; i <= lastc; i++) {
+        work_data[i - 1] = 0.0;
+      }
+
+      i = 0;
+      i25 = ic0 + ldc * (lastc - 1);
+      jy = ic0;
+      while ((ldc > 0) && (jy <= i25)) {
+        ix = iv0;
+        c = 0.0;
+        j = (jy + lastv) - 1;
+        for (ia = jy; ia <= j; ia++) {
+          c += C_data[ia - 1] * C_data[ix - 1];
+          ix++;
+        }
+
+        work_data[i] += c;
+        i++;
+        jy += ldc;
+      }
+    }
+
+    if (-tau == 0.0) {
+    } else {
+      i = ic0 - 1;
+      jy = 0;
+      for (j = 1; j <= lastc; j++) {
+        if (work_data[jy] != 0.0) {
+          c = work_data[jy] * -tau;
+          ix = iv0;
+          i25 = lastv + i;
+          for (ia = i; ia + 1 <= i25; ia++) {
+            C_data[ia] += C_data[ix - 1] * c;
+            ix++;
+          }
+        }
+
+        jy++;
+        i += ldc;
+      }
+    }
+  }
+}
+
+//
+// Arguments    : int n
+//                double *alpha1
+//                double x_data[]
+//                int ix0
+// Return Type  : double
+//
+static double eml_matlab_zlarfg(int n, double *alpha1, double x_data[], int ix0)
+{
+  double tau;
+  double xnorm;
+  int knt;
+  int i24;
+  int k;
+  tau = 0.0;
+  if (n <= 0) {
+  } else {
+    xnorm = b_eml_xnrm2(n - 1, x_data, ix0);
+    if (xnorm != 0.0) {
+      xnorm = rt_hypotd_snf(*alpha1, xnorm);
+      if (*alpha1 >= 0.0) {
+        xnorm = -xnorm;
+      }
+
+      if (fabs(xnorm) < 1.0020841800044864E-292) {
+        knt = 0;
+        do {
+          knt++;
+          i24 = (ix0 + n) - 2;
+          for (k = ix0; k <= i24; k++) {
+            x_data[k - 1] *= 9.9792015476736E+291;
+          }
+
+          xnorm *= 9.9792015476736E+291;
+          *alpha1 *= 9.9792015476736E+291;
+        } while (!(fabs(xnorm) >= 1.0020841800044864E-292));
+
+        xnorm = b_eml_xnrm2(n - 1, x_data, ix0);
+        xnorm = rt_hypotd_snf(*alpha1, xnorm);
+        if (*alpha1 >= 0.0) {
+          xnorm = -xnorm;
+        }
+
+        tau = (xnorm - *alpha1) / xnorm;
+        *alpha1 = 1.0 / (*alpha1 - xnorm);
+        i24 = (ix0 + n) - 2;
+        for (k = ix0; k <= i24; k++) {
+          x_data[k - 1] *= *alpha1;
+        }
+
+        for (k = 1; k <= knt; k++) {
+          xnorm *= 1.0020841800044864E-292;
+        }
+
+        *alpha1 = xnorm;
+      } else {
+        tau = (xnorm - *alpha1) / xnorm;
+        *alpha1 = 1.0 / (*alpha1 - xnorm);
+        i24 = (ix0 + n) - 2;
+        for (k = ix0; k <= i24; k++) {
+          x_data[k - 1] *= *alpha1;
+        }
+
+        *alpha1 = xnorm;
+      }
+    }
+  }
+
+  return tau;
+}
+
+//
+// Arguments    : const double A_data[]
+//                const int A_size[2]
+//                const emxArray_real_T *B
+//                emxArray_real_T *Y
+// Return Type  : void
+//
+static void eml_qrsolve(const double A_data[], const int A_size[2], const
+  emxArray_real_T *B, emxArray_real_T *Y)
+{
+  int b_A_size[2];
+  int j;
+  int k;
+  double b_A_data[1296];
+  emxArray_real_T *b_B;
+  int jpvt_size[2];
+  int jpvt_data[36];
+  int tau_size[1];
+  double tau_data[36];
+  int rankR;
+  int m;
+  int nb;
+  int mn;
+  double wj;
+  int i;
+  b_A_size[0] = A_size[0];
+  b_A_size[1] = A_size[1];
+  j = A_size[0] * A_size[1];
+  for (k = 0; k < j; k++) {
+    b_A_data[k] = A_data[k];
+  }
+
+  emxInit_real_T(&b_B, 2);
+  eml_xgeqp3(b_A_data, b_A_size, tau_data, tau_size, jpvt_data, jpvt_size);
+  rankR = rankFromQR(b_A_data, b_A_size);
+  k = b_B->size[0] * b_B->size[1];
+  b_B->size[0] = B->size[0];
+  b_B->size[1] = B->size[1];
+  emxEnsureCapacity((emxArray__common *)b_B, k, (int)sizeof(double));
+  j = B->size[0] * B->size[1];
+  for (k = 0; k < j; k++) {
+    b_B->data[k] = B->data[k];
+  }
+
+  m = b_A_size[0];
+  nb = B->size[1];
+  j = b_A_size[0];
+  mn = b_A_size[1];
+  if (j <= mn) {
+    mn = j;
+  }
+
+  j = B->size[1];
+  k = Y->size[0] * Y->size[1];
+  Y->size[0] = b_A_size[1];
+  emxEnsureCapacity((emxArray__common *)Y, k, (int)sizeof(double));
+  k = Y->size[0] * Y->size[1];
+  Y->size[1] = j;
+  emxEnsureCapacity((emxArray__common *)Y, k, (int)sizeof(double));
+  j *= b_A_size[1];
+  for (k = 0; k < j; k++) {
+    Y->data[k] = 0.0;
+  }
+
+  for (j = 0; j + 1 <= mn; j++) {
+    if (tau_data[j] != 0.0) {
+      for (k = 0; k + 1 <= nb; k++) {
+        wj = b_B->data[j + b_B->size[0] * k];
+        for (i = j + 1; i + 1 <= m; i++) {
+          wj += b_A_data[i + b_A_size[0] * j] * b_B->data[i + b_B->size[0] * k];
+        }
+
+        wj *= tau_data[j];
+        if (wj != 0.0) {
+          b_B->data[j + b_B->size[0] * k] -= wj;
+          for (i = j + 1; i + 1 <= m; i++) {
+            b_B->data[i + b_B->size[0] * k] -= b_A_data[i + b_A_size[0] * j] *
+              wj;
+          }
+        }
+      }
+    }
+  }
+
+  for (k = 0; k + 1 <= nb; k++) {
+    for (i = 0; i + 1 <= rankR; i++) {
+      Y->data[(jpvt_data[i] + Y->size[0] * k) - 1] = b_B->data[i + b_B->size[0] *
+        k];
+    }
+
+    for (j = rankR - 1; j + 1 > 0; j--) {
+      Y->data[(jpvt_data[j] + Y->size[0] * k) - 1] /= b_A_data[j + b_A_size[0] *
+        j];
+      for (i = 0; i + 1 <= j; i++) {
+        Y->data[(jpvt_data[i] + Y->size[0] * k) - 1] -= Y->data[(jpvt_data[j] +
+          Y->size[0] * k) - 1] * b_A_data[i + b_A_size[0] * j];
+      }
+    }
+  }
+
+  emxFree_real_T(&b_B);
+}
+
+//
+// Arguments    : double A_data[]
+//                int A_size[2]
+//                double tau_data[]
+//                int tau_size[1]
+//                int jpvt_data[]
+//                int jpvt_size[2]
+// Return Type  : void
+//
+static void eml_xgeqp3(double A_data[], int A_size[2], double tau_data[], int
+  tau_size[1], int jpvt_data[], int jpvt_size[2])
+{
+  int m;
+  int n;
+  int mn;
+  int k;
+  int itemp;
+  double work_data[36];
+  double vn1_data[36];
+  double vn2_data[36];
+  int i;
+  int i_i;
+  int nmi;
+  int mmi;
+  double atmp;
+  double temp2;
+  m = A_size[0];
+  n = A_size[1];
+  if (A_size[0] <= A_size[1]) {
+    mn = A_size[0];
+  } else {
+    mn = A_size[1];
+  }
+
+  tau_size[0] = (signed char)mn;
+  eml_signed_integer_colon(A_size[1], jpvt_data, jpvt_size);
+  if ((A_size[0] == 0) || (A_size[1] == 0)) {
+  } else {
+    k = (signed char)A_size[1];
+    for (itemp = 0; itemp < k; itemp++) {
+      work_data[itemp] = 0.0;
+    }
+
+    k = 1;
+    for (itemp = 0; itemp + 1 <= n; itemp++) {
+      vn1_data[itemp] = eml_xnrm2(m, A_data, k);
+      vn2_data[itemp] = vn1_data[itemp];
+      k += m;
+    }
+
+    for (i = 1; i <= mn; i++) {
+      i_i = (i + (i - 1) * m) - 1;
+      nmi = n - i;
+      mmi = m - i;
+      k = eml_ixamax(1 + nmi, vn1_data, i);
+      k = (i + k) - 2;
+      if (k + 1 != i) {
+        b_eml_xswap(m, A_data, 1 + m * k, 1 + m * (i - 1));
+        itemp = jpvt_data[k];
+        jpvt_data[k] = jpvt_data[i - 1];
+        jpvt_data[i - 1] = itemp;
+        vn1_data[k] = vn1_data[i - 1];
+        vn2_data[k] = vn2_data[i - 1];
+      }
+
+      if (i < m) {
+        atmp = A_data[i_i];
+        tau_data[i - 1] = eml_matlab_zlarfg(mmi + 1, &atmp, A_data, i_i + 2);
+      } else {
+        atmp = A_data[i_i];
+        tau_data[i - 1] = b_eml_matlab_zlarfg();
+      }
+
+      A_data[i_i] = atmp;
+      if (i < n) {
+        atmp = A_data[i_i];
+        A_data[i_i] = 1.0;
+        eml_matlab_zlarf(mmi + 1, nmi, i_i + 1, tau_data[i - 1], A_data, i + i *
+                         m, m, work_data);
+        A_data[i_i] = atmp;
+      }
+
+      for (itemp = i; itemp + 1 <= n; itemp++) {
+        if (vn1_data[itemp] != 0.0) {
+          atmp = fabs(A_data[(i + A_size[0] * itemp) - 1]) / vn1_data[itemp];
+          atmp = 1.0 - atmp * atmp;
+          if (atmp < 0.0) {
+            atmp = 0.0;
+          }
+
+          temp2 = vn1_data[itemp] / vn2_data[itemp];
+          temp2 = atmp * (temp2 * temp2);
+          if (temp2 <= 1.4901161193847656E-8) {
+            if (i < m) {
+              vn1_data[itemp] = c_eml_xnrm2(mmi, A_data, (i + m * itemp) + 1);
+              vn2_data[itemp] = vn1_data[itemp];
+            } else {
+              vn1_data[itemp] = 0.0;
+              vn2_data[itemp] = 0.0;
+            }
+          } else {
+            vn1_data[itemp] *= sqrt(atmp);
+          }
+        }
+      }
+    }
+  }
+}
+
+//
+// Arguments    : int m
+//                int n
+//                double A_data[]
+//                int A_size[2]
 //                int lda
-//                emxArray_int32_T *ipiv
+//                int ipiv_data[]
+//                int ipiv_size[2]
 //                int *info
 // Return Type  : void
 //
-static void eml_xgetrf(int m, int n, emxArray_real_T *A, int lda,
-  emxArray_int32_T *ipiv, int *info)
+static void eml_xgetrf(int m, int n, double A_data[], int A_size[2], int lda,
+  int ipiv_data[], int ipiv_size[2], int *info)
 {
   int b_m;
-  int b_info;
   int i22;
   int j;
   int mmj;
   int c;
-  int iy;
+  int i;
   int ix;
   double smax;
   int jA;
@@ -441,8 +701,8 @@ static void eml_xgetrf(int m, int n, emxArray_real_T *A, int lda,
     b_m = n;
   }
 
-  eml_signed_integer_colon(b_m, ipiv);
-  b_info = 0;
+  eml_signed_integer_colon(b_m, ipiv_data, ipiv_size);
+  *info = 0;
   if ((m < 1) || (n < 1)) {
   } else {
     if (m - 1 <= n) {
@@ -451,59 +711,51 @@ static void eml_xgetrf(int m, int n, emxArray_real_T *A, int lda,
       i22 = n;
     }
 
-    for (j = 0; j + 1 <= i22; j++) {
-      mmj = m - j;
-      c = j * (lda + 1);
+    for (j = 1; j <= i22; j++) {
+      mmj = (m - j) + 1;
+      c = (j - 1) * (lda + 1);
       if (mmj < 1) {
-        iy = -1;
+        i = -1;
       } else {
-        iy = 0;
+        i = 0;
         if (mmj > 1) {
           ix = c;
-          smax = fabs(A->data[c]);
+          smax = fabs(A_data[c]);
           for (jA = 1; jA + 1 <= mmj; jA++) {
             ix++;
-            s = fabs(A->data[ix]);
+            s = fabs(A_data[ix]);
             if (s > smax) {
-              iy = jA;
+              i = jA;
               smax = s;
             }
           }
         }
       }
 
-      if (A->data[c + iy] != 0.0) {
-        if (iy != 0) {
-          ipiv->data[j] = (j + iy) + 1;
-          ix = j;
-          iy += j;
-          for (jA = 1; jA <= n; jA++) {
-            smax = A->data[ix];
-            A->data[ix] = A->data[iy];
-            A->data[iy] = smax;
-            ix += lda;
-            iy += lda;
-          }
+      if (A_data[c + i] != 0.0) {
+        if (i != 0) {
+          ipiv_data[j - 1] = j + i;
+          eml_xswap(n, A_data, j, lda, j + i, lda);
         }
 
         i23 = c + mmj;
-        for (iy = c + 1; iy + 1 <= i23; iy++) {
-          A->data[iy] /= A->data[c];
+        for (i = c + 1; i + 1 <= i23; i++) {
+          A_data[i] /= A_data[c];
         }
       } else {
-        b_info = j + 1;
+        *info = j;
       }
 
-      iy = (n - j) - 1;
+      i = n - j;
       jA = c + lda;
       jy = c + lda;
-      for (b_j = 1; b_j <= iy; b_j++) {
-        smax = A->data[jy];
-        if (A->data[jy] != 0.0) {
+      for (b_j = 1; b_j <= i; b_j++) {
+        smax = A_data[jy];
+        if (A_data[jy] != 0.0) {
           ix = c + 1;
           i23 = mmj + jA;
           for (ijA = 1 + jA; ijA + 1 <= i23; ijA++) {
-            A->data[ijA] += A->data[ix] * -smax;
+            A_data[ijA] += A_data[ix] * -smax;
             ix++;
           }
         }
@@ -513,441 +765,20 @@ static void eml_xgetrf(int m, int n, emxArray_real_T *A, int lda,
       }
     }
 
-    if ((b_info == 0) && (m <= n) && (!(A->data[(m + A->size[0] * (m - 1)) - 1]
-          != 0.0))) {
-      b_info = m;
+    if ((*info == 0) && (m <= n) && (!(A_data[(m + A_size[0] * (m - 1)) - 1] !=
+          0.0))) {
+      *info = m;
     }
   }
-
-  *info = b_info;
 }
 
 //
 // Arguments    : int n
-//                double a
-//                emxArray_real_T *x
-//                int ix0
-// Return Type  : void
-//
-static void eml_xscal(int n, double a, emxArray_real_T *x, int ix0)
-{
-  int i25;
-  int k;
-  i25 = (ix0 + n) - 1;
-  for (k = ix0; k <= i25; k++) {
-    x->data[k - 1] *= a;
-  }
-}
-
-//
-// Arguments    : const emxArray_real_T *A
-// Return Type  : int
-//
-static int rankFromQR(const emxArray_real_T *A)
-{
-  int r;
-  int minmn;
-  int maxmn;
-  double tol;
-  r = 0;
-  if (A->size[0] < A->size[1]) {
-    minmn = A->size[0];
-    maxmn = A->size[1];
-  } else {
-    minmn = A->size[1];
-    maxmn = A->size[0];
-  }
-
-  if (minmn > 0) {
-    tol = (double)maxmn * fabs(A->data[0]) * 2.2204460492503131E-16;
-    while ((r < minmn) && (fabs(A->data[r + A->size[0] * r]) >= tol)) {
-      r++;
-    }
-  }
-
-  return r;
-}
-
-//
-// Arguments    : emxArray_real_T *A
-//                const emxArray_real_T *B
-// Return Type  : void
-//
-void b_mrdivide(emxArray_real_T *A, const emxArray_real_T *B)
-{
-  emxArray_real_T *Y;
-  emxArray_real_T *b_A;
-  emxArray_real_T *tau;
-  emxArray_int32_T *jpvt;
-  emxArray_real_T *b_B;
-  unsigned int unnamed_idx_1;
-  int j;
-  int mn;
-  int rankR;
-  int jAcol;
-  int m;
-  double wj;
-  emxInit_real_T(&Y, 1);
-  b_emxInit_real_T(&b_A, 2);
-  emxInit_real_T(&tau, 1);
-  b_emxInit_int32_T(&jpvt, 2);
-  emxInit_real_T(&b_B, 1);
-  if ((A->size[1] == 0) || ((B->size[0] == 0) || (B->size[1] == 0))) {
-    unnamed_idx_1 = (unsigned int)B->size[0];
-    j = A->size[0] * A->size[1];
-    A->size[0] = 1;
-    A->size[1] = (int)unnamed_idx_1;
-    emxEnsureCapacity((emxArray__common *)A, j, (int)sizeof(double));
-    mn = (int)unnamed_idx_1;
-    for (j = 0; j < mn; j++) {
-      A->data[A->size[0] * j] = 0.0;
-    }
-  } else if (B->size[0] == B->size[1]) {
-    rankR = B->size[1];
-    j = b_A->size[0] * b_A->size[1];
-    b_A->size[0] = B->size[0];
-    b_A->size[1] = B->size[1];
-    emxEnsureCapacity((emxArray__common *)b_A, j, (int)sizeof(double));
-    mn = B->size[0] * B->size[1];
-    for (j = 0; j < mn; j++) {
-      b_A->data[j] = B->data[j];
-    }
-
-    eml_xgetrf(B->size[1], B->size[1], b_A, B->size[1], jpvt, &jAcol);
-    if (A->size[1] == 0) {
-    } else {
-      for (j = 0; j + 1 <= rankR; j++) {
-        jAcol = rankR * j;
-        for (m = 0; m + 1 <= j; m++) {
-          if (b_A->data[m + jAcol] != 0.0) {
-            A->data[j] -= b_A->data[m + jAcol] * A->data[m];
-          }
-        }
-
-        wj = b_A->data[j + jAcol];
-        A->data[j] *= 1.0 / wj;
-      }
-    }
-
-    if (A->size[1] == 0) {
-    } else {
-      for (j = B->size[1]; j > 0; j--) {
-        jAcol = rankR * (j - 1);
-        for (m = j; m + 1 <= rankR; m++) {
-          if (b_A->data[m + jAcol] != 0.0) {
-            A->data[j - 1] -= b_A->data[m + jAcol] * A->data[m];
-          }
-        }
-      }
-    }
-
-    for (jAcol = B->size[1] - 2; jAcol + 1 > 0; jAcol--) {
-      if (jpvt->data[jAcol] != jAcol + 1) {
-        wj = A->data[A->size[0] * jAcol];
-        A->data[A->size[0] * jAcol] = A->data[A->size[0] * (jpvt->data[jAcol] -
-          1)];
-        A->data[A->size[0] * (jpvt->data[jAcol] - 1)] = wj;
-      }
-    }
-  } else {
-    j = b_A->size[0] * b_A->size[1];
-    b_A->size[0] = B->size[1];
-    b_A->size[1] = B->size[0];
-    emxEnsureCapacity((emxArray__common *)b_A, j, (int)sizeof(double));
-    mn = B->size[0];
-    for (j = 0; j < mn; j++) {
-      jAcol = B->size[1];
-      for (m = 0; m < jAcol; m++) {
-        b_A->data[m + b_A->size[0] * j] = B->data[j + B->size[0] * m];
-      }
-    }
-
-    eml_xgeqp3(b_A, tau, jpvt);
-    rankR = rankFromQR(b_A);
-    j = b_B->size[0];
-    b_B->size[0] = A->size[1];
-    emxEnsureCapacity((emxArray__common *)b_B, j, (int)sizeof(double));
-    mn = A->size[1];
-    for (j = 0; j < mn; j++) {
-      b_B->data[j] = A->data[A->size[0] * j];
-    }
-
-    m = b_A->size[0];
-    jAcol = b_A->size[0];
-    mn = b_A->size[1];
-    if (jAcol <= mn) {
-      mn = jAcol;
-    }
-
-    jAcol = b_A->size[1];
-    j = Y->size[0];
-    Y->size[0] = jAcol;
-    emxEnsureCapacity((emxArray__common *)Y, j, (int)sizeof(double));
-    for (j = 0; j < jAcol; j++) {
-      Y->data[j] = 0.0;
-    }
-
-    for (j = 0; j + 1 <= mn; j++) {
-      if (tau->data[j] != 0.0) {
-        wj = b_B->data[j];
-        for (jAcol = j + 1; jAcol + 1 <= m; jAcol++) {
-          wj += b_A->data[jAcol + b_A->size[0] * j] * b_B->data[jAcol];
-        }
-
-        wj *= tau->data[j];
-        if (wj != 0.0) {
-          b_B->data[j] -= wj;
-          for (jAcol = j + 1; jAcol + 1 <= m; jAcol++) {
-            b_B->data[jAcol] -= b_A->data[jAcol + b_A->size[0] * j] * wj;
-          }
-        }
-      }
-    }
-
-    for (jAcol = 0; jAcol + 1 <= rankR; jAcol++) {
-      Y->data[jpvt->data[jAcol] - 1] = b_B->data[jAcol];
-    }
-
-    for (j = rankR - 1; j + 1 > 0; j--) {
-      Y->data[jpvt->data[j] - 1] /= b_A->data[j + b_A->size[0] * j];
-      for (jAcol = 0; jAcol + 1 <= j; jAcol++) {
-        Y->data[jpvt->data[jAcol] - 1] -= Y->data[jpvt->data[j] - 1] * b_A->
-          data[jAcol + b_A->size[0] * j];
-      }
-    }
-
-    j = A->size[0] * A->size[1];
-    A->size[0] = 1;
-    A->size[1] = Y->size[0];
-    emxEnsureCapacity((emxArray__common *)A, j, (int)sizeof(double));
-    mn = Y->size[0];
-    for (j = 0; j < mn; j++) {
-      A->data[A->size[0] * j] = Y->data[j];
-    }
-  }
-
-  emxFree_real_T(&b_B);
-  emxFree_int32_T(&jpvt);
-  emxFree_real_T(&tau);
-  emxFree_real_T(&b_A);
-  emxFree_real_T(&Y);
-}
-
-//
-// Arguments    : emxArray_real_T *A
-//                const emxArray_real_T *B
-// Return Type  : void
-//
-void c_mrdivide(emxArray_real_T *A, const emxArray_real_T *B)
-{
-  emxArray_real_T *Y;
-  emxArray_real_T *b_B;
-  emxArray_real_T *b_A;
-  emxArray_real_T *tau;
-  emxArray_int32_T *jpvt;
-  int jBcol;
-  int kBcol;
-  int j;
-  int rankR;
-  int m;
-  int nb;
-  int k;
-  int i;
-  double wj;
-  int mn;
-  b_emxInit_real_T(&Y, 2);
-  b_emxInit_real_T(&b_B, 2);
-  b_emxInit_real_T(&b_A, 2);
-  emxInit_real_T(&tau, 1);
-  b_emxInit_int32_T(&jpvt, 2);
-  if ((A->size[0] == 0) || (A->size[1] == 0) || ((B->size[0] == 0) || (B->size[1]
-        == 0))) {
-    jBcol = A->size[0];
-    kBcol = B->size[0];
-    j = A->size[0] * A->size[1];
-    A->size[0] = jBcol;
-    A->size[1] = kBcol;
-    emxEnsureCapacity((emxArray__common *)A, j, (int)sizeof(double));
-    for (j = 0; j < kBcol; j++) {
-      for (rankR = 0; rankR < jBcol; rankR++) {
-        A->data[rankR + A->size[0] * j] = 0.0;
-      }
-    }
-  } else if (B->size[0] == B->size[1]) {
-    m = B->size[1];
-    j = b_A->size[0] * b_A->size[1];
-    b_A->size[0] = B->size[0];
-    b_A->size[1] = B->size[1];
-    emxEnsureCapacity((emxArray__common *)b_A, j, (int)sizeof(double));
-    kBcol = B->size[0] * B->size[1];
-    for (j = 0; j < kBcol; j++) {
-      b_A->data[j] = B->data[j];
-    }
-
-    eml_xgetrf(B->size[1], B->size[1], b_A, B->size[1], jpvt, &jBcol);
-    nb = A->size[0];
-    if ((A->size[0] == 0) || (A->size[1] == 0)) {
-    } else {
-      for (j = 0; j + 1 <= m; j++) {
-        jBcol = nb * j - 1;
-        rankR = m * j;
-        for (k = 1; k <= j; k++) {
-          kBcol = nb * (k - 1);
-          if (b_A->data[(k + rankR) - 1] != 0.0) {
-            for (i = 1; i <= nb; i++) {
-              A->data[i + jBcol] -= b_A->data[(k + rankR) - 1] * A->data[(i +
-                kBcol) - 1];
-            }
-          }
-        }
-
-        wj = 1.0 / b_A->data[j + rankR];
-        for (i = 1; i <= nb; i++) {
-          A->data[i + jBcol] *= wj;
-        }
-      }
-    }
-
-    if ((A->size[0] == 0) || (A->size[1] == 0)) {
-    } else {
-      for (j = B->size[1]; j > 0; j--) {
-        jBcol = nb * (j - 1) - 1;
-        rankR = m * (j - 1) - 1;
-        for (k = j + 1; k <= m; k++) {
-          kBcol = nb * (k - 1);
-          if (b_A->data[k + rankR] != 0.0) {
-            for (i = 1; i <= nb; i++) {
-              A->data[i + jBcol] -= b_A->data[k + rankR] * A->data[(i + kBcol) -
-                1];
-            }
-          }
-        }
-      }
-    }
-
-    for (jBcol = B->size[1] - 2; jBcol + 1 > 0; jBcol--) {
-      if (jpvt->data[jBcol] != jBcol + 1) {
-        rankR = jpvt->data[jBcol] - 1;
-        for (kBcol = 0; kBcol + 1 <= nb; kBcol++) {
-          wj = A->data[kBcol + A->size[0] * jBcol];
-          A->data[kBcol + A->size[0] * jBcol] = A->data[kBcol + A->size[0] *
-            rankR];
-          A->data[kBcol + A->size[0] * rankR] = wj;
-        }
-      }
-    }
-  } else {
-    j = b_B->size[0] * b_B->size[1];
-    b_B->size[0] = A->size[1];
-    b_B->size[1] = A->size[0];
-    emxEnsureCapacity((emxArray__common *)b_B, j, (int)sizeof(double));
-    kBcol = A->size[0];
-    for (j = 0; j < kBcol; j++) {
-      jBcol = A->size[1];
-      for (rankR = 0; rankR < jBcol; rankR++) {
-        b_B->data[rankR + b_B->size[0] * j] = A->data[j + A->size[0] * rankR];
-      }
-    }
-
-    j = b_A->size[0] * b_A->size[1];
-    b_A->size[0] = B->size[1];
-    b_A->size[1] = B->size[0];
-    emxEnsureCapacity((emxArray__common *)b_A, j, (int)sizeof(double));
-    kBcol = B->size[0];
-    for (j = 0; j < kBcol; j++) {
-      jBcol = B->size[1];
-      for (rankR = 0; rankR < jBcol; rankR++) {
-        b_A->data[rankR + b_A->size[0] * j] = B->data[j + B->size[0] * rankR];
-      }
-    }
-
-    eml_xgeqp3(b_A, tau, jpvt);
-    rankR = rankFromQR(b_A);
-    m = b_A->size[0];
-    nb = b_B->size[1];
-    jBcol = b_A->size[0];
-    mn = b_A->size[1];
-    if (jBcol <= mn) {
-      mn = jBcol;
-    }
-
-    jBcol = b_A->size[1];
-    kBcol = b_B->size[1];
-    j = Y->size[0] * Y->size[1];
-    Y->size[0] = jBcol;
-    emxEnsureCapacity((emxArray__common *)Y, j, (int)sizeof(double));
-    j = Y->size[0] * Y->size[1];
-    Y->size[1] = kBcol;
-    emxEnsureCapacity((emxArray__common *)Y, j, (int)sizeof(double));
-    kBcol *= jBcol;
-    for (j = 0; j < kBcol; j++) {
-      Y->data[j] = 0.0;
-    }
-
-    for (j = 0; j + 1 <= mn; j++) {
-      if (tau->data[j] != 0.0) {
-        for (k = 0; k + 1 <= nb; k++) {
-          wj = b_B->data[j + b_B->size[0] * k];
-          for (i = j + 1; i + 1 <= m; i++) {
-            wj += b_A->data[i + b_A->size[0] * j] * b_B->data[i + b_B->size[0] *
-              k];
-          }
-
-          wj *= tau->data[j];
-          if (wj != 0.0) {
-            b_B->data[j + b_B->size[0] * k] -= wj;
-            for (i = j + 1; i + 1 <= m; i++) {
-              b_B->data[i + b_B->size[0] * k] -= b_A->data[i + b_A->size[0] * j]
-                * wj;
-            }
-          }
-        }
-      }
-    }
-
-    for (k = 0; k + 1 <= nb; k++) {
-      for (i = 0; i + 1 <= rankR; i++) {
-        Y->data[(jpvt->data[i] + Y->size[0] * k) - 1] = b_B->data[i + b_B->size
-          [0] * k];
-      }
-
-      for (j = rankR - 1; j + 1 > 0; j--) {
-        Y->data[(jpvt->data[j] + Y->size[0] * k) - 1] /= b_A->data[j + b_A->
-          size[0] * j];
-        for (i = 0; i + 1 <= j; i++) {
-          Y->data[(jpvt->data[i] + Y->size[0] * k) - 1] -= Y->data[(jpvt->data[j]
-            + Y->size[0] * k) - 1] * b_A->data[i + b_A->size[0] * j];
-        }
-      }
-    }
-
-    j = A->size[0] * A->size[1];
-    A->size[0] = Y->size[1];
-    A->size[1] = Y->size[0];
-    emxEnsureCapacity((emxArray__common *)A, j, (int)sizeof(double));
-    kBcol = Y->size[0];
-    for (j = 0; j < kBcol; j++) {
-      jBcol = Y->size[1];
-      for (rankR = 0; rankR < jBcol; rankR++) {
-        A->data[rankR + A->size[0] * j] = Y->data[j + Y->size[0] * rankR];
-      }
-    }
-  }
-
-  emxFree_int32_T(&jpvt);
-  emxFree_real_T(&tau);
-  emxFree_real_T(&b_A);
-  emxFree_real_T(&b_B);
-  emxFree_real_T(&Y);
-}
-
-//
-// Arguments    : int n
-//                const emxArray_real_T *x
+//                const double x_data[]
 //                int ix0
 // Return Type  : double
 //
-double eml_xnrm2(int n, const emxArray_real_T *x, int ix0)
+static double eml_xnrm2(int n, const double x_data[], int ix0)
 {
   double y;
   double scale;
@@ -958,12 +789,12 @@ double eml_xnrm2(int n, const emxArray_real_T *x, int ix0)
   y = 0.0;
   if (n < 1) {
   } else if (n == 1) {
-    y = fabs(x->data[ix0 - 1]);
+    y = fabs(x_data[ix0 - 1]);
   } else {
     scale = 2.2250738585072014E-308;
     kend = (ix0 + n) - 1;
     for (k = ix0; k <= kend; k++) {
-      absxk = fabs(x->data[k - 1]);
+      absxk = fabs(x_data[k - 1]);
       if (absxk > scale) {
         t = scale / absxk;
         y = 1.0 + y * t * t;
@@ -981,12 +812,110 @@ double eml_xnrm2(int n, const emxArray_real_T *x, int ix0)
 }
 
 //
+// Arguments    : int n
+//                double x_data[]
+//                int ix0
+//                int incx
+//                int iy0
+//                int incy
+// Return Type  : void
+//
+static void eml_xswap(int n, double x_data[], int ix0, int incx, int iy0, int
+                      incy)
+{
+  int ix;
+  int iy;
+  int k;
+  double temp;
+  ix = ix0 - 1;
+  iy = iy0 - 1;
+  for (k = 1; k <= n; k++) {
+    temp = x_data[ix];
+    x_data[ix] = x_data[iy];
+    x_data[iy] = temp;
+    ix += incx;
+    iy += incy;
+  }
+}
+
+//
+// Arguments    : int m
+//                int n
+//                const double A_data[]
+//                int lda
+//                emxArray_real_T *B
+//                int ldb
+// Return Type  : void
+//
+static void eml_xtrsm(int m, int n, const double A_data[], int lda,
+                      emxArray_real_T *B, int ldb)
+{
+  int j;
+  int jBcol;
+  int jAcol;
+  int k;
+  int kBcol;
+  int i;
+  double temp;
+  if ((n == 0) || ((B->size[0] == 0) || (B->size[1] == 0))) {
+  } else {
+    for (j = 0; j + 1 <= n; j++) {
+      jBcol = ldb * j;
+      jAcol = lda * j;
+      for (k = 0; k + 1 <= j; k++) {
+        kBcol = ldb * k;
+        if (A_data[k + jAcol] != 0.0) {
+          for (i = 0; i + 1 <= m; i++) {
+            B->data[i + jBcol] -= A_data[k + jAcol] * B->data[i + kBcol];
+          }
+        }
+      }
+
+      temp = 1.0 / A_data[j + jAcol];
+      for (i = 0; i + 1 <= m; i++) {
+        B->data[i + jBcol] *= temp;
+      }
+    }
+  }
+}
+
+//
+// Arguments    : const double A_data[]
+//                const int A_size[2]
+// Return Type  : int
+//
+static int rankFromQR(const double A_data[], const int A_size[2])
+{
+  int r;
+  int minmn;
+  int maxmn;
+  double tol;
+  r = 0;
+  if (A_size[0] < A_size[1]) {
+    minmn = A_size[0];
+    maxmn = A_size[1];
+  } else {
+    minmn = A_size[1];
+    maxmn = A_size[0];
+  }
+
+  if (minmn > 0) {
+    tol = (double)maxmn * fabs(A_data[0]) * 2.2204460492503131E-16;
+    while ((r < minmn) && (fabs(A_data[r + A_size[0] * r]) >= tol)) {
+      r++;
+    }
+  }
+
+  return r;
+}
+
+//
 // Arguments    : const double A[2]
 //                const double B[4]
 //                double y[2]
 // Return Type  : void
 //
-void mrdivide(const double A[2], const double B[4], double y[2])
+void b_mrdivide(const double A[2], const double B[4], double y[2])
 {
   int r1;
   int r2;
@@ -1003,6 +932,98 @@ void mrdivide(const double A[2], const double B[4], double y[2])
   y[r1] = A[0] / B[r1];
   y[r2] = (A[1] - y[r1] * B[2 + r1]) / (B[2 + r2] - a21 * B[2 + r1]);
   y[r1] -= y[r2] * a21;
+}
+
+//
+// Arguments    : const emxArray_real_T *A
+//                const double B_data[]
+//                const int B_size[2]
+//                emxArray_real_T *y
+// Return Type  : void
+//
+void mrdivide(const emxArray_real_T *A, const double B_data[], const int B_size
+              [2], emxArray_real_T *y)
+{
+  emxArray_real_T *r1;
+  emxArray_real_T *b_A;
+  emxArray_real_T *c_A;
+  unsigned int unnamed_idx_0;
+  int i9;
+  int loop_ub;
+  double b_B_data[1296];
+  int b_B_size[2];
+  int A_idx_1;
+  int i10;
+  emxInit_real_T(&r1, 2);
+  emxInit_real_T(&b_A, 2);
+  emxInit_real_T(&c_A, 2);
+  if ((A->size[0] == 0) || (A->size[1] == 0) || ((B_size[0] == 0) || (B_size[1] ==
+        0))) {
+    unnamed_idx_0 = (unsigned int)A->size[0];
+    i9 = y->size[0] * y->size[1];
+    y->size[0] = (int)unnamed_idx_0;
+    emxEnsureCapacity((emxArray__common *)y, i9, (int)sizeof(double));
+    i9 = y->size[0] * y->size[1];
+    y->size[1] = B_size[0];
+    emxEnsureCapacity((emxArray__common *)y, i9, (int)sizeof(double));
+    loop_ub = (int)unnamed_idx_0 * B_size[0];
+    for (i9 = 0; i9 < loop_ub; i9++) {
+      y->data[i9] = 0.0;
+    }
+  } else if (B_size[0] == B_size[1]) {
+    eml_lusolve(B_data, B_size, A, y);
+  } else {
+    b_B_size[0] = B_size[1];
+    b_B_size[1] = B_size[0];
+    loop_ub = B_size[0];
+    for (i9 = 0; i9 < loop_ub; i9++) {
+      A_idx_1 = B_size[1];
+      for (i10 = 0; i10 < A_idx_1; i10++) {
+        b_B_data[i10 + b_B_size[0] * i9] = B_data[i9 + B_size[0] * i10];
+      }
+    }
+
+    i9 = c_A->size[0] * c_A->size[1];
+    c_A->size[0] = A->size[1];
+    c_A->size[1] = A->size[0];
+    emxEnsureCapacity((emxArray__common *)c_A, i9, (int)sizeof(double));
+    loop_ub = A->size[0];
+    for (i9 = 0; i9 < loop_ub; i9++) {
+      A_idx_1 = A->size[1];
+      for (i10 = 0; i10 < A_idx_1; i10++) {
+        c_A->data[i10 + c_A->size[0] * i9] = A->data[i9 + A->size[0] * i10];
+      }
+    }
+
+    loop_ub = A->size[1];
+    A_idx_1 = A->size[0];
+    i9 = b_A->size[0] * b_A->size[1];
+    b_A->size[0] = loop_ub;
+    b_A->size[1] = A_idx_1;
+    emxEnsureCapacity((emxArray__common *)b_A, i9, (int)sizeof(double));
+    for (i9 = 0; i9 < A_idx_1; i9++) {
+      for (i10 = 0; i10 < loop_ub; i10++) {
+        b_A->data[i10 + b_A->size[0] * i9] = c_A->data[i10 + loop_ub * i9];
+      }
+    }
+
+    eml_qrsolve(b_B_data, b_B_size, b_A, r1);
+    i9 = y->size[0] * y->size[1];
+    y->size[0] = r1->size[1];
+    y->size[1] = r1->size[0];
+    emxEnsureCapacity((emxArray__common *)y, i9, (int)sizeof(double));
+    loop_ub = r1->size[0];
+    for (i9 = 0; i9 < loop_ub; i9++) {
+      A_idx_1 = r1->size[1];
+      for (i10 = 0; i10 < A_idx_1; i10++) {
+        y->data[i10 + y->size[0] * i9] = r1->data[i9 + r1->size[0] * i10];
+      }
+    }
+  }
+
+  emxFree_real_T(&c_A);
+  emxFree_real_T(&b_A);
+  emxFree_real_T(&r1);
 }
 
 //

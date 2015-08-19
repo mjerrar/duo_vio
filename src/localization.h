@@ -25,6 +25,9 @@
 #include "SLAM.h"
 #include "SLAM_includes.h"
 #include "cameraParameters.h"
+
+#include "onboard_localization/ControllerOut.h"
+
 #include <duo3d_ros/Duo3d.h>
 
 #include <vector>
@@ -53,6 +56,8 @@ private:
 
   ros::Publisher pose_pub_;
   ros::Publisher velocity_pub_;
+  ros::Publisher controller_pub;
+
   tf::TransformBroadcaster tf_broadcaster_;
 
   ros::Time prev_time_;

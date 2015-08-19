@@ -5,7 +5,7 @@
 // File: SLAM_types.h
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 19-Aug-2015 11:35:06
+// C/C++ source code generated on  : 19-Aug-2015 17:44:31
 //
 #ifndef __SLAM_TYPES_H__
 #define __SLAM_TYPES_H__
@@ -71,26 +71,6 @@ struct emxArray_real_T
 };
 
 #endif                                 //struct_emxArray_real_T
-
-typedef struct {
-  emxArray_real_T *xt;
-  emxArray_real_T *P;
-  stereoParameters cameraparams;
-  double height_offset_pressure;
-  double processNoise[4];
-  double imNoise[2];
-  double numPointsPerAnchor;
-  double numAnchors;
-  double numStates;
-  double numStatesxt;
-  double numStatesPerAnchorxt;
-  double numStatesPerAnchor;
-  emxArray_real_T *m_vect;
-  emxArray_real_T *anchorFeatures;
-  double model;
-  double model_prob;
-} struct_T;
-
 #endif
 
 //

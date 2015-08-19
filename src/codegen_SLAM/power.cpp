@@ -2,38 +2,35 @@
 // Academic License - for use in teaching, academic research, and meeting
 // course requirements at degree granting institutions only.  Not for
 // government, commercial, or other organizational use.
-// File: sum.cpp
+// File: power.cpp
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 19-Aug-2015 11:35:06
+// C/C++ source code generated on  : 19-Aug-2015 17:44:31
 //
 
 // Include Files
 #include "rt_nonfinite.h"
 #include "SLAM.h"
-#include "sum.h"
+#include "power.h"
 #include <stdio.h>
 
 // Function Definitions
 
 //
-// Arguments    : const double x[3]
-// Return Type  : double
+// Arguments    : const double a[2]
+//                double y[2]
+// Return Type  : void
 //
-double sum(const double x[3])
+void power(const double a[2], double y[2])
 {
-  double y;
   int k;
-  y = x[0];
   for (k = 0; k < 2; k++) {
-    y += x[k + 1];
+    y[k] = a[k] * a[k];
   }
-
-  return y;
 }
 
 //
-// File trailer for sum.cpp
+// File trailer for power.cpp
 //
 // [EOF]
 //

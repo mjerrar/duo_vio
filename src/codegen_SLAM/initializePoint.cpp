@@ -5,7 +5,7 @@
 // File: initializePoint.cpp
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 19-Aug-2015 11:35:06
+// C/C++ source code generated on  : 19-Aug-2015 17:44:31
 //
 
 // Include Files
@@ -21,7 +21,7 @@
 
 // Function Declarations
 static void b_eml_xgeqp3(double A[30], double tau[5], int jpvt[5]);
-static double g_eml_xnrm2(int n, const double x[30], int ix0);
+static double f_eml_xnrm2(int n, const double x[30], int ix0);
 
 // Function Definitions
 
@@ -117,7 +117,7 @@ static void b_eml_xgeqp3(double A[30], double tau[5], int jpvt[5])
 
     absxk = A[i_i];
     temp2 = 0.0;
-    smax = g_eml_xnrm2(5 - i, A, i_i + 2);
+    smax = f_eml_xnrm2(5 - i, A, i_i + 2);
     if (smax != 0.0) {
       smax = rt_hypotd_snf(A[i_i], smax);
       if (A[i_i] >= 0.0) {
@@ -137,7 +137,7 @@ static void b_eml_xgeqp3(double A[30], double tau[5], int jpvt[5])
           absxk *= 9.9792015476736E+291;
         } while (!(fabs(smax) >= 1.0020841800044864E-292));
 
-        smax = rt_hypotd_snf(absxk, g_eml_xnrm2(5 - i, A, i_i + 2));
+        smax = rt_hypotd_snf(absxk, f_eml_xnrm2(5 - i, A, i_i + 2));
         if (absxk >= 0.0) {
           smax = -smax;
         }
@@ -266,7 +266,7 @@ static void b_eml_xgeqp3(double A[30], double tau[5], int jpvt[5])
         temp2 = vn1[iy] / vn2[iy];
         temp2 = smax * (temp2 * temp2);
         if (temp2 <= 1.4901161193847656E-8) {
-          vn1[iy] = e_eml_xnrm2(5 - i, A, (i + 6 * iy) + 2);
+          vn1[iy] = d_eml_xnrm2(5 - i, A, (i + 6 * iy) + 2);
           vn2[iy] = vn1[iy];
         } else {
           vn1[iy] *= sqrt(smax);
@@ -282,7 +282,7 @@ static void b_eml_xgeqp3(double A[30], double tau[5], int jpvt[5])
 //                int ix0
 // Return Type  : double
 //
-static double g_eml_xnrm2(int n, const double x[30], int ix0)
+static double f_eml_xnrm2(int n, const double x[30], int ix0)
 {
   double y;
   double scale;
@@ -320,7 +320,7 @@ static double g_eml_xnrm2(int n, const double x[30], int ix0)
 //                int ix0
 // Return Type  : double
 //
-double e_eml_xnrm2(int n, const double x[30], int ix0)
+double d_eml_xnrm2(int n, const double x[30], int ix0)
 {
   double y;
   double scale;
@@ -400,7 +400,7 @@ void initializePoint(const emxArray_real_T *b_xt, const double
   double pos[6];
   int rankR;
   int i;
-  double dv5[4];
+  double dv10[4];
   double rot[8];
   static const signed char iv1[4] = { 0, 0, 0, 1 };
 
@@ -459,10 +459,10 @@ void initializePoint(const emxArray_real_T *b_xt, const double
     }
   }
 
-  QuatFromRotJ(b_cameraparams_R_lr, dv5);
+  QuatFromRotJ(b_cameraparams_R_lr, dv10);
   for (rankR = 0; rankR < 4; rankR++) {
     rot[rankR] = iv1[rankR];
-    rot[4 + rankR] = dv5[rankR];
+    rot[4 + rankR] = dv10[rankR];
   }
 
   zn_d_l[0] = (z_l[0] - e_cameraparams_CameraParameters[0]) /

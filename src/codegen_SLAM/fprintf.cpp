@@ -5,7 +5,7 @@
 // File: fprintf.cpp
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 19-Aug-2015 11:35:06
+// C/C++ source code generated on  : 19-Aug-2015 17:44:31
 //
 
 // Include Files
@@ -17,13 +17,15 @@
 
 // Function Declarations
 static double c_fprintf();
-static double e_fprintf(double varargin_1);
-static double g_fprintf(signed char varargin_1);
-static double i_fprintf(int varargin_1, int varargin_2);
-static double k_fprintf();
-static double m_fprintf();
-static double o_fprintf(signed char varargin_1);
-static double q_fprintf(signed char varargin_1);
+static double e_fprintf(int varargin_1);
+static double g_fprintf();
+static double i_fprintf(signed char varargin_1);
+static double k_fprintf(signed char varargin_1);
+static double m_fprintf(int varargin_1, int varargin_2);
+static double o_fprintf();
+static double q_fprintf(double varargin_1, double varargin_2, double varargin_3,
+  double varargin_4, double varargin_5, double varargin_6, double varargin_7,
+  double varargin_8);
 
 // Function Definitions
 
@@ -55,18 +57,77 @@ static double c_fprintf()
 }
 
 //
-// Arguments    : double varargin_1
+// Arguments    : int varargin_1
 // Return Type  : double
 //
-static double e_fprintf(double varargin_1)
+static double e_fprintf(int varargin_1)
 {
   int nbytesint;
   FILE * b_NULL;
   boolean_T autoflush;
   FILE * filestar;
-  static const char cfmt[29] = { 'W', 'A', 'R', 'N', 'I', 'N', 'G', ':', ' ',
-    'm', 'o', 'd', 'e', 'l', '_', 'p', 'r', 'o', 'b', ' ', 'i', 's', ' ', '%',
-    '.', '3', 'f', '\x0a', '\x00' };
+  static const char cfmt[104] = { 'E', 'n', 'd', 'e', 'd', ' ', 'h', 'y', 'p',
+    'o', 't', 'h', 'e', 's', 'i', 's', ' ', 't', 'e', 's', 't', '.', ' ', 'F',
+    'o', 'u', 'n', 'd', ' ', '%', 'i', ' ', 'L', 'I', ' ', 'i', 'n', 'l', 'i',
+    'e', 'r', 's', ',', ' ', 'w', 'h', 'i', 'c', 'h', ' ', 'i', 's', ' ', 'b',
+    'e', 'l', 'o', 'w', ' ', 't', 'h', 'e', ' ', 't', 'h', 'r', 'e', 's', 'h',
+    'o', 'l', 'd', ' ', '%', 'i', '.', ' ', 'N', 'o', 't', ' ', 'd', 'o', 'i',
+    'n', 'g', ' ', 'L', 'I', ' ', 'E', 'K', 'F', ' ', 'u', 'p', 'd', 'a', 't',
+    'e', '.', '\x0a', '\x00', '\x00' };
+
+  nbytesint = 0;
+  b_NULL = NULL;
+  fileManager(&filestar, &autoflush);
+  if (filestar == b_NULL) {
+  } else {
+    nbytesint = fprintf(filestar, cfmt, varargin_1, 3);
+    fflush(filestar);
+  }
+
+  return nbytesint;
+}
+
+//
+// Arguments    : void
+// Return Type  : double
+//
+static double g_fprintf()
+{
+  int nbytesint;
+  FILE * b_NULL;
+  boolean_T autoflush;
+  FILE * filestar;
+  static const char cfmt[39] = { '1', '-', 'p', 'o', 'i', 'n', 't', ' ', 'R',
+    'A', 'N', 'S', 'A', 'C', ' ', 'r', 'e', 'j', 'e', 'c', 't', 'e', 'd', ' ',
+    'a', 'l', 'l', ' ', 'f', 'e', 'a', 't', 'u', 'r', 'e', 's', '!', '\x00',
+    '\x00' };
+
+  nbytesint = 0;
+  b_NULL = NULL;
+  fileManager(&filestar, &autoflush);
+  if (filestar == b_NULL) {
+  } else {
+    nbytesint = fprintf(filestar, cfmt);
+    fflush(filestar);
+  }
+
+  return nbytesint;
+}
+
+//
+// Arguments    : signed char varargin_1
+// Return Type  : double
+//
+static double i_fprintf(signed char varargin_1)
+{
+  int nbytesint;
+  FILE * b_NULL;
+  boolean_T autoflush;
+  FILE * filestar;
+  static const char cfmt[46] = { 'B', 'a', 'd', ' ', 't', 'r', 'i', 'a', 'n',
+    'g', 'u', 'l', 'a', 't', 'i', 'o', 'n', ' ', '(', 'n', 'a', 'n', ')', '.',
+    ' ', 'D', 'i', 's', 'c', 'a', 'r', 'd', 'i', 'n', 'g', ' ', 'p', 'o', 'i',
+    'n', 't', ' ', '%', 'd', '\x0a', '\x00' };
 
   nbytesint = 0;
   b_NULL = NULL;
@@ -84,16 +145,17 @@ static double e_fprintf(double varargin_1)
 // Arguments    : signed char varargin_1
 // Return Type  : double
 //
-static double g_fprintf(signed char varargin_1)
+static double k_fprintf(signed char varargin_1)
 {
   int nbytesint;
   FILE * b_NULL;
   boolean_T autoflush;
   FILE * filestar;
-  static const char cfmt[40] = { 'B', 'a', 'd', ' ', 't', 'r', 'i', 'a', 'n',
-    'g', 'u', 'l', 'a', 't', 'i', 'o', 'n', '.', ' ', 'D', 'i', 's', 'c', 'a',
-    'r', 'd', 'i', 'n', 'g', ' ', 'p', 'o', 'i', 'n', 't', ' ', '%', 'd', '\x0a',
-    '\x00' };
+  static const char cfmt[61] = { 'B', 'a', 'd', ' ', 't', 'r', 'i', 'a', 'n',
+    'g', 'u', 'l', 'a', 't', 'i', 'o', 'n', ' ', '(', 'r', 'e', 'p', 'r', 'o',
+    'j', 'e', 'c', 't', 'i', 'o', 'n', ' ', 'e', 'r', 'r', 'o', 'r', ')', '.',
+    ' ', 'D', 'i', 's', 'c', 'a', 'r', 'd', 'i', 'n', 'g', ' ', 'p', 'o', 'i',
+    'n', 't', ' ', '%', 'd', '\x0a', '\x00' };
 
   nbytesint = 0;
   b_NULL = NULL;
@@ -112,7 +174,7 @@ static double g_fprintf(signed char varargin_1)
 //                int varargin_2
 // Return Type  : double
 //
-static double i_fprintf(int varargin_1, int varargin_2)
+static double m_fprintf(int varargin_1, int varargin_2)
 {
   int nbytesint;
   FILE * b_NULL;
@@ -139,7 +201,7 @@ static double i_fprintf(int varargin_1, int varargin_2)
 // Arguments    : void
 // Return Type  : double
 //
-static double k_fprintf()
+static double o_fprintf()
 {
   int nbytesint;
   FILE * b_NULL;
@@ -165,76 +227,39 @@ static double k_fprintf()
 }
 
 //
-// Arguments    : void
+// Arguments    : double varargin_1
+//                double varargin_2
+//                double varargin_3
+//                double varargin_4
+//                double varargin_5
+//                double varargin_6
+//                double varargin_7
+//                double varargin_8
 // Return Type  : double
 //
-static double m_fprintf()
+static double q_fprintf(double varargin_1, double varargin_2, double varargin_3,
+  double varargin_4, double varargin_5, double varargin_6, double varargin_7,
+  double varargin_8)
 {
   int nbytesint;
   FILE * b_NULL;
   boolean_T autoflush;
   FILE * filestar;
-  static const char cfmt[36] = { 'W', 'A', 'R', 'N', 'I', 'N', 'G', ':', ' ',
-    'm', 'o', 'd', 'e', 'l', ' ', 'p', 'r', 'o', 'b', 'a', 'b', 'i', 'l', 'i',
-    't', 'i', 'e', 's', ' ', 'a', 'r', 'e', ' ', '0', '\x0a', '\x00' };
+  static const char cfmt[76] = { 'p', 'o', 's', 'i', 't', 'i', 'o', 'n', ' ',
+    'e', 'r', 'r', 'o', 'r', ' ', '(', '%', '.', '3', 'f', ',', ' ', '%', '.',
+    '3', 'f', ',', ' ', '%', '.', '3', 'f', ',', ' ', '%', '.', '3', 'f', ')',
+    ',', ' ', 'c', 'o', 'n', 't', 'r', 'o', 'l', ':', ' ', '(', '%', '.', '3',
+    'f', ',', ' ', '%', '.', '3', 'f', ',', ' ', '%', '.', '3', 'f', ',', ' ',
+    '%', '.', '3', 'f', ')', '\x0a', '\x00' };
 
   nbytesint = 0;
   b_NULL = NULL;
   fileManager(&filestar, &autoflush);
   if (filestar == b_NULL) {
   } else {
-    nbytesint = fprintf(filestar, cfmt);
-    fflush(filestar);
-  }
-
-  return nbytesint;
-}
-
-//
-// Arguments    : signed char varargin_1
-// Return Type  : double
-//
-static double o_fprintf(signed char varargin_1)
-{
-  int nbytesint;
-  FILE * b_NULL;
-  boolean_T autoflush;
-  FILE * filestar;
-  static const char cfmt[22] = { 'R', 'e', 'j', 'e', 'c', 't', 'i', 'n', 'g',
-    ' ', 'f', 'e', 'a', 't', 'u', 'r', 'e', ' ', '%', 'i', '\x0a', '\x00' };
-
-  nbytesint = 0;
-  b_NULL = NULL;
-  fileManager(&filestar, &autoflush);
-  if (filestar == b_NULL) {
-  } else {
-    nbytesint = fprintf(filestar, cfmt, varargin_1);
-    fflush(filestar);
-  }
-
-  return nbytesint;
-}
-
-//
-// Arguments    : signed char varargin_1
-// Return Type  : double
-//
-static double q_fprintf(signed char varargin_1)
-{
-  int nbytesint;
-  FILE * b_NULL;
-  boolean_T autoflush;
-  FILE * filestar;
-  static const char cfmt[28] = { 'R', 'e', 'q', 'u', 'e', 's', 't', 'i', 'n',
-    'g', ' ', '%', 'i', ' ', 'n', 'e', 'w', ' ', 'f', 'e', 'a', 't', 'u', 'r',
-    'e', 's', '\x0a', '\x00' };
-
-  nbytesint = 0;
-  b_NULL = NULL;
-  fileManager(&filestar, &autoflush);
-  if (filestar == b_NULL) {
-  } else {
-    nbytesint = fprintf(filestar, cfmt, varargin_1);
+    nbytesint = fprintf(filestar, cfmt, varargin_1, varargin_2, varargin_3,
+                        varargin_4, varargin_5, varargin_6, varargin_7,
+                        varargin_8);
     fflush(filestar);
   }
 
@@ -251,21 +276,39 @@ void b_fprintf()
 }
 
 //
-// Arguments    : double formatSpec
+// Arguments    : int formatSpec
 // Return Type  : void
 //
-void d_fprintf(double formatSpec)
+void d_fprintf(int formatSpec)
 {
   e_fprintf(formatSpec);
+}
+
+//
+// Arguments    : void
+// Return Type  : void
+//
+void f_fprintf()
+{
+  g_fprintf();
 }
 
 //
 // Arguments    : signed char formatSpec
 // Return Type  : void
 //
-void f_fprintf(signed char formatSpec)
+void h_fprintf(signed char formatSpec)
 {
-  g_fprintf(formatSpec);
+  i_fprintf(formatSpec);
+}
+
+//
+// Arguments    : signed char formatSpec
+// Return Type  : void
+//
+void j_fprintf(signed char formatSpec)
+{
+  k_fprintf(formatSpec);
 }
 
 //
@@ -273,45 +316,37 @@ void f_fprintf(signed char formatSpec)
 //                int varargin_1
 // Return Type  : void
 //
-void h_fprintf(int formatSpec, int varargin_1)
+void l_fprintf(int formatSpec, int varargin_1)
 {
-  i_fprintf(formatSpec, varargin_1);
+  m_fprintf(formatSpec, varargin_1);
 }
 
 //
 // Arguments    : void
 // Return Type  : void
 //
-void j_fprintf()
+void n_fprintf()
 {
-  k_fprintf();
+  o_fprintf();
 }
 
 //
-// Arguments    : void
+// Arguments    : double formatSpec
+//                double varargin_1
+//                double varargin_2
+//                double varargin_3
+//                double varargin_4
+//                double varargin_5
+//                double varargin_6
+//                double varargin_7
 // Return Type  : void
 //
-void l_fprintf()
+void p_fprintf(double formatSpec, double varargin_1, double varargin_2, double
+               varargin_3, double varargin_4, double varargin_5, double
+               varargin_6, double varargin_7)
 {
-  m_fprintf();
-}
-
-//
-// Arguments    : signed char formatSpec
-// Return Type  : void
-//
-void n_fprintf(signed char formatSpec)
-{
-  o_fprintf(formatSpec);
-}
-
-//
-// Arguments    : signed char formatSpec
-// Return Type  : void
-//
-void p_fprintf(signed char formatSpec)
-{
-  q_fprintf(formatSpec);
+  q_fprintf(formatSpec, varargin_1, varargin_2, varargin_3, varargin_4,
+            varargin_5, varargin_6, varargin_7);
 }
 
 //

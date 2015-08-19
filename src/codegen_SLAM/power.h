@@ -2,13 +2,13 @@
 // Academic License - for use in teaching, academic research, and meeting
 // course requirements at degree granting institutions only.  Not for
 // government, commercial, or other organizational use.
-// File: squeeze.h
+// File: power.h
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 19-Aug-2015 11:35:06
+// C/C++ source code generated on  : 19-Aug-2015 17:44:31
 //
-#ifndef __SQUEEZE_H__
-#define __SQUEEZE_H__
+#ifndef __POWER_H__
+#define __POWER_H__
 
 // Include Files
 #include <math.h>
@@ -21,12 +21,12 @@
 #include "SLAM_types.h"
 
 // Function Declarations
-extern void squeeze(const double a[12], double b[12]);
+extern void power(const double a[2], double y[2]);
 
 #endif
 
 //
-// File trailer for squeeze.h
+// File trailer for power.h
 //
 // [EOF]
 //

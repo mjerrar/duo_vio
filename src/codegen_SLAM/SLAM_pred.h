@@ -2,13 +2,13 @@
 // Academic License - for use in teaching, academic research, and meeting
 // course requirements at degree granting institutions only.  Not for
 // government, commercial, or other organizational use.
-// File: rdivide.h
+// File: SLAM_pred.h
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 19-Aug-2015 11:35:06
+// C/C++ source code generated on  : 19-Aug-2015 17:44:31
 //
-#ifndef __RDIVIDE_H__
-#define __RDIVIDE_H__
+#ifndef __SLAM_PRED_H__
+#define __SLAM_PRED_H__
 
 // Include Files
 #include <math.h>
@@ -21,12 +21,15 @@
 #include "SLAM_types.h"
 
 // Function Declarations
-extern void rdivide(const double x[3], double y, double z[3]);
+extern void SLAM_pred(emxArray_real_T *P_apo, emxArray_real_T *x, double dt,
+                      const double processNoise[4], const double
+                      IMU_measurements[23], double c_numStates, const double
+                      control_input[4]);
 
 #endif
 
 //
-// File trailer for rdivide.h
+// File trailer for SLAM_pred.h
 //
 // [EOF]
 //
