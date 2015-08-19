@@ -5,7 +5,7 @@
 // File: SLAM_initialize.cpp
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 19-Aug-2015 17:44:31
+// C/C++ source code generated on  : 19-Aug-2015 18:38:31
 //
 
 // Include Files
@@ -52,7 +52,7 @@ void SLAM_initialize()
   numTrackFeatures = b_numTrackFeatures;
   K_yaw = b_K_yaw;
   for (i0 = 0; i0 < 2; i0++) {
-    K_pos[i0] = 0.976706314567378 + 0.41277615724834194 * (double)i0;
+    K_pos[i0] = 10.0 + -10.0 * (double)i0;
   }
 
   numStates = b_numStates;

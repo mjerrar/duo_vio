@@ -5,7 +5,7 @@
 // File: SLAM_pred.cpp
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 19-Aug-2015 17:44:31
+// C/C++ source code generated on  : 19-Aug-2015 18:38:31
 //
 
 // Include Files
@@ -966,7 +966,7 @@ void SLAM_pred(emxArray_real_T *P_apo, emxArray_real_T *x, double dt, const
   emxArray_real_T *x4;
   emxArray_real_T *Phi4;
   double P4[144];
-  emxArray_int32_T *r18;
+  emxArray_int32_T *r17;
   emxArray_real_T *c_x;
   double d_P_xx_apr;
   emxArray_real_T *b_P_apo;
@@ -977,8 +977,8 @@ void SLAM_pred(emxArray_real_T *P_apo, emxArray_real_T *x, double dt, const
   int ar;
   int ib;
   int ia;
+  emxArray_int32_T *r18;
   emxArray_int32_T *r19;
-  emxArray_int32_T *r20;
   emxArray_real_T *b_P_xs_apr;
 
   //  Xv meaning
@@ -1229,13 +1229,13 @@ void SLAM_pred(emxArray_real_T *P_apo, emxArray_real_T *x, double dt, const
     i = (int)(c_numStates + 1.0);
   }
 
-  b_emxInit_int32_T(&r18, 2);
-  i27 = r18->size[0] * r18->size[1];
-  r18->size[0] = 1;
-  r18->size[1] = i;
-  emxEnsureCapacity((emxArray__common *)r18, i27, (int)sizeof(int));
+  b_emxInit_int32_T(&r17, 2);
+  i27 = r17->size[0] * r17->size[1];
+  r17->size[0] = 1;
+  r17->size[1] = i;
+  emxEnsureCapacity((emxArray__common *)r17, i27, (int)sizeof(int));
   for (i27 = 0; i27 < i; i27++) {
-    r18->data[r18->size[0] * i27] = i27;
+    r17->data[r17->size[0] * i27] = i27;
   }
 
   b_emxInit_real_T(&c_x, 1);
@@ -1251,14 +1251,14 @@ void SLAM_pred(emxArray_real_T *P_apo, emxArray_real_T *x, double dt, const
   emxFree_real_T(&x3);
   emxFree_real_T(&x2);
   emxFree_real_T(&x1);
-  loop_ub = r18->size[1];
+  loop_ub = r17->size[1];
   for (i27 = 0; i27 < loop_ub; i27++) {
-    x->data[r18->data[r18->size[0] * i27]] = c_x->data[(*(int (*)[2])r18->size)
+    x->data[r17->data[r17->size[0] * i27]] = c_x->data[(*(int (*)[2])r17->size)
       [0] * i27];
   }
 
   emxFree_real_T(&c_x);
-  emxFree_int32_T(&r18);
+  emxFree_int32_T(&r17);
   for (i27 = 0; i27 < 144; i27++) {
     d_P_xx_apr = P_xx_apr->data[i27] + (((b_P_xx_apr[i27] + 2.0 * P2[i27]) + 2.0
       * P3[i27]) + P4[i27]) / 6.0;
@@ -1394,20 +1394,20 @@ void SLAM_pred(emxArray_real_T *P_apo, emxArray_real_T *x, double dt, const
     i = (int)c_numStates;
   }
 
-  emxInit_int32_T(&r19, 1);
-  i27 = r19->size[0];
-  r19->size[0] = loop_ub;
-  emxEnsureCapacity((emxArray__common *)r19, i27, (int)sizeof(int));
+  emxInit_int32_T(&r18, 1);
+  i27 = r18->size[0];
+  r18->size[0] = loop_ub;
+  emxEnsureCapacity((emxArray__common *)r18, i27, (int)sizeof(int));
   for (i27 = 0; i27 < loop_ub; i27++) {
-    r19->data[i27] = i27;
+    r18->data[i27] = i27;
   }
 
-  emxInit_int32_T(&r20, 1);
-  i27 = r20->size[0];
-  r20->size[0] = i;
-  emxEnsureCapacity((emxArray__common *)r20, i27, (int)sizeof(int));
+  emxInit_int32_T(&r19, 1);
+  i27 = r19->size[0];
+  r19->size[0] = i;
+  emxEnsureCapacity((emxArray__common *)r19, i27, (int)sizeof(int));
   for (i27 = 0; i27 < i; i27++) {
-    r20->data[i27] = i27;
+    r19->data[i27] = i27;
   }
 
   for (i27 = 0; i27 < 12; i27++) {
@@ -1417,11 +1417,11 @@ void SLAM_pred(emxArray_real_T *P_apo, emxArray_real_T *x, double dt, const
     }
   }
 
-  i = r19->size[0];
-  cr = r20->size[0];
+  i = r18->size[0];
+  cr = r19->size[0];
   for (i27 = 0; i27 < cr; i27++) {
     for (i28 = 0; i28 < i; i28++) {
-      P_apo->data[r19->data[i28] + P_apo->size[0] * r20->data[i27]] =
+      P_apo->data[r18->data[i28] + P_apo->size[0] * r19->data[i27]] =
         c_P_xx_apr[i28 + i * i27];
     }
   }
@@ -1440,26 +1440,26 @@ void SLAM_pred(emxArray_real_T *P_apo, emxArray_real_T *x, double dt, const
     i28 = P_apo->size[1];
   }
 
-  cr = r19->size[0];
-  r19->size[0] = loop_ub;
-  emxEnsureCapacity((emxArray__common *)r19, cr, (int)sizeof(int));
+  cr = r18->size[0];
+  r18->size[0] = loop_ub;
+  emxEnsureCapacity((emxArray__common *)r18, cr, (int)sizeof(int));
   for (cr = 0; cr < loop_ub; cr++) {
-    r19->data[cr] = cr;
+    r18->data[cr] = cr;
   }
 
-  cr = r20->size[0];
-  r20->size[0] = i28 - i27;
-  emxEnsureCapacity((emxArray__common *)r20, cr, (int)sizeof(int));
+  cr = r19->size[0];
+  r19->size[0] = i28 - i27;
+  emxEnsureCapacity((emxArray__common *)r19, cr, (int)sizeof(int));
   loop_ub = i28 - i27;
   for (i28 = 0; i28 < loop_ub; i28++) {
-    r20->data[i28] = i27 + i28;
+    r19->data[i28] = i27 + i28;
   }
 
-  i = r19->size[0];
-  cr = r20->size[0];
+  i = r18->size[0];
+  cr = r19->size[0];
   for (i27 = 0; i27 < cr; i27++) {
     for (i28 = 0; i28 < i; i28++) {
-      P_apo->data[r19->data[i28] + P_apo->size[0] * r20->data[i27]] =
+      P_apo->data[r18->data[i28] + P_apo->size[0] * r19->data[i27]] =
         P_xs_apr->data[i28 + i * i27];
     }
   }
@@ -1478,19 +1478,19 @@ void SLAM_pred(emxArray_real_T *P_apo, emxArray_real_T *x, double dt, const
     loop_ub = (int)c_numStates;
   }
 
-  cr = r19->size[0];
-  r19->size[0] = i28 - i27;
-  emxEnsureCapacity((emxArray__common *)r19, cr, (int)sizeof(int));
+  cr = r18->size[0];
+  r18->size[0] = i28 - i27;
+  emxEnsureCapacity((emxArray__common *)r18, cr, (int)sizeof(int));
   i = i28 - i27;
   for (i28 = 0; i28 < i; i28++) {
-    r19->data[i28] = i27 + i28;
+    r18->data[i28] = i27 + i28;
   }
 
-  i27 = r20->size[0];
-  r20->size[0] = loop_ub;
-  emxEnsureCapacity((emxArray__common *)r20, i27, (int)sizeof(int));
+  i27 = r19->size[0];
+  r19->size[0] = loop_ub;
+  emxEnsureCapacity((emxArray__common *)r19, i27, (int)sizeof(int));
   for (i27 = 0; i27 < loop_ub; i27++) {
-    r20->data[i27] = i27;
+    r19->data[i27] = i27;
   }
 
   emxInit_real_T(&b_P_xs_apr, 2);
@@ -1507,18 +1507,18 @@ void SLAM_pred(emxArray_real_T *P_apo, emxArray_real_T *x, double dt, const
   }
 
   emxFree_real_T(&P_xs_apr);
-  i = r19->size[0];
-  cr = r20->size[0];
+  i = r18->size[0];
+  cr = r19->size[0];
   for (i27 = 0; i27 < cr; i27++) {
     for (i28 = 0; i28 < i; i28++) {
-      P_apo->data[r19->data[i28] + P_apo->size[0] * r20->data[i27]] =
+      P_apo->data[r18->data[i28] + P_apo->size[0] * r19->data[i27]] =
         b_P_xs_apr->data[i28 + i * i27];
     }
   }
 
   emxFree_real_T(&b_P_xs_apr);
-  emxFree_int32_T(&r20);
   emxFree_int32_T(&r19);
+  emxFree_int32_T(&r18);
 
   //  P_apr=(P_apr+P_apr')/2;
   // % =================================================================================================== 
