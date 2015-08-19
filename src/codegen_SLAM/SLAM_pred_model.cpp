@@ -5,7 +5,7 @@
 // File: SLAM_pred_model.cpp
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 19-Aug-2015 10:03:40
+// C/C++ source code generated on  : 19-Aug-2015 11:35:06
 //
 
 // Include Files
@@ -60,7 +60,7 @@ static void b_dxdt_dPdt(double dt, const double meas[6], const emxArray_real_T
   unsigned int unnamed_idx_0;
   int loop_ub;
   double F[144];
-  static const double dv11[144] = { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+  static const double dv10[144] = { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
     0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
     0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
     0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
@@ -77,30 +77,30 @@ static void b_dxdt_dPdt(double dt, const double meas[6], const emxArray_real_T
   double c_processNoise[9];
   double d_processNoise[9];
   double Q[81];
-  static const signed char iv7[36] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  static const signed char iv8[36] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
     0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 
-  static const signed char iv8[9] = { -1, 0, 0, 0, -1, 0, 0, 0, -1 };
+  static const signed char iv9[9] = { -1, 0, 0, 0, -1, 0, 0, 0, -1 };
 
   double b_x[3];
   double planar_velocity[3];
   static const signed char b_planar_velocity[9] = { 1, 0, 0, 0, 1, 0, 0, 0, 0 };
 
+  double dv11[16];
   double dv12[16];
-  double dv13[16];
   double c_x[4];
-  double dv14[4];
+  double dv13[4];
   static const double b[3] = { 0.1, 0.1, 1.0E-7 };
 
-  static const signed char iv9[36] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  static const signed char iv10[36] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
     0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 
   double d_x[9];
   double G[108];
-  static const signed char iv10[27] = { -1, 0, 0, 0, -1, 0, 0, 0, -1, 0, 0, 0, 0,
+  static const signed char iv11[27] = { -1, 0, 0, 0, -1, 0, 0, 0, -1, 0, 0, 0, 0,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 
-  static const signed char iv11[27] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  static const signed char iv12[27] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
     0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1 };
 
   double b_G[108];
@@ -138,7 +138,7 @@ static void b_dxdt_dPdt(double dt, const double meas[6], const emxArray_real_T
 
   if (b_model == 1.0) {
     //  stationary model
-    memcpy(&F[0], &dv11[0], 144U * sizeof(double));
+    memcpy(&F[0], &dv10[0], 144U * sizeof(double));
     a = 1.0E-6 * b_processNoise[1];
     c = dt * dt;
     for (br = 0; br < 3; br++) {
@@ -185,7 +185,7 @@ static void b_dxdt_dPdt(double dt, const double meas[6], const emxArray_real_T
     c_processNoise[8] = 0.0;
     for (br = 0; br < 12; br++) {
       for (loop_ub = 0; loop_ub < 3; loop_ub++) {
-        F[loop_ub + 12 * br] = iv7[loop_ub + 3 * br];
+        F[loop_ub + 12 * br] = iv8[loop_ub + 3 * br];
       }
     }
 
@@ -209,7 +209,7 @@ static void b_dxdt_dPdt(double dt, const double meas[6], const emxArray_real_T
 
     for (br = 0; br < 3; br++) {
       for (loop_ub = 0; loop_ub < 3; loop_ub++) {
-        F[(loop_ub + 12 * (br + 9)) + 3] = iv8[loop_ub + 3 * br];
+        F[(loop_ub + 12 * (br + 9)) + 3] = iv9[loop_ub + 3 * br];
       }
     }
 
@@ -251,22 +251,22 @@ static void b_dxdt_dPdt(double dt, const double meas[6], const emxArray_real_T
     d_processNoise[8] = 0.0;
     for (br = 0; br < 3; br++) {
       for (loop_ub = 0; loop_ub < 3; loop_ub++) {
-        dv12[loop_ub + (br << 2)] = -d_processNoise[loop_ub + 3 * br];
+        dv11[loop_ub + (br << 2)] = -d_processNoise[loop_ub + 3 * br];
       }
     }
 
     for (br = 0; br < 3; br++) {
-      dv12[12 + br] = w[br];
+      dv11[12 + br] = w[br];
     }
 
     for (br = 0; br < 3; br++) {
-      dv12[3 + (br << 2)] = -w[br];
+      dv11[3 + (br << 2)] = -w[br];
     }
 
-    dv12[15] = 0.0;
+    dv11[15] = 0.0;
     for (br = 0; br < 4; br++) {
       for (loop_ub = 0; loop_ub < 4; loop_ub++) {
-        dv13[loop_ub + (br << 2)] = 0.5 * dv12[loop_ub + (br << 2)];
+        dv12[loop_ub + (br << 2)] = 0.5 * dv11[loop_ub + (br << 2)];
       }
     }
 
@@ -275,14 +275,14 @@ static void b_dxdt_dPdt(double dt, const double meas[6], const emxArray_real_T
     }
 
     for (br = 0; br < 4; br++) {
-      dv14[br] = 0.0;
+      dv13[br] = 0.0;
       for (loop_ub = 0; loop_ub < 4; loop_ub++) {
-        dv14[br] += dv13[br + (loop_ub << 2)] * c_x[loop_ub];
+        dv13[br] += dv12[br + (loop_ub << 2)] * c_x[loop_ub];
       }
     }
 
     for (br = 0; br < 4; br++) {
-      x_dot->data[3 + br] = dv14[br];
+      x_dot->data[3 + br] = dv13[br];
     }
 
     //  rot angle
@@ -339,7 +339,7 @@ static void b_dxdt_dPdt(double dt, const double meas[6], const emxArray_real_T
     c_processNoise[8] = 0.0;
     for (br = 0; br < 12; br++) {
       for (loop_ub = 0; loop_ub < 3; loop_ub++) {
-        F[loop_ub + 12 * br] = iv9[loop_ub + 3 * br];
+        F[loop_ub + 12 * br] = iv10[loop_ub + 3 * br];
       }
     }
 
@@ -363,7 +363,7 @@ static void b_dxdt_dPdt(double dt, const double meas[6], const emxArray_real_T
 
     for (br = 0; br < 3; br++) {
       for (loop_ub = 0; loop_ub < 3; loop_ub++) {
-        F[(loop_ub + 12 * (br + 9)) + 3] = iv8[loop_ub + 3 * br];
+        F[(loop_ub + 12 * (br + 9)) + 3] = iv9[loop_ub + 3 * br];
       }
     }
 
@@ -393,22 +393,22 @@ static void b_dxdt_dPdt(double dt, const double meas[6], const emxArray_real_T
     d_processNoise[8] = 0.0;
     for (br = 0; br < 3; br++) {
       for (loop_ub = 0; loop_ub < 3; loop_ub++) {
-        dv12[loop_ub + (br << 2)] = -d_processNoise[loop_ub + 3 * br];
+        dv11[loop_ub + (br << 2)] = -d_processNoise[loop_ub + 3 * br];
       }
     }
 
     for (br = 0; br < 3; br++) {
-      dv12[12 + br] = w[br];
+      dv11[12 + br] = w[br];
     }
 
     for (br = 0; br < 3; br++) {
-      dv12[3 + (br << 2)] = -w[br];
+      dv11[3 + (br << 2)] = -w[br];
     }
 
-    dv12[15] = 0.0;
+    dv11[15] = 0.0;
     for (br = 0; br < 4; br++) {
       for (loop_ub = 0; loop_ub < 4; loop_ub++) {
-        dv13[loop_ub + (br << 2)] = 0.5 * dv12[loop_ub + (br << 2)];
+        dv12[loop_ub + (br << 2)] = 0.5 * dv11[loop_ub + (br << 2)];
       }
     }
 
@@ -417,14 +417,14 @@ static void b_dxdt_dPdt(double dt, const double meas[6], const emxArray_real_T
     }
 
     for (br = 0; br < 4; br++) {
-      dv14[br] = 0.0;
+      dv13[br] = 0.0;
       for (loop_ub = 0; loop_ub < 4; loop_ub++) {
-        dv14[br] += dv13[br + (loop_ub << 2)] * c_x[loop_ub];
+        dv13[br] += dv12[br + (loop_ub << 2)] * c_x[loop_ub];
       }
     }
 
     for (br = 0; br < 4; br++) {
-      x_dot->data[3 + br] = dv14[br];
+      x_dot->data[3 + br] = dv13[br];
     }
 
     //  rot angle
@@ -485,7 +485,7 @@ static void b_dxdt_dPdt(double dt, const double meas[6], const emxArray_real_T
     }
 
     for (loop_ub = 0; loop_ub < 3; loop_ub++) {
-      G[(loop_ub + 12 * br) + 3] = iv10[loop_ub + 3 * br];
+      G[(loop_ub + 12 * br) + 3] = iv11[loop_ub + 3 * br];
     }
   }
 
@@ -509,7 +509,7 @@ static void b_dxdt_dPdt(double dt, const double meas[6], const emxArray_real_T
 
   for (br = 0; br < 9; br++) {
     for (loop_ub = 0; loop_ub < 3; loop_ub++) {
-      G[(loop_ub + 12 * br) + 9] = iv11[loop_ub + 3 * br];
+      G[(loop_ub + 12 * br) + 9] = iv12[loop_ub + 3 * br];
     }
   }
 
@@ -636,7 +636,7 @@ static void dxdt_dPdt(double dt, const double meas[6], const emxArray_real_T *x,
   unsigned int unnamed_idx_0;
   int cr;
   double F[144];
-  static const double dv7[144] = { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+  static const double dv6[144] = { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
     0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
     0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
     0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
@@ -655,30 +655,30 @@ static void dxdt_dPdt(double dt, const double meas[6], const emxArray_real_T *x,
   double Q[81];
   double c_processNoise[9];
   int br;
-  static const signed char iv2[36] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  static const signed char iv3[36] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
     0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 
-  static const signed char iv3[9] = { -1, 0, 0, 0, -1, 0, 0, 0, -1 };
+  static const signed char iv4[9] = { -1, 0, 0, 0, -1, 0, 0, 0, -1 };
 
   double b_x[3];
   double planar_velocity[3];
   static const signed char b_planar_velocity[9] = { 1, 0, 0, 0, 1, 0, 0, 0, 0 };
 
+  double dv7[16];
   double dv8[16];
-  double dv9[16];
   double c_x[4];
-  double dv10[4];
+  double dv9[4];
   static const double b[3] = { 0.1, 0.1, 1.0E-7 };
 
-  static const signed char iv4[36] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  static const signed char iv5[36] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
     0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 
   double d_x[9];
   double G[108];
-  static const signed char iv5[27] = { -1, 0, 0, 0, -1, 0, 0, 0, -1, 0, 0, 0, 0,
+  static const signed char iv6[27] = { -1, 0, 0, 0, -1, 0, 0, 0, -1, 0, 0, 0, 0,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 
-  static const signed char iv6[27] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  static const signed char iv7[27] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
     0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1 };
 
   emxArray_real_T *FP;
@@ -716,7 +716,7 @@ static void dxdt_dPdt(double dt, const double meas[6], const emxArray_real_T *x,
 
   if (b_model == 1.0) {
     //  stationary model
-    memcpy(&F[0], &dv7[0], 144U * sizeof(double));
+    memcpy(&F[0], &dv6[0], 144U * sizeof(double));
     a = 1.0E-6 * b_processNoise[1];
     c = dt * dt;
     for (j = 0; j < 3; j++) {
@@ -766,7 +766,7 @@ static void dxdt_dPdt(double dt, const double meas[6], const emxArray_real_T *x,
     c_processNoise[8] = 0.0;
     for (j = 0; j < 12; j++) {
       for (br = 0; br < 3; br++) {
-        F[br + 12 * j] = iv2[br + 3 * j];
+        F[br + 12 * j] = iv3[br + 3 * j];
       }
     }
 
@@ -790,7 +790,7 @@ static void dxdt_dPdt(double dt, const double meas[6], const emxArray_real_T *x,
 
     for (j = 0; j < 3; j++) {
       for (br = 0; br < 3; br++) {
-        F[(br + 12 * (j + 9)) + 3] = iv3[br + 3 * j];
+        F[(br + 12 * (j + 9)) + 3] = iv4[br + 3 * j];
       }
     }
 
@@ -831,22 +831,22 @@ static void dxdt_dPdt(double dt, const double meas[6], const emxArray_real_T *x,
     b_a[8] = 0.0;
     for (j = 0; j < 3; j++) {
       for (br = 0; br < 3; br++) {
-        dv8[br + (j << 2)] = -b_a[br + 3 * j];
+        dv7[br + (j << 2)] = -b_a[br + 3 * j];
       }
     }
 
     for (j = 0; j < 3; j++) {
-      dv8[12 + j] = w[j];
+      dv7[12 + j] = w[j];
     }
 
     for (j = 0; j < 3; j++) {
-      dv8[3 + (j << 2)] = -w[j];
+      dv7[3 + (j << 2)] = -w[j];
     }
 
-    dv8[15] = 0.0;
+    dv7[15] = 0.0;
     for (j = 0; j < 4; j++) {
       for (br = 0; br < 4; br++) {
-        dv9[br + (j << 2)] = 0.5 * dv8[br + (j << 2)];
+        dv8[br + (j << 2)] = 0.5 * dv7[br + (j << 2)];
       }
     }
 
@@ -855,14 +855,14 @@ static void dxdt_dPdt(double dt, const double meas[6], const emxArray_real_T *x,
     }
 
     for (j = 0; j < 4; j++) {
-      dv10[j] = 0.0;
+      dv9[j] = 0.0;
       for (br = 0; br < 4; br++) {
-        dv10[j] += dv9[j + (br << 2)] * c_x[br];
+        dv9[j] += dv8[j + (br << 2)] * c_x[br];
       }
     }
 
     for (j = 0; j < 4; j++) {
-      x_dot->data[3 + j] = dv10[j];
+      x_dot->data[3 + j] = dv9[j];
     }
 
     //  rot angle
@@ -922,7 +922,7 @@ static void dxdt_dPdt(double dt, const double meas[6], const emxArray_real_T *x,
     c_processNoise[8] = 0.0;
     for (j = 0; j < 12; j++) {
       for (br = 0; br < 3; br++) {
-        F[br + 12 * j] = iv4[br + 3 * j];
+        F[br + 12 * j] = iv5[br + 3 * j];
       }
     }
 
@@ -946,7 +946,7 @@ static void dxdt_dPdt(double dt, const double meas[6], const emxArray_real_T *x,
 
     for (j = 0; j < 3; j++) {
       for (br = 0; br < 3; br++) {
-        F[(br + 12 * (j + 9)) + 3] = iv3[br + 3 * j];
+        F[(br + 12 * (j + 9)) + 3] = iv4[br + 3 * j];
       }
     }
 
@@ -976,22 +976,22 @@ static void dxdt_dPdt(double dt, const double meas[6], const emxArray_real_T *x,
     b_a[8] = 0.0;
     for (j = 0; j < 3; j++) {
       for (br = 0; br < 3; br++) {
-        dv8[br + (j << 2)] = -b_a[br + 3 * j];
+        dv7[br + (j << 2)] = -b_a[br + 3 * j];
       }
     }
 
     for (j = 0; j < 3; j++) {
-      dv8[12 + j] = w[j];
+      dv7[12 + j] = w[j];
     }
 
     for (j = 0; j < 3; j++) {
-      dv8[3 + (j << 2)] = -w[j];
+      dv7[3 + (j << 2)] = -w[j];
     }
 
-    dv8[15] = 0.0;
+    dv7[15] = 0.0;
     for (j = 0; j < 4; j++) {
       for (br = 0; br < 4; br++) {
-        dv9[br + (j << 2)] = 0.5 * dv8[br + (j << 2)];
+        dv8[br + (j << 2)] = 0.5 * dv7[br + (j << 2)];
       }
     }
 
@@ -1000,14 +1000,14 @@ static void dxdt_dPdt(double dt, const double meas[6], const emxArray_real_T *x,
     }
 
     for (j = 0; j < 4; j++) {
-      dv10[j] = 0.0;
+      dv9[j] = 0.0;
       for (br = 0; br < 4; br++) {
-        dv10[j] += dv9[j + (br << 2)] * c_x[br];
+        dv9[j] += dv8[j + (br << 2)] * c_x[br];
       }
     }
 
     for (j = 0; j < 4; j++) {
-      x_dot->data[3 + j] = dv10[j];
+      x_dot->data[3 + j] = dv9[j];
     }
 
     //  rot angle
@@ -1071,7 +1071,7 @@ static void dxdt_dPdt(double dt, const double meas[6], const emxArray_real_T *x,
     }
 
     for (br = 0; br < 3; br++) {
-      G[(br + 12 * j) + 3] = iv5[br + 3 * j];
+      G[(br + 12 * j) + 3] = iv6[br + 3 * j];
     }
   }
 
@@ -1095,7 +1095,7 @@ static void dxdt_dPdt(double dt, const double meas[6], const emxArray_real_T *x,
 
   for (j = 0; j < 9; j++) {
     for (br = 0; br < 3; br++) {
-      G[(br + 12 * j) + 9] = iv6[br + 3 * j];
+      G[(br + 12 * j) + 9] = iv7[br + 3 * j];
     }
   }
 
@@ -1290,12 +1290,12 @@ void SLAM_pred_model(struct_T *b_SLAM_data, double dt, const double
                      b_processNoise[4], const double IMU_measurements[23])
 {
   emxArray_real_T *b_xt;
-  int i33;
+  int i31;
   int loop_ub;
   emxArray_real_T *b_P;
   int i;
   emxArray_real_T *P_xx_apr;
-  int i34;
+  int i32;
   emxArray_real_T *Phi;
   double meas_0[6];
   emxArray_real_T *c_SLAM_data;
@@ -1344,22 +1344,22 @@ void SLAM_pred_model(struct_T *b_SLAM_data, double dt, const double
   //  (C) Tobias Naegeli naegelit@inf.ethz.ch
   //  numStatesFeatures=numAnchors*(7+numPointsPerAnchor);
   //  %% Iterative Camera Pose optimization (EKF)
-  i33 = b_xt->size[0];
+  i31 = b_xt->size[0];
   b_xt->size[0] = b_SLAM_data->xt->size[0];
-  emxEnsureCapacity((emxArray__common *)b_xt, i33, (int)sizeof(double));
+  emxEnsureCapacity((emxArray__common *)b_xt, i31, (int)sizeof(double));
   loop_ub = b_SLAM_data->xt->size[0];
-  for (i33 = 0; i33 < loop_ub; i33++) {
-    b_xt->data[i33] = b_SLAM_data->xt->data[i33];
+  for (i31 = 0; i31 < loop_ub; i31++) {
+    b_xt->data[i31] = b_SLAM_data->xt->data[i31];
   }
 
   b_emxInit_real_T(&b_P, 2);
-  i33 = b_P->size[0] * b_P->size[1];
+  i31 = b_P->size[0] * b_P->size[1];
   b_P->size[0] = b_SLAM_data->P->size[0];
   b_P->size[1] = b_SLAM_data->P->size[1];
-  emxEnsureCapacity((emxArray__common *)b_P, i33, (int)sizeof(double));
+  emxEnsureCapacity((emxArray__common *)b_P, i31, (int)sizeof(double));
   loop_ub = b_SLAM_data->P->size[0] * b_SLAM_data->P->size[1];
-  for (i33 = 0; i33 < loop_ub; i33++) {
-    b_P->data[i33] = b_SLAM_data->P->data[i33];
+  for (i31 = 0; i31 < loop_ub; i31++) {
+    b_P->data[i31] = b_SLAM_data->P->data[i31];
   }
 
   // % compute the linearization F of the non linear model f
@@ -1376,14 +1376,14 @@ void SLAM_pred_model(struct_T *b_SLAM_data, double dt, const double
   }
 
   b_emxInit_real_T(&P_xx_apr, 2);
-  i33 = P_xx_apr->size[0] * P_xx_apr->size[1];
+  i31 = P_xx_apr->size[0] * P_xx_apr->size[1];
   P_xx_apr->size[0] = loop_ub;
   P_xx_apr->size[1] = i;
-  emxEnsureCapacity((emxArray__common *)P_xx_apr, i33, (int)sizeof(double));
-  for (i33 = 0; i33 < i; i33++) {
-    for (i34 = 0; i34 < loop_ub; i34++) {
-      P_xx_apr->data[i34 + P_xx_apr->size[0] * i33] = b_SLAM_data->P->data[i34 +
-        b_SLAM_data->P->size[0] * i33];
+  emxEnsureCapacity((emxArray__common *)P_xx_apr, i31, (int)sizeof(double));
+  for (i31 = 0; i31 < i; i31++) {
+    for (i32 = 0; i32 < loop_ub; i32++) {
+      P_xx_apr->data[i32 + P_xx_apr->size[0] * i31] = b_SLAM_data->P->data[i32 +
+        b_SLAM_data->P->size[0] * i31];
     }
   }
 
@@ -1404,11 +1404,11 @@ void SLAM_pred_model(struct_T *b_SLAM_data, double dt, const double
   }
 
   emxInit_real_T(&c_SLAM_data, 1);
-  i33 = c_SLAM_data->size[0];
+  i31 = c_SLAM_data->size[0];
   c_SLAM_data->size[0] = loop_ub;
-  emxEnsureCapacity((emxArray__common *)c_SLAM_data, i33, (int)sizeof(double));
-  for (i33 = 0; i33 < loop_ub; i33++) {
-    c_SLAM_data->data[i33] = b_SLAM_data->xt->data[i33];
+  emxEnsureCapacity((emxArray__common *)c_SLAM_data, i31, (int)sizeof(double));
+  for (i31 = 0; i31 < loop_ub; i31++) {
+    c_SLAM_data->data[i31] = b_SLAM_data->xt->data[i31];
   }
 
   emxInit_real_T(&x1, 1);
@@ -1427,38 +1427,38 @@ void SLAM_pred_model(struct_T *b_SLAM_data, double dt, const double
   }
 
   emxInit_real_T(&xx, 1);
-  i33 = xx->size[0];
+  i31 = xx->size[0];
   xx->size[0] = loop_ub;
-  emxEnsureCapacity((emxArray__common *)xx, i33, (int)sizeof(double));
-  for (i33 = 0; i33 < loop_ub; i33++) {
-    xx->data[i33] = b_SLAM_data->xt->data[i33] + x1->data[i33] / 2.0;
+  emxEnsureCapacity((emxArray__common *)xx, i31, (int)sizeof(double));
+  for (i31 = 0; i31 < loop_ub; i31++) {
+    xx->data[i31] = b_SLAM_data->xt->data[i31] + x1->data[i31] / 2.0;
   }
 
-  for (i33 = 0; i33 < 4; i33++) {
-    b_xx[i33] = xx->data[3 + i33];
+  for (i31 = 0; i31 < 4; i31++) {
+    b_xx[i31] = xx->data[3 + i31];
   }
 
   B = b_norm(b_xx);
-  for (i33 = 0; i33 < 4; i33++) {
-    b_xx[i33] = xx->data[3 + i33] / B;
+  for (i31 = 0; i31 < 4; i31++) {
+    b_xx[i31] = xx->data[3 + i31] / B;
   }
 
-  for (i33 = 0; i33 < 4; i33++) {
-    xx->data[3 + i33] = b_xx[i33];
+  for (i31 = 0; i31 < 4; i31++) {
+    xx->data[3 + i31] = b_xx[i31];
   }
 
-  for (i33 = 0; i33 < 144; i33++) {
-    c_P_xx_apr[i33] = P_xx_apr->data[i33] + b_P_xx_apr[i33] / 2.0;
+  for (i31 = 0; i31 < 144; i31++) {
+    c_P_xx_apr[i31] = P_xx_apr->data[i31] + b_P_xx_apr[i31] / 2.0;
   }
 
   b_emxInit_real_T(&c_Phi, 2);
-  i33 = c_Phi->size[0] * c_Phi->size[1];
+  i31 = c_Phi->size[0] * c_Phi->size[1];
   c_Phi->size[0] = Phi->size[0];
   c_Phi->size[1] = Phi->size[1];
-  emxEnsureCapacity((emxArray__common *)c_Phi, i33, (int)sizeof(double));
+  emxEnsureCapacity((emxArray__common *)c_Phi, i31, (int)sizeof(double));
   loop_ub = Phi->size[0] * Phi->size[1];
-  for (i33 = 0; i33 < loop_ub; i33++) {
-    c_Phi->data[i33] = Phi->data[i33] + b_Phi->data[i33] / 2.0;
+  for (i31 = 0; i31 < loop_ub; i31++) {
+    c_Phi->data[i31] = Phi->data[i31] + b_Phi->data[i31] / 2.0;
   }
 
   b_emxInit_real_T(&P_xs_apr, 2);
@@ -1466,8 +1466,8 @@ void SLAM_pred_model(struct_T *b_SLAM_data, double dt, const double
   b_dxdt_dPdt(dt, meas_1, xx, c_P_xx_apr, c_Phi, b_processNoise,
               b_SLAM_data->model, x2, P2, P_xs_apr);
   emxFree_real_T(&c_Phi);
-  for (i33 = 0; i33 < 6; i33++) {
-    meas_1[i33] += (meas_0[i33] - meas_1[i33]) * 0.5;
+  for (i31 = 0; i31 < 6; i31++) {
+    meas_1[i31] += (meas_0[i31] - meas_1[i31]) * 0.5;
   }
 
   if (1.0 > b_SLAM_data->numStates + 1.0) {
@@ -1476,38 +1476,38 @@ void SLAM_pred_model(struct_T *b_SLAM_data, double dt, const double
     loop_ub = (int)(b_SLAM_data->numStates + 1.0);
   }
 
-  i33 = xx->size[0];
+  i31 = xx->size[0];
   xx->size[0] = loop_ub;
-  emxEnsureCapacity((emxArray__common *)xx, i33, (int)sizeof(double));
-  for (i33 = 0; i33 < loop_ub; i33++) {
-    xx->data[i33] = b_SLAM_data->xt->data[i33] + x2->data[i33] / 2.0;
+  emxEnsureCapacity((emxArray__common *)xx, i31, (int)sizeof(double));
+  for (i31 = 0; i31 < loop_ub; i31++) {
+    xx->data[i31] = b_SLAM_data->xt->data[i31] + x2->data[i31] / 2.0;
   }
 
-  for (i33 = 0; i33 < 4; i33++) {
-    b_xx[i33] = xx->data[3 + i33];
+  for (i31 = 0; i31 < 4; i31++) {
+    b_xx[i31] = xx->data[3 + i31];
   }
 
   B = b_norm(b_xx);
-  for (i33 = 0; i33 < 4; i33++) {
-    b_xx[i33] = xx->data[3 + i33] / B;
+  for (i31 = 0; i31 < 4; i31++) {
+    b_xx[i31] = xx->data[3 + i31] / B;
   }
 
-  for (i33 = 0; i33 < 4; i33++) {
-    xx->data[3 + i33] = b_xx[i33];
+  for (i31 = 0; i31 < 4; i31++) {
+    xx->data[3 + i31] = b_xx[i31];
   }
 
-  for (i33 = 0; i33 < 144; i33++) {
-    c_P_xx_apr[i33] = P_xx_apr->data[i33] + P2[i33] / 2.0;
+  for (i31 = 0; i31 < 144; i31++) {
+    c_P_xx_apr[i31] = P_xx_apr->data[i31] + P2[i31] / 2.0;
   }
 
   b_emxInit_real_T(&d_Phi, 2);
-  i33 = d_Phi->size[0] * d_Phi->size[1];
+  i31 = d_Phi->size[0] * d_Phi->size[1];
   d_Phi->size[0] = Phi->size[0];
   d_Phi->size[1] = Phi->size[1];
-  emxEnsureCapacity((emxArray__common *)d_Phi, i33, (int)sizeof(double));
+  emxEnsureCapacity((emxArray__common *)d_Phi, i31, (int)sizeof(double));
   loop_ub = Phi->size[0] * Phi->size[1];
-  for (i33 = 0; i33 < loop_ub; i33++) {
-    d_Phi->data[i33] = Phi->data[i33] + P_xs_apr->data[i33] / 2.0;
+  for (i31 = 0; i31 < loop_ub; i31++) {
+    d_Phi->data[i31] = Phi->data[i31] + P_xs_apr->data[i31] / 2.0;
   }
 
   emxInit_real_T(&x3, 1);
@@ -1521,42 +1521,42 @@ void SLAM_pred_model(struct_T *b_SLAM_data, double dt, const double
     loop_ub = (int)(b_SLAM_data->numStates + 1.0);
   }
 
-  i33 = xx->size[0];
+  i31 = xx->size[0];
   xx->size[0] = loop_ub;
-  emxEnsureCapacity((emxArray__common *)xx, i33, (int)sizeof(double));
-  for (i33 = 0; i33 < loop_ub; i33++) {
-    xx->data[i33] = b_SLAM_data->xt->data[i33] + x3->data[i33];
+  emxEnsureCapacity((emxArray__common *)xx, i31, (int)sizeof(double));
+  for (i31 = 0; i31 < loop_ub; i31++) {
+    xx->data[i31] = b_SLAM_data->xt->data[i31] + x3->data[i31];
   }
 
-  for (i33 = 0; i33 < 4; i33++) {
-    b_xx[i33] = xx->data[3 + i33];
+  for (i31 = 0; i31 < 4; i31++) {
+    b_xx[i31] = xx->data[3 + i31];
   }
 
   B = b_norm(b_xx);
-  for (i33 = 0; i33 < 4; i33++) {
-    b_xx[i33] = xx->data[3 + i33] / B;
+  for (i31 = 0; i31 < 4; i31++) {
+    b_xx[i31] = xx->data[3 + i31] / B;
   }
 
-  for (i33 = 0; i33 < 4; i33++) {
-    xx->data[3 + i33] = b_xx[i33];
+  for (i31 = 0; i31 < 4; i31++) {
+    xx->data[3 + i31] = b_xx[i31];
   }
 
   for (i = 0; i < 6; i++) {
     b_meas_1[i] = meas_1[i] + (meas_0[i] - meas_1[i]);
   }
 
-  for (i33 = 0; i33 < 144; i33++) {
-    c_P_xx_apr[i33] = P_xx_apr->data[i33] + P3[i33];
+  for (i31 = 0; i31 < 144; i31++) {
+    c_P_xx_apr[i31] = P_xx_apr->data[i31] + P3[i31];
   }
 
   b_emxInit_real_T(&e_Phi, 2);
-  i33 = e_Phi->size[0] * e_Phi->size[1];
+  i31 = e_Phi->size[0] * e_Phi->size[1];
   e_Phi->size[0] = Phi->size[0];
   e_Phi->size[1] = Phi->size[1];
-  emxEnsureCapacity((emxArray__common *)e_Phi, i33, (int)sizeof(double));
+  emxEnsureCapacity((emxArray__common *)e_Phi, i31, (int)sizeof(double));
   loop_ub = Phi->size[0] * Phi->size[1];
-  for (i33 = 0; i33 < loop_ub; i33++) {
-    e_Phi->data[i33] = Phi->data[i33] + Phi3->data[i33];
+  for (i31 = 0; i31 < loop_ub; i31++) {
+    e_Phi->data[i31] = Phi->data[i31] + Phi3->data[i31];
   }
 
   emxInit_real_T(&x4, 1);
@@ -1578,27 +1578,27 @@ void SLAM_pred_model(struct_T *b_SLAM_data, double dt, const double
   }
 
   b_emxInit_int32_T(&r38, 2);
-  i33 = r38->size[0] * r38->size[1];
+  i31 = r38->size[0] * r38->size[1];
   r38->size[0] = 1;
   r38->size[1] = i;
-  emxEnsureCapacity((emxArray__common *)r38, i33, (int)sizeof(int));
-  for (i33 = 0; i33 < i; i33++) {
-    r38->data[r38->size[0] * i33] = i33;
+  emxEnsureCapacity((emxArray__common *)r38, i31, (int)sizeof(int));
+  for (i31 = 0; i31 < i; i31++) {
+    r38->data[r38->size[0] * i31] = i31;
   }
 
   emxInit_int32_T(&r39, 1);
-  i33 = r39->size[0];
+  i31 = r39->size[0];
   r39->size[0] = loop_ub;
-  emxEnsureCapacity((emxArray__common *)r39, i33, (int)sizeof(int));
-  for (i33 = 0; i33 < loop_ub; i33++) {
-    r39->data[i33] = 1 + i33;
+  emxEnsureCapacity((emxArray__common *)r39, i31, (int)sizeof(int));
+  for (i31 = 0; i31 < loop_ub; i31++) {
+    r39->data[i31] = 1 + i31;
   }
 
   loop_ub = r38->size[0] * r38->size[1];
-  for (i33 = 0; i33 < loop_ub; i33++) {
-    b_xt->data[r38->data[i33]] = b_SLAM_data->xt->data[r39->data[i33] - 1] +
-      (((x1->data[i33] + 2.0 * x2->data[i33]) + 2.0 * x3->data[i33]) + x4->
-       data[i33]) / 6.0;
+  for (i31 = 0; i31 < loop_ub; i31++) {
+    b_xt->data[r38->data[i31]] = b_SLAM_data->xt->data[r39->data[i31] - 1] +
+      (((x1->data[i31] + 2.0 * x2->data[i31]) + 2.0 * x3->data[i31]) + x4->
+       data[i31]) / 6.0;
   }
 
   emxFree_int32_T(&r39);
@@ -1607,23 +1607,23 @@ void SLAM_pred_model(struct_T *b_SLAM_data, double dt, const double
   emxFree_real_T(&x3);
   emxFree_real_T(&x2);
   emxFree_real_T(&x1);
-  for (i33 = 0; i33 < 144; i33++) {
-    d_P_xx_apr = P_xx_apr->data[i33] + (((b_P_xx_apr[i33] + 2.0 * P2[i33]) + 2.0
-      * P3[i33]) + P4[i33]) / 6.0;
-    b_P_xx_apr[i33] = d_P_xx_apr;
+  for (i31 = 0; i31 < 144; i31++) {
+    d_P_xx_apr = P_xx_apr->data[i31] + (((b_P_xx_apr[i31] + 2.0 * P2[i31]) + 2.0
+      * P3[i31]) + P4[i31]) / 6.0;
+    b_P_xx_apr[i31] = d_P_xx_apr;
   }
 
   emxFree_real_T(&P_xx_apr);
 
   //  covariance of the state
-  i33 = b_Phi->size[0] * b_Phi->size[1];
+  i31 = b_Phi->size[0] * b_Phi->size[1];
   b_Phi->size[0] = Phi->size[0];
   b_Phi->size[1] = Phi->size[1];
-  emxEnsureCapacity((emxArray__common *)b_Phi, i33, (int)sizeof(double));
+  emxEnsureCapacity((emxArray__common *)b_Phi, i31, (int)sizeof(double));
   loop_ub = Phi->size[0] * Phi->size[1];
-  for (i33 = 0; i33 < loop_ub; i33++) {
-    b_Phi->data[i33] = Phi->data[i33] + (((b_Phi->data[i33] + 2.0 *
-      P_xs_apr->data[i33]) + 2.0 * Phi3->data[i33]) + Phi4->data[i33]) / 6.0;
+  for (i31 = 0; i31 < loop_ub; i31++) {
+    b_Phi->data[i31] = Phi->data[i31] + (((b_Phi->data[i31] + 2.0 *
+      P_xs_apr->data[i31]) + 2.0 * Phi3->data[i31]) + Phi4->data[i31]) / 6.0;
   }
 
   emxFree_real_T(&Phi4);
@@ -1636,40 +1636,40 @@ void SLAM_pred_model(struct_T *b_SLAM_data, double dt, const double
   }
 
   if (b_SLAM_data->numStates + 1.0 > b_SLAM_data->P->size[1]) {
-    i33 = 0;
-    i34 = 0;
+    i31 = 0;
+    i32 = 0;
   } else {
-    i33 = (int)(b_SLAM_data->numStates + 1.0) - 1;
-    i34 = b_SLAM_data->P->size[1];
+    i31 = (int)(b_SLAM_data->numStates + 1.0) - 1;
+    i32 = b_SLAM_data->P->size[1];
   }
 
   b_emxInit_real_T(&d_SLAM_data, 2);
   if ((b_Phi->size[1] == 1) || (loop_ub == 1)) {
     cr = d_SLAM_data->size[0] * d_SLAM_data->size[1];
     d_SLAM_data->size[0] = loop_ub;
-    d_SLAM_data->size[1] = i34 - i33;
+    d_SLAM_data->size[1] = i32 - i31;
     emxEnsureCapacity((emxArray__common *)d_SLAM_data, cr, (int)sizeof(double));
-    i = i34 - i33;
-    for (i34 = 0; i34 < i; i34++) {
+    i = i32 - i31;
+    for (i32 = 0; i32 < i; i32++) {
       for (cr = 0; cr < loop_ub; cr++) {
-        d_SLAM_data->data[cr + d_SLAM_data->size[0] * i34] = b_SLAM_data->
-          P->data[cr + b_SLAM_data->P->size[0] * (i33 + i34)];
+        d_SLAM_data->data[cr + d_SLAM_data->size[0] * i32] = b_SLAM_data->
+          P->data[cr + b_SLAM_data->P->size[0] * (i31 + i32)];
       }
     }
 
-    i33 = P_xs_apr->size[0] * P_xs_apr->size[1];
+    i31 = P_xs_apr->size[0] * P_xs_apr->size[1];
     P_xs_apr->size[0] = 12;
     P_xs_apr->size[1] = d_SLAM_data->size[1];
-    emxEnsureCapacity((emxArray__common *)P_xs_apr, i33, (int)sizeof(double));
-    for (i33 = 0; i33 < 12; i33++) {
+    emxEnsureCapacity((emxArray__common *)P_xs_apr, i31, (int)sizeof(double));
+    for (i31 = 0; i31 < 12; i31++) {
       loop_ub = d_SLAM_data->size[1];
-      for (i34 = 0; i34 < loop_ub; i34++) {
-        P_xs_apr->data[i33 + P_xs_apr->size[0] * i34] = 0.0;
+      for (i32 = 0; i32 < loop_ub; i32++) {
+        P_xs_apr->data[i31 + P_xs_apr->size[0] * i32] = 0.0;
         i = b_Phi->size[1];
         for (cr = 0; cr < i; cr++) {
-          P_xs_apr->data[i33 + P_xs_apr->size[0] * i34] += b_Phi->data[i33 +
+          P_xs_apr->data[i31 + P_xs_apr->size[0] * i32] += b_Phi->data[i31 +
             b_Phi->size[0] * cr] * d_SLAM_data->data[cr + d_SLAM_data->size[0] *
-            i34];
+            i32];
         }
       }
     }
@@ -1679,16 +1679,16 @@ void SLAM_pred_model(struct_T *b_SLAM_data, double dt, const double
     P_xs_apr->size[0] = 12;
     emxEnsureCapacity((emxArray__common *)P_xs_apr, cr, (int)sizeof(double));
     cr = P_xs_apr->size[0] * P_xs_apr->size[1];
-    P_xs_apr->size[1] = i34 - i33;
+    P_xs_apr->size[1] = i32 - i31;
     emxEnsureCapacity((emxArray__common *)P_xs_apr, cr, (int)sizeof(double));
-    i = 12 * (i34 - i33);
+    i = 12 * (i32 - i31);
     for (cr = 0; cr < i; cr++) {
       P_xs_apr->data[cr] = 0.0;
     }
 
-    if (i34 - i33 == 0) {
+    if (i32 - i31 == 0) {
     } else {
-      i = 12 * ((i34 - i33) - 1);
+      i = 12 * ((i32 - i31) - 1);
       for (cr = 0; cr <= i; cr += 12) {
         for (ic = cr; ic + 1 <= cr + 12; ic++) {
           P_xs_apr->data[ic] = 0.0;
@@ -1698,15 +1698,15 @@ void SLAM_pred_model(struct_T *b_SLAM_data, double dt, const double
       br = 0;
       for (cr = 0; cr <= i; cr += 12) {
         ar = 0;
-        i34 = br + k;
-        for (ib = br; ib + 1 <= i34; ib++) {
-          if (b_SLAM_data->P->data[ib % loop_ub + b_SLAM_data->P->size[0] * (i33
+        i32 = br + k;
+        for (ib = br; ib + 1 <= i32; ib++) {
+          if (b_SLAM_data->P->data[ib % loop_ub + b_SLAM_data->P->size[0] * (i31
                + div_nzp_s32_floor(ib, loop_ub))] != 0.0) {
             ia = ar;
             for (ic = cr; ic + 1 <= cr + 12; ic++) {
               ia++;
               P_xs_apr->data[ic] += b_SLAM_data->P->data[ib % loop_ub +
-                b_SLAM_data->P->size[0] * (i33 + div_nzp_s32_floor(ib, loop_ub))]
+                b_SLAM_data->P->size[0] * (i31 + div_nzp_s32_floor(ib, loop_ub))]
                 * b_Phi->data[ia - 1];
             }
           }
@@ -1724,8 +1724,8 @@ void SLAM_pred_model(struct_T *b_SLAM_data, double dt, const double
 
   //  covariance between current state and trails
   B = b_norm(*(double (*)[4])&b_xt->data[3]);
-  for (i33 = 0; i33 < 4; i33++) {
-    b_xt->data[3 + i33] /= B;
+  for (i31 = 0; i31 < 4; i31++) {
+    b_xt->data[3 + i31] /= B;
   }
 
   if (1.0 > b_SLAM_data->numStates) {
@@ -1741,34 +1741,34 @@ void SLAM_pred_model(struct_T *b_SLAM_data, double dt, const double
   }
 
   emxInit_int32_T(&r40, 1);
-  i33 = r40->size[0];
+  i31 = r40->size[0];
   r40->size[0] = loop_ub;
-  emxEnsureCapacity((emxArray__common *)r40, i33, (int)sizeof(int));
-  for (i33 = 0; i33 < loop_ub; i33++) {
-    r40->data[i33] = i33;
+  emxEnsureCapacity((emxArray__common *)r40, i31, (int)sizeof(int));
+  for (i31 = 0; i31 < loop_ub; i31++) {
+    r40->data[i31] = i31;
   }
 
   emxInit_int32_T(&r41, 1);
-  i33 = r41->size[0];
+  i31 = r41->size[0];
   r41->size[0] = i;
-  emxEnsureCapacity((emxArray__common *)r41, i33, (int)sizeof(int));
-  for (i33 = 0; i33 < i; i33++) {
-    r41->data[i33] = i33;
+  emxEnsureCapacity((emxArray__common *)r41, i31, (int)sizeof(int));
+  for (i31 = 0; i31 < i; i31++) {
+    r41->data[i31] = i31;
   }
 
-  for (i33 = 0; i33 < 12; i33++) {
-    for (i34 = 0; i34 < 12; i34++) {
-      c_P_xx_apr[i34 + 12 * i33] = (b_P_xx_apr[i34 + 12 * i33] + b_P_xx_apr[i33
-        + 12 * i34]) / 2.0;
+  for (i31 = 0; i31 < 12; i31++) {
+    for (i32 = 0; i32 < 12; i32++) {
+      c_P_xx_apr[i32 + 12 * i31] = (b_P_xx_apr[i32 + 12 * i31] + b_P_xx_apr[i31
+        + 12 * i32]) / 2.0;
     }
   }
 
   i = r40->size[0];
   cr = r41->size[0];
-  for (i33 = 0; i33 < cr; i33++) {
-    for (i34 = 0; i34 < i; i34++) {
-      b_P->data[r40->data[i34] + b_P->size[0] * r41->data[i33]] = c_P_xx_apr[i34
-        + i * i33];
+  for (i31 = 0; i31 < cr; i31++) {
+    for (i32 = 0; i32 < i; i32++) {
+      b_P->data[r40->data[i32] + b_P->size[0] * r41->data[i31]] = c_P_xx_apr[i32
+        + i * i31];
     }
   }
 
@@ -1779,11 +1779,11 @@ void SLAM_pred_model(struct_T *b_SLAM_data, double dt, const double
   }
 
   if (b_SLAM_data->numStates + 1.0 > b_P->size[1]) {
-    i33 = 0;
-    i34 = 0;
+    i31 = 0;
+    i32 = 0;
   } else {
-    i33 = (int)(b_SLAM_data->numStates + 1.0) - 1;
-    i34 = b_P->size[1];
+    i31 = (int)(b_SLAM_data->numStates + 1.0) - 1;
+    i32 = b_P->size[1];
   }
 
   cr = r40->size[0];
@@ -1794,28 +1794,28 @@ void SLAM_pred_model(struct_T *b_SLAM_data, double dt, const double
   }
 
   cr = r41->size[0];
-  r41->size[0] = i34 - i33;
+  r41->size[0] = i32 - i31;
   emxEnsureCapacity((emxArray__common *)r41, cr, (int)sizeof(int));
-  loop_ub = i34 - i33;
-  for (i34 = 0; i34 < loop_ub; i34++) {
-    r41->data[i34] = i33 + i34;
+  loop_ub = i32 - i31;
+  for (i32 = 0; i32 < loop_ub; i32++) {
+    r41->data[i32] = i31 + i32;
   }
 
   i = r40->size[0];
   cr = r41->size[0];
-  for (i33 = 0; i33 < cr; i33++) {
-    for (i34 = 0; i34 < i; i34++) {
-      b_P->data[r40->data[i34] + b_P->size[0] * r41->data[i33]] = P_xs_apr->
-        data[i34 + i * i33];
+  for (i31 = 0; i31 < cr; i31++) {
+    for (i32 = 0; i32 < i; i32++) {
+      b_P->data[r40->data[i32] + b_P->size[0] * r41->data[i31]] = P_xs_apr->
+        data[i32 + i * i31];
     }
   }
 
   if (b_SLAM_data->numStates + 1.0 > b_P->size[0]) {
-    i33 = 0;
-    i34 = 0;
+    i31 = 0;
+    i32 = 0;
   } else {
-    i33 = (int)(b_SLAM_data->numStates + 1.0) - 1;
-    i34 = b_P->size[0];
+    i31 = (int)(b_SLAM_data->numStates + 1.0) - 1;
+    i32 = b_P->size[0];
   }
 
   if (1.0 > b_SLAM_data->numStates) {
@@ -1825,62 +1825,62 @@ void SLAM_pred_model(struct_T *b_SLAM_data, double dt, const double
   }
 
   cr = r40->size[0];
-  r40->size[0] = i34 - i33;
+  r40->size[0] = i32 - i31;
   emxEnsureCapacity((emxArray__common *)r40, cr, (int)sizeof(int));
-  i = i34 - i33;
-  for (i34 = 0; i34 < i; i34++) {
-    r40->data[i34] = i33 + i34;
+  i = i32 - i31;
+  for (i32 = 0; i32 < i; i32++) {
+    r40->data[i32] = i31 + i32;
   }
 
-  i33 = r41->size[0];
+  i31 = r41->size[0];
   r41->size[0] = loop_ub;
-  emxEnsureCapacity((emxArray__common *)r41, i33, (int)sizeof(int));
-  for (i33 = 0; i33 < loop_ub; i33++) {
-    r41->data[i33] = i33;
+  emxEnsureCapacity((emxArray__common *)r41, i31, (int)sizeof(int));
+  for (i31 = 0; i31 < loop_ub; i31++) {
+    r41->data[i31] = i31;
   }
 
   b_emxInit_real_T(&b_P_xs_apr, 2);
-  i33 = b_P_xs_apr->size[0] * b_P_xs_apr->size[1];
+  i31 = b_P_xs_apr->size[0] * b_P_xs_apr->size[1];
   b_P_xs_apr->size[0] = P_xs_apr->size[1];
   b_P_xs_apr->size[1] = 12;
-  emxEnsureCapacity((emxArray__common *)b_P_xs_apr, i33, (int)sizeof(double));
-  for (i33 = 0; i33 < 12; i33++) {
+  emxEnsureCapacity((emxArray__common *)b_P_xs_apr, i31, (int)sizeof(double));
+  for (i31 = 0; i31 < 12; i31++) {
     loop_ub = P_xs_apr->size[1];
-    for (i34 = 0; i34 < loop_ub; i34++) {
-      b_P_xs_apr->data[i34 + b_P_xs_apr->size[0] * i33] = P_xs_apr->data[i33 +
-        P_xs_apr->size[0] * i34];
+    for (i32 = 0; i32 < loop_ub; i32++) {
+      b_P_xs_apr->data[i32 + b_P_xs_apr->size[0] * i31] = P_xs_apr->data[i31 +
+        P_xs_apr->size[0] * i32];
     }
   }
 
   emxFree_real_T(&P_xs_apr);
   i = r40->size[0];
   cr = r41->size[0];
-  for (i33 = 0; i33 < cr; i33++) {
-    for (i34 = 0; i34 < i; i34++) {
-      b_P->data[r40->data[i34] + b_P->size[0] * r41->data[i33]] =
-        b_P_xs_apr->data[i34 + i * i33];
+  for (i31 = 0; i31 < cr; i31++) {
+    for (i32 = 0; i32 < i; i32++) {
+      b_P->data[r40->data[i32] + b_P->size[0] * r41->data[i31]] =
+        b_P_xs_apr->data[i32 + i * i31];
     }
   }
 
   emxFree_real_T(&b_P_xs_apr);
   emxFree_int32_T(&r41);
   emxFree_int32_T(&r40);
-  i33 = b_SLAM_data->xt->size[0];
+  i31 = b_SLAM_data->xt->size[0];
   b_SLAM_data->xt->size[0] = b_xt->size[0];
-  emxEnsureCapacity((emxArray__common *)b_SLAM_data->xt, i33, (int)sizeof(double));
+  emxEnsureCapacity((emxArray__common *)b_SLAM_data->xt, i31, (int)sizeof(double));
   loop_ub = b_xt->size[0];
-  for (i33 = 0; i33 < loop_ub; i33++) {
-    b_SLAM_data->xt->data[i33] = b_xt->data[i33];
+  for (i31 = 0; i31 < loop_ub; i31++) {
+    b_SLAM_data->xt->data[i31] = b_xt->data[i31];
   }
 
   emxFree_real_T(&b_xt);
-  i33 = b_SLAM_data->P->size[0] * b_SLAM_data->P->size[1];
+  i31 = b_SLAM_data->P->size[0] * b_SLAM_data->P->size[1];
   b_SLAM_data->P->size[0] = b_P->size[0];
   b_SLAM_data->P->size[1] = b_P->size[1];
-  emxEnsureCapacity((emxArray__common *)b_SLAM_data->P, i33, (int)sizeof(double));
+  emxEnsureCapacity((emxArray__common *)b_SLAM_data->P, i31, (int)sizeof(double));
   loop_ub = b_P->size[0] * b_P->size[1];
-  for (i33 = 0; i33 < loop_ub; i33++) {
-    b_SLAM_data->P->data[i33] = b_P->data[i33];
+  for (i31 = 0; i31 < loop_ub; i31++) {
+    b_SLAM_data->P->data[i31] = b_P->data[i31];
   }
 
   emxFree_real_T(&b_P);

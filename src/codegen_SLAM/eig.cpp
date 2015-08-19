@@ -5,7 +5,7 @@
 // File: eig.cpp
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 19-Aug-2015 10:03:40
+// C/C++ source code generated on  : 19-Aug-2015 11:35:06
 //
 
 // Include Files
@@ -234,7 +234,7 @@ static void eml_matlab_zggev(creal_T A[16], int *info, creal_T alpha1[4],
   boolean_T exitg3;
   boolean_T exitg4;
   boolean_T guard1 = false;
-  static const signed char iv1[16] = { 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0,
+  static const signed char iv2[16] = { 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0,
     0, 1 };
 
   *info = 0;
@@ -456,7 +456,7 @@ static void eml_matlab_zggev(creal_T A[16], int *info, creal_T alpha1[4],
     }
 
     for (nzcount = 0; nzcount < 16; nzcount++) {
-      V[nzcount].re = iv1[nzcount];
+      V[nzcount].re = iv2[nzcount];
       V[nzcount].im = 0.0;
     }
 

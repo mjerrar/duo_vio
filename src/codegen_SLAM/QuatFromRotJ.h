@@ -5,7 +5,7 @@
 // File: QuatFromRotJ.h
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 19-Aug-2015 10:03:40
+// C/C++ source code generated on  : 19-Aug-2015 11:35:06
 //
 #ifndef __QUATFROMROTJ_H__
 #define __QUATFROMROTJ_H__
@@ -22,7 +22,6 @@
 
 // Function Declarations
 extern void QuatFromRotJ(const double R[9], double Q[4]);
-extern void b_QuatFromRotJ(double Q[4]);
 
 #endif
 

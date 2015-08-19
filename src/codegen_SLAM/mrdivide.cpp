@@ -5,7 +5,7 @@
 // File: mrdivide.cpp
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 19-Aug-2015 10:03:40
+// C/C++ source code generated on  : 19-Aug-2015 11:35:06
 //
 
 // Include Files
@@ -27,7 +27,6 @@ static void eml_xgeqp3(emxArray_real_T *A, emxArray_real_T *tau,
 static void eml_xgetrf(int m, int n, emxArray_real_T *A, int lda,
   emxArray_int32_T *ipiv, int *info);
 static void eml_xscal(int n, double a, emxArray_real_T *x, int ix0);
-static void eml_xswap(int n, emxArray_real_T *x, int ix0, int iy0);
 static int rankFromQR(const emxArray_real_T *A);
 
 // Function Definitions
@@ -156,27 +155,27 @@ static void eml_xgeqp3(emxArray_real_T *A, emxArray_real_T *tau,
   int m;
   int n;
   int mn;
-  int i26;
+  int i24;
   emxArray_real_T *work;
-  int pvt;
+  int itemp;
   emxArray_real_T *vn1;
   emxArray_real_T *vn2;
   int k;
-  int j;
+  int iy;
   int i;
   int i_i;
   int nmi;
   int mmi;
-  double atmp;
-  double d4;
+  int pvt;
+  int ix;
   double xnorm;
+  double atmp;
+  double d3;
   double beta1;
   int i_ip1;
   int lastv;
   boolean_T exitg2;
-  int ia;
   int32_T exitg1;
-  int ix;
   m = A->size[0];
   n = A->size[1];
   if (A->size[0] <= A->size[1]) {
@@ -185,34 +184,34 @@ static void eml_xgeqp3(emxArray_real_T *A, emxArray_real_T *tau,
     mn = A->size[1];
   }
 
-  i26 = tau->size[0];
+  i24 = tau->size[0];
   tau->size[0] = mn;
-  emxEnsureCapacity((emxArray__common *)tau, i26, (int)sizeof(double));
+  emxEnsureCapacity((emxArray__common *)tau, i24, (int)sizeof(double));
   eml_signed_integer_colon(A->size[1], jpvt);
   if ((A->size[0] == 0) || (A->size[1] == 0)) {
   } else {
     emxInit_real_T(&work, 1);
-    pvt = A->size[1];
-    i26 = work->size[0];
-    work->size[0] = pvt;
-    emxEnsureCapacity((emxArray__common *)work, i26, (int)sizeof(double));
-    for (i26 = 0; i26 < pvt; i26++) {
-      work->data[i26] = 0.0;
+    itemp = A->size[1];
+    i24 = work->size[0];
+    work->size[0] = itemp;
+    emxEnsureCapacity((emxArray__common *)work, i24, (int)sizeof(double));
+    for (i24 = 0; i24 < itemp; i24++) {
+      work->data[i24] = 0.0;
     }
 
     emxInit_real_T(&vn1, 1);
     emxInit_real_T(&vn2, 1);
-    pvt = A->size[1];
-    i26 = vn1->size[0];
-    vn1->size[0] = pvt;
-    emxEnsureCapacity((emxArray__common *)vn1, i26, (int)sizeof(double));
-    i26 = vn2->size[0];
-    vn2->size[0] = pvt;
-    emxEnsureCapacity((emxArray__common *)vn2, i26, (int)sizeof(double));
+    itemp = A->size[1];
+    i24 = vn1->size[0];
+    vn1->size[0] = itemp;
+    emxEnsureCapacity((emxArray__common *)vn1, i24, (int)sizeof(double));
+    i24 = vn2->size[0];
+    vn2->size[0] = itemp;
+    emxEnsureCapacity((emxArray__common *)vn2, i24, (int)sizeof(double));
     k = 1;
-    for (j = 0; j + 1 <= n; j++) {
-      vn1->data[j] = c_eml_xnrm2(m, A, k);
-      vn2->data[j] = vn1->data[j];
+    for (iy = 0; iy + 1 <= n; iy++) {
+      vn1->data[iy] = c_eml_xnrm2(m, A, k);
+      vn2->data[iy] = vn1->data[iy];
       k += m;
     }
 
@@ -220,20 +219,29 @@ static void eml_xgeqp3(emxArray_real_T *A, emxArray_real_T *tau,
       i_i = i + i * m;
       nmi = (n - i) - 1;
       mmi = (m - i) - 1;
-      pvt = eml_ixamax(1 + nmi, vn1, i + 1);
-      pvt = (i + pvt) - 1;
+      itemp = eml_ixamax(1 + nmi, vn1, i + 1);
+      pvt = (i + itemp) - 1;
       if (pvt + 1 != i + 1) {
-        eml_xswap(m, A, 1 + m * pvt, 1 + m * i);
-        k = jpvt->data[pvt];
+        ix = m * pvt;
+        iy = m * i;
+        for (k = 1; k <= m; k++) {
+          xnorm = A->data[ix];
+          A->data[ix] = A->data[iy];
+          A->data[iy] = xnorm;
+          ix++;
+          iy++;
+        }
+
+        itemp = jpvt->data[pvt];
         jpvt->data[pvt] = jpvt->data[i];
-        jpvt->data[i] = k;
+        jpvt->data[i] = itemp;
         vn1->data[pvt] = vn1->data[i];
         vn2->data[pvt] = vn2->data[i];
       }
 
       if (i + 1 < m) {
         atmp = A->data[i_i];
-        d4 = 0.0;
+        d3 = 0.0;
         if (1 + mmi <= 0) {
         } else {
           xnorm = d_eml_xnrm2(mmi, A, i_i + 2);
@@ -244,9 +252,9 @@ static void eml_xgeqp3(emxArray_real_T *A, emxArray_real_T *tau,
             }
 
             if (fabs(beta1) < 1.0020841800044864E-292) {
-              pvt = 0;
+              itemp = 0;
               do {
-                pvt++;
+                itemp++;
                 eml_xscal(mmi, 9.9792015476736E+291, A, i_i + 2);
                 beta1 *= 9.9792015476736E+291;
                 atmp *= 9.9792015476736E+291;
@@ -258,22 +266,22 @@ static void eml_xgeqp3(emxArray_real_T *A, emxArray_real_T *tau,
                 beta1 = -beta1;
               }
 
-              d4 = (beta1 - atmp) / beta1;
+              d3 = (beta1 - atmp) / beta1;
               eml_xscal(mmi, 1.0 / (atmp - beta1), A, i_i + 2);
-              for (k = 1; k <= pvt; k++) {
+              for (k = 1; k <= itemp; k++) {
                 beta1 *= 1.0020841800044864E-292;
               }
 
               atmp = beta1;
             } else {
-              d4 = (beta1 - A->data[i_i]) / beta1;
+              d3 = (beta1 - A->data[i_i]) / beta1;
               eml_xscal(mmi, 1.0 / (A->data[i_i] - beta1), A, i_i + 2);
               atmp = beta1;
             }
           }
         }
 
-        tau->data[i] = d4;
+        tau->data[i] = d3;
       } else {
         xnorm = A->data[i_i];
         atmp = A->data[i_i];
@@ -288,23 +296,23 @@ static void eml_xgeqp3(emxArray_real_T *A, emxArray_real_T *tau,
         i_ip1 = (i + (i + 1) * m) + 1;
         if (tau->data[i] != 0.0) {
           lastv = mmi;
-          pvt = i_i + mmi;
-          while ((lastv + 1 > 0) && (A->data[pvt] == 0.0)) {
+          itemp = i_i + mmi;
+          while ((lastv + 1 > 0) && (A->data[itemp] == 0.0)) {
             lastv--;
-            pvt--;
+            itemp--;
           }
 
           exitg2 = false;
           while ((!exitg2) && (nmi > 0)) {
-            pvt = i_ip1 + (nmi - 1) * m;
-            ia = pvt;
+            itemp = i_ip1 + (nmi - 1) * m;
+            k = itemp;
             do {
               exitg1 = 0;
-              if (ia <= pvt + lastv) {
-                if (A->data[ia - 1] != 0.0) {
+              if (k <= itemp + lastv) {
+                if (A->data[k - 1] != 0.0) {
                   exitg1 = 1;
                 } else {
-                  ia++;
+                  k++;
                 }
               } else {
                 nmi--;
@@ -324,43 +332,43 @@ static void eml_xgeqp3(emxArray_real_T *A, emxArray_real_T *tau,
         if (lastv + 1 > 0) {
           if (nmi == 0) {
           } else {
-            for (pvt = 1; pvt <= nmi; pvt++) {
-              work->data[pvt - 1] = 0.0;
+            for (iy = 1; iy <= nmi; iy++) {
+              work->data[iy - 1] = 0.0;
             }
 
-            pvt = 0;
-            i26 = i_ip1 + m * (nmi - 1);
-            k = i_ip1;
-            while ((m > 0) && (k <= i26)) {
+            iy = 0;
+            i24 = i_ip1 + m * (nmi - 1);
+            itemp = i_ip1;
+            while ((m > 0) && (itemp <= i24)) {
               ix = i_i;
               xnorm = 0.0;
-              j = k + lastv;
-              for (ia = k; ia <= j; ia++) {
-                xnorm += A->data[ia - 1] * A->data[ix];
+              pvt = itemp + lastv;
+              for (k = itemp; k <= pvt; k++) {
+                xnorm += A->data[k - 1] * A->data[ix];
                 ix++;
               }
 
-              work->data[pvt] += xnorm;
-              pvt++;
-              k += m;
+              work->data[iy] += xnorm;
+              iy++;
+              itemp += m;
             }
           }
 
           if (-tau->data[i] == 0.0) {
           } else {
-            pvt = 0;
-            for (j = 1; j <= nmi; j++) {
-              if (work->data[pvt] != 0.0) {
-                xnorm = work->data[pvt] * -tau->data[i];
+            itemp = 0;
+            for (iy = 1; iy <= nmi; iy++) {
+              if (work->data[itemp] != 0.0) {
+                xnorm = work->data[itemp] * -tau->data[i];
                 ix = i_i;
-                i26 = lastv + i_ip1;
-                for (k = i_ip1; k <= i26; k++) {
-                  A->data[k - 1] += A->data[ix] * xnorm;
+                i24 = lastv + i_ip1;
+                for (pvt = i_ip1; pvt <= i24; pvt++) {
+                  A->data[pvt - 1] += A->data[ix] * xnorm;
                   ix++;
                 }
               }
 
-              pvt++;
+              itemp++;
               i_ip1 += m;
             }
           }
@@ -369,26 +377,26 @@ static void eml_xgeqp3(emxArray_real_T *A, emxArray_real_T *tau,
         A->data[i_i] = atmp;
       }
 
-      for (j = i + 1; j + 1 <= n; j++) {
-        if (vn1->data[j] != 0.0) {
-          xnorm = fabs(A->data[i + A->size[0] * j]) / vn1->data[j];
+      for (iy = i + 1; iy + 1 <= n; iy++) {
+        if (vn1->data[iy] != 0.0) {
+          xnorm = fabs(A->data[i + A->size[0] * iy]) / vn1->data[iy];
           xnorm = 1.0 - xnorm * xnorm;
           if (xnorm < 0.0) {
             xnorm = 0.0;
           }
 
-          beta1 = vn1->data[j] / vn2->data[j];
+          beta1 = vn1->data[iy] / vn2->data[iy];
           beta1 = xnorm * (beta1 * beta1);
           if (beta1 <= 1.4901161193847656E-8) {
             if (i + 1 < m) {
-              vn1->data[j] = eml_xnrm2(mmi, A, (i + m * j) + 2);
-              vn2->data[j] = vn1->data[j];
+              vn1->data[iy] = eml_xnrm2(mmi, A, (i + m * iy) + 2);
+              vn2->data[iy] = vn1->data[iy];
             } else {
-              vn1->data[j] = 0.0;
-              vn2->data[j] = 0.0;
+              vn1->data[iy] = 0.0;
+              vn2->data[iy] = 0.0;
             }
           } else {
-            vn1->data[j] *= sqrt(xnorm);
+            vn1->data[iy] *= sqrt(xnorm);
           }
         }
       }
@@ -414,7 +422,7 @@ static void eml_xgetrf(int m, int n, emxArray_real_T *A, int lda,
 {
   int b_m;
   int b_info;
-  int i24;
+  int i22;
   int j;
   int mmj;
   int c;
@@ -423,7 +431,7 @@ static void eml_xgetrf(int m, int n, emxArray_real_T *A, int lda,
   double smax;
   int jA;
   double s;
-  int i25;
+  int i23;
   int jy;
   int b_j;
   int ijA;
@@ -438,12 +446,12 @@ static void eml_xgetrf(int m, int n, emxArray_real_T *A, int lda,
   if ((m < 1) || (n < 1)) {
   } else {
     if (m - 1 <= n) {
-      i24 = m - 1;
+      i22 = m - 1;
     } else {
-      i24 = n;
+      i22 = n;
     }
 
-    for (j = 0; j + 1 <= i24; j++) {
+    for (j = 0; j + 1 <= i22; j++) {
       mmj = m - j;
       c = j * (lda + 1);
       if (mmj < 1) {
@@ -478,8 +486,8 @@ static void eml_xgetrf(int m, int n, emxArray_real_T *A, int lda,
           }
         }
 
-        i25 = c + mmj;
-        for (iy = c + 1; iy + 1 <= i25; iy++) {
+        i23 = c + mmj;
+        for (iy = c + 1; iy + 1 <= i23; iy++) {
           A->data[iy] /= A->data[c];
         }
       } else {
@@ -493,8 +501,8 @@ static void eml_xgetrf(int m, int n, emxArray_real_T *A, int lda,
         smax = A->data[jy];
         if (A->data[jy] != 0.0) {
           ix = c + 1;
-          i25 = mmj + jA;
-          for (ijA = 1 + jA; ijA + 1 <= i25; ijA++) {
+          i23 = mmj + jA;
+          for (ijA = 1 + jA; ijA + 1 <= i23; ijA++) {
             A->data[ijA] += A->data[ix] * -smax;
             ix++;
           }
@@ -523,35 +531,11 @@ static void eml_xgetrf(int m, int n, emxArray_real_T *A, int lda,
 //
 static void eml_xscal(int n, double a, emxArray_real_T *x, int ix0)
 {
-  int i27;
+  int i25;
   int k;
-  i27 = (ix0 + n) - 1;
-  for (k = ix0; k <= i27; k++) {
+  i25 = (ix0 + n) - 1;
+  for (k = ix0; k <= i25; k++) {
     x->data[k - 1] *= a;
-  }
-}
-
-//
-// Arguments    : int n
-//                emxArray_real_T *x
-//                int ix0
-//                int iy0
-// Return Type  : void
-//
-static void eml_xswap(int n, emxArray_real_T *x, int ix0, int iy0)
-{
-  int ix;
-  int iy;
-  int k;
-  double temp;
-  ix = ix0 - 1;
-  iy = iy0 - 1;
-  for (k = 1; k <= n; k++) {
-    temp = x->data[ix];
-    x->data[ix] = x->data[iy];
-    x->data[iy] = temp;
-    ix++;
-    iy++;
   }
 }
 

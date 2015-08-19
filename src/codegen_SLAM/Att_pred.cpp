@@ -5,7 +5,7 @@
 // File: Att_pred.cpp
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 19-Aug-2015 10:03:40
+// C/C++ source code generated on  : 19-Aug-2015 11:35:06
 //
 
 // Include Files
@@ -34,14 +34,14 @@ void Att_pred(struct_T *b_SLAM_data, const double w[3], double dt)
   double c_SLAM_data[9];
   double Phi[9];
   int k;
-  int i17;
+  int i15;
   double d_SLAM_data;
   static const signed char a[9] = { 1, 0, 0, 0, 1, 0, 0, 0, 1 };
 
   double c;
   double b_w[3];
   double y[9];
-  int i18;
+  int i16;
   double dq[4];
   double e_SLAM_data;
   double f_SLAM_data;
@@ -77,33 +77,33 @@ void Att_pred(struct_T *b_SLAM_data, const double w[3], double dt)
   c_SLAM_data[8] = 0.0;
   for (k = 0; k < 3; k++) {
     I[k + 3 * k] = 1.0;
-    for (i17 = 0; i17 < 3; i17++) {
-      Phi[i17 + 3 * k] = I[i17 + 3 * k] + -c_SLAM_data[i17 + 3 * k] * dt;
+    for (i15 = 0; i15 < 3; i15++) {
+      Phi[i15 + 3 * k] = I[i15 + 3 * k] + -c_SLAM_data[i15 + 3 * k] * dt;
     }
   }
 
   d_SLAM_data = b_SLAM_data->processNoise[1];
-  for (i17 = 0; i17 < 9; i17++) {
-    I[i17] = (double)a[i17] * d_SLAM_data;
+  for (i15 = 0; i15 < 9; i15++) {
+    I[i15] = (double)a[i15] * d_SLAM_data;
   }
 
   c = dt * dt;
-  for (i17 = 0; i17 < 3; i17++) {
+  for (i15 = 0; i15 < 3; i15++) {
     for (k = 0; k < 3; k++) {
-      c_SLAM_data[k + 3 * i17] = b_SLAM_data->P->data[(k + b_SLAM_data->P->size
-        [0] * (3 + i17)) + 3];
+      c_SLAM_data[k + 3 * i15] = b_SLAM_data->P->data[(k + b_SLAM_data->P->size
+        [0] * (3 + i15)) + 3];
     }
   }
 
-  for (i17 = 0; i17 < 3; i17++) {
+  for (i15 = 0; i15 < 3; i15++) {
     for (k = 0; k < 3; k++) {
-      y[i17 + 3 * k] = 0.0;
-      for (i18 = 0; i18 < 3; i18++) {
-        y[i17 + 3 * k] += Phi[i17 + 3 * i18] * c_SLAM_data[i18 + 3 * k];
+      y[i15 + 3 * k] = 0.0;
+      for (i16 = 0; i16 < 3; i16++) {
+        y[i15 + 3 * k] += Phi[i15 + 3 * i16] * c_SLAM_data[i16 + 3 * k];
       }
     }
 
-    b_w[i17] = w[i17] * dt;
+    b_w[i15] = w[i15] * dt;
   }
 
   quatPlusThetaJ(b_w, dq);
@@ -143,43 +143,43 @@ void Att_pred(struct_T *b_SLAM_data, const double w[3], double dt)
   b_dq[1] = dq[1];
   b_dq[2] = dq[2];
   b_dq[3] = dq[3];
-  for (i17 = 0; i17 < 4; i17++) {
-    u_SLAM_data[i17] = 0.0;
+  for (i15 = 0; i15 < 4; i15++) {
+    u_SLAM_data[i15] = 0.0;
     for (k = 0; k < 4; k++) {
-      u_SLAM_data[i17] += t_SLAM_data[i17 + (k << 2)] * b_dq[k];
+      u_SLAM_data[i15] += t_SLAM_data[i15 + (k << 2)] * b_dq[k];
     }
   }
 
-  for (i17 = 0; i17 < 4; i17++) {
-    b_SLAM_data->xt->data[3 + i17] = u_SLAM_data[i17];
+  for (i15 = 0; i15 < 4; i15++) {
+    b_SLAM_data->xt->data[3 + i15] = u_SLAM_data[i15];
   }
 
-  for (i17 = 0; i17 < 3; i17++) {
+  for (i15 = 0; i15 < 3; i15++) {
     for (k = 0; k < 3; k++) {
-      c_SLAM_data[i17 + 3 * k] = 0.0;
-      for (i18 = 0; i18 < 3; i18++) {
-        c_SLAM_data[i17 + 3 * k] += (double)c_a[i17 + 3 * i18] * (I[i18 + 3 * k]
+      c_SLAM_data[i15 + 3 * k] = 0.0;
+      for (i16 = 0; i16 < 3; i16++) {
+        c_SLAM_data[i15 + 3 * k] += (double)c_a[i15 + 3 * i16] * (I[i16 + 3 * k]
           * c);
       }
 
-      b_y[i17 + 3 * k] = 0.0;
-      for (i18 = 0; i18 < 3; i18++) {
-        b_y[i17 + 3 * k] += y[i17 + 3 * i18] * Phi[k + 3 * i18];
+      b_y[i15 + 3 * k] = 0.0;
+      for (i16 = 0; i16 < 3; i16++) {
+        b_y[i15 + 3 * k] += y[i15 + 3 * i16] * Phi[k + 3 * i16];
       }
     }
 
     for (k = 0; k < 3; k++) {
-      b_a[i17 + 3 * k] = 0.0;
-      for (i18 = 0; i18 < 3; i18++) {
-        b_a[i17 + 3 * k] += c_SLAM_data[i17 + 3 * i18] * (double)c_a[i18 + 3 * k];
+      b_a[i15 + 3 * k] = 0.0;
+      for (i16 = 0; i16 < 3; i16++) {
+        b_a[i15 + 3 * k] += c_SLAM_data[i15 + 3 * i16] * (double)c_a[i16 + 3 * k];
       }
     }
   }
 
-  for (i17 = 0; i17 < 3; i17++) {
+  for (i15 = 0; i15 < 3; i15++) {
     for (k = 0; k < 3; k++) {
-      b_SLAM_data->P->data[(k + b_SLAM_data->P->size[0] * (3 + i17)) + 3] =
-        b_y[k + 3 * i17] + b_a[k + 3 * i17];
+      b_SLAM_data->P->data[(k + b_SLAM_data->P->size[0] * (3 + i15)) + 3] =
+        b_y[k + 3 * i15] + b_a[k + 3 * i15];
     }
   }
 }

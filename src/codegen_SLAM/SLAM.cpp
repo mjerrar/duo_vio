@@ -5,7 +5,7 @@
 // File: SLAM.cpp
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 19-Aug-2015 10:03:40
+// C/C++ source code generated on  : 19-Aug-2015 11:35:06
 //
 
 // Include Files
@@ -251,8 +251,8 @@ static void filterReinitialization(struct_T b_SLAM_data[3], const double
   double b_numStatesPerAnchor;
   double b_numPointsPerAnchor;
   double mixing_weight[9];
-  int i29;
-  int i30;
+  int i27;
+  int i28;
   int ixstart;
   emxArray_real_T *x_fused;
   emxArray_real_T *P_fused;
@@ -270,15 +270,15 @@ static void filterReinitialization(struct_T b_SLAM_data[3], const double
   int i;
   int ix;
   int modelIt;
-  int i31;
+  int i29;
   int itmp;
   int anchorIdx;
-  int i32;
+  int i30;
   double d_numStatesxt;
   double b[3];
   double e_numStatesxt;
   double c_x_fused[3];
-  double errQuat[4];
+  double b_b[4];
   double b_M[12];
   double Q[12];
   double b_Q[16];
@@ -311,16 +311,16 @@ static void filterReinitialization(struct_T b_SLAM_data[3], const double
   b_numPointsPerAnchor = b_SLAM_data[0].numPointsPerAnchor;
 
   //  predict model state
-  for (i29 = 0; i29 < 3; i29++) {
-    model_state_prior[i29] = 0.0;
-    for (i30 = 0; i30 < 3; i30++) {
-      model_state_prior[i29] += b_model_transition[i29 + 3 * i30] *
-        b_model_state[i30];
+  for (i27 = 0; i27 < 3; i27++) {
+    model_state_prior[i27] = 0.0;
+    for (i28 = 0; i28 < 3; i28++) {
+      model_state_prior[i27] += b_model_transition[i27 + 3 * i28] *
+        b_model_state[i28];
     }
 
     for (ixstart = 0; ixstart < 3; ixstart++) {
-      mixing_weight[ixstart + 3 * i29] = b_model_transition[i29 + 3 * ixstart] *
-        b_model_state[ixstart] / model_state_prior[i29];
+      mixing_weight[ixstart + 3 * i27] = b_model_transition[i27 + 3 * ixstart] *
+        b_model_state[ixstart] / model_state_prior[i27];
     }
   }
 
@@ -338,147 +338,147 @@ static void filterReinitialization(struct_T b_SLAM_data[3], const double
   emxInit_int32_T(&r37, 1);
   emxInit_real_T(&b_x_fused, 1);
   for (i = 0; i < 3; i++) {
-    i29 = x_fused->size[0];
+    i27 = x_fused->size[0];
     x_fused->size[0] = b_SLAM_data[0].xt->size[0];
-    emxEnsureCapacity((emxArray__common *)x_fused, i29, (int)sizeof(double));
+    emxEnsureCapacity((emxArray__common *)x_fused, i27, (int)sizeof(double));
     ix = b_SLAM_data[0].xt->size[0];
-    for (i29 = 0; i29 < ix; i29++) {
-      x_fused->data[i29] = 0.0;
+    for (i27 = 0; i27 < ix; i27++) {
+      x_fused->data[i27] = 0.0;
     }
 
     ixstart = b_SLAM_data[0].P->size[0];
-    i29 = P_fused->size[0] * P_fused->size[1];
+    i27 = P_fused->size[0] * P_fused->size[1];
     P_fused->size[0] = ixstart;
-    emxEnsureCapacity((emxArray__common *)P_fused, i29, (int)sizeof(double));
+    emxEnsureCapacity((emxArray__common *)P_fused, i27, (int)sizeof(double));
     ixstart = b_SLAM_data[0].P->size[0];
-    i29 = P_fused->size[0] * P_fused->size[1];
+    i27 = P_fused->size[0] * P_fused->size[1];
     P_fused->size[1] = ixstart;
-    emxEnsureCapacity((emxArray__common *)P_fused, i29, (int)sizeof(double));
+    emxEnsureCapacity((emxArray__common *)P_fused, i27, (int)sizeof(double));
     ix = b_SLAM_data[0].P->size[0] * b_SLAM_data[0].P->size[0];
-    for (i29 = 0; i29 < ix; i29++) {
-      P_fused->data[i29] = 0.0;
+    for (i27 = 0; i27 < ix; i27++) {
+      P_fused->data[i27] = 0.0;
     }
 
     //  the fused covariance. This is only needed for the output of SLAM. Otherwise the calculation of this could be skipped 
-    i29 = M->size[0] * M->size[1] * M->size[2];
+    i27 = M->size[0] * M->size[1] * M->size[2];
     M->size[0] = (int)(b_numAnchors + 1.0);
     M->size[1] = 4;
     M->size[2] = 3;
-    emxEnsureCapacity((emxArray__common *)M, i29, (int)sizeof(double));
+    emxEnsureCapacity((emxArray__common *)M, i27, (int)sizeof(double));
     ix = ((int)(b_numAnchors + 1.0) << 2) * 3;
-    for (i29 = 0; i29 < ix; i29++) {
-      M->data[i29] = 0.0;
+    for (i27 = 0; i27 < ix; i27++) {
+      M->data[i27] = 0.0;
     }
 
     //  quaternion averaging matrix
     for (modelIt = 0; modelIt < 3; modelIt++) {
-      for (i29 = 0; i29 < 3; i29++) {
-        x_fused->data[i29] += mixing_weight[modelIt + 3 * i] *
-          b_SLAM_data[modelIt].xt->data[i29];
+      for (i27 = 0; i27 < 3; i27++) {
+        x_fused->data[i27] += mixing_weight[modelIt + 3 * i] *
+          b_SLAM_data[modelIt].xt->data[i27];
       }
 
-      for (i29 = 0; i29 < 4; i29++) {
-        M->data[M->size[0] * i29 + M->size[0] * M->size[1] * modelIt] =
-          mixing_weight[modelIt + 3 * i] * b_SLAM_data[modelIt].xt->data[3 + i29];
+      for (i27 = 0; i27 < 4; i27++) {
+        M->data[M->size[0] * i27 + M->size[0] * M->size[1] * modelIt] =
+          mixing_weight[modelIt + 3 * i] * b_SLAM_data[modelIt].xt->data[3 + i27];
+      }
+
+      if (8.0 > c_numStatesxt) {
+        i27 = 1;
+        i28 = 0;
+      } else {
+        i27 = 8;
+        i28 = (int)c_numStatesxt;
       }
 
       if (8.0 > c_numStatesxt) {
         i29 = 1;
-        i30 = 0;
-      } else {
-        i29 = 8;
-        i30 = (int)c_numStatesxt;
-      }
-
-      if (8.0 > c_numStatesxt) {
-        i31 = 1;
         itmp = 0;
       } else {
-        i31 = 8;
+        i29 = 8;
         itmp = (int)c_numStatesxt;
       }
 
       if (8.0 > c_numStatesxt) {
         anchorIdx = 0;
-        i32 = 0;
+        i30 = 0;
       } else {
         anchorIdx = 7;
-        i32 = (int)c_numStatesxt;
+        i30 = (int)c_numStatesxt;
       }
 
       ixstart = r33->size[0] * r33->size[1];
       r33->size[0] = 1;
-      r33->size[1] = i32 - anchorIdx;
+      r33->size[1] = i30 - anchorIdx;
       emxEnsureCapacity((emxArray__common *)r33, ixstart, (int)sizeof(int));
-      ix = i32 - anchorIdx;
-      for (i32 = 0; i32 < ix; i32++) {
-        r33->data[r33->size[0] * i32] = anchorIdx + i32;
+      ix = i30 - anchorIdx;
+      for (i30 = 0; i30 < ix; i30++) {
+        r33->data[r33->size[0] * i30] = anchorIdx + i30;
       }
 
       anchorIdx = r36->size[0];
-      r36->size[0] = (i30 - i29) + 1;
+      r36->size[0] = (i28 - i27) + 1;
       emxEnsureCapacity((emxArray__common *)r36, anchorIdx, (int)sizeof(int));
-      ix = i30 - i29;
-      for (i30 = 0; i30 <= ix; i30++) {
-        r36->data[i30] = i29 + i30;
+      ix = i28 - i27;
+      for (i28 = 0; i28 <= ix; i28++) {
+        r36->data[i28] = i27 + i28;
       }
 
-      i29 = r37->size[0];
-      r37->size[0] = (itmp - i31) + 1;
-      emxEnsureCapacity((emxArray__common *)r37, i29, (int)sizeof(int));
-      ix = itmp - i31;
-      for (i29 = 0; i29 <= ix; i29++) {
-        r37->data[i29] = i31 + i29;
+      i27 = r37->size[0];
+      r37->size[0] = (itmp - i29) + 1;
+      emxEnsureCapacity((emxArray__common *)r37, i27, (int)sizeof(int));
+      ix = itmp - i29;
+      for (i27 = 0; i27 <= ix; i27++) {
+        r37->data[i27] = i29 + i27;
       }
 
-      i29 = b_x_fused->size[0];
+      i27 = b_x_fused->size[0];
       b_x_fused->size[0] = r33->size[0] * r33->size[1];
-      emxEnsureCapacity((emxArray__common *)b_x_fused, i29, (int)sizeof(double));
+      emxEnsureCapacity((emxArray__common *)b_x_fused, i27, (int)sizeof(double));
       ix = r33->size[0] * r33->size[1];
-      for (i29 = 0; i29 < ix; i29++) {
-        b_x_fused->data[i29] = x_fused->data[r36->data[i29] - 1] +
+      for (i27 = 0; i27 < ix; i27++) {
+        b_x_fused->data[i27] = x_fused->data[r36->data[i27] - 1] +
           mixing_weight[modelIt + 3 * i] * b_SLAM_data[modelIt].xt->data
-          [r37->data[i29] - 1];
+          [r37->data[i27] - 1];
       }
 
       ix = b_x_fused->size[0];
-      for (i29 = 0; i29 < ix; i29++) {
-        x_fused->data[r33->data[i29]] = b_x_fused->data[i29];
+      for (i27 = 0; i27 < ix; i27++) {
+        x_fused->data[r33->data[i27]] = b_x_fused->data[i27];
       }
 
       for (anchorIdx = 0; anchorIdx < (int)b_numAnchors; anchorIdx++) {
         d_numStatesxt = c_numStatesxt + ((1.0 + (double)anchorIdx) - 1.0) *
           b_numStatesPerAnchorxt;
-        for (i29 = 0; i29 < 3; i29++) {
-          b[i29] = b_SLAM_data[modelIt].xt->data[(int)(d_numStatesxt + (1.0 +
-            (double)i29)) - 1];
+        for (i27 = 0; i27 < 3; i27++) {
+          b[i27] = b_SLAM_data[modelIt].xt->data[(int)(d_numStatesxt + (1.0 +
+            (double)i27)) - 1];
         }
 
         d_numStatesxt = c_numStatesxt + ((1.0 + (double)anchorIdx) - 1.0) *
           b_numStatesPerAnchorxt;
         e_numStatesxt = c_numStatesxt + ((1.0 + (double)anchorIdx) - 1.0) *
           b_numStatesPerAnchorxt;
-        for (i29 = 0; i29 < 3; i29++) {
-          c_x_fused[i29] = x_fused->data[(int)(e_numStatesxt + (1.0 + (double)
-            i29)) - 1] + mixing_weight[modelIt + 3 * i] * b[i29];
+        for (i27 = 0; i27 < 3; i27++) {
+          c_x_fused[i27] = x_fused->data[(int)(e_numStatesxt + (1.0 + (double)
+            i27)) - 1] + mixing_weight[modelIt + 3 * i] * b[i27];
         }
 
-        for (i29 = 0; i29 < 3; i29++) {
-          x_fused->data[(int)(d_numStatesxt + (1.0 + (double)i29)) - 1] =
-            c_x_fused[i29];
+        for (i27 = 0; i27 < 3; i27++) {
+          x_fused->data[(int)(d_numStatesxt + (1.0 + (double)i27)) - 1] =
+            c_x_fused[i27];
         }
 
         d_numStatesxt = c_numStatesxt + ((1.0 + (double)anchorIdx) - 1.0) *
           b_numStatesPerAnchorxt;
-        for (i29 = 0; i29 < 4; i29++) {
-          errQuat[i29] = b_SLAM_data[modelIt].xt->data[(int)(d_numStatesxt +
-            (4.0 + (double)i29)) - 1];
+        for (i27 = 0; i27 < 4; i27++) {
+          b_b[i27] = b_SLAM_data[modelIt].xt->data[(int)(d_numStatesxt + (4.0 +
+            (double)i27)) - 1];
         }
 
-        for (i29 = 0; i29 < 4; i29++) {
-          M->data[(((int)((1.0 + (double)anchorIdx) + 1.0) + M->size[0] * i29) +
+        for (i27 = 0; i27 < 4; i27++) {
+          M->data[(((int)((1.0 + (double)anchorIdx) + 1.0) + M->size[0] * i27) +
                    M->size[0] * M->size[1] * modelIt) - 1] =
-            mixing_weight[modelIt + 3 * i] * errQuat[i29];
+            mixing_weight[modelIt + 3 * i] * b_b[i27];
         }
 
         for (ixstart = 0; ixstart < (int)b_numPointsPerAnchor; ixstart++) {
@@ -493,19 +493,19 @@ static void filterReinitialization(struct_T b_SLAM_data[3], const double
     }
 
     //  get the average quaternions
-    for (i29 = 0; i29 < 3; i29++) {
-      for (i30 = 0; i30 < 4; i30++) {
-        b_M[i30 + (i29 << 2)] = M->data[M->size[0] * i30 + M->size[0] * M->size
-          [1] * i29];
+    for (i27 = 0; i27 < 3; i27++) {
+      for (i28 = 0; i28 < 4; i28++) {
+        b_M[i28 + (i27 << 2)] = M->data[M->size[0] * i28 + M->size[0] * M->size
+          [1] * i27];
       }
     }
 
     squeeze(b_M, Q);
-    for (i29 = 0; i29 < 4; i29++) {
-      for (i30 = 0; i30 < 4; i30++) {
-        b_Q[i29 + (i30 << 2)] = 0.0;
-        for (i31 = 0; i31 < 3; i31++) {
-          b_Q[i29 + (i30 << 2)] += Q[i29 + (i31 << 2)] * Q[i30 + (i31 << 2)];
+    for (i27 = 0; i27 < 4; i27++) {
+      for (i28 = 0; i28 < 4; i28++) {
+        b_Q[i27 + (i28 << 2)] = 0.0;
+        for (i29 = 0; i29 < 3; i29++) {
+          b_Q[i27 + (i28 << 2)] += Q[i27 + (i29 << 2)] * Q[i28 + (i29 << 2)];
         }
       }
     }
@@ -542,8 +542,8 @@ static void filterReinitialization(struct_T b_SLAM_data[3], const double
       }
     }
 
-    for (i29 = 0; i29 < 4; i29++) {
-      x_fused->data[3 + i29] = V[i29 + (itmp << 2)].re;
+    for (i27 = 0; i27 < 4; i27++) {
+      x_fused->data[3 + i27] = V[i27 + (itmp << 2)].re;
     }
 
     for (anchorIdx = 0; anchorIdx < (int)b_numAnchors; anchorIdx++) {
@@ -552,11 +552,11 @@ static void filterReinitialization(struct_T b_SLAM_data[3], const double
           [0] * (ixstart % 4)) + M->size[0] * M->size[1] * (ixstart >> 2)) - 1];
       }
 
-      for (i29 = 0; i29 < 4; i29++) {
-        for (i30 = 0; i30 < 4; i30++) {
-          b_Q[i29 + (i30 << 2)] = 0.0;
-          for (i31 = 0; i31 < 3; i31++) {
-            b_Q[i29 + (i30 << 2)] += Q[i29 + (i31 << 2)] * Q[i30 + (i31 << 2)];
+      for (i27 = 0; i27 < 4; i27++) {
+        for (i28 = 0; i28 < 4; i28++) {
+          b_Q[i27 + (i28 << 2)] = 0.0;
+          for (i29 = 0; i29 < 3; i29++) {
+            b_Q[i27 + (i28 << 2)] += Q[i27 + (i29 << 2)] * Q[i28 + (i29 << 2)];
           }
         }
       }
@@ -598,25 +598,25 @@ static void filterReinitialization(struct_T b_SLAM_data[3], const double
 
       d_numStatesxt = c_numStatesxt + ((1.0 + (double)anchorIdx) - 1.0) *
         b_numStatesPerAnchorxt;
-      for (i29 = 0; i29 < 4; i29++) {
-        x_fused->data[(int)(d_numStatesxt + (4.0 + (double)i29)) - 1] = V[i29 +
+      for (i27 = 0; i27 < 4; i27++) {
+        x_fused->data[(int)(d_numStatesxt + (4.0 + (double)i27)) - 1] = V[i27 +
           (itmp << 2)].re;
       }
     }
 
     for (modelIt = 0; modelIt < 3; modelIt++) {
-      i29 = x_diff->size[0];
+      i27 = x_diff->size[0];
       x_diff->size[0] = b_SLAM_data[0].P->size[0];
-      emxEnsureCapacity((emxArray__common *)x_diff, i29, (int)sizeof(double));
+      emxEnsureCapacity((emxArray__common *)x_diff, i27, (int)sizeof(double));
       ix = b_SLAM_data[0].P->size[0];
-      for (i29 = 0; i29 < ix; i29++) {
-        x_diff->data[i29] = 0.0;
+      for (i27 = 0; i27 < ix; i27++) {
+        x_diff->data[i27] = 0.0;
       }
 
       //  difference between fused state and model state (error state)
-      for (i29 = 0; i29 < 3; i29++) {
-        x_diff->data[i29] = x_fused->data[i29] - b_SLAM_data[modelIt].xt->
-          data[i29];
+      for (i27 = 0; i27 < 3; i27++) {
+        x_diff->data[i27] = x_fused->data[i27] - b_SLAM_data[modelIt].xt->
+          data[i27];
       }
 
       //  if ~all(size(q) == [4, 1])
@@ -687,74 +687,74 @@ static void filterReinitialization(struct_T b_SLAM_data[3], const double
       d_x_fused[8] = ((-(x_fused->data[3] * x_fused->data[3]) - x_fused->data[4]
                        * x_fused->data[4]) + x_fused->data[5] * x_fused->data[5])
         + x_fused->data[6] * x_fused->data[6];
-      for (i29 = 0; i29 < 3; i29++) {
-        for (i30 = 0; i30 < 3; i30++) {
-          f_SLAM_data[i29 + 3 * i30] = 0.0;
-          for (i31 = 0; i31 < 3; i31++) {
-            f_SLAM_data[i29 + 3 * i30] += g_SLAM_data[i29 + 3 * i31] *
-              d_x_fused[i31 + 3 * i30];
+      for (i27 = 0; i27 < 3; i27++) {
+        for (i28 = 0; i28 < 3; i28++) {
+          f_SLAM_data[i27 + 3 * i28] = 0.0;
+          for (i29 = 0; i29 < 3; i29++) {
+            f_SLAM_data[i27 + 3 * i28] += g_SLAM_data[i27 + 3 * i29] *
+              d_x_fused[i29 + 3 * i28];
           }
         }
       }
 
-      QuatFromRotJ(f_SLAM_data, errQuat);
-      for (i29 = 0; i29 < 3; i29++) {
-        x_diff->data[3 + i29] = errQuat[i29];
+      QuatFromRotJ(f_SLAM_data, b_b);
+      for (i27 = 0; i27 < 3; i27++) {
+        x_diff->data[3 + i27] = b_b[i27];
+      }
+
+      if (8.0 > c_numStatesxt) {
+        i27 = 1;
+        i28 = 0;
+      } else {
+        i27 = 8;
+        i28 = (int)c_numStatesxt;
       }
 
       if (8.0 > c_numStatesxt) {
         i29 = 1;
-        i30 = 0;
-      } else {
-        i29 = 8;
-        i30 = (int)c_numStatesxt;
-      }
-
-      if (8.0 > c_numStatesxt) {
-        i31 = 1;
         itmp = 0;
       } else {
-        i31 = 8;
+        i29 = 8;
         itmp = (int)c_numStatesxt;
       }
 
       if (7.0 > c_numStates) {
         anchorIdx = 0;
-        i32 = 0;
+        i30 = 0;
       } else {
         anchorIdx = 6;
-        i32 = (int)c_numStates;
+        i30 = (int)c_numStates;
       }
 
       ixstart = r33->size[0] * r33->size[1];
       r33->size[0] = 1;
-      r33->size[1] = i32 - anchorIdx;
+      r33->size[1] = i30 - anchorIdx;
       emxEnsureCapacity((emxArray__common *)r33, ixstart, (int)sizeof(int));
-      ix = i32 - anchorIdx;
-      for (i32 = 0; i32 < ix; i32++) {
-        r33->data[r33->size[0] * i32] = anchorIdx + i32;
+      ix = i30 - anchorIdx;
+      for (i30 = 0; i30 < ix; i30++) {
+        r33->data[r33->size[0] * i30] = anchorIdx + i30;
       }
 
       anchorIdx = r34->size[0];
-      r34->size[0] = (i30 - i29) + 1;
+      r34->size[0] = (i28 - i27) + 1;
       emxEnsureCapacity((emxArray__common *)r34, anchorIdx, (int)sizeof(int));
-      ix = i30 - i29;
-      for (i30 = 0; i30 <= ix; i30++) {
-        r34->data[i30] = i29 + i30;
+      ix = i28 - i27;
+      for (i28 = 0; i28 <= ix; i28++) {
+        r34->data[i28] = i27 + i28;
       }
 
-      i29 = r35->size[0];
-      r35->size[0] = (itmp - i31) + 1;
-      emxEnsureCapacity((emxArray__common *)r35, i29, (int)sizeof(int));
-      ix = itmp - i31;
-      for (i29 = 0; i29 <= ix; i29++) {
-        r35->data[i29] = i31 + i29;
+      i27 = r35->size[0];
+      r35->size[0] = (itmp - i29) + 1;
+      emxEnsureCapacity((emxArray__common *)r35, i27, (int)sizeof(int));
+      ix = itmp - i29;
+      for (i27 = 0; i27 <= ix; i27++) {
+        r35->data[i27] = i29 + i27;
       }
 
       ix = r33->size[0] * r33->size[1];
-      for (i29 = 0; i29 < ix; i29++) {
-        x_diff->data[r33->data[i29]] = x_fused->data[r34->data[i29] - 1] -
-          b_SLAM_data[modelIt].xt->data[r35->data[i29] - 1];
+      for (i27 = 0; i27 < ix; i27++) {
+        x_diff->data[r33->data[i27]] = x_fused->data[r34->data[i27] - 1] -
+          b_SLAM_data[modelIt].xt->data[r35->data[i27] - 1];
       }
 
       for (anchorIdx = 0; anchorIdx < (int)b_numAnchors; anchorIdx++) {
@@ -764,11 +764,11 @@ static void filterReinitialization(struct_T b_SLAM_data[3], const double
           b_numStatesPerAnchorxt;
         e_numStatesxt = c_numStatesxt + ((1.0 + (double)anchorIdx) - 1.0) *
           b_numStatesPerAnchorxt;
-        for (i29 = 0; i29 < 3; i29++) {
-          x_diff->data[(int)(d_numStates + (1.0 + (double)i29)) - 1] =
-            x_fused->data[(int)(d_numStatesxt + (1.0 + (double)i29)) - 1] -
+        for (i27 = 0; i27 < 3; i27++) {
+          x_diff->data[(int)(d_numStates + (1.0 + (double)i27)) - 1] =
+            x_fused->data[(int)(d_numStatesxt + (1.0 + (double)i27)) - 1] -
             b_SLAM_data[modelIt].xt->data[(int)(e_numStatesxt + (1.0 + (double)
-            i29)) - 1];
+            i27)) - 1];
         }
 
         //  if ~all(size(q) == [4, 1])
@@ -964,22 +964,21 @@ static void filterReinitialization(struct_T b_SLAM_data[3], const double
                         x_fused->data[(int)((c_numStatesxt + ((1.0 + (double)
           anchorIdx) - 1.0) * b_numStatesPerAnchorxt) + 7.0) - 1]);
         j_a[8] = ((-(f_a * f_a) - g_a * g_a) + h_a * h_a) + i_a * i_a;
-        for (i29 = 0; i29 < 3; i29++) {
-          for (i30 = 0; i30 < 3; i30++) {
-            f_SLAM_data[i29 + 3 * i30] = 0.0;
-            for (i31 = 0; i31 < 3; i31++) {
-              f_SLAM_data[i29 + 3 * i30] += h_SLAM_data[i29 + 3 * i31] * j_a[i31
-                + 3 * i30];
+        for (i27 = 0; i27 < 3; i27++) {
+          for (i28 = 0; i28 < 3; i28++) {
+            f_SLAM_data[i27 + 3 * i28] = 0.0;
+            for (i29 = 0; i29 < 3; i29++) {
+              f_SLAM_data[i27 + 3 * i28] += h_SLAM_data[i27 + 3 * i29] * j_a[i29
+                + 3 * i28];
             }
           }
         }
 
-        QuatFromRotJ(f_SLAM_data, errQuat);
+        QuatFromRotJ(f_SLAM_data, b_b);
         d_numStates = c_numStates + ((1.0 + (double)anchorIdx) - 1.0) *
           b_numStatesPerAnchor;
-        for (i29 = 0; i29 < 3; i29++) {
-          x_diff->data[(int)(d_numStates + (4.0 + (double)i29)) - 1] =
-            errQuat[i29];
+        for (i27 = 0; i27 < 3; i27++) {
+          x_diff->data[(int)(d_numStates + (4.0 + (double)i27)) - 1] = b_b[i27];
         }
 
         for (ixstart = 0; ixstart < (int)b_numPointsPerAnchor; ixstart++) {
@@ -993,52 +992,52 @@ static void filterReinitialization(struct_T b_SLAM_data[3], const double
         }
       }
 
-      i29 = e_SLAM_data->size[0] * e_SLAM_data->size[1];
+      i27 = e_SLAM_data->size[0] * e_SLAM_data->size[1];
       e_SLAM_data->size[0] = x_diff->size[0];
       e_SLAM_data->size[1] = x_diff->size[0];
-      emxEnsureCapacity((emxArray__common *)e_SLAM_data, i29, (int)sizeof(double));
+      emxEnsureCapacity((emxArray__common *)e_SLAM_data, i27, (int)sizeof(double));
       ix = x_diff->size[0];
-      for (i29 = 0; i29 < ix; i29++) {
+      for (i27 = 0; i27 < ix; i27++) {
         ixstart = x_diff->size[0];
-        for (i30 = 0; i30 < ixstart; i30++) {
-          d_numStates = x_diff->data[i29] * x_diff->data[i30];
-          e_SLAM_data->data[i29 + e_SLAM_data->size[0] * i30] =
-            b_SLAM_data[modelIt].P->data[i29 + b_SLAM_data[modelIt].P->size[0] *
-            i30] + d_numStates;
+        for (i28 = 0; i28 < ixstart; i28++) {
+          d_numStates = x_diff->data[i27] * x_diff->data[i28];
+          e_SLAM_data->data[i27 + e_SLAM_data->size[0] * i28] =
+            b_SLAM_data[modelIt].P->data[i27 + b_SLAM_data[modelIt].P->size[0] *
+            i28] + d_numStates;
         }
       }
 
-      i29 = P_fused->size[0] * P_fused->size[1];
-      emxEnsureCapacity((emxArray__common *)P_fused, i29, (int)sizeof(double));
+      i27 = P_fused->size[0] * P_fused->size[1];
+      emxEnsureCapacity((emxArray__common *)P_fused, i27, (int)sizeof(double));
       ix = P_fused->size[1];
-      for (i29 = 0; i29 < ix; i29++) {
+      for (i27 = 0; i27 < ix; i27++) {
         ixstart = P_fused->size[0];
-        for (i30 = 0; i30 < ixstart; i30++) {
-          P_fused->data[i30 + P_fused->size[0] * i29] += e_SLAM_data->data[i30 +
-            e_SLAM_data->size[0] * i29] * mixing_weight[modelIt + 3 * i];
+        for (i28 = 0; i28 < ixstart; i28++) {
+          P_fused->data[i28 + P_fused->size[0] * i27] += e_SLAM_data->data[i28 +
+            e_SLAM_data->size[0] * i27] * mixing_weight[modelIt + 3 * i];
         }
       }
     }
 
-    i29 = b_SLAM_data[i].xt->size[0];
+    i27 = b_SLAM_data[i].xt->size[0];
     b_SLAM_data[i].xt->size[0] = x_fused->size[0];
-    emxEnsureCapacity((emxArray__common *)b_SLAM_data[i].xt, i29, (int)sizeof
+    emxEnsureCapacity((emxArray__common *)b_SLAM_data[i].xt, i27, (int)sizeof
                       (double));
     ix = x_fused->size[0];
-    for (i29 = 0; i29 < ix; i29++) {
-      b_SLAM_data[i].xt->data[i29] = x_fused->data[i29];
+    for (i27 = 0; i27 < ix; i27++) {
+      b_SLAM_data[i].xt->data[i27] = x_fused->data[i27];
     }
 
-    i29 = b_SLAM_data[i].P->size[0] * b_SLAM_data[i].P->size[1];
+    i27 = b_SLAM_data[i].P->size[0] * b_SLAM_data[i].P->size[1];
     b_SLAM_data[i].P->size[0] = P_fused->size[0];
     b_SLAM_data[i].P->size[1] = P_fused->size[1];
-    emxEnsureCapacity((emxArray__common *)b_SLAM_data[i].P, i29, (int)sizeof
+    emxEnsureCapacity((emxArray__common *)b_SLAM_data[i].P, i27, (int)sizeof
                       (double));
     emxCopyStruct_struct_T(&c_SLAM_data, &b_SLAM_data[i]);
     emxCopyStruct_struct_T(&d_SLAM_data, &b_SLAM_data[i]);
     ix = P_fused->size[0] * P_fused->size[1];
-    for (i29 = 0; i29 < ix; i29++) {
-      b_SLAM_data[i].P->data[i29] = P_fused->data[i29];
+    for (i27 = 0; i27 < ix; i27++) {
+      b_SLAM_data[i].P->data[i27] = P_fused->data[i27];
     }
   }
 
@@ -1073,7 +1072,7 @@ static void fuseEstimates(const struct_T b_SLAM_data[3], const double
   double b_numStatesPerAnchorxt;
   double b_numStatesPerAnchor;
   double b_numPointsPerAnchor;
-  int i11;
+  int i9;
   int ix;
   int ixstart;
   emxArray_real_T *M;
@@ -1082,16 +1081,16 @@ static void fuseEstimates(const struct_T b_SLAM_data[3], const double
   emxArray_int32_T *r3;
   emxArray_real_T *b_x_fused;
   int modelIt;
-  int i12;
-  int i13;
+  int i10;
+  int i11;
   int itmp;
   int anchorIdx;
-  int i14;
+  int i12;
   double d_numStatesxt;
   double b[3];
   double e_numStatesxt;
   double c_x_fused[3];
-  double errQuat[4];
+  double b_b[4];
   double Q[12];
   double b_Q[16];
   creal_T v[16];
@@ -1125,38 +1124,38 @@ static void fuseEstimates(const struct_T b_SLAM_data[3], const double
   b_numStatesPerAnchorxt = b_SLAM_data[0].numStatesPerAnchorxt;
   b_numStatesPerAnchor = b_SLAM_data[0].numStatesPerAnchor;
   b_numPointsPerAnchor = b_SLAM_data[0].numPointsPerAnchor;
-  i11 = x_fused->size[0];
+  i9 = x_fused->size[0];
   x_fused->size[0] = b_SLAM_data[0].xt->size[0];
-  emxEnsureCapacity((emxArray__common *)x_fused, i11, (int)sizeof(double));
+  emxEnsureCapacity((emxArray__common *)x_fused, i9, (int)sizeof(double));
   ix = b_SLAM_data[0].xt->size[0];
-  for (i11 = 0; i11 < ix; i11++) {
-    x_fused->data[i11] = 0.0;
+  for (i9 = 0; i9 < ix; i9++) {
+    x_fused->data[i9] = 0.0;
   }
 
   ixstart = b_SLAM_data[0].P->size[0];
-  i11 = P_fused->size[0] * P_fused->size[1];
+  i9 = P_fused->size[0] * P_fused->size[1];
   P_fused->size[0] = ixstart;
-  emxEnsureCapacity((emxArray__common *)P_fused, i11, (int)sizeof(double));
+  emxEnsureCapacity((emxArray__common *)P_fused, i9, (int)sizeof(double));
   ixstart = b_SLAM_data[0].P->size[0];
-  i11 = P_fused->size[0] * P_fused->size[1];
+  i9 = P_fused->size[0] * P_fused->size[1];
   P_fused->size[1] = ixstart;
-  emxEnsureCapacity((emxArray__common *)P_fused, i11, (int)sizeof(double));
+  emxEnsureCapacity((emxArray__common *)P_fused, i9, (int)sizeof(double));
   ix = b_SLAM_data[0].P->size[0] * b_SLAM_data[0].P->size[0];
-  for (i11 = 0; i11 < ix; i11++) {
-    P_fused->data[i11] = 0.0;
+  for (i9 = 0; i9 < ix; i9++) {
+    P_fused->data[i9] = 0.0;
   }
 
   c_emxInit_real_T(&M, 3);
 
   //  the fused covariance. This is only needed for the output of SLAM. Otherwise the calculation of this could be skipped 
-  i11 = M->size[0] * M->size[1] * M->size[2];
+  i9 = M->size[0] * M->size[1] * M->size[2];
   M->size[0] = (int)(b_SLAM_data[0].numAnchors + 1.0);
   M->size[1] = 4;
   M->size[2] = 3;
-  emxEnsureCapacity((emxArray__common *)M, i11, (int)sizeof(double));
+  emxEnsureCapacity((emxArray__common *)M, i9, (int)sizeof(double));
   ix = ((int)(b_SLAM_data[0].numAnchors + 1.0) << 2) * 3;
-  for (i11 = 0; i11 < ix; i11++) {
-    M->data[i11] = 0.0;
+  for (i9 = 0; i9 < ix; i9++) {
+    M->data[i9] = 0.0;
   }
 
   b_emxInit_int32_T(&r1, 2);
@@ -1166,112 +1165,112 @@ static void fuseEstimates(const struct_T b_SLAM_data[3], const double
   emxInit_int32_T(&r3, 1);
   emxInit_real_T(&b_x_fused, 1);
   for (modelIt = 0; modelIt < 3; modelIt++) {
-    for (i11 = 0; i11 < 3; i11++) {
-      x_fused->data[i11] += b_model_state[modelIt] * b_SLAM_data[modelIt]
-        .xt->data[i11];
+    for (i9 = 0; i9 < 3; i9++) {
+      x_fused->data[i9] += b_model_state[modelIt] * b_SLAM_data[modelIt]
+        .xt->data[i9];
     }
 
-    for (i11 = 0; i11 < 4; i11++) {
-      M->data[M->size[0] * i11 + M->size[0] * M->size[1] * modelIt] =
-        b_model_state[modelIt] * b_SLAM_data[modelIt].xt->data[3 + i11];
+    for (i9 = 0; i9 < 4; i9++) {
+      M->data[M->size[0] * i9 + M->size[0] * M->size[1] * modelIt] =
+        b_model_state[modelIt] * b_SLAM_data[modelIt].xt->data[3 + i9];
+    }
+
+    if (8.0 > c_numStatesxt) {
+      i9 = 1;
+      i10 = 0;
+    } else {
+      i9 = 8;
+      i10 = (int)c_numStatesxt;
     }
 
     if (8.0 > c_numStatesxt) {
       i11 = 1;
-      i12 = 0;
-    } else {
-      i11 = 8;
-      i12 = (int)c_numStatesxt;
-    }
-
-    if (8.0 > c_numStatesxt) {
-      i13 = 1;
       itmp = 0;
     } else {
-      i13 = 8;
+      i11 = 8;
       itmp = (int)c_numStatesxt;
     }
 
     if (8.0 > c_numStatesxt) {
       anchorIdx = 0;
-      i14 = 0;
+      i12 = 0;
     } else {
       anchorIdx = 7;
-      i14 = (int)c_numStatesxt;
+      i12 = (int)c_numStatesxt;
     }
 
     ixstart = r1->size[0] * r1->size[1];
     r1->size[0] = 1;
-    r1->size[1] = i14 - anchorIdx;
+    r1->size[1] = i12 - anchorIdx;
     emxEnsureCapacity((emxArray__common *)r1, ixstart, (int)sizeof(int));
-    ix = i14 - anchorIdx;
-    for (i14 = 0; i14 < ix; i14++) {
-      r1->data[r1->size[0] * i14] = anchorIdx + i14;
+    ix = i12 - anchorIdx;
+    for (i12 = 0; i12 < ix; i12++) {
+      r1->data[r1->size[0] * i12] = anchorIdx + i12;
     }
 
     anchorIdx = r2->size[0];
-    r2->size[0] = (i12 - i11) + 1;
+    r2->size[0] = (i10 - i9) + 1;
     emxEnsureCapacity((emxArray__common *)r2, anchorIdx, (int)sizeof(int));
-    ix = i12 - i11;
-    for (i12 = 0; i12 <= ix; i12++) {
-      r2->data[i12] = i11 + i12;
+    ix = i10 - i9;
+    for (i10 = 0; i10 <= ix; i10++) {
+      r2->data[i10] = i9 + i10;
     }
 
-    i11 = r3->size[0];
-    r3->size[0] = (itmp - i13) + 1;
-    emxEnsureCapacity((emxArray__common *)r3, i11, (int)sizeof(int));
-    ix = itmp - i13;
-    for (i11 = 0; i11 <= ix; i11++) {
-      r3->data[i11] = i13 + i11;
+    i9 = r3->size[0];
+    r3->size[0] = (itmp - i11) + 1;
+    emxEnsureCapacity((emxArray__common *)r3, i9, (int)sizeof(int));
+    ix = itmp - i11;
+    for (i9 = 0; i9 <= ix; i9++) {
+      r3->data[i9] = i11 + i9;
     }
 
-    i11 = b_x_fused->size[0];
+    i9 = b_x_fused->size[0];
     b_x_fused->size[0] = r1->size[0] * r1->size[1];
-    emxEnsureCapacity((emxArray__common *)b_x_fused, i11, (int)sizeof(double));
+    emxEnsureCapacity((emxArray__common *)b_x_fused, i9, (int)sizeof(double));
     ix = r1->size[0] * r1->size[1];
-    for (i11 = 0; i11 < ix; i11++) {
-      b_x_fused->data[i11] = x_fused->data[r2->data[i11] - 1] +
-        b_model_state[modelIt] * b_SLAM_data[modelIt].xt->data[r3->data[i11] - 1];
+    for (i9 = 0; i9 < ix; i9++) {
+      b_x_fused->data[i9] = x_fused->data[r2->data[i9] - 1] +
+        b_model_state[modelIt] * b_SLAM_data[modelIt].xt->data[r3->data[i9] - 1];
     }
 
     ix = b_x_fused->size[0];
-    for (i11 = 0; i11 < ix; i11++) {
-      x_fused->data[r1->data[i11]] = b_x_fused->data[i11];
+    for (i9 = 0; i9 < ix; i9++) {
+      x_fused->data[r1->data[i9]] = b_x_fused->data[i9];
     }
 
     for (anchorIdx = 0; anchorIdx < (int)b_numAnchors; anchorIdx++) {
       d_numStatesxt = c_numStatesxt + ((1.0 + (double)anchorIdx) - 1.0) *
         b_numStatesPerAnchorxt;
-      for (i11 = 0; i11 < 3; i11++) {
-        b[i11] = b_SLAM_data[modelIt].xt->data[(int)(d_numStatesxt + (1.0 +
-          (double)i11)) - 1];
+      for (i9 = 0; i9 < 3; i9++) {
+        b[i9] = b_SLAM_data[modelIt].xt->data[(int)(d_numStatesxt + (1.0 +
+          (double)i9)) - 1];
       }
 
       d_numStatesxt = c_numStatesxt + ((1.0 + (double)anchorIdx) - 1.0) *
         b_numStatesPerAnchorxt;
       e_numStatesxt = c_numStatesxt + ((1.0 + (double)anchorIdx) - 1.0) *
         b_numStatesPerAnchorxt;
-      for (i11 = 0; i11 < 3; i11++) {
-        c_x_fused[i11] = x_fused->data[(int)(e_numStatesxt + (1.0 + (double)i11))
-          - 1] + b_model_state[modelIt] * b[i11];
+      for (i9 = 0; i9 < 3; i9++) {
+        c_x_fused[i9] = x_fused->data[(int)(e_numStatesxt + (1.0 + (double)i9))
+          - 1] + b_model_state[modelIt] * b[i9];
       }
 
-      for (i11 = 0; i11 < 3; i11++) {
-        x_fused->data[(int)(d_numStatesxt + (1.0 + (double)i11)) - 1] =
-          c_x_fused[i11];
+      for (i9 = 0; i9 < 3; i9++) {
+        x_fused->data[(int)(d_numStatesxt + (1.0 + (double)i9)) - 1] =
+          c_x_fused[i9];
       }
 
       d_numStatesxt = c_numStatesxt + ((1.0 + (double)anchorIdx) - 1.0) *
         b_numStatesPerAnchorxt;
-      for (i11 = 0; i11 < 4; i11++) {
-        errQuat[i11] = b_SLAM_data[modelIt].xt->data[(int)(d_numStatesxt + (4.0
-          + (double)i11)) - 1];
+      for (i9 = 0; i9 < 4; i9++) {
+        b_b[i9] = b_SLAM_data[modelIt].xt->data[(int)(d_numStatesxt + (4.0 +
+          (double)i9)) - 1];
       }
 
-      for (i11 = 0; i11 < 4; i11++) {
-        M->data[(((int)((1.0 + (double)anchorIdx) + 1.0) + M->size[0] * i11) +
+      for (i9 = 0; i9 < 4; i9++) {
+        M->data[(((int)((1.0 + (double)anchorIdx) + 1.0) + M->size[0] * i9) +
                  M->size[0] * M->size[1] * modelIt) - 1] = b_model_state[modelIt]
-          * errQuat[i11];
+          * b_b[i9];
       }
 
       for (ixstart = 0; ixstart < (int)b_numPointsPerAnchor; ixstart++) {
@@ -1295,11 +1294,11 @@ static void fuseEstimates(const struct_T b_SLAM_data[3], const double
       (ixstart >> 2)];
   }
 
-  for (i11 = 0; i11 < 4; i11++) {
-    for (i12 = 0; i12 < 4; i12++) {
-      b_Q[i11 + (i12 << 2)] = 0.0;
-      for (i13 = 0; i13 < 3; i13++) {
-        b_Q[i11 + (i12 << 2)] += Q[i11 + (i13 << 2)] * Q[i12 + (i13 << 2)];
+  for (i9 = 0; i9 < 4; i9++) {
+    for (i10 = 0; i10 < 4; i10++) {
+      b_Q[i9 + (i10 << 2)] = 0.0;
+      for (i11 = 0; i11 < 3; i11++) {
+        b_Q[i9 + (i10 << 2)] += Q[i9 + (i11 << 2)] * Q[i10 + (i11 << 2)];
       }
     }
   }
@@ -1338,8 +1337,8 @@ static void fuseEstimates(const struct_T b_SLAM_data[3], const double
     }
   }
 
-  for (i11 = 0; i11 < 4; i11++) {
-    x_fused->data[3 + i11] = V[i11 + (itmp << 2)].re;
+  for (i9 = 0; i9 < 4; i9++) {
+    x_fused->data[3 + i9] = V[i9 + (itmp << 2)].re;
   }
 
   for (anchorIdx = 0; anchorIdx < (int)b_numAnchors; anchorIdx++) {
@@ -1348,11 +1347,11 @@ static void fuseEstimates(const struct_T b_SLAM_data[3], const double
         * (ixstart % 4)) + M->size[0] * M->size[1] * (ixstart >> 2)) - 1];
     }
 
-    for (i11 = 0; i11 < 4; i11++) {
-      for (i12 = 0; i12 < 4; i12++) {
-        b_Q[i11 + (i12 << 2)] = 0.0;
-        for (i13 = 0; i13 < 3; i13++) {
-          b_Q[i11 + (i12 << 2)] += Q[i11 + (i13 << 2)] * Q[i12 + (i13 << 2)];
+    for (i9 = 0; i9 < 4; i9++) {
+      for (i10 = 0; i10 < 4; i10++) {
+        b_Q[i9 + (i10 << 2)] = 0.0;
+        for (i11 = 0; i11 < 3; i11++) {
+          b_Q[i9 + (i10 << 2)] += Q[i9 + (i11 << 2)] * Q[i10 + (i11 << 2)];
         }
       }
     }
@@ -1393,8 +1392,8 @@ static void fuseEstimates(const struct_T b_SLAM_data[3], const double
 
     d_numStatesxt = c_numStatesxt + ((1.0 + (double)anchorIdx) - 1.0) *
       b_numStatesPerAnchorxt;
-    for (i11 = 0; i11 < 4; i11++) {
-      x_fused->data[(int)(d_numStatesxt + (4.0 + (double)i11)) - 1] = V[i11 +
+    for (i9 = 0; i9 < 4; i9++) {
+      x_fused->data[(int)(d_numStatesxt + (4.0 + (double)i9)) - 1] = V[i9 +
         (itmp << 2)].re;
     }
   }
@@ -1405,17 +1404,17 @@ static void fuseEstimates(const struct_T b_SLAM_data[3], const double
   emxInit_int32_T(&r5, 1);
   b_emxInit_real_T(&c_SLAM_data, 2);
   for (modelIt = 0; modelIt < 3; modelIt++) {
-    i11 = x_diff->size[0];
+    i9 = x_diff->size[0];
     x_diff->size[0] = b_SLAM_data[0].P->size[0];
-    emxEnsureCapacity((emxArray__common *)x_diff, i11, (int)sizeof(double));
+    emxEnsureCapacity((emxArray__common *)x_diff, i9, (int)sizeof(double));
     ix = b_SLAM_data[0].P->size[0];
-    for (i11 = 0; i11 < ix; i11++) {
-      x_diff->data[i11] = 0.0;
+    for (i9 = 0; i9 < ix; i9++) {
+      x_diff->data[i9] = 0.0;
     }
 
     //  difference between fused state and model state (error state)
-    for (i11 = 0; i11 < 3; i11++) {
-      x_diff->data[i11] = x_fused->data[i11] - b_SLAM_data[modelIt].xt->data[i11];
+    for (i9 = 0; i9 < 3; i9++) {
+      x_diff->data[i9] = x_fused->data[i9] - b_SLAM_data[modelIt].xt->data[i9];
     }
 
     //  if ~all(size(q) == [4, 1])
@@ -1484,74 +1483,74 @@ static void fuseEstimates(const struct_T b_SLAM_data[3], const double
     d_x_fused[8] = ((-(x_fused->data[3] * x_fused->data[3]) - x_fused->data[4] *
                      x_fused->data[4]) + x_fused->data[5] * x_fused->data[5]) +
       x_fused->data[6] * x_fused->data[6];
-    for (i11 = 0; i11 < 3; i11++) {
-      for (i12 = 0; i12 < 3; i12++) {
-        d_SLAM_data[i11 + 3 * i12] = 0.0;
-        for (i13 = 0; i13 < 3; i13++) {
-          d_SLAM_data[i11 + 3 * i12] += e_SLAM_data[i11 + 3 * i13] *
-            d_x_fused[i13 + 3 * i12];
+    for (i9 = 0; i9 < 3; i9++) {
+      for (i10 = 0; i10 < 3; i10++) {
+        d_SLAM_data[i9 + 3 * i10] = 0.0;
+        for (i11 = 0; i11 < 3; i11++) {
+          d_SLAM_data[i9 + 3 * i10] += e_SLAM_data[i9 + 3 * i11] * d_x_fused[i11
+            + 3 * i10];
         }
       }
     }
 
-    QuatFromRotJ(d_SLAM_data, errQuat);
-    for (i11 = 0; i11 < 3; i11++) {
-      x_diff->data[3 + i11] = errQuat[i11];
+    QuatFromRotJ(d_SLAM_data, b_b);
+    for (i9 = 0; i9 < 3; i9++) {
+      x_diff->data[3 + i9] = b_b[i9];
+    }
+
+    if (8.0 > c_numStatesxt) {
+      i9 = 1;
+      i10 = 0;
+    } else {
+      i9 = 8;
+      i10 = (int)c_numStatesxt;
     }
 
     if (8.0 > c_numStatesxt) {
       i11 = 1;
-      i12 = 0;
-    } else {
-      i11 = 8;
-      i12 = (int)c_numStatesxt;
-    }
-
-    if (8.0 > c_numStatesxt) {
-      i13 = 1;
       itmp = 0;
     } else {
-      i13 = 8;
+      i11 = 8;
       itmp = (int)c_numStatesxt;
     }
 
     if (7.0 > c_numStates) {
       anchorIdx = 0;
-      i14 = 0;
+      i12 = 0;
     } else {
       anchorIdx = 6;
-      i14 = (int)c_numStates;
+      i12 = (int)c_numStates;
     }
 
     ixstart = r1->size[0] * r1->size[1];
     r1->size[0] = 1;
-    r1->size[1] = i14 - anchorIdx;
+    r1->size[1] = i12 - anchorIdx;
     emxEnsureCapacity((emxArray__common *)r1, ixstart, (int)sizeof(int));
-    ix = i14 - anchorIdx;
-    for (i14 = 0; i14 < ix; i14++) {
-      r1->data[r1->size[0] * i14] = anchorIdx + i14;
+    ix = i12 - anchorIdx;
+    for (i12 = 0; i12 < ix; i12++) {
+      r1->data[r1->size[0] * i12] = anchorIdx + i12;
     }
 
     anchorIdx = r4->size[0];
-    r4->size[0] = (i12 - i11) + 1;
+    r4->size[0] = (i10 - i9) + 1;
     emxEnsureCapacity((emxArray__common *)r4, anchorIdx, (int)sizeof(int));
-    ix = i12 - i11;
-    for (i12 = 0; i12 <= ix; i12++) {
-      r4->data[i12] = i11 + i12;
+    ix = i10 - i9;
+    for (i10 = 0; i10 <= ix; i10++) {
+      r4->data[i10] = i9 + i10;
     }
 
-    i11 = r5->size[0];
-    r5->size[0] = (itmp - i13) + 1;
-    emxEnsureCapacity((emxArray__common *)r5, i11, (int)sizeof(int));
-    ix = itmp - i13;
-    for (i11 = 0; i11 <= ix; i11++) {
-      r5->data[i11] = i13 + i11;
+    i9 = r5->size[0];
+    r5->size[0] = (itmp - i11) + 1;
+    emxEnsureCapacity((emxArray__common *)r5, i9, (int)sizeof(int));
+    ix = itmp - i11;
+    for (i9 = 0; i9 <= ix; i9++) {
+      r5->data[i9] = i11 + i9;
     }
 
     ix = r1->size[0] * r1->size[1];
-    for (i11 = 0; i11 < ix; i11++) {
-      x_diff->data[r1->data[i11]] = x_fused->data[r4->data[i11] - 1] -
-        b_SLAM_data[modelIt].xt->data[r5->data[i11] - 1];
+    for (i9 = 0; i9 < ix; i9++) {
+      x_diff->data[r1->data[i9]] = x_fused->data[r4->data[i9] - 1] -
+        b_SLAM_data[modelIt].xt->data[r5->data[i9] - 1];
     }
 
     for (anchorIdx = 0; anchorIdx < (int)b_numAnchors; anchorIdx++) {
@@ -1561,10 +1560,10 @@ static void fuseEstimates(const struct_T b_SLAM_data[3], const double
         b_numStatesPerAnchorxt;
       e_numStatesxt = c_numStatesxt + ((1.0 + (double)anchorIdx) - 1.0) *
         b_numStatesPerAnchorxt;
-      for (i11 = 0; i11 < 3; i11++) {
-        x_diff->data[(int)(d_numStates + (1.0 + (double)i11)) - 1] =
-          x_fused->data[(int)(d_numStatesxt + (1.0 + (double)i11)) - 1] -
-          b_SLAM_data[modelIt].xt->data[(int)(e_numStatesxt + (1.0 + (double)i11))
+      for (i9 = 0; i9 < 3; i9++) {
+        x_diff->data[(int)(d_numStates + (1.0 + (double)i9)) - 1] =
+          x_fused->data[(int)(d_numStatesxt + (1.0 + (double)i9)) - 1] -
+          b_SLAM_data[modelIt].xt->data[(int)(e_numStatesxt + (1.0 + (double)i9))
           - 1];
       }
 
@@ -1746,21 +1745,21 @@ static void fuseEstimates(const struct_T b_SLAM_data[3], const double
                       * x_fused->data[(int)((c_numStatesxt + ((1.0 + (double)
         anchorIdx) - 1.0) * b_numStatesPerAnchorxt) + 7.0) - 1]);
       j_a[8] = ((-(f_a * f_a) - g_a * g_a) + h_a * h_a) + i_a * i_a;
-      for (i11 = 0; i11 < 3; i11++) {
-        for (i12 = 0; i12 < 3; i12++) {
-          d_SLAM_data[i11 + 3 * i12] = 0.0;
-          for (i13 = 0; i13 < 3; i13++) {
-            d_SLAM_data[i11 + 3 * i12] += f_SLAM_data[i11 + 3 * i13] * j_a[i13 +
-              3 * i12];
+      for (i9 = 0; i9 < 3; i9++) {
+        for (i10 = 0; i10 < 3; i10++) {
+          d_SLAM_data[i9 + 3 * i10] = 0.0;
+          for (i11 = 0; i11 < 3; i11++) {
+            d_SLAM_data[i9 + 3 * i10] += f_SLAM_data[i9 + 3 * i11] * j_a[i11 + 3
+              * i10];
           }
         }
       }
 
-      QuatFromRotJ(d_SLAM_data, errQuat);
+      QuatFromRotJ(d_SLAM_data, b_b);
       d_numStates = c_numStates + ((1.0 + (double)anchorIdx) - 1.0) *
         b_numStatesPerAnchor;
-      for (i11 = 0; i11 < 3; i11++) {
-        x_diff->data[(int)(d_numStates + (4.0 + (double)i11)) - 1] = errQuat[i11];
+      for (i9 = 0; i9 < 3; i9++) {
+        x_diff->data[(int)(d_numStates + (4.0 + (double)i9)) - 1] = b_b[i9];
       }
 
       for (ixstart = 0; ixstart < (int)b_numPointsPerAnchor; ixstart++) {
@@ -1774,29 +1773,28 @@ static void fuseEstimates(const struct_T b_SLAM_data[3], const double
       }
     }
 
-    i11 = c_SLAM_data->size[0] * c_SLAM_data->size[1];
+    i9 = c_SLAM_data->size[0] * c_SLAM_data->size[1];
     c_SLAM_data->size[0] = x_diff->size[0];
     c_SLAM_data->size[1] = x_diff->size[0];
-    emxEnsureCapacity((emxArray__common *)c_SLAM_data, i11, (int)sizeof(double));
+    emxEnsureCapacity((emxArray__common *)c_SLAM_data, i9, (int)sizeof(double));
     ix = x_diff->size[0];
-    for (i11 = 0; i11 < ix; i11++) {
+    for (i9 = 0; i9 < ix; i9++) {
       ixstart = x_diff->size[0];
-      for (i12 = 0; i12 < ixstart; i12++) {
-        d_numStates = x_diff->data[i11] * x_diff->data[i12];
-        c_SLAM_data->data[i11 + c_SLAM_data->size[0] * i12] =
-          b_SLAM_data[modelIt].P->data[i11 + b_SLAM_data[modelIt].P->size[0] *
-          i12] + d_numStates;
+      for (i10 = 0; i10 < ixstart; i10++) {
+        d_numStates = x_diff->data[i9] * x_diff->data[i10];
+        c_SLAM_data->data[i9 + c_SLAM_data->size[0] * i10] = b_SLAM_data[modelIt]
+          .P->data[i9 + b_SLAM_data[modelIt].P->size[0] * i10] + d_numStates;
       }
     }
 
-    i11 = P_fused->size[0] * P_fused->size[1];
-    emxEnsureCapacity((emxArray__common *)P_fused, i11, (int)sizeof(double));
+    i9 = P_fused->size[0] * P_fused->size[1];
+    emxEnsureCapacity((emxArray__common *)P_fused, i9, (int)sizeof(double));
     ix = P_fused->size[1];
-    for (i11 = 0; i11 < ix; i11++) {
+    for (i9 = 0; i9 < ix; i9++) {
       ixstart = P_fused->size[0];
-      for (i12 = 0; i12 < ixstart; i12++) {
-        P_fused->data[i12 + P_fused->size[0] * i11] += c_SLAM_data->data[i12 +
-          c_SLAM_data->size[0] * i11] * b_model_state[modelIt];
+      for (i10 = 0; i10 < ixstart; i10++) {
+        P_fused->data[i10 + P_fused->size[0] * i9] += c_SLAM_data->data[i10 +
+          c_SLAM_data->size[0] * i9] * b_model_state[modelIt];
       }
     }
   }
@@ -1886,16 +1884,16 @@ void SLAM(double updateVect[16], const double z_all_l[32], const double z_all_r
   double z_n_b[3];
   int i;
   double y_n_b[3];
-  static const double dv20[3] = { 1.0, 0.0, 0.0 };
+  static const double dv19[3] = { 1.0, 0.0, 0.0 };
 
   double b_y_n_b[3];
   double x_n_b[3];
   double b_x_n_b[3];
   double c_x_n_b[9];
-  int i15;
-  double dv21[4];
+  int i13;
+  double dv20[4];
   int loop_ub;
-  static const signed char iv12[9] = { 1, 0, 0, 0, 1, 0, 0, 0, 1 };
+  static const signed char iv13[9] = { 1, 0, 0, 0, 1, 0, 0, 0, 1 };
 
   int modelIt;
   int tmp_data[16];
@@ -1935,7 +1933,7 @@ void SLAM(double updateVect[16], const double z_all_l[32], const double z_all_r
   emxArray_boolean_T *r29;
   boolean_T exitg1;
   boolean_T guard1 = false;
-  signed char i16;
+  signed char i14;
 
   //  persistents for attitude estimator
   emxInitStruct_struct_T(&SLAM_data_first);
@@ -1950,7 +1948,7 @@ void SLAM(double updateVect[16], const double z_all_l[32], const double z_all_r
       z_n_b[i] = IMU_measurements[i + 3] / B;
     }
 
-    cross(z_n_b, dv20, y_n_b);
+    cross(z_n_b, dv19, y_n_b);
     for (i = 0; i < 3; i++) {
       b_y_n_b[i] = y_n_b[i];
     }
@@ -1964,16 +1962,16 @@ void SLAM(double updateVect[16], const double z_all_l[32], const double z_all_r
     rdivide(b_x_n_b, norm(x_n_b), x_n_b);
 
     //  create the first structure for coder compatibility
-    for (i15 = 0; i15 < 3; i15++) {
-      c_x_n_b[i15] = x_n_b[i15];
-      c_x_n_b[3 + i15] = y_n_b[i15];
-      c_x_n_b[6 + i15] = z_n_b[i15];
+    for (i13 = 0; i13 < 3; i13++) {
+      c_x_n_b[i13] = x_n_b[i13];
+      c_x_n_b[3 + i13] = y_n_b[i13];
+      c_x_n_b[6 + i13] = z_n_b[i13];
     }
 
-    QuatFromRotJ(c_x_n_b, dv21);
-    i15 = r10->size[0];
+    QuatFromRotJ(c_x_n_b, dv20);
+    i13 = r10->size[0];
     r10->size[0] = 7 + (int)b_numPointsPerAnchor;
-    emxEnsureCapacity((emxArray__common *)r10, i15, (int)sizeof(double));
+    emxEnsureCapacity((emxArray__common *)r10, i13, (int)sizeof(double));
     r10->data[0] = 0.0;
     r10->data[1] = 0.0;
     r10->data[2] = 0.0;
@@ -1982,103 +1980,103 @@ void SLAM(double updateVect[16], const double z_all_l[32], const double z_all_r
     r10->data[5] = 0.0;
     r10->data[6] = 1.0;
     loop_ub = (int)b_numPointsPerAnchor;
-    for (i15 = 0; i15 < loop_ub; i15++) {
-      r10->data[i15 + 7] = 0.0;
+    for (i13 = 0; i13 < loop_ub; i13++) {
+      r10->data[i13 + 7] = 0.0;
     }
 
     repmat(r10, b_numAnchors, r7);
-    i15 = SLAM_data_first.xt->size[0];
+    i13 = SLAM_data_first.xt->size[0];
     SLAM_data_first.xt->size[0] = 13 + r7->size[0];
-    emxEnsureCapacity((emxArray__common *)SLAM_data_first.xt, i15, (int)sizeof
+    emxEnsureCapacity((emxArray__common *)SLAM_data_first.xt, i13, (int)sizeof
                       (double));
     SLAM_data_first.xt->data[0] = 0.0;
     SLAM_data_first.xt->data[1] = 0.0;
     SLAM_data_first.xt->data[2] = 0.0;
-    for (i15 = 0; i15 < 4; i15++) {
-      SLAM_data_first.xt->data[i15 + 3] = dv21[i15];
+    for (i13 = 0; i13 < 4; i13++) {
+      SLAM_data_first.xt->data[i13 + 3] = dv20[i13];
     }
 
     SLAM_data_first.xt->data[7] = 0.0;
     SLAM_data_first.xt->data[8] = 0.0;
     SLAM_data_first.xt->data[9] = 0.0;
-    for (i15 = 0; i15 < 3; i15++) {
-      SLAM_data_first.xt->data[i15 + 10] = IMU_measurements[i15];
+    for (i13 = 0; i13 < 3; i13++) {
+      SLAM_data_first.xt->data[i13 + 10] = IMU_measurements[i13];
     }
 
     loop_ub = r7->size[0];
-    for (i15 = 0; i15 < loop_ub; i15++) {
-      SLAM_data_first.xt->data[i15 + 13] = r7->data[i15];
+    for (i13 = 0; i13 < loop_ub; i13++) {
+      SLAM_data_first.xt->data[i13 + 13] = r7->data[i13];
     }
 
     //  initial real vector
     B = b_numAnchors * (6.0 + b_numPointsPerAnchor);
-    i15 = r8->size[0] * r8->size[1];
+    i13 = r8->size[0] * r8->size[1];
     r8->size[0] = (int)numStates;
     r8->size[1] = (int)numStates;
-    emxEnsureCapacity((emxArray__common *)r8, i15, (int)sizeof(double));
+    emxEnsureCapacity((emxArray__common *)r8, i13, (int)sizeof(double));
     loop_ub = (int)numStates * (int)numStates;
-    for (i15 = 0; i15 < loop_ub; i15++) {
-      r8->data[i15] = 0.0;
+    for (i13 = 0; i13 < loop_ub; i13++) {
+      r8->data[i13] = 0.0;
     }
 
-    i15 = r9->size[0] * r9->size[1];
+    i13 = r9->size[0] * r9->size[1];
     r9->size[0] = (int)B;
     r9->size[1] = (int)B;
-    emxEnsureCapacity((emxArray__common *)r9, i15, (int)sizeof(double));
+    emxEnsureCapacity((emxArray__common *)r9, i13, (int)sizeof(double));
     loop_ub = (int)B * (int)B;
-    for (i15 = 0; i15 < loop_ub; i15++) {
-      r9->data[i15] = 0.0;
+    for (i13 = 0; i13 < loop_ub; i13++) {
+      r9->data[i13] = 0.0;
     }
 
     blkdiag(r8, r9, b_P);
-    for (i15 = 0; i15 < 3; i15++) {
+    for (i13 = 0; i13 < 3; i13++) {
       for (loop_ub = 0; loop_ub < 3; loop_ub++) {
-        b_P->data[loop_ub + b_P->size[0] * i15] = 0.0;
+        b_P->data[loop_ub + b_P->size[0] * i13] = 0.0;
       }
     }
 
     //  position
-    for (i15 = 0; i15 < 3; i15++) {
+    for (i13 = 0; i13 < 3; i13++) {
       for (loop_ub = 0; loop_ub < 3; loop_ub++) {
-        b_P->data[(loop_ub + b_P->size[0] * (3 + i15)) + 3] = iv12[loop_ub + 3 *
-          i15];
+        b_P->data[(loop_ub + b_P->size[0] * (3 + i13)) + 3] = iv13[loop_ub + 3 *
+          i13];
       }
     }
 
     //  orientation
-    for (i15 = 0; i15 < 3; i15++) {
+    for (i13 = 0; i13 < 3; i13++) {
       for (loop_ub = 0; loop_ub < 3; loop_ub++) {
-        b_P->data[(loop_ub + b_P->size[0] * (6 + i15)) + 6] = 0.0;
+        b_P->data[(loop_ub + b_P->size[0] * (6 + i13)) + 6] = 0.0;
       }
     }
 
     //  velocity
-    for (i15 = 0; i15 < 3; i15++) {
+    for (i13 = 0; i13 < 3; i13++) {
       for (loop_ub = 0; loop_ub < 3; loop_ub++) {
-        b_P->data[(loop_ub + b_P->size[0] * (9 + i15)) + 9] = 0.0;
+        b_P->data[(loop_ub + b_P->size[0] * (9 + i13)) + 9] = 0.0;
       }
     }
 
     //  gyro bias
-    i15 = SLAM_data_first.P->size[0] * SLAM_data_first.P->size[1];
+    i13 = SLAM_data_first.P->size[0] * SLAM_data_first.P->size[1];
     SLAM_data_first.P->size[0] = b_P->size[0];
     SLAM_data_first.P->size[1] = b_P->size[1];
-    emxEnsureCapacity((emxArray__common *)SLAM_data_first.P, i15, (int)sizeof
+    emxEnsureCapacity((emxArray__common *)SLAM_data_first.P, i13, (int)sizeof
                       (double));
     loop_ub = b_P->size[0] * b_P->size[1];
-    for (i15 = 0; i15 < loop_ub; i15++) {
-      SLAM_data_first.P->data[i15] = b_P->data[i15];
+    for (i13 = 0; i13 < loop_ub; i13++) {
+      SLAM_data_first.P->data[i13] = b_P->data[i13];
     }
 
     SLAM_data_first.cameraparams = *cameraParams;
     SLAM_data_first.height_offset_pressure = (1.0 - rt_powd_snf
       (IMU_measurements[9] / 101325.0, 0.190284)) * 145366.45;
-    for (i15 = 0; i15 < 4; i15++) {
-      SLAM_data_first.processNoise[i15] = b_processNoise[i15];
+    for (i13 = 0; i13 < 4; i13++) {
+      SLAM_data_first.processNoise[i13] = b_processNoise[i13];
     }
 
-    for (i15 = 0; i15 < 2; i15++) {
-      SLAM_data_first.imNoise[i15] = b_imNoise[i15];
+    for (i13 = 0; i13 < 2; i13++) {
+      SLAM_data_first.imNoise[i13] = b_imNoise[i13];
     }
 
     SLAM_data_first.numPointsPerAnchor = b_numPointsPerAnchor;
@@ -2087,34 +2085,34 @@ void SLAM(double updateVect[16], const double z_all_l[32], const double z_all_r
     SLAM_data_first.numStatesxt = numStatesxt;
     SLAM_data_first.numStatesPerAnchorxt = 7.0 + b_numPointsPerAnchor;
     SLAM_data_first.numStatesPerAnchor = 6.0 + b_numPointsPerAnchor;
-    i15 = SLAM_data_first.m_vect->size[0] * SLAM_data_first.m_vect->size[1];
+    i13 = SLAM_data_first.m_vect->size[0] * SLAM_data_first.m_vect->size[1];
     SLAM_data_first.m_vect->size[0] = 3;
     SLAM_data_first.m_vect->size[1] = (int)(b_numPointsPerAnchor * b_numAnchors);
-    emxEnsureCapacity((emxArray__common *)SLAM_data_first.m_vect, i15, (int)
+    emxEnsureCapacity((emxArray__common *)SLAM_data_first.m_vect, i13, (int)
                       sizeof(double));
     loop_ub = 3 * (int)(b_numPointsPerAnchor * b_numAnchors);
-    for (i15 = 0; i15 < loop_ub; i15++) {
-      SLAM_data_first.m_vect->data[i15] = rtNaN;
+    for (i13 = 0; i13 < loop_ub; i13++) {
+      SLAM_data_first.m_vect->data[i13] = rtNaN;
     }
 
     //  a matrix containing the m vectors for each feature
-    i15 = SLAM_data_first.anchorFeatures->size[0] *
+    i13 = SLAM_data_first.anchorFeatures->size[0] *
       SLAM_data_first.anchorFeatures->size[1];
     SLAM_data_first.anchorFeatures->size[0] = (int)(b_numAnchors *
       b_numPointsPerAnchor);
     SLAM_data_first.anchorFeatures->size[1] = (int)b_numAnchors;
-    emxEnsureCapacity((emxArray__common *)SLAM_data_first.anchorFeatures, i15,
+    emxEnsureCapacity((emxArray__common *)SLAM_data_first.anchorFeatures, i13,
                       (int)sizeof(double));
     loop_ub = (int)(b_numAnchors * b_numPointsPerAnchor) * (int)b_numAnchors;
-    for (i15 = 0; i15 < loop_ub; i15++) {
-      SLAM_data_first.anchorFeatures->data[i15] = 0.0;
+    for (i13 = 0; i13 < loop_ub; i13++) {
+      SLAM_data_first.anchorFeatures->data[i13] = 0.0;
     }
 
     //  describes which feature belongs to which anchor
     SLAM_data_first.model = 1.0;
     SLAM_data_first.model_prob = 0.0;
-    for (i15 = 0; i15 < 3; i15++) {
-      emxCopyStruct_struct_T(&SLAM_data[i15], &SLAM_data_first);
+    for (i13 = 0; i13 < 3; i13++) {
+      emxCopyStruct_struct_T(&SLAM_data[i13], &SLAM_data_first);
     }
 
     for (modelIt = 0; modelIt < 3; modelIt++) {
@@ -2132,8 +2130,8 @@ void SLAM(double updateVect[16], const double z_all_l[32], const double z_all_r
     //                          0.02, 0.95, 0.02, 0.01;
     //                          0.02, 0.02, 0.95, 0.01;
     //                          0.01, 0.05, 0.05, 0.8];
-    for (i15 = 0; i15 < 9; i15++) {
-      model_transition[i15] = 4.9999999999994493E-5;
+    for (i13 = 0; i13 < 9; i13++) {
+      model_transition[i13] = 4.9999999999994493E-5;
     }
 
     for (modelIt = 0; modelIt < 3; modelIt++) {
@@ -2158,36 +2156,36 @@ void SLAM(double updateVect[16], const double z_all_l[32], const double z_all_r
     Att_upd(&SLAM_data_first, *(double (*)[3])&IMU_measurements[3], dt);
     emxCopyStruct_struct_T(&SLAM_data[0], &SLAM_data_first);
     init_counter++;
-    i15 = xt_out->size[0];
+    i13 = xt_out->size[0];
     xt_out->size[0] = SLAM_data[0].xt->size[0];
-    emxEnsureCapacity((emxArray__common *)xt_out, i15, (int)sizeof(double));
+    emxEnsureCapacity((emxArray__common *)xt_out, i13, (int)sizeof(double));
     loop_ub = SLAM_data[0].xt->size[0];
-    for (i15 = 0; i15 < loop_ub; i15++) {
-      xt_out->data[i15] = SLAM_data[0].xt->data[i15];
+    for (i13 = 0; i13 < loop_ub; i13++) {
+      xt_out->data[i13] = SLAM_data[0].xt->data[i13];
     }
 
-    i15 = P_apo_out->size[0] * P_apo_out->size[1];
+    i13 = P_apo_out->size[0] * P_apo_out->size[1];
     P_apo_out->size[0] = SLAM_data[0].P->size[0];
     P_apo_out->size[1] = SLAM_data[0].P->size[1];
-    emxEnsureCapacity((emxArray__common *)P_apo_out, i15, (int)sizeof(double));
+    emxEnsureCapacity((emxArray__common *)P_apo_out, i13, (int)sizeof(double));
     loop_ub = SLAM_data[0].P->size[0] * SLAM_data[0].P->size[1];
-    for (i15 = 0; i15 < loop_ub; i15++) {
-      P_apo_out->data[i15] = SLAM_data[0].P->data[i15];
+    for (i13 = 0; i13 < loop_ub; i13++) {
+      P_apo_out->data[i13] = SLAM_data[0].P->data[i13];
     }
 
-    i15 = h_u_apo_out->size[0];
+    i13 = h_u_apo_out->size[0];
     h_u_apo_out->size[0] = 64;
-    emxEnsureCapacity((emxArray__common *)h_u_apo_out, i15, (int)sizeof(double));
-    for (i15 = 0; i15 < 64; i15++) {
-      h_u_apo_out->data[i15] = -100.0;
+    emxEnsureCapacity((emxArray__common *)h_u_apo_out, i13, (int)sizeof(double));
+    for (i13 = 0; i13 < 64; i13++) {
+      h_u_apo_out->data[i13] = -100.0;
     }
 
-    i15 = map_out->size[0] * map_out->size[1];
+    i13 = map_out->size[0] * map_out->size[1];
     map_out->size[0] = 3;
     map_out->size[1] = 16;
-    emxEnsureCapacity((emxArray__common *)map_out, i15, (int)sizeof(double));
-    for (i15 = 0; i15 < 48; i15++) {
-      map_out->data[i15] = rtNaN;
+    emxEnsureCapacity((emxArray__common *)map_out, i13, (int)sizeof(double));
+    for (i13 = 0; i13 < 48; i13++) {
+      map_out->data[i13] = rtNaN;
     }
   } else if (init_counter == 10.0) {
     //  done initializing attitude. Insert the estimated attitude and the covariance into the whole state, request features 
@@ -2202,12 +2200,12 @@ void SLAM(double updateVect[16], const double z_all_l[32], const double z_all_r
       loop_ub = (int)b_numPointsPerAnchor;
     }
 
-    for (i15 = 0; i15 < loop_ub; i15++) {
-      tmp_data[i15] = i15;
+    for (i13 = 0; i13 < loop_ub; i13++) {
+      tmp_data[i13] = i13;
     }
 
-    for (i15 = 0; i15 < loop_ub; i15++) {
-      updateVect[tmp_data[i15]] = 2.0;
+    for (i13 = 0; i13 < loop_ub; i13++) {
+      updateVect[tmp_data[i13]] = 2.0;
     }
 
     emxInitStruct_struct_T(&r11);
@@ -2218,19 +2216,19 @@ void SLAM(double updateVect[16], const double z_all_l[32], const double z_all_r
     emxInitStruct_struct_T(&r16);
     for (modelIt = 0; modelIt < 2; modelIt++) {
       emxCopyStruct_struct_T(&r11, &SLAM_data[0]);
-      i15 = SLAM_data[modelIt + 1].xt->size[0];
+      i13 = SLAM_data[modelIt + 1].xt->size[0];
       SLAM_data[modelIt + 1].xt->size[0] = r11.xt->size[0];
-      emxEnsureCapacity((emxArray__common *)SLAM_data[modelIt + 1].xt, i15, (int)
+      emxEnsureCapacity((emxArray__common *)SLAM_data[modelIt + 1].xt, i13, (int)
                         sizeof(double));
       loop_ub = r11.xt->size[0];
-      for (i15 = 0; i15 < loop_ub; i15++) {
-        SLAM_data[modelIt + 1].xt->data[i15] = r11.xt->data[i15];
+      for (i13 = 0; i13 < loop_ub; i13++) {
+        SLAM_data[modelIt + 1].xt->data[i13] = r11.xt->data[i13];
       }
 
-      i15 = SLAM_data[modelIt + 1].P->size[0] * SLAM_data[modelIt + 1].P->size[1];
+      i13 = SLAM_data[modelIt + 1].P->size[0] * SLAM_data[modelIt + 1].P->size[1];
       SLAM_data[modelIt + 1].P->size[0] = SLAM_data[0].P->size[0];
       SLAM_data[modelIt + 1].P->size[1] = SLAM_data[0].P->size[1];
-      emxEnsureCapacity((emxArray__common *)SLAM_data[modelIt + 1].P, i15, (int)
+      emxEnsureCapacity((emxArray__common *)SLAM_data[modelIt + 1].P, i13, (int)
                         sizeof(double));
       emxCopyStruct_struct_T(&r12, &SLAM_data[modelIt + 1]);
       emxCopyStruct_struct_T(&r13, &SLAM_data[modelIt + 1]);
@@ -2238,8 +2236,8 @@ void SLAM(double updateVect[16], const double z_all_l[32], const double z_all_r
       emxCopyStruct_struct_T(&r15, &SLAM_data[0]);
       emxCopyStruct_struct_T(&r16, &SLAM_data[0]);
       loop_ub = r15.P->size[0] * r16.P->size[1];
-      for (i15 = 0; i15 < loop_ub; i15++) {
-        SLAM_data[modelIt + 1].P->data[i15] = r14.P->data[i15];
+      for (i13 = 0; i13 < loop_ub; i13++) {
+        SLAM_data[modelIt + 1].P->data[i13] = r14.P->data[i13];
       }
     }
 
@@ -2250,36 +2248,36 @@ void SLAM(double updateVect[16], const double z_all_l[32], const double z_all_r
     emxFreeStruct_struct_T(&r12);
     emxFreeStruct_struct_T(&r11);
     init_counter = 11.0;
-    i15 = xt_out->size[0];
+    i13 = xt_out->size[0];
     xt_out->size[0] = SLAM_data[0].xt->size[0];
-    emxEnsureCapacity((emxArray__common *)xt_out, i15, (int)sizeof(double));
+    emxEnsureCapacity((emxArray__common *)xt_out, i13, (int)sizeof(double));
     loop_ub = SLAM_data[0].xt->size[0];
-    for (i15 = 0; i15 < loop_ub; i15++) {
-      xt_out->data[i15] = SLAM_data[0].xt->data[i15];
+    for (i13 = 0; i13 < loop_ub; i13++) {
+      xt_out->data[i13] = SLAM_data[0].xt->data[i13];
     }
 
-    i15 = P_apo_out->size[0] * P_apo_out->size[1];
+    i13 = P_apo_out->size[0] * P_apo_out->size[1];
     P_apo_out->size[0] = SLAM_data[0].P->size[0];
     P_apo_out->size[1] = SLAM_data[0].P->size[1];
-    emxEnsureCapacity((emxArray__common *)P_apo_out, i15, (int)sizeof(double));
+    emxEnsureCapacity((emxArray__common *)P_apo_out, i13, (int)sizeof(double));
     loop_ub = SLAM_data[0].P->size[0] * SLAM_data[0].P->size[1];
-    for (i15 = 0; i15 < loop_ub; i15++) {
-      P_apo_out->data[i15] = SLAM_data[0].P->data[i15];
+    for (i13 = 0; i13 < loop_ub; i13++) {
+      P_apo_out->data[i13] = SLAM_data[0].P->data[i13];
     }
 
-    i15 = h_u_apo_out->size[0];
+    i13 = h_u_apo_out->size[0];
     h_u_apo_out->size[0] = 64;
-    emxEnsureCapacity((emxArray__common *)h_u_apo_out, i15, (int)sizeof(double));
-    for (i15 = 0; i15 < 64; i15++) {
-      h_u_apo_out->data[i15] = -100.0;
+    emxEnsureCapacity((emxArray__common *)h_u_apo_out, i13, (int)sizeof(double));
+    for (i13 = 0; i13 < 64; i13++) {
+      h_u_apo_out->data[i13] = -100.0;
     }
 
-    i15 = map_out->size[0] * map_out->size[1];
+    i13 = map_out->size[0] * map_out->size[1];
     map_out->size[0] = 3;
     map_out->size[1] = 16;
-    emxEnsureCapacity((emxArray__common *)map_out, i15, (int)sizeof(double));
-    for (i15 = 0; i15 < 48; i15++) {
-      map_out->data[i15] = rtNaN;
+    emxEnsureCapacity((emxArray__common *)map_out, i13, (int)sizeof(double));
+    for (i13 = 0; i13 < 48; i13++) {
+      map_out->data[i13] = rtNaN;
     }
   } else if (init_counter == 11.0) {
     //  for feature initialization, only use one tracker
@@ -2305,19 +2303,19 @@ void SLAM(double updateVect[16], const double z_all_l[32], const double z_all_r
     emxInitStruct_struct_T(&r26);
     for (modelIt = 0; modelIt < 2; modelIt++) {
       emxCopyStruct_struct_T(&r11, &SLAM_data[0]);
-      i15 = SLAM_data[modelIt + 1].xt->size[0];
+      i13 = SLAM_data[modelIt + 1].xt->size[0];
       SLAM_data[modelIt + 1].xt->size[0] = r11.xt->size[0];
-      emxEnsureCapacity((emxArray__common *)SLAM_data[modelIt + 1].xt, i15, (int)
+      emxEnsureCapacity((emxArray__common *)SLAM_data[modelIt + 1].xt, i13, (int)
                         sizeof(double));
       loop_ub = r11.xt->size[0];
-      for (i15 = 0; i15 < loop_ub; i15++) {
-        SLAM_data[modelIt + 1].xt->data[i15] = r11.xt->data[i15];
+      for (i13 = 0; i13 < loop_ub; i13++) {
+        SLAM_data[modelIt + 1].xt->data[i13] = r11.xt->data[i13];
       }
 
-      i15 = SLAM_data[modelIt + 1].P->size[0] * SLAM_data[modelIt + 1].P->size[1];
+      i13 = SLAM_data[modelIt + 1].P->size[0] * SLAM_data[modelIt + 1].P->size[1];
       SLAM_data[modelIt + 1].P->size[0] = SLAM_data[0].P->size[0];
       SLAM_data[modelIt + 1].P->size[1] = SLAM_data[0].P->size[1];
-      emxEnsureCapacity((emxArray__common *)SLAM_data[modelIt + 1].P, i15, (int)
+      emxEnsureCapacity((emxArray__common *)SLAM_data[modelIt + 1].P, i13, (int)
                         sizeof(double));
       emxCopyStruct_struct_T(&r12, &SLAM_data[modelIt + 1]);
       emxCopyStruct_struct_T(&r13, &SLAM_data[modelIt + 1]);
@@ -2325,15 +2323,15 @@ void SLAM(double updateVect[16], const double z_all_l[32], const double z_all_r
       emxCopyStruct_struct_T(&r15, &SLAM_data[0]);
       emxCopyStruct_struct_T(&r16, &SLAM_data[0]);
       loop_ub = r15.P->size[0] * r16.P->size[1];
-      for (i15 = 0; i15 < loop_ub; i15++) {
-        SLAM_data[modelIt + 1].P->data[i15] = r14.P->data[i15];
+      for (i13 = 0; i13 < loop_ub; i13++) {
+        SLAM_data[modelIt + 1].P->data[i13] = r14.P->data[i13];
       }
 
-      i15 = SLAM_data[modelIt + 1].m_vect->size[0] * SLAM_data[modelIt + 1].
+      i13 = SLAM_data[modelIt + 1].m_vect->size[0] * SLAM_data[modelIt + 1].
         m_vect->size[1];
       SLAM_data[modelIt + 1].m_vect->size[0] = 3;
       SLAM_data[modelIt + 1].m_vect->size[1] = SLAM_data[0].m_vect->size[1];
-      emxEnsureCapacity((emxArray__common *)SLAM_data[modelIt + 1].m_vect, i15,
+      emxEnsureCapacity((emxArray__common *)SLAM_data[modelIt + 1].m_vect, i13,
                         (int)sizeof(double));
       emxCopyStruct_struct_T(&r17, &SLAM_data[modelIt + 1]);
       emxCopyStruct_struct_T(&r18, &SLAM_data[modelIt + 1]);
@@ -2341,27 +2339,27 @@ void SLAM(double updateVect[16], const double z_all_l[32], const double z_all_r
       emxCopyStruct_struct_T(&r20, &SLAM_data[0]);
       emxCopyStruct_struct_T(&r21, &SLAM_data[0]);
       loop_ub = r20.m_vect->size[0] * r21.m_vect->size[1];
-      for (i15 = 0; i15 < loop_ub; i15++) {
-        SLAM_data[modelIt + 1].m_vect->data[i15] = r19.m_vect->data[i15];
+      for (i13 = 0; i13 < loop_ub; i13++) {
+        SLAM_data[modelIt + 1].m_vect->data[i13] = r19.m_vect->data[i13];
       }
 
-      i15 = SLAM_data[modelIt + 1].anchorFeatures->size[0] * SLAM_data[modelIt +
+      i13 = SLAM_data[modelIt + 1].anchorFeatures->size[0] * SLAM_data[modelIt +
         1].anchorFeatures->size[1];
       SLAM_data[modelIt + 1].anchorFeatures->size[0] = SLAM_data[0].
         anchorFeatures->size[0];
       SLAM_data[modelIt + 1].anchorFeatures->size[1] = SLAM_data[0].
         anchorFeatures->size[1];
       emxEnsureCapacity((emxArray__common *)SLAM_data[modelIt + 1].
-                        anchorFeatures, i15, (int)sizeof(double));
+                        anchorFeatures, i13, (int)sizeof(double));
       emxCopyStruct_struct_T(&r22, &SLAM_data[modelIt + 1]);
       emxCopyStruct_struct_T(&r23, &SLAM_data[modelIt + 1]);
       emxCopyStruct_struct_T(&r24, &SLAM_data[0]);
       emxCopyStruct_struct_T(&r25, &SLAM_data[0]);
       emxCopyStruct_struct_T(&r26, &SLAM_data[0]);
       loop_ub = r25.anchorFeatures->size[0] * r26.anchorFeatures->size[1];
-      for (i15 = 0; i15 < loop_ub; i15++) {
-        SLAM_data[modelIt + 1].anchorFeatures->data[i15] =
-          r24.anchorFeatures->data[i15];
+      for (i13 = 0; i13 < loop_ub; i13++) {
+        SLAM_data[modelIt + 1].anchorFeatures->data[i13] =
+          r24.anchorFeatures->data[i13];
       }
     }
 
@@ -2381,21 +2379,21 @@ void SLAM(double updateVect[16], const double z_all_l[32], const double z_all_r
     emxFreeStruct_struct_T(&r13);
     emxFreeStruct_struct_T(&r12);
     emxFreeStruct_struct_T(&r11);
-    i15 = xt_out->size[0];
+    i13 = xt_out->size[0];
     xt_out->size[0] = SLAM_data[0].xt->size[0];
-    emxEnsureCapacity((emxArray__common *)xt_out, i15, (int)sizeof(double));
+    emxEnsureCapacity((emxArray__common *)xt_out, i13, (int)sizeof(double));
     loop_ub = SLAM_data[0].xt->size[0];
-    for (i15 = 0; i15 < loop_ub; i15++) {
-      xt_out->data[i15] = SLAM_data[0].xt->data[i15];
+    for (i13 = 0; i13 < loop_ub; i13++) {
+      xt_out->data[i13] = SLAM_data[0].xt->data[i13];
     }
 
-    i15 = P_apo_out->size[0] * P_apo_out->size[1];
+    i13 = P_apo_out->size[0] * P_apo_out->size[1];
     P_apo_out->size[0] = SLAM_data[0].P->size[0];
     P_apo_out->size[1] = SLAM_data[0].P->size[1];
-    emxEnsureCapacity((emxArray__common *)P_apo_out, i15, (int)sizeof(double));
+    emxEnsureCapacity((emxArray__common *)P_apo_out, i13, (int)sizeof(double));
     loop_ub = SLAM_data[0].P->size[0] * SLAM_data[0].P->size[1];
-    for (i15 = 0; i15 < loop_ub; i15++) {
-      P_apo_out->data[i15] = SLAM_data[0].P->data[i15];
+    for (i13 = 0; i13 < loop_ub; i13++) {
+      P_apo_out->data[i13] = SLAM_data[0].P->data[i13];
     }
 
     init_counter = 12.0;
@@ -2434,14 +2432,14 @@ void SLAM(double updateVect[16], const double z_all_l[32], const double z_all_r
     if (all(b_model_probs)) {
       l_fprintf();
     } else {
-      for (i15 = 0; i15 < 3; i15++) {
-        model_state[i15] *= model_probs[i15];
+      for (i13 = 0; i13 < 3; i13++) {
+        model_state[i13] *= model_probs[i13];
       }
     }
 
     B = sum(model_state);
-    for (i15 = 0; i15 < 3; i15++) {
-      model_state[i15] /= B;
+    for (i13 = 0; i13 < 3; i13++) {
+      model_state[i13] /= B;
     }
 
     //  debug for plotting
@@ -2465,8 +2463,8 @@ void SLAM(double updateVect[16], const double z_all_l[32], const double z_all_r
     b_emxInit_int32_T(&r27, 2);
     for (featureIdx = 0; featureIdx < 16; featureIdx++) {
       B = updateVect[featureIdx];
-      for (i15 = 0; i15 < 3; i15++) {
-        b_model_probs[i15] = (model_updateVects[featureIdx + (i15 << 4)] != B);
+      for (i13 = 0; i13 < 3; i13++) {
+        b_model_probs[i13] = (model_updateVects[featureIdx + (i13 << 4)] != B);
       }
 
       if (f_any(b_model_probs)) {
@@ -2479,15 +2477,15 @@ void SLAM(double updateVect[16], const double z_all_l[32], const double z_all_r
         if (keep_score < 0.5) {
           updateVect[featureIdx] = 0.0;
           loop_ub = SLAM_data[0].anchorFeatures->size[1];
-          i15 = anchorIdx->size[0] * anchorIdx->size[1];
+          i13 = anchorIdx->size[0] * anchorIdx->size[1];
           anchorIdx->size[0] = 1;
           anchorIdx->size[1] = loop_ub;
-          emxEnsureCapacity((emxArray__common *)anchorIdx, i15, (int)sizeof
+          emxEnsureCapacity((emxArray__common *)anchorIdx, i13, (int)sizeof
                             (boolean_T));
-          for (i15 = 0; i15 < loop_ub; i15++) {
-            anchorIdx->data[anchorIdx->size[0] * i15] = (SLAM_data[0].
+          for (i13 = 0; i13 < loop_ub; i13++) {
+            anchorIdx->data[anchorIdx->size[0] * i13] = (SLAM_data[0].
               anchorFeatures->data[featureIdx + SLAM_data[0]
-              .anchorFeatures->size[0] * i15] == 1.0);
+              .anchorFeatures->size[0] * i13] == 1.0);
           }
 
           for (modelIt = 0; modelIt < 3; modelIt++) {
@@ -2499,10 +2497,10 @@ void SLAM(double updateVect[16], const double z_all_l[32], const double z_all_r
               }
             }
 
-            i15 = r27->size[0] * r27->size[1];
+            i13 = r27->size[0] * r27->size[1];
             r27->size[0] = 1;
             r27->size[1] = loop_ub;
-            emxEnsureCapacity((emxArray__common *)r27, i15, (int)sizeof(int));
+            emxEnsureCapacity((emxArray__common *)r27, i13, (int)sizeof(int));
             loop_ub = 0;
             for (i = 0; i <= k; i++) {
               if (anchorIdx->data[i]) {
@@ -2512,10 +2510,10 @@ void SLAM(double updateVect[16], const double z_all_l[32], const double z_all_r
             }
 
             loop_ub = r27->size[1];
-            for (i15 = 0; i15 < loop_ub; i15++) {
+            for (i13 = 0; i13 < loop_ub; i13++) {
               SLAM_data[modelIt].anchorFeatures->data[featureIdx +
                 SLAM_data[modelIt].anchorFeatures->size[0] * (r27->data
-                [r27->size[0] * i15] - 1)] = -1.0;
+                [r27->size[0] * i13] - 1)] = -1.0;
             }
 
             //  mark feature as lost
@@ -2537,16 +2535,16 @@ void SLAM(double updateVect[16], const double z_all_l[32], const double z_all_r
     exitg2 = false;
     while ((!exitg2) && (b_anchorIdx <= (int)b_numAnchors - 1)) {
       loop_ub = SLAM_data[0].anchorFeatures->size[0];
-      i15 = r28->size[0];
+      i13 = r28->size[0];
       r28->size[0] = loop_ub;
-      emxEnsureCapacity((emxArray__common *)r28, i15, (int)sizeof(boolean_T));
-      for (i15 = 0; i15 < loop_ub; i15++) {
-        r28->data[i15] = (SLAM_data[0].anchorFeatures->data[i15 + SLAM_data[0].
+      emxEnsureCapacity((emxArray__common *)r28, i13, (int)sizeof(boolean_T));
+      for (i13 = 0; i13 < loop_ub; i13++) {
+        r28->data[i13] = (SLAM_data[0].anchorFeatures->data[i13 + SLAM_data[0].
                           anchorFeatures->size[0] * b_anchorIdx] == 1.0);
       }
 
-      for (i15 = 0; i15 < 16; i15++) {
-        s[i15] = (r28->data[i15] && (updateVect[i15] == 1.0));
+      for (i13 = 0; i13 < 16; i13++) {
+        s[i13] = (r28->data[i13] && (updateVect[i13] == 1.0));
       }
 
       loop_ub = 0;
@@ -2582,13 +2580,13 @@ void SLAM(double updateVect[16], const double z_all_l[32], const double z_all_r
       exitg1 = false;
       while ((!exitg1) && (i < 16)) {
         loop_ub = SLAM_data[0].anchorFeatures->size[1];
-        i15 = r29->size[0] * r29->size[1];
+        i13 = r29->size[0] * r29->size[1];
         r29->size[0] = 1;
         r29->size[1] = loop_ub;
-        emxEnsureCapacity((emxArray__common *)r29, i15, (int)sizeof(boolean_T));
-        for (i15 = 0; i15 < loop_ub; i15++) {
-          r29->data[r29->size[0] * i15] = (SLAM_data[0].anchorFeatures->data[i +
-            SLAM_data[0].anchorFeatures->size[0] * i15] == 1.0);
+        emxEnsureCapacity((emxArray__common *)r29, i13, (int)sizeof(boolean_T));
+        for (i13 = 0; i13 < loop_ub; i13++) {
+          r29->data[r29->size[0] * i13] = (SLAM_data[0].anchorFeatures->data[i +
+            SLAM_data[0].anchorFeatures->size[0] * i13] == 1.0);
         }
 
         guard1 = false;
@@ -2614,12 +2612,12 @@ void SLAM(double updateVect[16], const double z_all_l[32], const double z_all_r
       emxFree_boolean_T(&r29);
       B = rt_roundd_snf(newFeaturesRequested);
       if (B < 128.0) {
-        i16 = (signed char)B;
+        i14 = (signed char)B;
       } else {
-        i16 = MAX_int8_T;
+        i14 = MAX_int8_T;
       }
 
-      p_fprintf(i16);
+      p_fprintf(i14);
     }
 
     //  debug
