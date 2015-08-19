@@ -5,7 +5,7 @@
 // File: SLAM_pred.cpp
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 19-Aug-2015 18:38:31
+// C/C++ source code generated on  : 19-Aug-2015 18:46:47
 //
 
 // Include Files
@@ -943,6 +943,7 @@ void SLAM_pred(emxArray_real_T *P_apo, emxArray_real_T *x, double dt, const
   emxArray_real_T *P_xx_apr;
   int i28;
   emxArray_real_T *Phi;
+  double u_0[4];
   double meas_0[6];
   emxArray_real_T *b_x;
   emxArray_real_T *x1;
@@ -1032,6 +1033,10 @@ void SLAM_pred(emxArray_real_T *P_apo, emxArray_real_T *x, double dt, const
 
   emxInit_real_T(&Phi, 2);
   eye(c_numStates, Phi);
+  for (i = 0; i < 4; i++) {
+    u_0[i] = 0.0 * control_input[i];
+  }
+
   for (i = 0; i < 3; i++) {
     meas_0[i] = IMU_measurements[i];
   }
@@ -1056,11 +1061,10 @@ void SLAM_pred(emxArray_real_T *P_apo, emxArray_real_T *x, double dt, const
 
   b_emxInit_real_T(&x1, 1);
   emxInit_real_T(&b_Phi, 2);
-  dxdt_dPdt(dt, meas_0, b_x, P_xx_apr, Phi, Q, control_input, x1, b_P_xx_apr,
-            b_Phi);
+  dxdt_dPdt(dt, meas_0, b_x, P_xx_apr, Phi, Q, u_0, x1, b_P_xx_apr, b_Phi);
   emxFree_real_T(&b_x);
   for (i = 0; i < 4; i++) {
-    u_1[i] = control_input[i] + (control_input[i] - control_input[i]) * 0.5;
+    u_1[i] = 0.0 * u_0[i] + (u_0[i] - u_0[i]) * 0.5;
   }
 
   for (i = 0; i < 6; i++) {
@@ -1113,7 +1117,7 @@ void SLAM_pred(emxArray_real_T *P_apo, emxArray_real_T *x, double dt, const
   b_dxdt_dPdt(dt, meas_1, xx, c_P_xx_apr, c_Phi, Q, u_1, x2, P2, P_xs_apr);
   emxFree_real_T(&c_Phi);
   for (i27 = 0; i27 < 4; i27++) {
-    u_1[i27] += (control_input[i27] - u_1[i27]) * 0.5;
+    u_1[i27] = 0.0 * u_1[i27] + (u_0[i27] - u_1[i27]) * 0.5;
   }
 
   for (i27 = 0; i27 < 6; i27++) {
@@ -1209,7 +1213,7 @@ void SLAM_pred(emxArray_real_T *P_apo, emxArray_real_T *x, double dt, const
   }
 
   for (i = 0; i < 4; i++) {
-    b_xx[i] = u_1[i] + (control_input[i] - u_1[i]);
+    b_xx[i] = 0.0 * u_1[i] + (u_0[i] - u_1[i]);
   }
 
   b_emxInit_real_T(&x4, 1);
