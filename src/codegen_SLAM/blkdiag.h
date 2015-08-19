@@ -5,7 +5,7 @@
 // File: blkdiag.h
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 18-Aug-2015 14:23:32
+// C/C++ source code generated on  : 19-Aug-2015 10:03:40
 //
 #ifndef __BLKDIAG_H__
 #define __BLKDIAG_H__
@@ -15,18 +15,14 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
+#include "rt_defines.h"
 #include "rt_nonfinite.h"
 #include "rtwtypes.h"
 #include "SLAM_types.h"
 
 // Function Declarations
-extern void b_blkdiag(const double varargin_1[4], const double varargin_2_data[],
-                      const int varargin_2_size[2], double y_data[], int y_size
-                      [2]);
 extern void blkdiag(const emxArray_real_T *varargin_1, const emxArray_real_T
                     *varargin_2, emxArray_real_T *y);
-extern void output_size(const int varargin_1_size[2], const int varargin_2_size
-  [2], const int varargin_3_size[2], int *nrows, int *ncols);
 
 #endif
 

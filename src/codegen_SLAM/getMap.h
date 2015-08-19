@@ -5,7 +5,7 @@
 // File: getMap.h
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 18-Aug-2015 14:23:32
+// C/C++ source code generated on  : 19-Aug-2015 10:03:40
 //
 #ifndef __GETMAP_H__
 #define __GETMAP_H__
@@ -15,6 +15,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
+#include "rt_defines.h"
 #include "rt_nonfinite.h"
 #include "rtwtypes.h"
 #include "SLAM_types.h"
@@ -23,7 +24,7 @@
 extern void getMap(const emxArray_real_T *x, const emxArray_real_T
                    *b_anchorFeatures, const emxArray_real_T *b_m_vect, double
                    c_numTrackFeatures, double stateSize, double
-                   numStatesPerAnchorxt, emxArray_real_T *map, emxArray_real_T
+                   b_numStatesPerAnchorxt, emxArray_real_T *map, emxArray_real_T
                    *anchorInd, emxArray_real_T *featureAnchorInd);
 
 #endif

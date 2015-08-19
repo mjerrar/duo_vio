@@ -5,7 +5,7 @@
 // File: diag.cpp
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 18-Aug-2015 14:23:32
+// C/C++ source code generated on  : 19-Aug-2015 10:03:40
 //
 
 // Include Files
@@ -31,19 +31,15 @@ void b_diag(const double v[9], double d[81])
 }
 
 //
-// Arguments    : const double v[2]
-//                double d[4]
+// Arguments    : const creal_T v[16]
+//                creal_T d[4]
 // Return Type  : void
 //
-void diag(const double v[2], double d[4])
+void diag(const creal_T v[16], creal_T d[4])
 {
   int j;
   for (j = 0; j < 4; j++) {
-    d[j] = 0.0;
-  }
-
-  for (j = 0; j < 2; j++) {
-    d[j + (j << 1)] = v[j];
+    d[j] = v[j * 5];
   }
 }
 

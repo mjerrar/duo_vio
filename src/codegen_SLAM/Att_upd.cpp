@@ -5,7 +5,7 @@
 // File: Att_upd.cpp
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 18-Aug-2015 14:23:32
+// C/C++ source code generated on  : 19-Aug-2015 10:03:40
 //
 
 // Include Files
@@ -20,39 +20,50 @@
 //
 // ATT_UPD Update step of the attitude estimator
 //    INPUT ARGUMENTS:
-//    - x:  The current estimated attitude (JPL quaternion)
-//    - P:  The state covariance matrix (3 x 3)
+//    - SLAM_data
 //    - z:  The current accelerometer measurement (3 x 1)
-//    - n:  The measurement noise
 //    - dt: The time step
-// Arguments    : double x[4]
-//                double b_P[9]
+// Arguments    : struct_T *b_SLAM_data
 //                const double z[3]
-//                double n
 //                double dt
 // Return Type  : void
 //
-void Att_upd(double x[4], double b_P[9], const double z[3], double n, double dt)
+void Att_upd(struct_T *b_SLAM_data, const double z[3], double dt)
 {
-  double b_x[9];
-  double z_pred[3];
+  double c_SLAM_data[9];
+  double b_P[9];
   int rtemp;
+  int k;
+  double z_pred[3];
   double H[9];
   double maxval;
-  int k;
   int r1;
+  double d_SLAM_data;
   double S[9];
   double a21;
   static const signed char a[9] = { 1, 0, 0, 0, 1, 0, 0, 0, 1 };
 
-  double b_S[9];
+  double y[9];
   int r2;
   int r3;
   double K[9];
   double b_K[3];
   double b_z[3];
   double q[4];
-  double c_x[16];
+  double e_SLAM_data;
+  double f_SLAM_data;
+  double g_SLAM_data;
+  double h_SLAM_data;
+  double i_SLAM_data;
+  double j_SLAM_data;
+  double k_SLAM_data;
+  double l_SLAM_data;
+  double m_SLAM_data;
+  double n_SLAM_data;
+  double o_SLAM_data;
+  double p_SLAM_data;
+  double q_SLAM_data;
+  double r_SLAM_data[16];
   double b_q[4];
 
   //  predicted measurement
@@ -62,17 +73,37 @@ void Att_upd(double x[4], double b_P[9], const double z[3], double n, double dt)
   //  if abs(norm(q) - 1) > 1e-3
   //      error('The provided quaternion is not a valid rotation quaternion because it does not have norm 1') 
   //  end
-  b_x[0] = ((x[0] * x[0] - x[1] * x[1]) - x[2] * x[2]) + x[3] * x[3];
-  b_x[3] = 2.0 * (x[0] * x[1] + x[2] * x[3]);
-  b_x[6] = 2.0 * (x[0] * x[2] - x[1] * x[3]);
-  b_x[1] = 2.0 * (x[0] * x[1] - x[2] * x[3]);
-  b_x[4] = ((-(x[0] * x[0]) + x[1] * x[1]) - x[2] * x[2]) + x[3] * x[3];
-  b_x[7] = 2.0 * (x[1] * x[2] + x[0] * x[3]);
-  b_x[2] = 2.0 * (x[0] * x[2] + x[1] * x[3]);
-  b_x[5] = 2.0 * (x[1] * x[2] - x[0] * x[3]);
-  b_x[8] = ((-(x[0] * x[0]) - x[1] * x[1]) + x[2] * x[2]) + x[3] * x[3];
+  c_SLAM_data[0] = ((b_SLAM_data->xt->data[3] * b_SLAM_data->xt->data[3] -
+                     b_SLAM_data->xt->data[4] * b_SLAM_data->xt->data[4]) -
+                    b_SLAM_data->xt->data[5] * b_SLAM_data->xt->data[5]) +
+    b_SLAM_data->xt->data[6] * b_SLAM_data->xt->data[6];
+  c_SLAM_data[3] = 2.0 * (b_SLAM_data->xt->data[3] * b_SLAM_data->xt->data[4] +
+    b_SLAM_data->xt->data[5] * b_SLAM_data->xt->data[6]);
+  c_SLAM_data[6] = 2.0 * (b_SLAM_data->xt->data[3] * b_SLAM_data->xt->data[5] -
+    b_SLAM_data->xt->data[4] * b_SLAM_data->xt->data[6]);
+  c_SLAM_data[1] = 2.0 * (b_SLAM_data->xt->data[3] * b_SLAM_data->xt->data[4] -
+    b_SLAM_data->xt->data[5] * b_SLAM_data->xt->data[6]);
+  c_SLAM_data[4] = ((-(b_SLAM_data->xt->data[3] * b_SLAM_data->xt->data[3]) +
+                     b_SLAM_data->xt->data[4] * b_SLAM_data->xt->data[4]) -
+                    b_SLAM_data->xt->data[5] * b_SLAM_data->xt->data[5]) +
+    b_SLAM_data->xt->data[6] * b_SLAM_data->xt->data[6];
+  c_SLAM_data[7] = 2.0 * (b_SLAM_data->xt->data[4] * b_SLAM_data->xt->data[5] +
+    b_SLAM_data->xt->data[3] * b_SLAM_data->xt->data[6]);
+  c_SLAM_data[2] = 2.0 * (b_SLAM_data->xt->data[3] * b_SLAM_data->xt->data[5] +
+    b_SLAM_data->xt->data[4] * b_SLAM_data->xt->data[6]);
+  c_SLAM_data[5] = 2.0 * (b_SLAM_data->xt->data[4] * b_SLAM_data->xt->data[5] -
+    b_SLAM_data->xt->data[3] * b_SLAM_data->xt->data[6]);
+  c_SLAM_data[8] = ((-(b_SLAM_data->xt->data[3] * b_SLAM_data->xt->data[3]) -
+                     b_SLAM_data->xt->data[4] * b_SLAM_data->xt->data[4]) +
+                    b_SLAM_data->xt->data[5] * b_SLAM_data->xt->data[5]) +
+    b_SLAM_data->xt->data[6] * b_SLAM_data->xt->data[6];
   for (rtemp = 0; rtemp < 3; rtemp++) {
-    z_pred[rtemp] = b_x[6 + rtemp] * 9.81;
+    for (k = 0; k < 3; k++) {
+      b_P[k + 3 * rtemp] = b_SLAM_data->P->data[(k + b_SLAM_data->P->size[0] *
+        (3 + rtemp)) + 3];
+    }
+
+    z_pred[rtemp] = c_SLAM_data[6 + rtemp] * 9.81;
   }
 
   H[0] = 0.0;
@@ -87,29 +118,30 @@ void Att_upd(double x[4], double b_P[9], const double z[3], double n, double dt)
   maxval = dt * dt;
   for (rtemp = 0; rtemp < 3; rtemp++) {
     for (k = 0; k < 3; k++) {
-      b_x[rtemp + 3 * k] = 0.0;
+      c_SLAM_data[rtemp + 3 * k] = 0.0;
       for (r1 = 0; r1 < 3; r1++) {
-        b_x[rtemp + 3 * k] += H[rtemp + 3 * r1] * b_P[r1 + 3 * k];
+        c_SLAM_data[rtemp + 3 * k] += H[rtemp + 3 * r1] * b_P[r1 + 3 * k];
       }
     }
   }
 
+  d_SLAM_data = b_SLAM_data->processNoise[0];
   for (rtemp = 0; rtemp < 3; rtemp++) {
     for (k = 0; k < 3; k++) {
       a21 = 0.0;
       for (r1 = 0; r1 < 3; r1++) {
-        a21 += b_x[rtemp + 3 * r1] * H[k + 3 * r1];
+        a21 += c_SLAM_data[rtemp + 3 * r1] * H[k + 3 * r1];
       }
 
-      S[rtemp + 3 * k] = a21 + (double)a[rtemp + 3 * k] * n * maxval;
+      S[rtemp + 3 * k] = a21 + (double)a[rtemp + 3 * k] * d_SLAM_data * maxval;
     }
   }
 
   for (rtemp = 0; rtemp < 3; rtemp++) {
     for (k = 0; k < 3; k++) {
-      b_S[rtemp + 3 * k] = 0.0;
+      y[rtemp + 3 * k] = 0.0;
       for (r1 = 0; r1 < 3; r1++) {
-        b_S[rtemp + 3 * k] += b_P[rtemp + 3 * r1] * H[k + 3 * r1];
+        y[rtemp + 3 * k] += b_P[rtemp + 3 * r1] * H[k + 3 * r1];
       }
     }
   }
@@ -146,9 +178,9 @@ void Att_upd(double x[4], double b_P[9], const double z[3], double n, double dt)
   S[3 + r3] /= S[3 + r2];
   S[6 + r3] -= S[3 + r3] * S[6 + r2];
   for (k = 0; k < 3; k++) {
-    K[k + 3 * r1] = b_S[k] / S[r1];
-    K[k + 3 * r2] = b_S[3 + k] - K[k + 3 * r1] * S[3 + r1];
-    K[k + 3 * r3] = b_S[6 + k] - K[k + 3 * r1] * S[6 + r1];
+    K[k + 3 * r1] = y[k] / S[r1];
+    K[k + 3 * r2] = y[3 + k] - K[k + 3 * r1] * S[3 + r1];
+    K[k + 3 * r3] = y[6 + k] - K[k + 3 * r1] * S[6 + r1];
     K[k + 3 * r2] /= S[3 + r2];
     K[k + 3 * r3] -= K[k + 3 * r2] * S[6 + r2];
     K[k + 3 * r3] /= S[6 + r3];
@@ -166,35 +198,53 @@ void Att_upd(double x[4], double b_P[9], const double z[3], double n, double dt)
   }
 
   quatPlusThetaJ(b_K, q);
-  c_x[0] = x[3];
-  c_x[4] = -x[2];
-  c_x[8] = x[1];
-  c_x[12] = x[0];
-  c_x[1] = x[2];
-  c_x[5] = x[3];
-  c_x[9] = -x[0];
-  c_x[13] = x[1];
-  c_x[2] = -x[1];
-  c_x[6] = x[0];
-  c_x[10] = x[3];
-  c_x[14] = x[2];
-  c_x[3] = -x[0];
-  c_x[7] = -x[1];
-  c_x[11] = -x[2];
-  c_x[15] = x[3];
+  d_SLAM_data = b_SLAM_data->xt->data[6];
+  maxval = b_SLAM_data->xt->data[5];
+  a21 = b_SLAM_data->xt->data[4];
+  e_SLAM_data = b_SLAM_data->xt->data[3];
+  f_SLAM_data = b_SLAM_data->xt->data[5];
+  g_SLAM_data = b_SLAM_data->xt->data[6];
+  h_SLAM_data = b_SLAM_data->xt->data[3];
+  i_SLAM_data = b_SLAM_data->xt->data[4];
+  j_SLAM_data = b_SLAM_data->xt->data[4];
+  k_SLAM_data = b_SLAM_data->xt->data[3];
+  l_SLAM_data = b_SLAM_data->xt->data[6];
+  m_SLAM_data = b_SLAM_data->xt->data[5];
+  n_SLAM_data = b_SLAM_data->xt->data[3];
+  o_SLAM_data = b_SLAM_data->xt->data[4];
+  p_SLAM_data = b_SLAM_data->xt->data[5];
+  q_SLAM_data = b_SLAM_data->xt->data[6];
+  r_SLAM_data[0] = d_SLAM_data;
+  r_SLAM_data[4] = -maxval;
+  r_SLAM_data[8] = a21;
+  r_SLAM_data[12] = e_SLAM_data;
+  r_SLAM_data[1] = f_SLAM_data;
+  r_SLAM_data[5] = g_SLAM_data;
+  r_SLAM_data[9] = -h_SLAM_data;
+  r_SLAM_data[13] = i_SLAM_data;
+  r_SLAM_data[2] = -j_SLAM_data;
+  r_SLAM_data[6] = k_SLAM_data;
+  r_SLAM_data[10] = l_SLAM_data;
+  r_SLAM_data[14] = m_SLAM_data;
+  r_SLAM_data[3] = -n_SLAM_data;
+  r_SLAM_data[7] = -o_SLAM_data;
+  r_SLAM_data[11] = -p_SLAM_data;
+  r_SLAM_data[15] = q_SLAM_data;
   b_q[0] = q[0];
   b_q[1] = q[1];
   b_q[2] = q[2];
   b_q[3] = q[3];
   for (rtemp = 0; rtemp < 4; rtemp++) {
-    x[rtemp] = 0.0;
+    q[rtemp] = 0.0;
     for (k = 0; k < 4; k++) {
-      x[rtemp] += c_x[rtemp + (k << 2)] * b_q[k];
+      q[rtemp] += r_SLAM_data[rtemp + (k << 2)] * b_q[k];
     }
   }
 
-  //  x(1) = 0;
-  //  x = normc(x);
+  for (rtemp = 0; rtemp < 4; rtemp++) {
+    b_SLAM_data->xt->data[3 + rtemp] = q[rtemp];
+  }
+
   memset(&S[0], 0, 9U * sizeof(double));
   for (k = 0; k < 3; k++) {
     S[k + 3 * k] = 1.0;
@@ -207,22 +257,18 @@ void Att_upd(double x[4], double b_P[9], const double z[3], double n, double dt)
         a21 += K[rtemp + 3 * r1] * H[r1 + 3 * k];
       }
 
-      b_S[rtemp + 3 * k] = S[rtemp + 3 * k] - a21;
+      c_SLAM_data[rtemp + 3 * k] = S[rtemp + 3 * k] - a21;
     }
   }
 
   for (rtemp = 0; rtemp < 3; rtemp++) {
     for (k = 0; k < 3; k++) {
-      b_x[rtemp + 3 * k] = 0.0;
+      b_SLAM_data->P->data[(rtemp + b_SLAM_data->P->size[0] * (3 + k)) + 3] =
+        0.0;
       for (r1 = 0; r1 < 3; r1++) {
-        b_x[rtemp + 3 * k] += b_S[rtemp + 3 * r1] * b_P[r1 + 3 * k];
+        b_SLAM_data->P->data[(rtemp + b_SLAM_data->P->size[0] * (3 + k)) + 3] +=
+          c_SLAM_data[rtemp + 3 * r1] * b_P[r1 + 3 * k];
       }
-    }
-  }
-
-  for (rtemp = 0; rtemp < 3; rtemp++) {
-    for (k = 0; k < 3; k++) {
-      b_P[k + 3 * rtemp] = b_x[k + 3 * rtemp];
     }
   }
 }

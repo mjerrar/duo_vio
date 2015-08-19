@@ -5,7 +5,7 @@
 // File: diag.h
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 18-Aug-2015 14:23:32
+// C/C++ source code generated on  : 19-Aug-2015 10:03:40
 //
 #ifndef __DIAG_H__
 #define __DIAG_H__
@@ -15,13 +15,14 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
+#include "rt_defines.h"
 #include "rt_nonfinite.h"
 #include "rtwtypes.h"
 #include "SLAM_types.h"
 
 // Function Declarations
 extern void b_diag(const double v[9], double d[81]);
-extern void diag(const double v[2], double d[4]);
+extern void diag(const creal_T v[16], creal_T d[4]);
 
 #endif
 

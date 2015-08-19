@@ -5,24 +5,24 @@
 // File: colon.cpp
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 18-Aug-2015 14:23:32
+// C/C++ source code generated on  : 19-Aug-2015 10:03:40
 //
 
 // Include Files
 #include "rt_nonfinite.h"
 #include "SLAM.h"
 #include "colon.h"
+#include "SLAM_emxutil.h"
 #include <stdio.h>
 
 // Function Definitions
 
 //
 // Arguments    : int b
-//                int y_data[]
-//                int y_size[2]
+//                emxArray_int32_T *y
 // Return Type  : void
 //
-void eml_signed_integer_colon(int b, int y_data[], int y_size[2])
+void eml_signed_integer_colon(int b, emxArray_int32_T *y)
 {
   int n;
   int yk;
@@ -33,14 +33,16 @@ void eml_signed_integer_colon(int b, int y_data[], int y_size[2])
     n = b;
   }
 
-  y_size[0] = 1;
-  y_size[1] = n;
+  yk = y->size[0] * y->size[1];
+  y->size[0] = 1;
+  y->size[1] = n;
+  emxEnsureCapacity((emxArray__common *)y, yk, (int)sizeof(int));
   if (n > 0) {
-    y_data[0] = 1;
+    y->data[0] = 1;
     yk = 1;
     for (k = 2; k <= n; k++) {
       yk++;
-      y_data[k - 1] = yk;
+      y->data[k - 1] = yk;
     }
   }
 }

@@ -5,7 +5,7 @@
 // File: QuatFromRotJ.cpp
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 18-Aug-2015 14:23:32
+// C/C++ source code generated on  : 19-Aug-2015 10:03:40
 //
 
 // Include Files
@@ -190,7 +190,7 @@ void b_QuatFromRotJ(double Q[4])
   static const boolean_T x[4] = { false, false, false, true };
 
   int loop_ub;
-  int i11;
+  int i9;
   signed char i_data[4];
   signed char index_data[4];
 
@@ -226,8 +226,8 @@ void b_QuatFromRotJ(double Q[4])
     loop_ub = idx;
   }
 
-  for (i11 = 0; i11 < loop_ub; i11++) {
-    i_data[i11] = ii_data[i11];
+  for (i9 = 0; i9 < loop_ub; i9++) {
+    i_data[i9] = ii_data[i9];
   }
 
   if (1 > idx) {
@@ -236,8 +236,8 @@ void b_QuatFromRotJ(double Q[4])
     ii = idx;
   }
 
-  for (i11 = 0; i11 < ii; i11++) {
-    index_data[i11] = i_data[i11];
+  for (i9 = 0; i9 < ii; i9++) {
+    index_data[i9] = i_data[i9];
   }
 
   for (ii = 0; ii < loop_ub; ii++) {

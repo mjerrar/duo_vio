@@ -5,7 +5,7 @@
 // File: norm.h
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 18-Aug-2015 14:23:32
+// C/C++ source code generated on  : 19-Aug-2015 10:03:40
 //
 #ifndef __NORM_H__
 #define __NORM_H__
@@ -15,14 +15,15 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
+#include "rt_defines.h"
 #include "rt_nonfinite.h"
 #include "rtwtypes.h"
 #include "SLAM_types.h"
 
 // Function Declarations
 extern double b_norm(const double x[4]);
-extern double c_norm(const double x[2]);
-extern double d_norm(const emxArray_real_T *x);
+extern double c_norm(const emxArray_real_T *x);
+extern double d_norm(const double x[2]);
 extern double norm(const double x[3]);
 
 #endif

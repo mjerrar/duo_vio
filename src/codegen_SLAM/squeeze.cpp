@@ -2,35 +2,32 @@
 // Academic License - for use in teaching, academic research, and meeting
 // course requirements at degree granting institutions only.  Not for
 // government, commercial, or other organizational use.
-// File: power.cpp
+// File: squeeze.cpp
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 18-Aug-2015 14:23:32
+// C/C++ source code generated on  : 19-Aug-2015 10:03:40
 //
 
 // Include Files
 #include "rt_nonfinite.h"
 #include "SLAM.h"
-#include "power.h"
+#include "squeeze.h"
 #include <stdio.h>
 
 // Function Definitions
 
 //
-// Arguments    : const double a[2]
-//                double y[2]
+// Arguments    : const double a[12]
+//                double b[12]
 // Return Type  : void
 //
-void power(const double a[2], double y[2])
+void squeeze(const double a[12], double b[12])
 {
-  int k;
-  for (k = 0; k < 2; k++) {
-    y[k] = a[k] * a[k];
-  }
+  memcpy(&b[0], &a[0], 12U * sizeof(double));
 }
 
 //
-// File trailer for power.cpp
+// File trailer for squeeze.cpp
 //
 // [EOF]
 //
