@@ -11,13 +11,16 @@
 #include <stdio.h>
 #include <visualization_msgs/Marker.h>
 
+static const unsigned int IMU_delay = 14;
+
 Localization::Localization()
 : nh_("~"),
 process_noise_(4,0.0),
 im_noise_(2,0.0),
 t_avg(0.0),
 SLAM_reset_flag(0),
-controller_gains(3,0.0)
+controller_gains(3,0.0),
+mavros_imu_data_buffer_(IMU_delay)
 {
     SLAM_initialize();
     emxInitArray_real_T(&h_u_apo_,1);
@@ -110,11 +113,16 @@ controller_gains(3,0.0)
     update_vec_.assign(num_points_, 0);
 
     // initialize a valid quaternion in case this topic does not publish
-    mavros_imu_data_ = sensor_msgs::Imu();
-    mavros_imu_data_.orientation.x = 0.0;
-    mavros_imu_data_.orientation.y = 0.0;
-    mavros_imu_data_.orientation.z = 0.0;
-    mavros_imu_data_.orientation.w = 1.0;
+    sensor_msgs::Imu mavros_imu_data;
+    mavros_imu_data.orientation.x = 0.0;
+    mavros_imu_data.orientation.y = 0.0;
+    mavros_imu_data.orientation.z = 0.0;
+    mavros_imu_data.orientation.w = 1.0;
+
+    for (int i = 0; i < IMU_delay; i++)
+    {
+    	mavros_imu_data_buffer_.push_back(mavros_imu_data);
+    }
 }
 
 Localization::~Localization()
@@ -203,7 +211,7 @@ void Localization::duo3dCb(const duo3d_ros::Duo3d& msg)
 
 void Localization::mavrosImuCb(const sensor_msgs::Imu msg)
 {
-  mavros_imu_data_ = msg;
+  mavros_imu_data_buffer_.push_back(msg);
 }
 
 void Localization::mavrosMagCb(const sensor_msgs::MagneticField msg)
@@ -277,7 +285,7 @@ void Localization::update(double dt, const cv::Mat& left_image, const cv::Mat& r
     emxInitArray_real_T(&map,2);
 
     std::vector<double> reference(4,0.0);
-    reference[3] = 0.5;
+//    reference[3] = 0.5;
 
     double u_out[4];
 
@@ -376,18 +384,18 @@ void Localization::getIMUData(const sensor_msgs::Imu& imu, const sensor_msgs::Ma
     inertial_vec.at(11) = mavros_mag_data_.magnetic_field.y;
     inertial_vec.at(12) = mavros_mag_data_.magnetic_field.z;
 
-    inertial_vec.at(13) = mavros_imu_data_.angular_velocity.x;
-    inertial_vec.at(14) = mavros_imu_data_.angular_velocity.y;
-    inertial_vec.at(15) = mavros_imu_data_.angular_velocity.z;
+    inertial_vec.at(13) = mavros_imu_data_buffer_[0].angular_velocity.x;
+    inertial_vec.at(14) = mavros_imu_data_buffer_[0].angular_velocity.y;
+    inertial_vec.at(15) = mavros_imu_data_buffer_[0].angular_velocity.z;
 
-    inertial_vec.at(16) = mavros_imu_data_.linear_acceleration.x;
-    inertial_vec.at(17) = mavros_imu_data_.linear_acceleration.y;
-    inertial_vec.at(18) = mavros_imu_data_.linear_acceleration.z;
+    inertial_vec.at(16) = mavros_imu_data_buffer_[0].linear_acceleration.x;
+    inertial_vec.at(17) = mavros_imu_data_buffer_[0].linear_acceleration.y;
+    inertial_vec.at(18) = mavros_imu_data_buffer_[0].linear_acceleration.z;
 
-    inertial_vec.at(19) = mavros_imu_data_.orientation.x;
-    inertial_vec.at(20) = mavros_imu_data_.orientation.y;
-    inertial_vec.at(21) = mavros_imu_data_.orientation.z;
-    inertial_vec.at(22) = mavros_imu_data_.orientation.w;
+    inertial_vec.at(19) = mavros_imu_data_buffer_[0].orientation.x;
+    inertial_vec.at(20) = mavros_imu_data_buffer_[0].orientation.y;
+    inertial_vec.at(21) = mavros_imu_data_buffer_[0].orientation.z;
+    inertial_vec.at(22) = mavros_imu_data_buffer_[0].orientation.w;
 }
 
 void Localization::displayTracks(const cv::Mat& left_image,

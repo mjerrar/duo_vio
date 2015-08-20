@@ -5,7 +5,7 @@
 // File: SLAM.cpp
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 20-Aug-2015 15:34:21
+// C/C++ source code generated on  : 20-Aug-2015 17:24:09
 //
 
 // Include Files
@@ -26,7 +26,7 @@
 static boolean_T initialized_not_empty;
 static emxArray_real_T *xt;
 static emxArray_real_T *P;
-static double delayBuffer_k[84];
+static double delayBuffer_k[140];
 static double last_u[4];
 
 // Function Declarations
@@ -119,11 +119,7 @@ void SLAM(double updateVect[16], const double z_all_l[32], const double z_all_r
 
   double dv22[4];
   double d5;
-  static const double y[9] = { 1.0E-5, 0.0, 0.0, 0.0, 1.0E-5, 0.0, 0.0, 0.0,
-    1.0E-5 };
-
-  static const double b_y[9] = { 0.01, 0.0, 0.0, 0.0, 0.01, 0.0, 0.0, 0.0, 0.01
-  };
+  static const double y[9] = { 0.01, 0.0, 0.0, 0.0, 0.01, 0.0, 0.0, 0.0, 0.01 };
 
   double R_bw[9];
   static const signed char d_a[9] = { 0, -1, 0, 0, 0, -1, 1, 0, 0 };
@@ -151,9 +147,7 @@ void SLAM(double updateVect[16], const double z_all_l[32], const double z_all_r
   //  for coder
   // % imu hack
   //  rotation from camera to control/body frame
-  b_fprintf(IMU_measurements[19], IMU_measurements[20], IMU_measurements[21],
-            IMU_measurements[22]);
-
+  //  fprintf('got quaternion: (%.3f, %.3f, %.3f, %.3f)\n', IMU_measurements(20), IMU_measurements(21), IMU_measurements(22), IMU_measurements(23)); 
   // % finish imu hack
   for (outsize_idx_0 = 0; outsize_idx_0 < 4; outsize_idx_0++) {
     u_out[outsize_idx_0] = 0.0;
@@ -172,9 +166,14 @@ void SLAM(double updateVect[16], const double z_all_l[32], const double z_all_r
   emxInit_real_T(&r5, 2);
   if ((!initialized_not_empty) || resetFlag) {
     initialized_not_empty = true;
-    memset(&delayBuffer_k[0], 0, 84U * sizeof(double));
+    memset(&delayBuffer_k[0], 0, 140U * sizeof(double));
+    for (outsize_idx_0 = 0; outsize_idx_0 < 14; outsize_idx_0++) {
+      for (ibcol = 0; ibcol < 4; ibcol++) {
+        delayBuffer_k[(ibcol + 10 * outsize_idx_0) + 6] = IMU_measurements[19 +
+          ibcol];
+      }
+    }
 
-    // delayBuffer_k_1=[0;0;0;0;0;0];
     //  if ~all(size(q) == [4, 1])
     //      error('q does not have the size of a quaternion')
     //  end
@@ -296,8 +295,7 @@ void SLAM(double updateVect[16], const double z_all_l[32], const double z_all_r
     //  position
     for (ibcol = 0; ibcol < 3; ibcol++) {
       for (outsize_idx_0 = 0; outsize_idx_0 < 3; outsize_idx_0++) {
-        P->data[(outsize_idx_0 + P->size[0] * (3 + ibcol)) + 3] =
-          y[outsize_idx_0 + 3 * ibcol];
+        P->data[(outsize_idx_0 + P->size[0] * (3 + ibcol)) + 3] = 0.0;
       }
     }
 
@@ -314,7 +312,7 @@ void SLAM(double updateVect[16], const double z_all_l[32], const double z_all_r
     for (ibcol = 0; ibcol < 3; ibcol++) {
       for (outsize_idx_0 = 0; outsize_idx_0 < 3; outsize_idx_0++) {
         P->data[(outsize_idx_0 + P->size[0] * (9 + ibcol)) + 9] =
-          b_y[outsize_idx_0 + 3 * ibcol];
+          y[outsize_idx_0 + 3 * ibcol];
       }
     }
 
@@ -422,11 +420,12 @@ void SLAM(double updateVect[16], const double z_all_l[32], const double z_all_r
     }
 
     u_out[3] = u_out_yaw;
-    p_fprintf(xt->data[0] - ref[0], xt->data[1] - ref[1], xt->data[2] - ref[2],
+    n_fprintf(xt->data[0] - ref[0], xt->data[1] - ref[1], xt->data[2] - ref[2],
               yaw - ref[3], d5, d6, d7, u_out_yaw);
     for (k = 0; k < 13; k++) {
-      for (ibcol = 0; ibcol < 6; ibcol++) {
-        delayBuffer_k[ibcol + 6 * (13 - k)] = delayBuffer_k[ibcol + 6 * (12 - k)];
+      for (ibcol = 0; ibcol < 10; ibcol++) {
+        delayBuffer_k[ibcol + 10 * (13 - k)] = delayBuffer_k[ibcol + 10 * (12 -
+          k)];
       }
     }
 
@@ -438,8 +437,12 @@ void SLAM(double updateVect[16], const double z_all_l[32], const double z_all_r
       delayBuffer_k[ibcol + 3] = IMU_measurements[16 + ibcol];
     }
 
+    for (ibcol = 0; ibcol < 4; ibcol++) {
+      delayBuffer_k[ibcol + 6] = IMU_measurements[19 + ibcol];
+    }
+
     for (ibcol = 0; ibcol < 3; ibcol++) {
-      u_out_x[ibcol] = delayBuffer_k[78 + ibcol] + e_a[ibcol];
+      u_out_x[ibcol] = delayBuffer_k[130 + ibcol] + e_a[ibcol];
     }
 
     for (ibcol = 0; ibcol < 3; ibcol++) {
@@ -452,16 +455,28 @@ void SLAM(double updateVect[16], const double z_all_l[32], const double z_all_r
       f_a[ibcol] = 0.0;
       for (outsize_idx_0 = 0; outsize_idx_0 < 3; outsize_idx_0++) {
         f_a[ibcol] += g_a[ibcol + 3 * outsize_idx_0] *
-          delayBuffer_k[outsize_idx_0 + 81];
+          delayBuffer_k[outsize_idx_0 + 133];
       }
     }
 
     for (ibcol = 0; ibcol < 3; ibcol++) {
       IMU_measurements[3 + ibcol] = f_a[ibcol];
+      u_out_x[ibcol] = delayBuffer_k[130 + ibcol] + e_a[ibcol];
     }
 
-    for (outsize_idx_0 = 0; outsize_idx_0 < 4; outsize_idx_0++) {
-      dv22[outsize_idx_0] = 0.0 * last_u[outsize_idx_0];
+    for (ibcol = 0; ibcol < 3; ibcol++) {
+      b_R_bw[ibcol] = 0.0;
+      for (outsize_idx_0 = 0; outsize_idx_0 < 3; outsize_idx_0++) {
+        b_R_bw[ibcol] += g_a[ibcol + 3 * outsize_idx_0] * u_out_x[outsize_idx_0];
+      }
+
+      IMU_measurements[ibcol] = b_R_bw[ibcol];
+    }
+
+    //  xt(4:7) = QuatFromRotJ(R_cw);
+    for (ibcol = 0; ibcol < 4; ibcol++) {
+      IMU_measurements[19 + ibcol] = delayBuffer_k[ibcol + 136];
+      dv22[ibcol] = 0.0 * last_u[ibcol];
     }
 
     SLAM_pred(P, xt, dt, processNoise, IMU_measurements, numStates, dv22);

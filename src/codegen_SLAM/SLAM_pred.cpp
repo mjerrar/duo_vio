@@ -5,7 +5,7 @@
 // File: SLAM_pred.cpp
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 20-Aug-2015 15:34:21
+// C/C++ source code generated on  : 20-Aug-2015 17:24:09
 //
 
 // Include Files
@@ -68,7 +68,7 @@ static void b_dxdt_dPdt(double dt, const double meas[6], const emxArray_real_T
   int br;
   double w[3];
   int loop_ub;
-  static const signed char m_a[9] = { 1, 0, 0, 0, 0, 1, 0, -1, 0 };
+  static const signed char m_a[9] = { 0, 0, 1, -1, 0, 0, 0, -1, 0 };
 
   double dv15[9];
   double dv16[9];
@@ -187,7 +187,7 @@ static void b_dxdt_dPdt(double dt, const double meas[6], const emxArray_real_T
 
   for (br = 0; br < 3; br++) {
     for (loop_ub = 0; loop_ub < 3; loop_ub++) {
-      F[(loop_ub + 12 * (br + 3)) + 3] = -0.0 * dv15[loop_ub + 3 * br];
+      F[(loop_ub + 12 * (br + 3)) + 3] = -dv15[loop_ub + 3 * br];
     }
   }
 
@@ -467,7 +467,7 @@ static void dxdt_dPdt(double dt, const double meas[6], const emxArray_real_T *x,
   int c;
   double w[3];
   int br;
-  static const signed char m_a[9] = { 1, 0, 0, 0, 0, 1, 0, -1, 0 };
+  static const signed char m_a[9] = { 0, 0, 1, -1, 0, 0, 0, -1, 0 };
 
   double dv7[9];
   double dv8[9];
@@ -586,7 +586,7 @@ static void dxdt_dPdt(double dt, const double meas[6], const emxArray_real_T *x,
 
   for (c = 0; c < 3; c++) {
     for (br = 0; br < 3; br++) {
-      F[(br + 12 * (c + 3)) + 3] = -0.0 * dv7[br + 3 * c];
+      F[(br + 12 * (c + 3)) + 3] = -dv7[br + 3 * c];
     }
   }
 
@@ -939,7 +939,6 @@ void SLAM_pred(emxArray_real_T *P_apo, emxArray_real_T *x, double dt, const
   emxArray_real_T *P_xx_apr;
   int i25;
   emxArray_real_T *Phi;
-  double u_0[4];
   double meas_0[6];
   emxArray_real_T *b_x;
   emxArray_real_T *x1;
@@ -987,7 +986,6 @@ void SLAM_pred(emxArray_real_T *P_apo, emxArray_real_T *x, double dt, const
   //  numStatesFeatures=numAnchors*(7+numPointsPerAnchor);
   //  %% Iterative Camera Pose optimization (EKF)
   //  numStates=22;
-  //  rotation from camera to control/body frame
   // % compute the linearization F of the non linear model f
   c = dt * dt;
   b_processNoise[0] = processNoise[1];
@@ -1030,10 +1028,6 @@ void SLAM_pred(emxArray_real_T *P_apo, emxArray_real_T *x, double dt, const
 
   emxInit_real_T(&Phi, 2);
   eye(c_numStates, Phi);
-  for (i = 0; i < 4; i++) {
-    u_0[i] = 0.0 * control_input[i];
-  }
-
   for (i = 0; i < 3; i++) {
     meas_0[i] = IMU_measurements[i];
   }
@@ -1058,10 +1052,11 @@ void SLAM_pred(emxArray_real_T *P_apo, emxArray_real_T *x, double dt, const
 
   b_emxInit_real_T(&x1, 1);
   emxInit_real_T(&b_Phi, 2);
-  dxdt_dPdt(dt, meas_0, b_x, P_xx_apr, Phi, Q, u_0, x1, b_P_xx_apr, b_Phi);
+  dxdt_dPdt(dt, meas_0, b_x, P_xx_apr, Phi, Q, control_input, x1, b_P_xx_apr,
+            b_Phi);
   emxFree_real_T(&b_x);
   for (i = 0; i < 4; i++) {
-    u_1[i] = u_0[i] + (u_0[i] - u_0[i]) * 0.5;
+    u_1[i] = control_input[i] + (control_input[i] - control_input[i]) * 0.5;
   }
 
   for (i = 0; i < 6; i++) {
@@ -1114,7 +1109,7 @@ void SLAM_pred(emxArray_real_T *P_apo, emxArray_real_T *x, double dt, const
   b_dxdt_dPdt(dt, meas_1, xx, c_P_xx_apr, c_Phi, Q, u_1, x2, P2, P_xs_apr);
   emxFree_real_T(&c_Phi);
   for (i24 = 0; i24 < 4; i24++) {
-    u_1[i24] += (u_0[i24] - u_1[i24]) * 0.5;
+    u_1[i24] += (control_input[i24] - u_1[i24]) * 0.5;
   }
 
   for (i24 = 0; i24 < 6; i24++) {
@@ -1210,7 +1205,7 @@ void SLAM_pred(emxArray_real_T *P_apo, emxArray_real_T *x, double dt, const
   }
 
   for (i = 0; i < 4; i++) {
-    b_xx[i] = u_1[i] + (u_0[i] - u_1[i]);
+    b_xx[i] = u_1[i] + (control_input[i] - u_1[i]);
   }
 
   b_emxInit_real_T(&x4, 1);
@@ -1374,9 +1369,6 @@ void SLAM_pred(emxArray_real_T *P_apo, emxArray_real_T *x, double dt, const
   emxFree_real_T(&b_Phi);
 
   //  covariance between current state and trails
-  //  R_bw_init = RotFromQuatJ(IMU_measurements(20:23));
-  //  R_iw_init = R_bc' * R_bw_init;
-  //  x(4:7) = QuatFromRotJ(R_iw_init);
   c = b_norm(*(double (*)[4])&x->data[3]);
   for (i24 = 0; i24 < 4; i24++) {
     b_xx[i24] = x->data[3 + i24] / c;

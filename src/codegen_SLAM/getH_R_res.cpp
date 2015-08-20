@@ -5,7 +5,7 @@
 // File: getH_R_res.cpp
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 20-Aug-2015 15:34:21
+// C/C++ source code generated on  : 20-Aug-2015 17:24:09
 //
 
 // Include Files
@@ -834,7 +834,6 @@ void b_getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
   }
 
   if (useOrientation) {
-    //  NOTE: this serves as orientation residual
     //  if ~all(size(q) == [4, 1])
     //      error('q does not have the size of a quaternion')
     //  end
@@ -1903,7 +1902,6 @@ void getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
   }
 
   if (useOrientation) {
-    //  NOTE: this serves as orientation residual
     //  if ~all(size(q) == [4, 1])
     //      error('q does not have the size of a quaternion')
     //  end
