@@ -108,6 +108,13 @@ controller_gains(3,0.0)
     num_points_ = num_anchors_*num_points_per_anchor_;
 
     update_vec_.assign(num_points_, 0);
+
+    // initialize a valid quaternion in case this topic does not publish
+    mavros_imu_data_ = sensor_msgs::Imu();
+    mavros_imu_data_.orientation.x = 0.0;
+    mavros_imu_data_.orientation.y = 0.0;
+    mavros_imu_data_.orientation.z = 0.0;
+    mavros_imu_data_.orientation.w = 1.0;
 }
 
 Localization::~Localization()
