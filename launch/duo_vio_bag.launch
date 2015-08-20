@@ -42,7 +42,7 @@
     <param name="resolution_width" type="int" value="$(arg resolution_width_duo)" />
     <param name="resolution_height" type="int" value="$(arg resolution_height_duo)" />
 
-    <param name="debug_publish_freq" type="int" value="$(arg debug_publish_freq)" />
+    <param name="debug_publish_freq" type="double" value="$(arg debug_publish_freq)" />
   </node>
 
 </launch>
