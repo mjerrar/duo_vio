@@ -5,7 +5,7 @@
 // File: SLAM.cpp
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 20-Aug-2015 09:05:05
+// C/C++ source code generated on  : 20-Aug-2015 11:33:45
 //
 
 // Include Files
@@ -145,7 +145,7 @@ void SLAM(double updateVect[16], const double z_all_l[32], const double z_all_r
   static const signed char c_a[9] = { -1, 0, 0, 0, -1, 0, 0, 0, -1 };
 
   int tmp_data[16];
-  static const signed char d_a[9] = { 1, 0, 0, 0, 0, -1, 0, 1, 0 };
+  static const signed char d_a[9] = { 0, -1, 0, 0, 0, -1, 1, 0, 0 };
 
   double yaw;
   double dv29[2];
@@ -582,6 +582,7 @@ void SLAM(double updateVect[16], const double z_all_l[32], const double z_all_r
       B += -K_pos[i11] * dv29[i11];
     }
 
+    //  control commands in world frame
     dv30[0] = xt->data[1] - ref[1];
     dv30[1] = xt->data[8];
     d5 = 0.0;
@@ -589,6 +590,7 @@ void SLAM(double updateVect[16], const double z_all_l[32], const double z_all_r
       d5 += -K_pos[i11] * dv30[i11];
     }
 
+    //  control commands in world frame
     dv31[0] = xt->data[2] - ref[2];
     dv31[1] = xt->data[9];
     d6 = 0.0;
@@ -596,6 +598,7 @@ void SLAM(double updateVect[16], const double z_all_l[32], const double z_all_r
       d6 += -K_pos[i11] * dv31[i11];
     }
 
+    //  control commands in world frame
     u_out_yaw = -gains[2] * (yaw - ref[3]);
     u_out_x[0] = B;
     u_out_x[1] = d5;
