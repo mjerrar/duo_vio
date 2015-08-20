@@ -24,7 +24,7 @@
 
 #include "SLAM.h"
 #include "SLAM_includes.h"
-#include "cameraParameters.h"
+#include "stereoParameters.h"
 
 #include "onboard_localization/ControllerOut.h"
 
