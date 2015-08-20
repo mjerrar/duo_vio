@@ -211,7 +211,7 @@ void Localization::duo3dCb(const duo3d_ros::Duo3d& msg)
 
 void Localization::mavrosImuCb(const sensor_msgs::Imu msg)
 {
-  mavros_imu_data_buffer_.push_back(msg);
+  mavros_imu_data_ = msg;
 }
 
 void Localization::mavrosMagCb(const sensor_msgs::MagneticField msg)
@@ -366,6 +366,9 @@ void Localization::update(double dt, const cv::Mat& left_image, const cv::Mat& r
 
 void Localization::getIMUData(const sensor_msgs::Imu& imu, const sensor_msgs::MagneticField& mag, std::vector<double>& inertial_vec)
 {
+	// push the most recent IMU data into the buffer
+	mavros_imu_data_buffer_.push_back(mavros_imu_data_);
+
     inertial_vec.at(0) = +imu.angular_velocity.x;
     inertial_vec.at(1) = -imu.angular_velocity.y;
     inertial_vec.at(2) = +imu.angular_velocity.z;
@@ -398,8 +401,7 @@ void Localization::getIMUData(const sensor_msgs::Imu& imu, const sensor_msgs::Ma
     inertial_vec.at(22) = mavros_imu_data_buffer_[0].orientation.w;
 }
 
-void Localization::displayTracks(const cv::Mat& left_image,
-    double z_all_l[], double z_all_r[], std::vector<int> status, emxArray_real_T *h_u)
+void Localization::displayTracks(const cv::Mat& left_image, double z_all_l[], double z_all_r[], std::vector<int> status, emxArray_real_T *h_u)
 {
     cv::Mat left;
     cv::cvtColor(left_image,left,cv::COLOR_GRAY2BGR);

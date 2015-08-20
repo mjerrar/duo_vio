@@ -103,6 +103,7 @@ private:
   nav_msgs::Path slam_path_;
   ros::Publisher vis_pub_;
 
+  sensor_msgs::Imu mavros_imu_data_;
   boost::circular_buffer<sensor_msgs::Imu> mavros_imu_data_buffer_;
   sensor_msgs::MagneticField mavros_mag_data_;
   sensor_msgs::FluidPressure mavros_pressure_data_;
