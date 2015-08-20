@@ -15,7 +15,6 @@
 #include <mrdivide.h>
 #include <norm.h>
 #include <OnePointRANSAC_EKF.h>
-#include <power.h>
 #include <predictMeasurement_left.h>
 #include <predictMeasurement_stereo.h>
 #include <QuatFromRotJ.h>

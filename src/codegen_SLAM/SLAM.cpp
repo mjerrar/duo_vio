@@ -5,7 +5,7 @@
 // File: SLAM.cpp
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 20-Aug-2015 14:00:17
+// C/C++ source code generated on  : 20-Aug-2015 15:34:21
 //
 
 // Include Files
@@ -27,6 +27,7 @@ static boolean_T initialized_not_empty;
 static emxArray_real_T *xt;
 static emxArray_real_T *P;
 static double delayBuffer_k[84];
+static double last_u[4];
 
 // Function Declarations
 static double rt_atan2d_snf(double u0, double u1);
@@ -116,18 +117,22 @@ void SLAM(double updateVect[16], const double z_all_l[32], const double z_all_r
   double b_IMU_measurements[9];
   static const signed char c_a[9] = { 0, 0, 1, -1, 0, 0, 0, -1, 0 };
 
-  double dv19[4];
+  double dv22[4];
   double d5;
-  static const double y[9] = { 0.01, 0.0, 0.0, 0.0, 0.01, 0.0, 0.0, 0.0, 0.01 };
+  static const double y[9] = { 1.0E-5, 0.0, 0.0, 0.0, 1.0E-5, 0.0, 0.0, 0.0,
+    1.0E-5 };
+
+  static const double b_y[9] = { 0.01, 0.0, 0.0, 0.0, 0.01, 0.0, 0.0, 0.0, 0.01
+  };
 
   double R_bw[9];
   static const signed char d_a[9] = { 0, -1, 0, 0, 0, -1, 1, 0, 0 };
 
   double yaw;
-  double dv20[2];
-  double dv21[2];
+  double dv23[2];
+  double dv24[2];
   double d6;
-  double dv22[2];
+  double dv25[2];
   double d7;
   double u_out_yaw;
   double u_out_x[3];
@@ -140,7 +145,6 @@ void SLAM(double updateVect[16], const double z_all_l[32], const double z_all_r
     -0.0076556800000000536, 0.010066000000000075, -0.9998704,
     0.0087384500000000087 };
 
-  //  persistents for attitude estimator
   K_pos[0] = gains[0];
   K_pos[1] = gains[1];
 
@@ -167,7 +171,7 @@ void SLAM(double updateVect[16], const double z_all_l[32], const double z_all_r
   emxInit_real_T(&r4, 2);
   emxInit_real_T(&r5, 2);
   if ((!initialized_not_empty) || resetFlag) {
-    //  initialization for attitude filter
+    initialized_not_empty = true;
     memset(&delayBuffer_k[0], 0, 84U * sizeof(double));
 
     // delayBuffer_k_1=[0;0;0;0;0;0];
@@ -177,8 +181,6 @@ void SLAM(double updateVect[16], const double z_all_l[32], const double z_all_r
     //  if abs(norm(q) - 1) > 1e-3
     //      error('The provided quaternion is not a valid rotation quaternion because it does not have norm 1') 
     //  end
-    //  other initialization
-    initialized_not_empty = true;
     ibcol = a->size[0];
     a->size[0] = 7 + (int)numPointsPerAnchor;
     emxEnsureCapacity((emxArray__common *)a, ibcol, (int)sizeof(double));
@@ -239,7 +241,7 @@ void SLAM(double updateVect[16], const double z_all_l[32], const double z_all_r
       }
     }
 
-    QuatFromRotJ(b_a, dv19);
+    QuatFromRotJ(b_a, dv22);
     ibcol = xt->size[0];
     xt->size[0] = 13 + b->size[0];
     emxEnsureCapacity((emxArray__common *)xt, ibcol, (int)sizeof(double));
@@ -247,7 +249,7 @@ void SLAM(double updateVect[16], const double z_all_l[32], const double z_all_r
     xt->data[1] = 0.0;
     xt->data[2] = 0.0;
     for (ibcol = 0; ibcol < 4; ibcol++) {
-      xt->data[ibcol + 3] = dv19[ibcol];
+      xt->data[ibcol + 3] = dv22[ibcol];
     }
 
     xt->data[7] = 0.0;
@@ -292,7 +294,14 @@ void SLAM(double updateVect[16], const double z_all_l[32], const double z_all_r
     }
 
     //  position
-    //      P(4:6,4:6) = 1*eye(3); % orientation
+    for (ibcol = 0; ibcol < 3; ibcol++) {
+      for (outsize_idx_0 = 0; outsize_idx_0 < 3; outsize_idx_0++) {
+        P->data[(outsize_idx_0 + P->size[0] * (3 + ibcol)) + 3] =
+          y[outsize_idx_0 + 3 * ibcol];
+      }
+    }
+
+    //  orientation
     //      P(4:6,4:6) = R_iw_init * diag([1 1 0]) * R_iw_init';
     //      P(4:6,4:6) = diag([0 0 1]);
     for (ibcol = 0; ibcol < 3; ibcol++) {
@@ -305,7 +314,7 @@ void SLAM(double updateVect[16], const double z_all_l[32], const double z_all_r
     for (ibcol = 0; ibcol < 3; ibcol++) {
       for (outsize_idx_0 = 0; outsize_idx_0 < 3; outsize_idx_0++) {
         P->data[(outsize_idx_0 + P->size[0] * (9 + ibcol)) + 9] =
-          y[outsize_idx_0 + 3 * ibcol];
+          b_y[outsize_idx_0 + 3 * ibcol];
       }
     }
 
@@ -337,6 +346,12 @@ void SLAM(double updateVect[16], const double z_all_l[32], const double z_all_r
     for (ibcol = 0; ibcol < outsize_idx_0; ibcol++) {
       P_apo_out->data[ibcol] = P->data[ibcol];
     }
+
+    for (outsize_idx_0 = 0; outsize_idx_0 < 4; outsize_idx_0++) {
+      last_u[outsize_idx_0] = 0.0;
+    }
+
+    //  the last control outputs (in camera frame)
   } else {
     //  if ~all(size(q) == [4, 1])
     //      error('q does not have the size of a quaternion')
@@ -367,27 +382,27 @@ void SLAM(double updateVect[16], const double z_all_l[32], const double z_all_r
     }
 
     yaw = rt_atan2d_snf(R_bw[3], R_bw[0]);
-    dv20[0] = xt->data[0] - ref[0];
-    dv20[1] = xt->data[7];
+    dv23[0] = xt->data[0] - ref[0];
+    dv23[1] = xt->data[7];
     d5 = 0.0;
     for (ibcol = 0; ibcol < 2; ibcol++) {
-      d5 += -K_pos[ibcol] * dv20[ibcol];
+      d5 += -K_pos[ibcol] * dv23[ibcol];
     }
 
     //  control commands in world frame
-    dv21[0] = xt->data[1] - ref[1];
-    dv21[1] = xt->data[8];
+    dv24[0] = xt->data[1] - ref[1];
+    dv24[1] = xt->data[8];
     d6 = 0.0;
     for (ibcol = 0; ibcol < 2; ibcol++) {
-      d6 += -K_pos[ibcol] * dv21[ibcol];
+      d6 += -K_pos[ibcol] * dv24[ibcol];
     }
 
     //  control commands in world frame
-    dv22[0] = xt->data[2] - ref[2];
-    dv22[1] = xt->data[9];
+    dv25[0] = xt->data[2] - ref[2];
+    dv25[1] = xt->data[9];
     d7 = 0.0;
     for (ibcol = 0; ibcol < 2; ibcol++) {
-      d7 += -K_pos[ibcol] * dv22[ibcol];
+      d7 += -K_pos[ibcol] * dv25[ibcol];
     }
 
     //  control commands in world frame
@@ -445,7 +460,11 @@ void SLAM(double updateVect[16], const double z_all_l[32], const double z_all_r
       IMU_measurements[3 + ibcol] = f_a[ibcol];
     }
 
-    SLAM_pred(P, xt, dt, processNoise, IMU_measurements, numStates, u_out);
+    for (outsize_idx_0 = 0; outsize_idx_0 < 4; outsize_idx_0++) {
+      dv22[outsize_idx_0] = 0.0 * last_u[outsize_idx_0];
+    }
+
+    SLAM_pred(P, xt, dt, processNoise, IMU_measurements, numStates, dv22);
 
     //  [xt,P] =  SLAM_pred_euler(P, xt, dt, processNoise, IMU_measurements, numStates); 
     SLAM_updIT(P, xt, cameraParams->CameraParameters1.RadialDistortion,
@@ -473,6 +492,11 @@ void SLAM(double updateVect[16], const double z_all_l[32], const double z_all_r
     for (ibcol = 0; ibcol < outsize_idx_0; ibcol++) {
       P_apo_out->data[ibcol] = P->data[ibcol];
     }
+
+    last_u[0] = d5;
+    last_u[1] = d6;
+    last_u[2] = d7;
+    last_u[3] = u_out_yaw;
 
     // % output asserts for coder
   }
