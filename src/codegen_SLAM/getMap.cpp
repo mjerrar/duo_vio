@@ -5,7 +5,7 @@
 // File: getMap.cpp
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 20-Aug-2015 11:33:45
+// C/C++ source code generated on  : 20-Aug-2015 14:00:17
 //
 
 // Include Files
@@ -53,7 +53,7 @@ void getMap(const emxArray_real_T *x, const emxArray_real_T *b_anchorFeatures,
             stateSize, double numStatesPerAnchorxt, emxArray_real_T *map,
             emxArray_real_T *anchorInd, emxArray_real_T *featureAnchorInd)
 {
-  int i5;
+  int i3;
   int ii;
   int anchorIdx;
   int idx;
@@ -66,29 +66,29 @@ void getMap(const emxArray_real_T *x, const emxArray_real_T *b_anchorFeatures,
   double anchorPos[3];
   double b_x[9];
   double d0;
-  i5 = map->size[0] * map->size[1];
+  i3 = map->size[0] * map->size[1];
   map->size[0] = 3;
   map->size[1] = (int)c_numTrackFeatures;
-  emxEnsureCapacity((emxArray__common *)map, i5, (int)sizeof(double));
+  emxEnsureCapacity((emxArray__common *)map, i3, (int)sizeof(double));
   ii = 3 * (int)c_numTrackFeatures;
-  for (i5 = 0; i5 < ii; i5++) {
-    map->data[i5] = rtNaN;
+  for (i3 = 0; i3 < ii; i3++) {
+    map->data[i3] = rtNaN;
   }
 
-  i5 = anchorInd->size[0];
+  i3 = anchorInd->size[0];
   anchorInd->size[0] = (int)c_numTrackFeatures;
-  emxEnsureCapacity((emxArray__common *)anchorInd, i5, (int)sizeof(double));
+  emxEnsureCapacity((emxArray__common *)anchorInd, i3, (int)sizeof(double));
   ii = (int)c_numTrackFeatures;
-  for (i5 = 0; i5 < ii; i5++) {
-    anchorInd->data[i5] = 0.0;
+  for (i3 = 0; i3 < ii; i3++) {
+    anchorInd->data[i3] = 0.0;
   }
 
-  i5 = featureAnchorInd->size[0];
+  i3 = featureAnchorInd->size[0];
   featureAnchorInd->size[0] = (int)c_numTrackFeatures;
-  emxEnsureCapacity((emxArray__common *)featureAnchorInd, i5, (int)sizeof(double));
+  emxEnsureCapacity((emxArray__common *)featureAnchorInd, i3, (int)sizeof(double));
   ii = (int)c_numTrackFeatures;
-  for (i5 = 0; i5 < ii; i5++) {
-    featureAnchorInd->data[i5] = 0.0;
+  for (i3 = 0; i3 < ii; i3++) {
+    featureAnchorInd->data[i3] = 0.0;
   }
 
   for (anchorIdx = 0; anchorIdx < b_anchorFeatures->size[1]; anchorIdx++) {
@@ -127,8 +127,8 @@ void getMap(const emxArray_real_T *x, const emxArray_real_T *b_anchorFeatures,
       ii = idx;
     }
 
-    for (i5 = 0; i5 < ii; i5++) {
-      featureIdxVect_data[i5] = ii_data[i5];
+    for (i3 = 0; i3 < ii; i3++) {
+      featureIdxVect_data[i3] = ii_data[i3];
     }
 
     //  the transpose prevents going into the loop if find returns empty
@@ -138,8 +138,8 @@ void getMap(const emxArray_real_T *x, const emxArray_real_T *b_anchorFeatures,
         //  if this is not a lost feature
         b_stateSize = stateSize + ((1.0 + (double)anchorIdx) - 1.0) *
           numStatesPerAnchorxt;
-        for (i5 = 0; i5 < 3; i5++) {
-          anchorPos[i5] = x->data[(int)(b_stateSize + (1.0 + (double)i5)) - 1];
+        for (i3 = 0; i3 < 3; i3++) {
+          anchorPos[i3] = x->data[(int)(b_stateSize + (1.0 + (double)i3)) - 1];
         }
 
         //  if ~all(size(q) == [4, 1])
@@ -225,15 +225,15 @@ void getMap(const emxArray_real_T *x, const emxArray_real_T *b_anchorFeatures,
            + 7.0) - 1];
         b_stateSize = x->data[(int)(((stateSize + ((1.0 + (double)anchorIdx) -
           1.0) * numStatesPerAnchorxt) + 7.0) + (1.0 + (double)ii)) - 1];
-        for (i5 = 0; i5 < 3; i5++) {
+        for (i3 = 0; i3 < 3; i3++) {
           d0 = 0.0;
           for (idx = 0; idx < 3; idx++) {
-            d0 += b_x[i5 + 3 * idx] * b_m_vect->data[idx + b_m_vect->size[0] *
+            d0 += b_x[i3 + 3 * idx] * b_m_vect->data[idx + b_m_vect->size[0] *
               (featureIdxVect_data[ii] - 1)];
           }
 
-          map->data[i5 + map->size[0] * (featureIdxVect_data[ii] - 1)] =
-            anchorPos[i5] + d0 / b_stateSize;
+          map->data[i3 + map->size[0] * (featureIdxVect_data[ii] - 1)] =
+            anchorPos[i3] + d0 / b_stateSize;
         }
 
         anchorInd->data[featureIdxVect_data[ii] - 1] = 1.0 + (double)anchorIdx;

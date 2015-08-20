@@ -5,7 +5,7 @@
 // File: blkdiag.cpp
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 20-Aug-2015 11:33:45
+// C/C++ source code generated on  : 20-Aug-2015 14:00:17
 //
 
 // Include Files
@@ -29,30 +29,30 @@ void b_blkdiag(const double varargin_1[4], const double varargin_2_data[], const
                int varargin_2_size[2], double y_data[], int y_size[2])
 {
   int loop_ub;
-  int i6;
-  int i7;
+  int i4;
+  int i5;
   int b_loop_ub;
   y_size[0] = (signed char)(2 + varargin_2_size[0]);
   y_size[1] = (signed char)(2 + varargin_2_size[1]);
   loop_ub = (signed char)(2 + varargin_2_size[0]) * (signed char)(2 +
     varargin_2_size[1]);
-  for (i6 = 0; i6 < loop_ub; i6++) {
-    y_data[i6] = 0.0;
+  for (i4 = 0; i4 < loop_ub; i4++) {
+    y_data[i4] = 0.0;
   }
 
-  for (i6 = 0; i6 < 2; i6++) {
-    for (i7 = 0; i7 < 2; i7++) {
-      y_data[i7 + y_size[0] * i6] = varargin_1[i7 + (i6 << 1)];
+  for (i4 = 0; i4 < 2; i4++) {
+    for (i5 = 0; i5 < 2; i5++) {
+      y_data[i5 + y_size[0] * i4] = varargin_1[i5 + (i4 << 1)];
     }
   }
 
   if ((varargin_2_size[0] > 0) && (varargin_2_size[1] > 0)) {
     loop_ub = varargin_2_size[1];
-    for (i6 = 0; i6 < loop_ub; i6++) {
+    for (i4 = 0; i4 < loop_ub; i4++) {
       b_loop_ub = varargin_2_size[0];
-      for (i7 = 0; i7 < b_loop_ub; i7++) {
-        y_data[(i7 + y_size[0] * (2 + i6)) + 2] = varargin_2_data[i7 +
-          varargin_2_size[0] * i6];
+      for (i5 = 0; i5 < b_loop_ub; i5++) {
+        y_data[(i5 + y_size[0] * (2 + i4)) + 2] = varargin_2_data[i5 +
+          varargin_2_size[0] * i4];
       }
     }
   }

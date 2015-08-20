@@ -5,7 +5,7 @@
 // File: getH_R_res.cpp
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 20-Aug-2015 11:33:45
+// C/C++ source code generated on  : 20-Aug-2015 14:00:17
 //
 
 // Include Files
@@ -350,15 +350,12 @@ void b_getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
       }
     }
 
-    b_R_cw[9] = 0.0;
-    b_R_cw[12] = -h_rz[2];
-    b_R_cw[15] = h_rz[1];
-    b_R_cw[10] = h_rz[2];
-    b_R_cw[13] = 0.0;
-    b_R_cw[16] = -h_rz[0];
-    b_R_cw[11] = -h_rz[1];
-    b_R_cw[14] = h_rz[0];
-    b_R_cw[17] = 0.0;
+    for (i1 = 0; i1 < 3; i1++) {
+      for (ic = 0; ic < 3; ic++) {
+        b_R_cw[ic + 3 * (i1 + 3)] = 0.0;
+      }
+    }
+
     for (i1 = 0; i1 < 6; i1++) {
       for (ic = 0; ic < 3; ic++) {
         b_R_cw[ic + 3 * (i1 + 6)] = 0.0;
@@ -1417,15 +1414,12 @@ void getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
     }
   }
 
-  b_R_cw[9] = 0.0;
-  b_R_cw[12] = -h_ci_l[2];
-  b_R_cw[15] = h_ci_l[1];
-  b_R_cw[10] = h_ci_l[2];
-  b_R_cw[13] = 0.0;
-  b_R_cw[16] = -h_ci_l[0];
-  b_R_cw[11] = -h_ci_l[1];
-  b_R_cw[14] = h_ci_l[0];
-  b_R_cw[17] = 0.0;
+  for (ar = 0; ar < 3; ar++) {
+    for (br = 0; br < 3; br++) {
+      b_R_cw[br + 3 * (ar + 3)] = 0.0;
+    }
+  }
+
   for (ar = 0; ar < 6; ar++) {
     for (br = 0; br < 3; br++) {
       b_R_cw[br + 3 * (ar + 6)] = 0.0;

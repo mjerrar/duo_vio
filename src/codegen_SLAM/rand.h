@@ -5,7 +5,7 @@
 // File: rand.h
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 20-Aug-2015 11:33:45
+// C/C++ source code generated on  : 20-Aug-2015 14:00:17
 //
 #ifndef __RAND_H__
 #define __RAND_H__

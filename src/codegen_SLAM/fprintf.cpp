@@ -5,7 +5,7 @@
 // File: fprintf.cpp
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 20-Aug-2015 11:33:45
+// C/C++ source code generated on  : 20-Aug-2015 14:00:17
 //
 
 // Include Files
@@ -16,7 +16,8 @@
 #include <stdio.h>
 
 // Function Declarations
-static double c_fprintf();
+static double c_fprintf(double varargin_1, double varargin_2, double varargin_3,
+  double varargin_4);
 static double e_fprintf(int varargin_1);
 static double g_fprintf();
 static double i_fprintf(signed char varargin_1);
@@ -30,26 +31,31 @@ static double q_fprintf(double varargin_1, double varargin_2, double varargin_3,
 // Function Definitions
 
 //
-// Arguments    : void
+// Arguments    : double varargin_1
+//                double varargin_2
+//                double varargin_3
+//                double varargin_4
 // Return Type  : double
 //
-static double c_fprintf()
+static double c_fprintf(double varargin_1, double varargin_2, double varargin_3,
+  double varargin_4)
 {
   int nbytesint;
   FILE * b_NULL;
   boolean_T autoflush;
   FILE * filestar;
-  static const char cfmt[47] = { 'F', 'i', 'n', 'i', 's', 'h', 'e', 'd', ' ',
-    'i', 'n', 'i', 't', 'i', 'a', 'l', 'i', 'z', 'i', 'n', 'g', ' ', 'a', 't',
-    't', 'i', 't', 'u', 'd', 'e', '.', ' ', 'S', 't', 'a', 'r', 't', 'i', 'n',
-    'g', ' ', 'S', 'L', 'A', 'M', '\x0a', '\x00' };
+  static const char cfmt[42] = { 'g', 'o', 't', ' ', 'q', 'u', 'a', 't', 'e',
+    'r', 'n', 'i', 'o', 'n', ':', ' ', '(', '%', '.', '3', 'f', ',', ' ', '%',
+    '.', '3', 'f', ',', ' ', '%', '.', '3', 'f', ',', ' ', '%', '.', '3', 'f',
+    ')', '\x0a', '\x00' };
 
   nbytesint = 0;
   b_NULL = NULL;
   fileManager(&filestar, &autoflush);
   if (filestar == b_NULL) {
   } else {
-    nbytesint = fprintf(filestar, cfmt);
+    nbytesint = fprintf(filestar, cfmt, varargin_1, varargin_2, varargin_3,
+                        varargin_4);
     fflush(filestar);
   }
 
@@ -267,12 +273,16 @@ static double q_fprintf(double varargin_1, double varargin_2, double varargin_3,
 }
 
 //
-// Arguments    : void
+// Arguments    : double formatSpec
+//                double varargin_1
+//                double varargin_2
+//                double varargin_3
 // Return Type  : void
 //
-void b_fprintf()
+void b_fprintf(double formatSpec, double varargin_1, double varargin_2, double
+               varargin_3)
 {
-  c_fprintf();
+  c_fprintf(formatSpec, varargin_1, varargin_2, varargin_3);
 }
 
 //
