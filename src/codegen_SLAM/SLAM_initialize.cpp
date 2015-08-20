@@ -5,7 +5,7 @@
 // File: SLAM_initialize.cpp
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 20-Aug-2015 19:17:37
+// C/C++ source code generated on  : 20-Aug-2015 19:59:57
 //
 
 // Include Files
@@ -18,7 +18,7 @@
 #include <stdio.h>
 
 // Named Constants
-#define b_useOrientation               (true)
+#define b_useOrientation               (false)
 #define b_useAirPressure               (false)
 #define b_numStates                    (12.0)
 #define b_numTrackFeatures             (16.0)
