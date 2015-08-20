@@ -28,6 +28,9 @@
 
 #include "onboard_localization/ControllerOut.h"
 
+#include <dynamic_reconfigure/server.h>
+#include <vio_ros/controllerConfig.h>
+
 #include <duo3d_ros/Duo3d.h>
 
 #include <vector>
@@ -60,6 +63,8 @@ private:
 
   tf::TransformBroadcaster tf_broadcaster_;
 
+  dynamic_reconfigure::Server<vio_ros::controllerConfig> dynamic_reconfigure_server;
+
   ros::Time prev_time_;
   std::vector<int> update_vec_;
 
@@ -73,7 +78,7 @@ private:
   bool show_tracker_images_;
   emxArray_real_T *h_u_apo_;
 
-  void duo3d_callback(const duo3d_ros::Duo3d& msg);
+  void duo3dCb(const duo3d_ros::Duo3d& msg);
   void mavrosImuCb(const sensor_msgs::Imu msg);
   void mavrosMagCb(const sensor_msgs::MagneticField msg);
   void mavrosPressureCb(const sensor_msgs::FluidPressure msg);
@@ -82,9 +87,9 @@ private:
   void update(double dt, const cv::Mat& left_image, const cv::Mat& right_image, const sensor_msgs::Imu& imu,
       const sensor_msgs::MagneticField& mag, geometry_msgs::Pose& pose, geometry_msgs::Twist& velocity, bool debug_publish);
 
-  void get_inertial_vector(const sensor_msgs::Imu& imu, const sensor_msgs::MagneticField& mag, std::vector<double>& inertial_vec);
+  void getIMUData(const sensor_msgs::Imu& imu, const sensor_msgs::MagneticField& mag, std::vector<double>& inertial_vec);
 
-  void display_tracks(const cv::Mat& left_image, double z_all_l[], double z_all_r[],
+  void displayTracks(const cv::Mat& left_image, double z_all_l[], double z_all_r[],
 		  std::vector<int> status, emxArray_real_T *h_u = NULL);
 
    ros::Publisher point_cloud_pub_;
@@ -101,6 +106,8 @@ private:
   sensor_msgs::FluidPressure mavros_pressure_data_;
 
   void visMarker(void);
+  void dynamicReconfigureCb(vio_ros::controllerConfig &config, uint32_t level);
+
 };
 
 #endif /* _LOCALIZATION_H_ */

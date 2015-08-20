@@ -25,7 +25,7 @@ controller_gains(3,0.0)
     pose_pub_ = nh_.advertise<geometry_msgs::PoseStamped>("/pose",1);
     velocity_pub_ = nh_.advertise<geometry_msgs::Twist>("/velocity",1);
     combined_sub = nh_.subscribe("/duo3d_camera/combined",1,
-    		&Localization::duo3d_callback,this);
+    		&Localization::duo3dCb,this);
     point_cloud_pub_ = nh_.advertise<sensor_msgs::PointCloud>("/vio/features_point_cloud",1); //TODO: add to debug parameter
     path_pub_ = nh_.advertise<nav_msgs::Path>("/vio/SLAM_path",1);
     vis_pub_ = nh_.advertise<visualization_msgs::Marker>( "drone", 0 );
@@ -82,10 +82,6 @@ controller_gains(3,0.0)
     nh_.param<int>("num_points_per_anchor", num_points_per_anchor, 1);
     nh_.param<int>("num_anchors", num_anchors, 32);
 
-    nh_.param<double>("gain_pos_p", controller_gains[0], 0.0);
-    nh_.param<double>("gain_pos_d", controller_gains[1], 0.0);
-    nh_.param<double>("gain_yaw_p", controller_gains[3], 0.0);
-
     if (num_anchors < 0.0)
     {
         ROS_ERROR("Number of anchors must not be negative!");
@@ -106,6 +102,9 @@ controller_gains(3,0.0)
         num_points_per_anchor_ = static_cast<unsigned int>(num_points_per_anchor);
     }
 
+    dynamic_reconfigure::Server<vio_ros::controllerConfig>::CallbackType f = boost::bind(&Localization::dynamicReconfigureCb, this, _1, _2);
+    dynamic_reconfigure_server.setCallback(f);
+
     num_points_ = num_anchors_*num_points_per_anchor_;
 
     update_vec_.assign(num_points_, 0);
@@ -117,7 +116,7 @@ Localization::~Localization()
     SLAM_terminate();
 }
 
-void Localization::duo3d_callback(const duo3d_ros::Duo3d& msg)
+void Localization::duo3dCb(const duo3d_ros::Duo3d& msg)
 {
 	double tic_total = ros::Time::now().toSec();
     sensor_msgs::MagneticField mag; // TODO Subscribe to mag topic
@@ -219,6 +218,14 @@ void Localization::joystickCb(const sensor_msgs::Joy::ConstPtr& joy)
 	}
 }
 
+void Localization::dynamicReconfigureCb(vio_ros::controllerConfig &config, uint32_t level)
+{
+  ROS_INFO("Reconfigure Request: Position: Kp: %.3f, Kd %.3f, Yaw: Kp %.3f", config.Kp_pos, config.Kd_pos, config.Kp_yaw);
+  controller_gains[0] = config.Kp_pos;
+  controller_gains[1] = config.Kd_pos;
+  controller_gains[2] = config.Kp_yaw;
+}
+
 void Localization::update(double dt, const cv::Mat& left_image, const cv::Mat& right_image, const sensor_msgs::Imu& imu,
     const sensor_msgs::MagneticField& mag, geometry_msgs::Pose& pose, geometry_msgs::Twist& velocity, bool debug_publish)
 {
@@ -228,8 +235,6 @@ void Localization::update(double dt, const cv::Mat& left_image, const cv::Mat& r
     //*********************************************************************
 	int measurementDim = 4;
 
-//    double z_all_l[num_anchors_ * measurementDim];
-//    double z_all_r[num_anchors_ * measurementDim];
     std::vector<double> z_all_l(num_points_*2, 0.0);
     std::vector<double> z_all_r(num_points_*2, 0.0);
 
@@ -251,8 +256,8 @@ void Localization::update(double dt, const cv::Mat& left_image, const cv::Mat& r
     // SLAM
     //*********************************************************************
 
-    std::vector<double> inertial(23,0.0);
-    get_inertial_vector(imu,mag,inertial);
+    std::vector<double> IMU_data(23,0.0);
+    getIMUData(imu, mag, IMU_data);
 
     emxArray_real_T *xt_out; // result
     emxArray_real_T *P_apo_out;
@@ -277,7 +282,7 @@ void Localization::update(double dt, const cv::Mat& left_image, const cv::Mat& r
 		 &z_all_r[0],
 		 dt,
 		 &process_noise_[0],
-		 &inertial[0],
+		 &IMU_data[0],
 		 &im_noise_[0],
 		 num_points_per_anchor_,
 		 num_anchors_,
@@ -310,7 +315,7 @@ void Localization::update(double dt, const cv::Mat& left_image, const cv::Mat& r
     {
     	if (show_tracker_images_)
     	{
-    		display_tracks(left_image, &z_all_l[0], &z_all_r[0], update_vec_, h_u_apo);
+    		displayTracks(left_image, &z_all_l[0], &z_all_r[0], update_vec_, h_u_apo);
     	}
     	// Publish feature position in world frame
     	publishPointCloud(map->data);
@@ -344,14 +349,12 @@ void Localization::update(double dt, const cv::Mat& left_image, const cv::Mat& r
 
 }
 
-void Localization::get_inertial_vector(const sensor_msgs::Imu& imu, const sensor_msgs::MagneticField& mag, std::vector<double>& inertial_vec)
+void Localization::getIMUData(const sensor_msgs::Imu& imu, const sensor_msgs::MagneticField& mag, std::vector<double>& inertial_vec)
 {
-    // TODO Check signs of angular velocities
     inertial_vec.at(0) = +imu.angular_velocity.x;
     inertial_vec.at(1) = -imu.angular_velocity.y;
     inertial_vec.at(2) = +imu.angular_velocity.z;
 
-    // TODO Check signs of linear acceleration
     inertial_vec.at(3) = +imu.linear_acceleration.x*9.81;
     inertial_vec.at(4) = -imu.linear_acceleration.y*9.81;
     inertial_vec.at(5) = -imu.linear_acceleration.z*9.81;
@@ -374,16 +377,13 @@ void Localization::get_inertial_vector(const sensor_msgs::Imu& imu, const sensor
     inertial_vec.at(17) = mavros_imu_data_.linear_acceleration.y;
     inertial_vec.at(18) = mavros_imu_data_.linear_acceleration.z;
 
-    //quaternion from attitude controller on FMU TODO: add this to FMU and mavros
-
-    inertial_vec.at(19) = 0.0;
-    inertial_vec.at(20) = 0.0;
-    inertial_vec.at(21) = 1.0;
-    inertial_vec.at(22) = 0.0;
-
+    inertial_vec.at(19) = mavros_imu_data_.orientation.x;
+    inertial_vec.at(20) = mavros_imu_data_.orientation.y;
+    inertial_vec.at(21) = mavros_imu_data_.orientation.z;
+    inertial_vec.at(22) = mavros_imu_data_.orientation.w;
 }
 
-void Localization::display_tracks(const cv::Mat& left_image,
+void Localization::displayTracks(const cv::Mat& left_image,
     double z_all_l[], double z_all_r[], std::vector<int> status, emxArray_real_T *h_u)
 {
     cv::Mat left;

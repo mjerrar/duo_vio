@@ -15,6 +15,7 @@ find_package(
   tf
   cv_bridge
   roslib
+  dynamic_reconfigure
 )
 
 ## System dependencies are found with CMake's conventions
@@ -77,6 +78,10 @@ find_package(
 #   std_msgs  # Or other packages containing msgs
 # )
 
+generate_dynamic_reconfigure_options(
+  cfg/controller.cfg
+)
+
 ###################################
 ## catkin specific configuration ##
 ###################################
@@ -122,7 +127,7 @@ add_executable(vio_ros_node
 
 ## Add cmake target dependencies of the executable/library
 ## as an example, message headers may need to be generated before nodes
-# add_dependencies(vio_ros_node vio_ros_cpp)
+add_dependencies(vio_ros_node ${PROJECT_NAME}_gencfg)
 
 ## Specify libraries to link a library or executable target against
 target_link_libraries(vio_ros_node
