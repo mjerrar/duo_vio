@@ -15,9 +15,9 @@ Localization::Localization()
 : nh_("~"),
 process_noise_(4,0.0),
 im_noise_(2,0.0),
-camera_params_(4,0.0),
 t_avg(0.0),
-SLAM_reset_flag(0)
+SLAM_reset_flag(0),
+controller_gains(3,0.0)
 {
     SLAM_initialize();
     emxInitArray_real_T(&h_u_apo_,1);
@@ -81,6 +81,10 @@ SLAM_reset_flag(0)
     int num_points_per_anchor, num_anchors;
     nh_.param<int>("num_points_per_anchor", num_points_per_anchor, 1);
     nh_.param<int>("num_anchors", num_anchors, 32);
+
+    nh_.param<double>("gain_pos_p", controller_gains[0], 0.0);
+    nh_.param<double>("gain_pos_d", controller_gains[1], 0.0);
+    nh_.param<double>("gain_yaw_p", controller_gains[3], 0.0);
 
     if (num_anchors < 0.0)
     {
@@ -280,6 +284,7 @@ void Localization::update(double dt, const cv::Mat& left_image, const cv::Mat& r
 		 &cameraParams,
 		 SLAM_reset_flag,
 		 &reference[0],
+		 &controller_gains[0],
 		 h_u_apo,
 		 xt_out,
 		 P_apo_out,

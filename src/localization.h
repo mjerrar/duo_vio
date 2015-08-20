@@ -63,10 +63,10 @@ private:
   ros::Time prev_time_;
   std::vector<int> update_vec_;
 
-  // TODO Init subsequent parameters
-  std::vector<double> process_noise_; //qv,qw,qwo,qao
-  std::vector<double> im_noise_;
-  std::vector<double> camera_params_; //f,Cx,Cy,baseline
+  std::vector<double> process_noise_; // qv,qw,qwo,qao
+  std::vector<double> im_noise_; // x, y noise
+  std::vector<double> controller_gains; // position p, d; yaw p gains
+
   unsigned int num_points_per_anchor_;
   unsigned int num_anchors_;
   unsigned int num_points_;

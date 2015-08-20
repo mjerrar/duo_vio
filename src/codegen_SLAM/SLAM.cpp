@@ -5,7 +5,7 @@
 // File: SLAM.cpp
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 19-Aug-2015 18:46:47
+// C/C++ source code generated on  : 20-Aug-2015 09:05:05
 //
 
 // Include Files
@@ -94,6 +94,7 @@ static double rt_atan2d_snf(double u0, double u1)
 //                const stereoParameters *cameraParams
 //                boolean_T resetFlag
 //                const double ref[4]
+//                const double gains[3]
 //                emxArray_real_T *h_u_apo_out
 //                emxArray_real_T *xt_out
 //                emxArray_real_T *P_apo_out
@@ -105,10 +106,11 @@ void SLAM(double updateVect[16], const double z_all_l[32], const double z_all_r
           [32], double dt, const double processNoise[4], double
           IMU_measurements[23], const double imNoise[2], double
           numPointsPerAnchor, double numAnchors, const stereoParameters
-          *cameraParams, boolean_T resetFlag, const double ref[4],
-          emxArray_real_T *h_u_apo_out, emxArray_real_T *xt_out, emxArray_real_T
-          *P_apo_out, emxArray_real_T *map_out, double u_out[4])
+          *cameraParams, boolean_T resetFlag, const double ref[4], const double
+          gains[3], emxArray_real_T *h_u_apo_out, emxArray_real_T *xt_out,
+          emxArray_real_T *P_apo_out, emxArray_real_T *map_out, double u_out[4])
 {
+  double K_pos[2];
   int i;
   emxArray_real_T *r4;
   emxArray_real_T *r5;
@@ -117,7 +119,7 @@ void SLAM(double updateVect[16], const double z_all_l[32], const double z_all_r
   double B;
   double z_n_b[3];
   double y_n_b[3];
-  int i12;
+  int i11;
   double x_n_b[3];
   double b_x_n_b[9];
   static const double dv27[9] = { 0.001, 0.0, 0.0, 0.0, 0.001, 0.0, 0.0, 0.0,
@@ -137,7 +139,7 @@ void SLAM(double updateVect[16], const double z_all_l[32], const double z_all_r
   double b_dq[4];
   double b_Phi[9];
   double b_a[9];
-  int i13;
+  int i12;
   static const signed char b[9] = { 1, 0, 0, 0, 1, 0, 0, 0, 1 };
 
   static const signed char c_a[9] = { -1, 0, 0, 0, -1, 0, 0, 0, -1 };
@@ -162,6 +164,9 @@ void SLAM(double updateVect[16], const double z_all_l[32], const double z_all_r
     0.0087384500000000087 };
 
   //  persistents for attitude estimator
+  K_pos[0] = gains[0];
+  K_pos[1] = gains[1];
+
   //  for coder
   // % imu hack
   // % finish imu hack
@@ -196,18 +201,18 @@ void SLAM(double updateVect[16], const double z_all_l[32], const double z_all_r
     y_n_b[1] = z_n_b[2] - z_n_b[0] * 0.0;
     y_n_b[2] = z_n_b[0] * 0.0 - z_n_b[1];
     B = norm(y_n_b);
-    for (i12 = 0; i12 < 3; i12++) {
-      y_n_b[i12] /= B;
+    for (i11 = 0; i11 < 3; i11++) {
+      y_n_b[i11] /= B;
     }
 
     x_n_b[0] = y_n_b[1] * z_n_b[2] - y_n_b[2] * z_n_b[1];
     x_n_b[1] = y_n_b[2] * z_n_b[0] - y_n_b[0] * z_n_b[2];
     x_n_b[2] = y_n_b[0] * z_n_b[1] - y_n_b[1] * z_n_b[0];
     B = norm(x_n_b);
-    for (i12 = 0; i12 < 3; i12++) {
-      b_x_n_b[i12] = x_n_b[i12] / B;
-      b_x_n_b[3 + i12] = y_n_b[i12];
-      b_x_n_b[6 + i12] = z_n_b[i12];
+    for (i11 = 0; i11 < 3; i11++) {
+      b_x_n_b[i11] = x_n_b[i11] / B;
+      b_x_n_b[3 + i11] = y_n_b[i11];
+      b_x_n_b[6 + i11] = z_n_b[i11];
     }
 
     QuatFromRotJ(b_x_n_b, x_att);
@@ -215,9 +220,9 @@ void SLAM(double updateVect[16], const double z_all_l[32], const double z_all_r
 
     //  other initialization
     initialized_not_empty = true;
-    i12 = r7->size[0];
+    i11 = r7->size[0];
     r7->size[0] = 7 + (int)numPointsPerAnchor;
-    emxEnsureCapacity((emxArray__common *)r7, i12, (int)sizeof(double));
+    emxEnsureCapacity((emxArray__common *)r7, i11, (int)sizeof(double));
     r7->data[0] = 0.0;
     r7->data[1] = 0.0;
     r7->data[2] = 0.0;
@@ -226,14 +231,14 @@ void SLAM(double updateVect[16], const double z_all_l[32], const double z_all_r
     r7->data[5] = 0.0;
     r7->data[6] = 1.0;
     i = (int)numPointsPerAnchor;
-    for (i12 = 0; i12 < i; i12++) {
-      r7->data[i12 + 7] = 0.0;
+    for (i11 = 0; i11 < i; i11++) {
+      r7->data[i11 + 7] = 0.0;
     }
 
     repmat(r7, numAnchors, r4);
-    i12 = xt->size[0];
+    i11 = xt->size[0];
     xt->size[0] = 13 + r4->size[0];
-    emxEnsureCapacity((emxArray__common *)xt, i12, (int)sizeof(double));
+    emxEnsureCapacity((emxArray__common *)xt, i11, (int)sizeof(double));
     xt->data[0] = 0.0;
     xt->data[1] = 0.0;
     xt->data[2] = 0.0;
@@ -244,64 +249,64 @@ void SLAM(double updateVect[16], const double z_all_l[32], const double z_all_r
     xt->data[7] = 0.0;
     xt->data[8] = 0.0;
     xt->data[9] = 0.0;
-    for (i12 = 0; i12 < 3; i12++) {
-      xt->data[i12 + 10] = 0.0 * IMU_measurements[i12];
+    for (i11 = 0; i11 < 3; i11++) {
+      xt->data[i11 + 10] = 0.0 * IMU_measurements[i11];
     }
 
     i = r4->size[0];
-    for (i12 = 0; i12 < i; i12++) {
-      xt->data[i12 + 13] = r4->data[i12];
+    for (i11 = 0; i11 < i; i11++) {
+      xt->data[i11 + 13] = r4->data[i11];
     }
 
     //  initial real vector
     B = numAnchors * (6.0 + numPointsPerAnchor);
-    i12 = r5->size[0] * r5->size[1];
+    i11 = r5->size[0] * r5->size[1];
     r5->size[0] = (int)numStates;
     r5->size[1] = (int)numStates;
-    emxEnsureCapacity((emxArray__common *)r5, i12, (int)sizeof(double));
+    emxEnsureCapacity((emxArray__common *)r5, i11, (int)sizeof(double));
     i = (int)numStates * (int)numStates;
-    for (i12 = 0; i12 < i; i12++) {
-      r5->data[i12] = 0.0;
+    for (i11 = 0; i11 < i; i11++) {
+      r5->data[i11] = 0.0;
     }
 
-    i12 = r6->size[0] * r6->size[1];
+    i11 = r6->size[0] * r6->size[1];
     r6->size[0] = (int)B;
     r6->size[1] = (int)B;
-    emxEnsureCapacity((emxArray__common *)r6, i12, (int)sizeof(double));
+    emxEnsureCapacity((emxArray__common *)r6, i11, (int)sizeof(double));
     i = (int)B * (int)B;
-    for (i12 = 0; i12 < i; i12++) {
-      r6->data[i12] = 0.0;
+    for (i11 = 0; i11 < i; i11++) {
+      r6->data[i11] = 0.0;
     }
 
     blkdiag(r5, r6, P);
 
     //  initial error state covariance
-    for (i12 = 0; i12 < 3; i12++) {
+    for (i11 = 0; i11 < 3; i11++) {
       for (i = 0; i < 3; i++) {
-        P->data[i + P->size[0] * i12] = 0.0;
+        P->data[i + P->size[0] * i11] = 0.0;
       }
     }
 
     //  position
-    for (i12 = 0; i12 < 3; i12++) {
+    for (i11 = 0; i11 < 3; i11++) {
       for (i = 0; i < 3; i++) {
-        P->data[(i + P->size[0] * (3 + i12)) + 3] = y[i + 3 * i12];
+        P->data[(i + P->size[0] * (3 + i11)) + 3] = y[i + 3 * i11];
       }
     }
 
     //  orientation
     //      P(4:6,4:6) = R_iw_init * diag([1 1 0]) * R_iw_init';
     //      P(4:6,4:6) = diag([0 0 1]);
-    for (i12 = 0; i12 < 3; i12++) {
+    for (i11 = 0; i11 < 3; i11++) {
       for (i = 0; i < 3; i++) {
-        P->data[(i + P->size[0] * (6 + i12)) + 6] = 0.0;
+        P->data[(i + P->size[0] * (6 + i11)) + 6] = 0.0;
       }
     }
 
     //  velocity
-    for (i12 = 0; i12 < 3; i12++) {
+    for (i11 = 0; i11 < 3; i11++) {
       for (i = 0; i < 3; i++) {
-        P->data[(i + P->size[0] * (9 + i12)) + 9] = b_y[i + 3 * i12];
+        P->data[(i + P->size[0] * (9 + i11)) + 9] = b_y[i + 3 * i11];
       }
     }
 
@@ -335,8 +340,8 @@ void SLAM(double updateVect[16], const double z_all_l[32], const double z_all_r
     B = dt * dt;
     for (i = 0; i < 3; i++) {
       R_bw[i + 3 * i] = 1.0;
-      for (i12 = 0; i12 < 3; i12++) {
-        Phi[i12 + 3 * i] = R_bw[i12 + 3 * i] + -a[i12 + 3 * i] * dt;
+      for (i11 = 0; i11 < 3; i11++) {
+        Phi[i11 + 3 * i] = R_bw[i11 + 3 * i] + -a[i11 + 3 * i] * dt;
       }
 
       b_R_bw[i] = IMU_measurements[i] * dt;
@@ -363,82 +368,82 @@ void SLAM(double updateVect[16], const double z_all_l[32], const double z_all_r
     b_dq[1] = dq[1];
     b_dq[2] = dq[2];
     b_dq[3] = dq[3];
-    for (i12 = 0; i12 < 4; i12++) {
-      x_att[i12] = 0.0;
+    for (i11 = 0; i11 < 4; i11++) {
+      x_att[i11] = 0.0;
       for (i = 0; i < 4; i++) {
-        x_att[i12] += dv28[i12 + (i << 2)] * b_dq[i];
+        x_att[i11] += dv28[i11 + (i << 2)] * b_dq[i];
       }
     }
 
-    for (i12 = 0; i12 < 3; i12++) {
+    for (i11 = 0; i11 < 3; i11++) {
       for (i = 0; i < 3; i++) {
-        b_x_n_b[i12 + 3 * i] = 0.0;
-        for (i13 = 0; i13 < 3; i13++) {
-          b_x_n_b[i12 + 3 * i] += Phi[i12 + 3 * i13] * P_att[i13 + 3 * i];
+        b_x_n_b[i11 + 3 * i] = 0.0;
+        for (i12 = 0; i12 < 3; i12++) {
+          b_x_n_b[i11 + 3 * i] += Phi[i11 + 3 * i12] * P_att[i12 + 3 * i];
         }
 
-        a[i12 + 3 * i] = 0.0;
-        for (i13 = 0; i13 < 3; i13++) {
-          a[i12 + 3 * i] += (double)c_a[i12 + 3 * i13] * ((double)b[i13 + 3 * i]
+        a[i11 + 3 * i] = 0.0;
+        for (i12 = 0; i12 < 3; i12++) {
+          a[i11 + 3 * i] += (double)c_a[i11 + 3 * i12] * ((double)b[i12 + 3 * i]
             * processNoise[1] * B);
         }
       }
 
       for (i = 0; i < 3; i++) {
-        b_Phi[i12 + 3 * i] = 0.0;
-        for (i13 = 0; i13 < 3; i13++) {
-          b_Phi[i12 + 3 * i] += b_x_n_b[i12 + 3 * i13] * Phi[i + 3 * i13];
+        b_Phi[i11 + 3 * i] = 0.0;
+        for (i12 = 0; i12 < 3; i12++) {
+          b_Phi[i11 + 3 * i] += b_x_n_b[i11 + 3 * i12] * Phi[i + 3 * i12];
         }
 
-        b_a[i12 + 3 * i] = 0.0;
-        for (i13 = 0; i13 < 3; i13++) {
-          b_a[i12 + 3 * i] += a[i12 + 3 * i13] * (double)c_a[i13 + 3 * i];
+        b_a[i11 + 3 * i] = 0.0;
+        for (i12 = 0; i12 < 3; i12++) {
+          b_a[i11 + 3 * i] += a[i11 + 3 * i12] * (double)c_a[i12 + 3 * i];
         }
       }
     }
 
-    for (i12 = 0; i12 < 3; i12++) {
+    for (i11 = 0; i11 < 3; i11++) {
       for (i = 0; i < 3; i++) {
-        P_att[i + 3 * i12] = b_Phi[i + 3 * i12] + b_a[i + 3 * i12];
+        P_att[i + 3 * i11] = b_Phi[i + 3 * i11] + b_a[i + 3 * i11];
       }
     }
 
     Att_upd(x_att, P_att, *(double (*)[3])&IMU_measurements[3], processNoise[0],
             dt);
-    i12 = xt_out->size[0];
+    i11 = xt_out->size[0];
     xt_out->size[0] = xt->size[0];
-    emxEnsureCapacity((emxArray__common *)xt_out, i12, (int)sizeof(double));
+    emxEnsureCapacity((emxArray__common *)xt_out, i11, (int)sizeof(double));
     i = xt->size[0];
-    for (i12 = 0; i12 < i; i12++) {
-      xt_out->data[i12] = xt->data[i12];
+    for (i11 = 0; i11 < i; i11++) {
+      xt_out->data[i11] = xt->data[i11];
     }
 
-    for (i12 = 0; i12 < 4; i12++) {
-      xt_out->data[3 + i12] = x_att[i12];
+    for (i11 = 0; i11 < 4; i11++) {
+      xt_out->data[3 + i11] = x_att[i11];
     }
 
-    i12 = P_apo_out->size[0] * P_apo_out->size[1];
+    i11 = P_apo_out->size[0] * P_apo_out->size[1];
     P_apo_out->size[0] = P->size[0];
     P_apo_out->size[1] = P->size[1];
-    emxEnsureCapacity((emxArray__common *)P_apo_out, i12, (int)sizeof(double));
+    emxEnsureCapacity((emxArray__common *)P_apo_out, i11, (int)sizeof(double));
     i = P->size[0] * P->size[1];
-    for (i12 = 0; i12 < i; i12++) {
-      P_apo_out->data[i12] = 1.0E-5 * P->data[i12];
+    for (i11 = 0; i11 < i; i11++) {
+      P_apo_out->data[i11] = 1.0E-5 * P->data[i11];
     }
 
-    i12 = h_u_apo_out->size[0];
+    i11 = h_u_apo_out->size[0];
     h_u_apo_out->size[0] = 64;
-    emxEnsureCapacity((emxArray__common *)h_u_apo_out, i12, (int)sizeof(double));
-    for (i12 = 0; i12 < 64; i12++) {
-      h_u_apo_out->data[i12] = -100.0;
+    emxEnsureCapacity((emxArray__common *)h_u_apo_out, i11, (int)sizeof(double));
+    for (i11 = 0; i11 < 64; i11++) {
+      h_u_apo_out->data[i11] = -100.0;
     }
 
-    i12 = map_out->size[0] * map_out->size[1];
+    i11 = map_out->size[0] * map_out->size[1];
     map_out->size[0] = 3;
     map_out->size[1] = 16;
-    emxEnsureCapacity((emxArray__common *)map_out, i12, (int)sizeof(double));
-    for (i12 = 0; i12 < 48; i12++) {
-      map_out->data[i12] = rtNaN;
+    emxEnsureCapacity((emxArray__common *)map_out, i11, (int)sizeof(double));
+    for (i11 = 0; i11 < 48; i11++) {
+      map_out->data[i11] = rtNaN;
     }
 
     init_counter++;
@@ -455,58 +460,58 @@ void SLAM(double updateVect[16], const double z_all_l[32], const double z_all_r
       i = (int)numPointsPerAnchor;
     }
 
-    for (i12 = 0; i12 < i; i12++) {
-      tmp_data[i12] = i12;
+    for (i11 = 0; i11 < i; i11++) {
+      tmp_data[i11] = i11;
     }
 
-    for (i12 = 0; i12 < i; i12++) {
-      updateVect[tmp_data[i12]] = 2.0;
+    for (i11 = 0; i11 < i; i11++) {
+      updateVect[tmp_data[i11]] = 2.0;
     }
 
-    for (i12 = 0; i12 < 4; i12++) {
-      xt->data[3 + i12] = x_att[i12];
+    for (i11 = 0; i11 < 4; i11++) {
+      xt->data[3 + i11] = x_att[i11];
     }
 
-    for (i12 = 0; i12 < 3; i12++) {
+    for (i11 = 0; i11 < 3; i11++) {
       for (i = 0; i < 3; i++) {
-        P->data[(i + P->size[0] * (3 + i12)) + 3] = P_att[i + 3 * i12];
+        P->data[(i + P->size[0] * (3 + i11)) + 3] = P_att[i + 3 * i11];
       }
     }
 
-    i12 = xt_out->size[0];
+    i11 = xt_out->size[0];
     xt_out->size[0] = xt->size[0];
-    emxEnsureCapacity((emxArray__common *)xt_out, i12, (int)sizeof(double));
+    emxEnsureCapacity((emxArray__common *)xt_out, i11, (int)sizeof(double));
     i = xt->size[0];
-    for (i12 = 0; i12 < i; i12++) {
-      xt_out->data[i12] = xt->data[i12];
+    for (i11 = 0; i11 < i; i11++) {
+      xt_out->data[i11] = xt->data[i11];
     }
 
-    for (i12 = 0; i12 < 4; i12++) {
-      xt_out->data[3 + i12] = x_att[i12];
+    for (i11 = 0; i11 < 4; i11++) {
+      xt_out->data[3 + i11] = x_att[i11];
     }
 
-    i12 = P_apo_out->size[0] * P_apo_out->size[1];
+    i11 = P_apo_out->size[0] * P_apo_out->size[1];
     P_apo_out->size[0] = P->size[0];
     P_apo_out->size[1] = P->size[1];
-    emxEnsureCapacity((emxArray__common *)P_apo_out, i12, (int)sizeof(double));
+    emxEnsureCapacity((emxArray__common *)P_apo_out, i11, (int)sizeof(double));
     i = P->size[0] * P->size[1];
-    for (i12 = 0; i12 < i; i12++) {
-      P_apo_out->data[i12] = P->data[i12];
+    for (i11 = 0; i11 < i; i11++) {
+      P_apo_out->data[i11] = P->data[i11];
     }
 
-    i12 = h_u_apo_out->size[0];
+    i11 = h_u_apo_out->size[0];
     h_u_apo_out->size[0] = 64;
-    emxEnsureCapacity((emxArray__common *)h_u_apo_out, i12, (int)sizeof(double));
-    for (i12 = 0; i12 < 64; i12++) {
-      h_u_apo_out->data[i12] = -100.0;
+    emxEnsureCapacity((emxArray__common *)h_u_apo_out, i11, (int)sizeof(double));
+    for (i11 = 0; i11 < 64; i11++) {
+      h_u_apo_out->data[i11] = -100.0;
     }
 
-    i12 = map_out->size[0] * map_out->size[1];
+    i11 = map_out->size[0] * map_out->size[1];
     map_out->size[0] = 3;
     map_out->size[1] = 16;
-    emxEnsureCapacity((emxArray__common *)map_out, i12, (int)sizeof(double));
-    for (i12 = 0; i12 < 48; i12++) {
-      map_out->data[i12] = rtNaN;
+    emxEnsureCapacity((emxArray__common *)map_out, i11, (int)sizeof(double));
+    for (i11 = 0; i11 < 48; i11++) {
+      map_out->data[i11] = rtNaN;
     }
 
     init_counter = 11.0;
@@ -522,21 +527,21 @@ void SLAM(double updateVect[16], const double z_all_l[32], const double z_all_r
                numPointsPerAnchor, numAnchors, (1.0 - rt_powd_snf
                 (IMU_measurements[9] / 101325.0, 0.190284)) * 145366.45,
                h_u_apo_out, map_out);
-    i12 = xt_out->size[0];
+    i11 = xt_out->size[0];
     xt_out->size[0] = xt->size[0];
-    emxEnsureCapacity((emxArray__common *)xt_out, i12, (int)sizeof(double));
+    emxEnsureCapacity((emxArray__common *)xt_out, i11, (int)sizeof(double));
     i = xt->size[0];
-    for (i12 = 0; i12 < i; i12++) {
-      xt_out->data[i12] = xt->data[i12];
+    for (i11 = 0; i11 < i; i11++) {
+      xt_out->data[i11] = xt->data[i11];
     }
 
-    i12 = P_apo_out->size[0] * P_apo_out->size[1];
+    i11 = P_apo_out->size[0] * P_apo_out->size[1];
     P_apo_out->size[0] = P->size[0];
     P_apo_out->size[1] = P->size[1];
-    emxEnsureCapacity((emxArray__common *)P_apo_out, i12, (int)sizeof(double));
+    emxEnsureCapacity((emxArray__common *)P_apo_out, i11, (int)sizeof(double));
     i = P->size[0] * P->size[1];
-    for (i12 = 0; i12 < i; i12++) {
-      P_apo_out->data[i12] = P->data[i12];
+    for (i11 = 0; i11 < i; i11++) {
+      P_apo_out->data[i11] = P->data[i11];
     }
 
     init_counter = 12.0;
@@ -560,11 +565,11 @@ void SLAM(double updateVect[16], const double z_all_l[32], const double z_all_r
     a[5] = 2.0 * (xt->data[4] * xt->data[5] - xt->data[3] * xt->data[6]);
     a[8] = ((-(xt->data[3] * xt->data[3]) - xt->data[4] * xt->data[4]) +
             xt->data[5] * xt->data[5]) + xt->data[6] * xt->data[6];
-    for (i12 = 0; i12 < 3; i12++) {
+    for (i11 = 0; i11 < 3; i11++) {
       for (i = 0; i < 3; i++) {
-        R_bw[i12 + 3 * i] = 0.0;
-        for (i13 = 0; i13 < 3; i13++) {
-          R_bw[i12 + 3 * i] += (double)d_a[i12 + 3 * i13] * a[i13 + 3 * i];
+        R_bw[i11 + 3 * i] = 0.0;
+        for (i12 = 0; i12 < 3; i12++) {
+          R_bw[i11 + 3 * i] += (double)d_a[i11 + 3 * i12] * a[i12 + 3 * i];
         }
       }
     }
@@ -573,75 +578,75 @@ void SLAM(double updateVect[16], const double z_all_l[32], const double z_all_r
     dv29[0] = xt->data[0] - ref[0];
     dv29[1] = xt->data[7];
     B = 0.0;
-    for (i12 = 0; i12 < 2; i12++) {
-      B += -K_pos[i12] * dv29[i12];
+    for (i11 = 0; i11 < 2; i11++) {
+      B += -K_pos[i11] * dv29[i11];
     }
 
     dv30[0] = xt->data[1] - ref[1];
     dv30[1] = xt->data[8];
     d5 = 0.0;
-    for (i12 = 0; i12 < 2; i12++) {
-      d5 += -K_pos[i12] * dv30[i12];
+    for (i11 = 0; i11 < 2; i11++) {
+      d5 += -K_pos[i11] * dv30[i11];
     }
 
     dv31[0] = xt->data[2] - ref[2];
     dv31[1] = xt->data[9];
     d6 = 0.0;
-    for (i12 = 0; i12 < 2; i12++) {
-      d6 += -K_pos[i12] * dv31[i12];
+    for (i11 = 0; i11 < 2; i11++) {
+      d6 += -K_pos[i11] * dv31[i11];
     }
 
-    u_out_yaw = -K_yaw * (yaw - ref[3]);
+    u_out_yaw = -gains[2] * (yaw - ref[3]);
     u_out_x[0] = B;
     u_out_x[1] = d5;
     u_out_x[2] = d6;
-    for (i12 = 0; i12 < 3; i12++) {
-      b_R_bw[i12] = 0.0;
+    for (i11 = 0; i11 < 3; i11++) {
+      b_R_bw[i11] = 0.0;
       for (i = 0; i < 3; i++) {
-        b_R_bw[i12] += R_bw[i12 + 3 * i] * u_out_x[i];
+        b_R_bw[i11] += R_bw[i11 + 3 * i] * u_out_x[i];
       }
     }
 
-    for (i12 = 0; i12 < 3; i12++) {
-      u_out[i12] = b_R_bw[i12];
+    for (i11 = 0; i11 < 3; i11++) {
+      u_out[i11] = b_R_bw[i11];
     }
 
     u_out[3] = u_out_yaw;
     p_fprintf(xt->data[0] - ref[0], xt->data[1] - ref[1], xt->data[2] - ref[2],
               yaw - ref[3], B, d5, d6, u_out_yaw);
     for (i = 0; i < 13; i++) {
-      for (i12 = 0; i12 < 6; i12++) {
-        delayBuffer_k[i12 + 6 * (13 - i)] = delayBuffer_k[i12 + 6 * (12 - i)];
+      for (i11 = 0; i11 < 6; i11++) {
+        delayBuffer_k[i11 + 6 * (13 - i)] = delayBuffer_k[i11 + 6 * (12 - i)];
       }
     }
 
-    for (i12 = 0; i12 < 3; i12++) {
-      delayBuffer_k[i12] = IMU_measurements[13 + i12];
+    for (i11 = 0; i11 < 3; i11++) {
+      delayBuffer_k[i11] = IMU_measurements[13 + i11];
     }
 
-    for (i12 = 0; i12 < 3; i12++) {
-      delayBuffer_k[i12 + 3] = IMU_measurements[16 + i12];
+    for (i11 = 0; i11 < 3; i11++) {
+      delayBuffer_k[i11 + 3] = IMU_measurements[16 + i11];
     }
 
-    for (i12 = 0; i12 < 3; i12++) {
-      b_R_bw[i12] = delayBuffer_k[78 + i12] + e_a[i12];
+    for (i11 = 0; i11 < 3; i11++) {
+      b_R_bw[i11] = delayBuffer_k[78 + i11] + e_a[i11];
     }
 
-    for (i12 = 0; i12 < 3; i12++) {
-      u_out_x[i12] = 0.0;
+    for (i11 = 0; i11 < 3; i11++) {
+      u_out_x[i11] = 0.0;
       for (i = 0; i < 3; i++) {
-        u_out_x[i12] += g_a[i12 + 3 * i] * b_R_bw[i];
+        u_out_x[i11] += g_a[i11 + 3 * i] * b_R_bw[i];
       }
 
-      IMU_measurements[i12] = u_out_x[i12];
-      f_a[i12] = 0.0;
+      IMU_measurements[i11] = u_out_x[i11];
+      f_a[i11] = 0.0;
       for (i = 0; i < 3; i++) {
-        f_a[i12] += g_a[i12 + 3 * i] * delayBuffer_k[i + 81];
+        f_a[i11] += g_a[i11 + 3 * i] * delayBuffer_k[i + 81];
       }
     }
 
-    for (i12 = 0; i12 < 3; i12++) {
-      IMU_measurements[3 + i12] = f_a[i12];
+    for (i11 = 0; i11 < 3; i11++) {
+      IMU_measurements[3 + i11] = f_a[i11];
     }
 
     SLAM_pred(P, xt, dt, processNoise, IMU_measurements, numStates, u_out);
@@ -656,21 +661,21 @@ void SLAM(double updateVect[16], const double z_all_l[32], const double z_all_r
                cameraParams->r_lr, cameraParams->R_lr, cameraParams->R_rl,
                updateVect, z_all_l, z_all_r, imNoise, IMU_measurements,
                numPointsPerAnchor, numAnchors, 0.0, h_u_apo_out, map_out);
-    i12 = xt_out->size[0];
+    i11 = xt_out->size[0];
     xt_out->size[0] = xt->size[0];
-    emxEnsureCapacity((emxArray__common *)xt_out, i12, (int)sizeof(double));
+    emxEnsureCapacity((emxArray__common *)xt_out, i11, (int)sizeof(double));
     i = xt->size[0];
-    for (i12 = 0; i12 < i; i12++) {
-      xt_out->data[i12] = xt->data[i12];
+    for (i11 = 0; i11 < i; i11++) {
+      xt_out->data[i11] = xt->data[i11];
     }
 
-    i12 = P_apo_out->size[0] * P_apo_out->size[1];
+    i11 = P_apo_out->size[0] * P_apo_out->size[1];
     P_apo_out->size[0] = P->size[0];
     P_apo_out->size[1] = P->size[1];
-    emxEnsureCapacity((emxArray__common *)P_apo_out, i12, (int)sizeof(double));
+    emxEnsureCapacity((emxArray__common *)P_apo_out, i11, (int)sizeof(double));
     i = P->size[0] * P->size[1];
-    for (i12 = 0; i12 < i; i12++) {
-      P_apo_out->data[i12] = P->data[i12];
+    for (i11 = 0; i11 < i; i11++) {
+      P_apo_out->data[i11] = P->data[i11];
     }
 
     // % output asserts for coder

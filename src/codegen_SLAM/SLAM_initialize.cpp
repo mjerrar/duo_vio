@@ -5,7 +5,7 @@
 // File: SLAM_initialize.cpp
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 19-Aug-2015 18:46:47
+// C/C++ source code generated on  : 20-Aug-2015 09:05:05
 //
 
 // Include Files
@@ -21,7 +21,6 @@
 #define b_gravityUpdate                (true)
 #define b_useAirPressure               (false)
 #define b_numStates                    (12.0)
-#define b_K_yaw                        (0.991701388286097)
 #define b_numTrackFeatures             (16.0)
 #define b_numStatesxt                  (13.0)
 #define b_minFeatureThreshold          (2.0)
@@ -40,7 +39,6 @@ static double numTrackFeatures;
 //
 void SLAM_initialize()
 {
-  int i0;
   rt_InitInfAndNaN(8U);
   useAirPressure = b_useAirPressure;
   gravAlignNoise = b_gravAlignNoise;
@@ -50,11 +48,6 @@ void SLAM_initialize()
   minFeatureThreshold = b_minFeatureThreshold;
   numStatesxt = b_numStatesxt;
   numTrackFeatures = b_numTrackFeatures;
-  K_yaw = b_K_yaw;
-  for (i0 = 0; i0 < 2; i0++) {
-    K_pos[i0] = 10.0 + -10.0 * (double)i0;
-  }
-
   numStates = b_numStates;
   initialized_not_empty_init();
   SLAM_init();
