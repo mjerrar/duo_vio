@@ -5,7 +5,7 @@
 // File: SLAM_pred.cpp
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 20-Aug-2015 19:59:57
+// C/C++ source code generated on  : 21-Aug-2015 15:06:39
 //
 
 // Include Files
@@ -18,6 +18,7 @@
 #include "eye.h"
 #include "diag.h"
 #include "SLAM_rtwutil.h"
+#include "SLAM_data.h"
 #include <stdio.h>
 
 // Function Declarations
@@ -64,15 +65,13 @@ static void b_dxdt_dPdt(double dt, const double meas[6], const emxArray_real_T
   double k_a;
   double l_a;
   double R_cw[9];
-  double dv14[3];
+  double dv16[3];
   int br;
   double w[3];
   int loop_ub;
-  static const signed char m_a[9] = { 0, 0, 1, -1, 0, 0, 0, -1, 0 };
-
-  double dv15[9];
-  double dv16[9];
   double dv17[9];
+  double dv18[9];
+  double dv19[9];
   int cr;
   static const signed char iv5[36] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
     0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
@@ -86,11 +85,11 @@ static void b_dxdt_dPdt(double dt, const double meas[6], const emxArray_real_T
     0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1 };
 
   unsigned int unnamed_idx_0;
-  double dv18[9];
-  double dv19[16];
-  double dv20[16];
+  double dv20[9];
+  double dv21[16];
+  double dv22[16];
   double b_x[4];
-  double dv21[4];
+  double dv23[4];
   double b_G[108];
   double FP[144];
   double b_FP[144];
@@ -133,41 +132,40 @@ static void b_dxdt_dPdt(double dt, const double meas[6], const emxArray_real_T
 
   // oa=x(14:16)
   //  yaw rate in control frame
-  //  rotation from camera to control/body frame
-  dv14[0] = 0.0;
-  dv14[1] = 0.0;
-  dv14[2] = control_input[3];
+  dv16[0] = 0.0;
+  dv16[1] = 0.0;
+  dv16[2] = control_input[3];
   for (br = 0; br < 3; br++) {
     w[br] = 0.0;
     for (loop_ub = 0; loop_ub < 3; loop_ub++) {
-      w[br] += (double)m_a[br + 3 * loop_ub] * dv14[loop_ub];
+      w[br] += R_bc[loop_ub + 3 * br] * dv16[loop_ub];
     }
   }
 
   //  yaw rate in body frame
-  dv15[0] = 0.0;
-  dv15[3] = -w[2];
-  dv15[6] = w[1];
-  dv15[1] = w[2];
-  dv15[4] = 0.0;
-  dv15[7] = -w[0];
-  dv15[2] = -w[1];
-  dv15[5] = w[0];
-  dv15[8] = 0.0;
-  dv16[0] = 0.0;
-  dv16[3] = -meas[5];
-  dv16[6] = meas[4];
-  dv16[1] = meas[5];
-  dv16[4] = 0.0;
-  dv16[7] = -meas[3];
-  dv16[2] = -meas[4];
-  dv16[5] = meas[3];
-  dv16[8] = 0.0;
+  dv17[0] = 0.0;
+  dv17[3] = -w[2];
+  dv17[6] = w[1];
+  dv17[1] = w[2];
+  dv17[4] = 0.0;
+  dv17[7] = -w[0];
+  dv17[2] = -w[1];
+  dv17[5] = w[0];
+  dv17[8] = 0.0;
+  dv18[0] = 0.0;
+  dv18[3] = -meas[5];
+  dv18[6] = meas[4];
+  dv18[1] = meas[5];
+  dv18[4] = 0.0;
+  dv18[7] = -meas[3];
+  dv18[2] = -meas[4];
+  dv18[5] = meas[3];
+  dv18[8] = 0.0;
   for (br = 0; br < 3; br++) {
     for (loop_ub = 0; loop_ub < 3; loop_ub++) {
-      dv17[br + 3 * loop_ub] = 0.0;
+      dv19[br + 3 * loop_ub] = 0.0;
       for (cr = 0; cr < 3; cr++) {
-        dv17[br + 3 * loop_ub] += -0.0 * R_cw[cr + 3 * br] * dv16[cr + 3 *
+        dv19[br + 3 * loop_ub] += -0.0 * R_cw[cr + 3 * br] * dv18[cr + 3 *
           loop_ub];
       }
     }
@@ -187,7 +185,7 @@ static void b_dxdt_dPdt(double dt, const double meas[6], const emxArray_real_T
 
   for (br = 0; br < 3; br++) {
     for (loop_ub = 0; loop_ub < 3; loop_ub++) {
-      F[(loop_ub + 12 * (br + 3)) + 3] = -dv15[loop_ub + 3 * br];
+      F[(loop_ub + 12 * (br + 3)) + 3] = -dv17[loop_ub + 3 * br];
     }
   }
 
@@ -211,7 +209,7 @@ static void b_dxdt_dPdt(double dt, const double meas[6], const emxArray_real_T
 
   for (br = 0; br < 3; br++) {
     for (loop_ub = 0; loop_ub < 3; loop_ub++) {
-      F[(loop_ub + 12 * (br + 3)) + 6] = dv17[loop_ub + 3 * br];
+      F[(loop_ub + 12 * (br + 3)) + 6] = dv19[loop_ub + 3 * br];
     }
   }
 
@@ -282,33 +280,33 @@ static void b_dxdt_dPdt(double dt, const double meas[6], const emxArray_real_T
   }
 
   //  position
-  dv18[0] = 0.0;
-  dv18[3] = -w[2];
-  dv18[6] = w[1];
-  dv18[1] = w[2];
-  dv18[4] = 0.0;
-  dv18[7] = -w[0];
-  dv18[2] = -w[1];
-  dv18[5] = w[0];
-  dv18[8] = 0.0;
+  dv20[0] = 0.0;
+  dv20[3] = -w[2];
+  dv20[6] = w[1];
+  dv20[1] = w[2];
+  dv20[4] = 0.0;
+  dv20[7] = -w[0];
+  dv20[2] = -w[1];
+  dv20[5] = w[0];
+  dv20[8] = 0.0;
   for (br = 0; br < 3; br++) {
     for (loop_ub = 0; loop_ub < 3; loop_ub++) {
-      dv19[loop_ub + (br << 2)] = -dv18[loop_ub + 3 * br];
+      dv21[loop_ub + (br << 2)] = -dv20[loop_ub + 3 * br];
     }
   }
 
   for (br = 0; br < 3; br++) {
-    dv19[12 + br] = w[br];
+    dv21[12 + br] = w[br];
   }
 
   for (br = 0; br < 3; br++) {
-    dv19[3 + (br << 2)] = -w[br];
+    dv21[3 + (br << 2)] = -w[br];
   }
 
-  dv19[15] = 0.0;
+  dv21[15] = 0.0;
   for (br = 0; br < 4; br++) {
     for (loop_ub = 0; loop_ub < 4; loop_ub++) {
-      dv20[loop_ub + (br << 2)] = 0.5 * dv19[loop_ub + (br << 2)];
+      dv22[loop_ub + (br << 2)] = 0.5 * dv21[loop_ub + (br << 2)];
     }
   }
 
@@ -317,14 +315,14 @@ static void b_dxdt_dPdt(double dt, const double meas[6], const emxArray_real_T
   }
 
   for (br = 0; br < 4; br++) {
-    dv21[br] = 0.0;
+    dv23[br] = 0.0;
     for (loop_ub = 0; loop_ub < 4; loop_ub++) {
-      dv21[br] += dv20[br + (loop_ub << 2)] * b_x[loop_ub];
+      dv23[br] += dv22[br + (loop_ub << 2)] * b_x[loop_ub];
     }
   }
 
   for (br = 0; br < 4; br++) {
-    x_dot->data[3 + br] = dv21[br];
+    x_dot->data[3 + br] = dv23[br];
   }
 
   //  rot angle
@@ -463,15 +461,13 @@ static void dxdt_dPdt(double dt, const double meas[6], const emxArray_real_T *x,
   double k_a;
   double l_a;
   double R_cw[9];
-  double dv6[3];
+  double dv8[3];
   int c;
   double w[3];
   int br;
-  static const signed char m_a[9] = { 0, 0, 1, -1, 0, 0, 0, -1, 0 };
-
-  double dv7[9];
-  double dv8[9];
   double dv9[9];
+  double dv10[9];
+  double dv11[9];
   int ar;
   static const signed char iv2[36] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
     0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
@@ -486,11 +482,11 @@ static void dxdt_dPdt(double dt, const double meas[6], const emxArray_real_T *x,
 
   unsigned int unnamed_idx_0;
   int cr;
-  double dv10[9];
-  double dv11[16];
-  double dv12[16];
+  double dv12[9];
+  double dv13[16];
+  double dv14[16];
   double b_x[4];
-  double dv13[4];
+  double dv15[4];
   emxArray_real_T *FP;
   int ic;
   int ib;
@@ -533,41 +529,40 @@ static void dxdt_dPdt(double dt, const double meas[6], const emxArray_real_T *x,
 
   // oa=x(14:16)
   //  yaw rate in control frame
-  //  rotation from camera to control/body frame
-  dv6[0] = 0.0;
-  dv6[1] = 0.0;
-  dv6[2] = control_input[3];
+  dv8[0] = 0.0;
+  dv8[1] = 0.0;
+  dv8[2] = control_input[3];
   for (c = 0; c < 3; c++) {
     w[c] = 0.0;
     for (br = 0; br < 3; br++) {
-      w[c] += (double)m_a[c + 3 * br] * dv6[br];
+      w[c] += R_bc[br + 3 * c] * dv8[br];
     }
   }
 
   //  yaw rate in body frame
-  dv7[0] = 0.0;
-  dv7[3] = -w[2];
-  dv7[6] = w[1];
-  dv7[1] = w[2];
-  dv7[4] = 0.0;
-  dv7[7] = -w[0];
-  dv7[2] = -w[1];
-  dv7[5] = w[0];
-  dv7[8] = 0.0;
-  dv8[0] = 0.0;
-  dv8[3] = -meas[5];
-  dv8[6] = meas[4];
-  dv8[1] = meas[5];
-  dv8[4] = 0.0;
-  dv8[7] = -meas[3];
-  dv8[2] = -meas[4];
-  dv8[5] = meas[3];
-  dv8[8] = 0.0;
+  dv9[0] = 0.0;
+  dv9[3] = -w[2];
+  dv9[6] = w[1];
+  dv9[1] = w[2];
+  dv9[4] = 0.0;
+  dv9[7] = -w[0];
+  dv9[2] = -w[1];
+  dv9[5] = w[0];
+  dv9[8] = 0.0;
+  dv10[0] = 0.0;
+  dv10[3] = -meas[5];
+  dv10[6] = meas[4];
+  dv10[1] = meas[5];
+  dv10[4] = 0.0;
+  dv10[7] = -meas[3];
+  dv10[2] = -meas[4];
+  dv10[5] = meas[3];
+  dv10[8] = 0.0;
   for (c = 0; c < 3; c++) {
     for (br = 0; br < 3; br++) {
-      dv9[c + 3 * br] = 0.0;
+      dv11[c + 3 * br] = 0.0;
       for (ar = 0; ar < 3; ar++) {
-        dv9[c + 3 * br] += -0.0 * R_cw[ar + 3 * c] * dv8[ar + 3 * br];
+        dv11[c + 3 * br] += -0.0 * R_cw[ar + 3 * c] * dv10[ar + 3 * br];
       }
     }
   }
@@ -586,7 +581,7 @@ static void dxdt_dPdt(double dt, const double meas[6], const emxArray_real_T *x,
 
   for (c = 0; c < 3; c++) {
     for (br = 0; br < 3; br++) {
-      F[(br + 12 * (c + 3)) + 3] = -dv7[br + 3 * c];
+      F[(br + 12 * (c + 3)) + 3] = -dv9[br + 3 * c];
     }
   }
 
@@ -610,7 +605,7 @@ static void dxdt_dPdt(double dt, const double meas[6], const emxArray_real_T *x,
 
   for (c = 0; c < 3; c++) {
     for (br = 0; br < 3; br++) {
-      F[(br + 12 * (c + 3)) + 6] = dv9[br + 3 * c];
+      F[(br + 12 * (c + 3)) + 6] = dv11[br + 3 * c];
     }
   }
 
@@ -681,33 +676,33 @@ static void dxdt_dPdt(double dt, const double meas[6], const emxArray_real_T *x,
   }
 
   //  position
-  dv10[0] = 0.0;
-  dv10[3] = -w[2];
-  dv10[6] = w[1];
-  dv10[1] = w[2];
-  dv10[4] = 0.0;
-  dv10[7] = -w[0];
-  dv10[2] = -w[1];
-  dv10[5] = w[0];
-  dv10[8] = 0.0;
+  dv12[0] = 0.0;
+  dv12[3] = -w[2];
+  dv12[6] = w[1];
+  dv12[1] = w[2];
+  dv12[4] = 0.0;
+  dv12[7] = -w[0];
+  dv12[2] = -w[1];
+  dv12[5] = w[0];
+  dv12[8] = 0.0;
   for (c = 0; c < 3; c++) {
     for (br = 0; br < 3; br++) {
-      dv11[br + (c << 2)] = -dv10[br + 3 * c];
+      dv13[br + (c << 2)] = -dv12[br + 3 * c];
     }
   }
 
   for (c = 0; c < 3; c++) {
-    dv11[12 + c] = w[c];
+    dv13[12 + c] = w[c];
   }
 
   for (c = 0; c < 3; c++) {
-    dv11[3 + (c << 2)] = -w[c];
+    dv13[3 + (c << 2)] = -w[c];
   }
 
-  dv11[15] = 0.0;
+  dv13[15] = 0.0;
   for (c = 0; c < 4; c++) {
     for (br = 0; br < 4; br++) {
-      dv12[br + (c << 2)] = 0.5 * dv11[br + (c << 2)];
+      dv14[br + (c << 2)] = 0.5 * dv13[br + (c << 2)];
     }
   }
 
@@ -716,14 +711,14 @@ static void dxdt_dPdt(double dt, const double meas[6], const emxArray_real_T *x,
   }
 
   for (c = 0; c < 4; c++) {
-    dv13[c] = 0.0;
+    dv15[c] = 0.0;
     for (br = 0; br < 4; br++) {
-      dv13[c] += dv12[c + (br << 2)] * b_x[br];
+      dv15[c] += dv14[c + (br << 2)] * b_x[br];
     }
   }
 
   for (c = 0; c < 4; c++) {
-    x_dot->data[3 + c] = dv13[c];
+    x_dot->data[3 + c] = dv15[c];
   }
 
   //  rot angle

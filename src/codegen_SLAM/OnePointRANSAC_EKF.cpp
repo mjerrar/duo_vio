@@ -5,7 +5,7 @@
 // File: OnePointRANSAC_EKF.cpp
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 20-Aug-2015 19:59:57
+// C/C++ source code generated on  : 21-Aug-2015 15:06:39
 //
 
 // Include Files
@@ -111,12 +111,12 @@ void OnePointRANSAC_EKF(emxArray_real_T *b_xt, emxArray_real_T *b_P, const
   double C_data[36];
   int C_size[2];
   double d_xt[3];
-  double dv26[4];
-  double dv27[4];
+  double dv29[4];
+  double dv30[4];
   double e_numStatesxt;
   double d_numStates;
   double c_x_apo_prev[4];
-  double dv28[4];
+  double dv31[4];
   double R_cw[9];
   boolean_T HI_inlierStatus_data[16];
   int indMeasIdx;
@@ -144,8 +144,8 @@ void OnePointRANSAC_EKF(emxArray_real_T *b_xt, emxArray_real_T *b_P, const
   double r_data[34];
   double b_C_data[1296];
   int b_C_size[2];
-  double dv29[4];
-  double dv30[4];
+  double dv32[4];
+  double dv33[4];
   emxArray_real_T *c_a;
   int it;
   emxArray_real_T *b_x_apo;
@@ -154,8 +154,8 @@ void OnePointRANSAC_EKF(emxArray_real_T *b_xt, emxArray_real_T *b_P, const
   int b_indMeas_size[1];
   double S_data[1296];
   int c_C_size[2];
-  double dv31[4];
-  double dv32[4];
+  double dv34[4];
+  double dv35[4];
   emxArray_real_T *d_a;
   emxInit_boolean_T(&c_anchorFeatures, 2);
 
@@ -597,10 +597,10 @@ void OnePointRANSAC_EKF(emxArray_real_T *b_xt, emxArray_real_T *b_P, const
       d_xt[i16] = x_apo->data[3 + i16];
     }
 
-    quatPlusThetaJ(d_xt, dv26);
-    quatmultJ(dv26, *(double (*)[4])&x_apo_prev->data[3], dv27);
+    quatPlusThetaJ(d_xt, dv29);
+    quatmultJ(dv29, *(double (*)[4])&x_apo_prev->data[3], dv30);
     for (i16 = 0; i16 < 4; i16++) {
-      x_apo_prev->data[3 + i16] = dv27[i16];
+      x_apo_prev->data[3 + i16] = dv30[i16];
     }
 
     if (8.0 > c_numStatesxt) {
@@ -702,13 +702,13 @@ void OnePointRANSAC_EKF(emxArray_real_T *b_xt, emxArray_real_T *b_P, const
             (double)i16)) - 1];
         }
 
-        quatPlusThetaJ(d_xt, dv28);
-        quatmultJ(dv28, c_x_apo_prev, dv27);
+        quatPlusThetaJ(d_xt, dv31);
+        quatmultJ(dv31, c_x_apo_prev, dv30);
         e_numStatesxt = c_numStatesxt + ((1.0 + (double)br) - 1.0) * (7.0 +
           numPointsPerAnchor);
         for (i16 = 0; i16 < 4; i16++) {
           x_apo_prev->data[(int)(e_numStatesxt + (4.0 + (double)i16)) - 1] =
-            dv27[i16];
+            dv30[i16];
         }
 
         for (ii = 0; ii < (int)numPointsPerAnchor; ii++) {
@@ -1336,10 +1336,10 @@ void OnePointRANSAC_EKF(emxArray_real_T *b_xt, emxArray_real_T *b_P, const
         d_xt[i17] = x_apo->data[3 + i17];
       }
 
-      quatPlusThetaJ(d_xt, dv29);
-      quatmultJ(dv29, *(double (*)[4])&b_xt->data[3], dv27);
+      quatPlusThetaJ(d_xt, dv32);
+      quatmultJ(dv32, *(double (*)[4])&b_xt->data[3], dv30);
       for (i17 = 0; i17 < 4; i17++) {
-        b_xt->data[3 + i17] = dv27[i17];
+        b_xt->data[3 + i17] = dv30[i17];
       }
 
       if (8.0 > c_numStatesxt) {
@@ -1423,13 +1423,13 @@ void OnePointRANSAC_EKF(emxArray_real_T *b_xt, emxArray_real_T *b_P, const
               1];
           }
 
-          quatPlusThetaJ(d_xt, dv30);
-          quatmultJ(dv30, c_xt, dv27);
+          quatPlusThetaJ(d_xt, dv33);
+          quatmultJ(dv33, c_xt, dv30);
           e_numStatesxt = c_numStatesxt + ((1.0 + (double)br) - 1.0) * (7.0 +
             numPointsPerAnchor);
           for (i17 = 0; i17 < 4; i17++) {
             b_xt->data[(int)(e_numStatesxt + (4.0 + (double)i17)) - 1] =
-              dv27[i17];
+              dv30[i17];
           }
 
           for (ii = 0; ii < (int)numPointsPerAnchor; ii++) {
@@ -1634,7 +1634,7 @@ void OnePointRANSAC_EKF(emxArray_real_T *b_xt, emxArray_real_T *b_P, const
     // ROS_WARN Print to ROS_WARN in ROS or to console in Matlab
     //      coder.cinclude('<ros/console.h>')
     //      coder.ceval('ROS_WARN', [str, 0], varargin{:});
-    b_fprintf(idx);
+    j_fprintf(idx);
   }
 
   // % D Partial EKF update using high-innovation inliers
@@ -2217,10 +2217,10 @@ void OnePointRANSAC_EKF(emxArray_real_T *b_xt, emxArray_real_T *b_P, const
       d_xt[i17] = x_apo->data[3 + i17];
     }
 
-    quatPlusThetaJ(d_xt, dv31);
-    quatmultJ(dv31, *(double (*)[4])&b_xt->data[3], dv27);
+    quatPlusThetaJ(d_xt, dv34);
+    quatmultJ(dv34, *(double (*)[4])&b_xt->data[3], dv30);
     for (i17 = 0; i17 < 4; i17++) {
-      b_xt->data[3 + i17] = dv27[i17];
+      b_xt->data[3 + i17] = dv30[i17];
     }
 
     if (8.0 > c_numStatesxt) {
@@ -2302,12 +2302,12 @@ void OnePointRANSAC_EKF(emxArray_real_T *b_xt, emxArray_real_T *b_P, const
           c_xt[i17] = b_xt->data[(int)(e_numStatesxt + (4.0 + (double)i17)) - 1];
         }
 
-        quatPlusThetaJ(d_xt, dv32);
-        quatmultJ(dv32, c_xt, dv27);
+        quatPlusThetaJ(d_xt, dv35);
+        quatmultJ(dv35, c_xt, dv30);
         e_numStatesxt = c_numStatesxt + ((1.0 + (double)br) - 1.0) * (7.0 +
           numPointsPerAnchor);
         for (i17 = 0; i17 < 4; i17++) {
-          b_xt->data[(int)(e_numStatesxt + (4.0 + (double)i17)) - 1] = dv27[i17];
+          b_xt->data[(int)(e_numStatesxt + (4.0 + (double)i17)) - 1] = dv30[i17];
         }
 
         for (ii = 0; ii < (int)numPointsPerAnchor; ii++) {
@@ -2565,7 +2565,7 @@ void OnePointRANSAC_EKF(emxArray_real_T *b_xt, emxArray_real_T *b_P, const
     // ROS_WARN Print to ROS_WARN in ROS or to console in Matlab
     //      coder.cinclude('<ros/console.h>')
     //      coder.ceval('ROS_WARN', [str, 0], varargin{:});
-    d_fprintf();
+    l_fprintf();
   }
 }
 

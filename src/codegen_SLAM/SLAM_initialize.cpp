@@ -5,7 +5,7 @@
 // File: SLAM_initialize.cpp
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 20-Aug-2015 19:59:57
+// C/C++ source code generated on  : 21-Aug-2015 15:06:39
 //
 
 // Include Files
@@ -18,7 +18,7 @@
 #include <stdio.h>
 
 // Named Constants
-#define b_useOrientation               (false)
+#define b_useOrientation               (true)
 #define b_useAirPressure               (false)
 #define b_numStates                    (12.0)
 #define b_numTrackFeatures             (16.0)
@@ -26,7 +26,7 @@
 #define b_minFeatureThreshold          (2.0)
 #define b_sigma_Init                   (0.0001)
 #define b_maxEKFIterations             (1.0)
-#define b_orientationNoise             (0.01)
+#define b_orientationNoise             (0.001)
 
 // Variable Definitions
 static double numTrackFeatures;
@@ -39,6 +39,9 @@ static double numTrackFeatures;
 //
 void SLAM_initialize()
 {
+  static const double b_R_bc[9] = { -0.0077, -0.9999, 0.0101, 0.0087, -0.0101,
+    -0.9999, 0.9999, -0.0077, 0.0087 };
+
   rt_InitInfAndNaN(8U);
   useAirPressure = b_useAirPressure;
   orientationNoise = b_orientationNoise;
@@ -49,6 +52,7 @@ void SLAM_initialize()
   numStatesxt = b_numStatesxt;
   numTrackFeatures = b_numTrackFeatures;
   numStates = b_numStates;
+  memcpy(&R_bc[0], &b_R_bc[0], 9U * sizeof(double));
   initialized_not_empty_init();
   SLAM_init();
   SLAM_updIT_init();
