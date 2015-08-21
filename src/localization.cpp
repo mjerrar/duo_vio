@@ -20,7 +20,8 @@ im_noise_(2,0.0),
 t_avg(0.0),
 SLAM_reset_flag(0),
 controller_gains(3,0.0),
-mavros_imu_data_buffer_(IMU_delay)
+mavros_imu_data_buffer_(IMU_delay),
+received_IMU_data(false)
 {
 
     SLAM_initialize();
@@ -36,7 +37,7 @@ mavros_imu_data_buffer_(IMU_delay)
 
     controller_pub = nh_.advertise<onboard_localization::ControllerOut>("/onboard_localization/controller_output",10);
 
-    debug_imu_pub_ = nh_.advertise<std_msgs::Float32MultiArray>("/vio/debug_imu", 1);
+    debug_imu_pub_ = nh_.advertise<std_msgs::Float32MultiArray>("/vio/debug", 1);
     debug_img_pub_ = nh_.advertise<duo3d_ros::Duo3d>("/vio/debug_img", 1);
 
     mavros_imu_sub_ = nh_.subscribe("/mavros/imu/data", 1,
@@ -137,6 +138,11 @@ Localization::~Localization()
 
 void Localization::duo3dCb(const duo3d_ros::Duo3d& msg)
 {
+	if (!received_IMU_data)
+	{
+		printf("no IMU data yet!");
+		return;
+	}
 	double tic_total = ros::Time::now().toSec();
     sensor_msgs::MagneticField mag; // TODO Subscribe to mag topic
 
