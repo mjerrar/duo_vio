@@ -5,7 +5,7 @@
 // File: SLAM.cpp
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 21-Aug-2015 16:43:03
+// C/C++ source code generated on  : 21-Aug-2015 16:49:50
 //
 
 // Include Files
@@ -17,7 +17,6 @@
 #include "blkdiag.h"
 #include "QuatFromRotJ.h"
 #include "SLAM_pred.h"
-#include "fprintf.h"
 #include "SLAM_rtwutil.h"
 #include "SLAM_data.h"
 #include <stdio.h>
@@ -119,7 +118,6 @@ void SLAM(double updateVect[16], const double z_all_l[32], const double z_all_r
   static const double y[9] = { 0.01, 0.0, 0.0, 0.0, 0.01, 0.0, 0.0, 0.0, 0.01 };
 
   double R_bw[9];
-  double yaw;
   double dv26[2];
   double dv27[2];
   double d6;
@@ -358,7 +356,6 @@ void SLAM(double updateVect[16], const double z_all_l[32], const double z_all_r
       }
     }
 
-    yaw = rt_atan2d_snf(R_bw[3], R_bw[0]);
     dv26[0] = xt->data[0] - ref[0];
     dv26[1] = xt->data[7];
     d5 = 0.0;
@@ -383,7 +380,7 @@ void SLAM(double updateVect[16], const double z_all_l[32], const double z_all_r
     }
 
     //  control commands in world frame
-    u_out_yaw = -gains[2] * (yaw - ref[3]);
+    u_out_yaw = -gains[2] * (rt_atan2d_snf(R_bw[3], R_bw[0]) - ref[3]);
     u_out_x[0] = d5;
     u_out_x[1] = d6;
     u_out_x[2] = d7;
@@ -399,9 +396,8 @@ void SLAM(double updateVect[16], const double z_all_l[32], const double z_all_r
     }
 
     u_out[3] = u_out_yaw;
-    p_fprintf(xt->data[0] - ref[0], xt->data[1] - ref[1], xt->data[2] - ref[2],
-              yaw - ref[3], d5, d6, d7, u_out_yaw);
 
+    //  fprintf('position error (%.3f, %.3f, %.3f, %.3f), control: (%.3f, %.3f, %.3f, %.3f)\n', xt(1) - ref(1), xt(2) - ref(2), xt(3) - ref(3), yaw - ref(4), u_out_x, u_out_y, u_out_z, u_out_yaw); 
     //  IMU_measurements = delayBuffer_k(:,delay);
     for (outsize_idx_0 = 0; outsize_idx_0 < 4; outsize_idx_0++) {
       dv25[outsize_idx_0] = 0.0 * last_u[outsize_idx_0];

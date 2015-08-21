@@ -5,7 +5,7 @@
 // File: getH_R_res.cpp
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 21-Aug-2015 16:43:03
+// C/C++ source code generated on  : 21-Aug-2015 16:49:50
 //
 
 // Include Files
@@ -15,7 +15,6 @@
 #include "SLAM_emxutil.h"
 #include "blkdiag.h"
 #include "predictMeasurement_stereo.h"
-#include "fprintf.h"
 #include "QuatFromRotJ.h"
 #include "Ch_dn_To_h_un.h"
 #include "predictMeasurement_left.h"
@@ -882,7 +881,6 @@ void b_getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
       r_g_data[i1] = d[i1];
     }
 
-    b_fprintf(r_g_data[0], r_g_data[1], r_g_data[2]);
     i1 = H_g->size[0] * H_g->size[1];
     H_g->size[0] = 3;
     H_g->size[1] = (int)(errorStateSize + numAnchors * (6.0 + numPointsPerAnchor));
@@ -1944,7 +1942,6 @@ void getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
       r_g_data[ar] = f_cameraparams_CameraParameters[ar];
     }
 
-    b_fprintf(r_g_data[0], r_g_data[1], r_g_data[2]);
     ar = H_g->size[0] * H_g->size[1];
     H_g->size[0] = 3;
     H_g->size[1] = (int)(errorStateSize + numAnchors * (6.0 + numPointsPerAnchor));
