@@ -86,6 +86,8 @@ Localization::Localization()
 	debug_publish_delay = 1.0/debug_publish_freq;
 	last_debug_publish = ros::Time::now();
 
+	nh_.param<bool>("publish_on_debug_topics", publish_on_debug_topics, 1);
+
 	int num_points_per_anchor, num_anchors;
 	nh_.param<int>("num_points_per_anchor", num_points_per_anchor, 1);
 	nh_.param<int>("num_anchors", num_anchors, 32);
@@ -288,8 +290,6 @@ void Localization::update(double dt, const cv::Mat& left_image, const cv::Mat& r
 	std::vector<double> IMU_data(23,0.0);
 	getIMUData(imu, mag, IMU_data);
 
-	debug_img_pub_.publish(last_duo_msg_);
-
 	emxArray_real_T *xt_out; // result
 	emxArray_real_T *P_apo_out;
 	emxArray_real_T *h_u_apo;
@@ -333,7 +333,11 @@ void Localization::update(double dt, const cv::Mat& left_image, const cv::Mat& r
 	controller_out_msg.z = u_out[2];
 	controller_out_msg.yaw = u_out[3];
 
-	controller_pub.publish(controller_out_msg);
+	if (publish_on_debug_topics)
+	{
+		controller_pub.publish(controller_out_msg);
+		debug_img_pub_.publish(last_duo_msg_);
+	}
 
 	SLAM_reset_flag = false;
 

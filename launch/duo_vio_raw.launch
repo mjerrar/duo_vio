@@ -17,6 +17,7 @@
 
   <arg name="show_tracker_images" default="1" />
   <arg name="debug_publish_freq" default="10" />
+  <arg name="publish_on_debug_topics" default="1" />
 
   <include file="$(find duo3d_ros)/launch/duo.launch">
     <arg name="exposure" value="$(arg exposure_duo)" />
@@ -54,6 +55,7 @@
     <param name="resolution_height" type="int" value="$(arg resolution_height_duo)" />
 
     <param name="debug_publish_freq" type="double" value="$(arg debug_publish_freq)" />
+    <param name="publish_on_debug_topics" type="bool" value="$(arg publish_on_debug_topics)" />
   </node>
 
 </launch>
