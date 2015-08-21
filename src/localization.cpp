@@ -11,7 +11,7 @@
 #include <stdio.h>
 #include <visualization_msgs/Marker.h>
 
-static const unsigned int IMU_delay = 14;
+static const unsigned int IMU_delay = 1;
 
 Localization::Localization()
 : nh_("~"),
@@ -22,6 +22,7 @@ SLAM_reset_flag(0),
 controller_gains(3,0.0),
 mavros_imu_data_buffer_(IMU_delay)
 {
+
     SLAM_initialize();
     emxInitArray_real_T(&h_u_apo_,1);
 
@@ -34,6 +35,9 @@ mavros_imu_data_buffer_(IMU_delay)
     vis_pub_ = nh_.advertise<visualization_msgs::Marker>( "drone", 0 );
 
     controller_pub = nh_.advertise<onboard_localization::ControllerOut>("/onboard_localization/controller_output",10);
+
+    debug_imu_pub_ = nh_.advertise<std_msgs::Float32MultiArray>("/vio/debug", 1);
+    debug_img_pub_ = nh_.advertise<duo3d_ros::Duo3d>("/vio/debug_img", 1);
 
     mavros_imu_sub_ = nh_.subscribe("/mavros/imu/data", 1,
             &Localization::mavrosImuCb, this);
@@ -171,6 +175,8 @@ void Localization::duo3dCb(const duo3d_ros::Duo3d& msg)
     bool debug_publish = (ros::Time::now() - last_debug_publish).toSec() > debug_publish_delay;
     if (debug_publish)
     	last_debug_publish = ros::Time::now();
+
+    debug_img_pub_.publish(msg);
 
     update(dt, cv_left_image->image, cv_right_image->image, msg.imu, mag, pose, velocity, debug_publish);
 
@@ -399,6 +405,12 @@ void Localization::getIMUData(const sensor_msgs::Imu& imu, const sensor_msgs::Ma
     inertial_vec.at(20) = mavros_imu_data_buffer_[0].orientation.y;
     inertial_vec.at(21) = mavros_imu_data_buffer_[0].orientation.z;
     inertial_vec.at(22) = mavros_imu_data_buffer_[0].orientation.w;
+
+    std_msgs::Float32MultiArray array;
+    array.data.clear();
+    for (int i = 0; i < inertial_vec.size(); i++)
+    	array.data.push_back(inertial_vec[i]);
+    debug_imu_pub_.publish(array);
 }
 
 void Localization::displayTracks(const cv::Mat& left_image, double z_all_l[], double z_all_r[], std::vector<int> status, emxArray_real_T *h_u)

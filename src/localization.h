@@ -38,6 +38,12 @@
 
 #include <boost/circular_buffer.hpp>
 
+#include "std_msgs/MultiArrayLayout.h"
+#include "std_msgs/MultiArrayDimension.h"
+
+#include "std_msgs/Float32MultiArray.h"
+
+
 class Localization
 {
 public:
@@ -62,6 +68,9 @@ private:
   ros::Publisher pose_pub_;
   ros::Publisher velocity_pub_;
   ros::Publisher controller_pub;
+
+  ros::Publisher debug_imu_pub_; // publisher that publishes the imu data that is fed to SLAM, for rosbags
+  ros::Publisher debug_img_pub_; // publisher that publishes the images that are fed to SLAM, for rosbags
 
   tf::TransformBroadcaster tf_broadcaster_;
 
