@@ -140,9 +140,12 @@ void Localization::duo3dCb(const duo3d_ros::Duo3d& msg)
 {
 	if (!received_IMU_data)
 	{
-		ROS_INFO("no IMU data yet!");
+		ROS_INFO("No IMU data yet!");
 		return;
 	}
+
+	last_duo_msg_ = msg;
+
 	double tic_total = ros::Time::now().toSec();
 	sensor_msgs::MagneticField mag; // TODO Subscribe to mag topic
 
@@ -181,8 +184,6 @@ void Localization::duo3dCb(const duo3d_ros::Duo3d& msg)
 	bool debug_publish = (ros::Time::now() - last_debug_publish).toSec() > debug_publish_delay;
 	if (debug_publish)
 		last_debug_publish = ros::Time::now();
-
-	debug_img_pub_.publish(msg);
 
 	update(dt, cv_left_image->image, cv_right_image->image, msg.imu, mag, pose, velocity, debug_publish);
 
@@ -286,6 +287,8 @@ void Localization::update(double dt, const cv::Mat& left_image, const cv::Mat& r
 
 	std::vector<double> IMU_data(23,0.0);
 	getIMUData(imu, mag, IMU_data);
+
+	debug_img_pub_.publish(last_duo_msg_);
 
 	emxArray_real_T *xt_out; // result
 	emxArray_real_T *P_apo_out;
@@ -400,18 +403,18 @@ void Localization::getIMUData(const sensor_msgs::Imu& imu, const sensor_msgs::Ma
 	inertial_vec.at(11) = mavros_mag_data_.magnetic_field.y;
 	inertial_vec.at(12) = mavros_mag_data_.magnetic_field.z;
 
-	inertial_vec.at(13) = mavros_imu_data_buffer_[0].angular_velocity.x;
-	inertial_vec.at(14) = mavros_imu_data_buffer_[0].angular_velocity.y;
-	inertial_vec.at(15) = mavros_imu_data_buffer_[0].angular_velocity.z;
+	inertial_vec.at(13) = mavros_imu_data_.angular_velocity.x;
+	inertial_vec.at(14) = mavros_imu_data_.angular_velocity.y;
+	inertial_vec.at(15) = mavros_imu_data_.angular_velocity.z;
 
-	inertial_vec.at(16) = mavros_imu_data_buffer_[0].linear_acceleration.x;
-	inertial_vec.at(17) = mavros_imu_data_buffer_[0].linear_acceleration.y;
-	inertial_vec.at(18) = mavros_imu_data_buffer_[0].linear_acceleration.z;
+	inertial_vec.at(16) = mavros_imu_data_.linear_acceleration.x;
+	inertial_vec.at(17) = mavros_imu_data_.linear_acceleration.y;
+	inertial_vec.at(18) = mavros_imu_data_.linear_acceleration.z;
 
-	inertial_vec.at(19) = mavros_imu_data_buffer_[0].orientation.x;
-	inertial_vec.at(20) = mavros_imu_data_buffer_[0].orientation.y;
-	inertial_vec.at(21) = mavros_imu_data_buffer_[0].orientation.z;
-	inertial_vec.at(22) = mavros_imu_data_buffer_[0].orientation.w;
+	inertial_vec.at(19) = mavros_imu_data_.orientation.x;
+	inertial_vec.at(20) = mavros_imu_data_.orientation.y;
+	inertial_vec.at(21) = mavros_imu_data_.orientation.z;
+	inertial_vec.at(22) = mavros_imu_data_.orientation.w;
 
 	std_msgs::Float32MultiArray array;
 	array.data.clear();

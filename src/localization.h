@@ -117,6 +117,7 @@ private:
 	boost::circular_buffer<sensor_msgs::Imu> mavros_imu_data_buffer_;
 	sensor_msgs::MagneticField mavros_mag_data_;
 	sensor_msgs::FluidPressure mavros_pressure_data_;
+	duo3d_ros::Duo3d last_duo_msg_;
 
 	void visMarker(void);
 	void dynamicReconfigureCb(vio_ros::controllerConfig &config, uint32_t level);
