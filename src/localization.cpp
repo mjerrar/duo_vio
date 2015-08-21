@@ -37,9 +37,6 @@ Localization::Localization()
 
 	controller_pub = nh_.advertise<onboard_localization::ControllerOut>("/onboard_localization/controller_output",10);
 
-	debug_imu_pub_ = nh_.advertise<std_msgs::Float32MultiArray>("/vio/debug_imu", 1);
-	debug_img_pub_ = nh_.advertise<duo3d_ros::Duo3d>("/vio/debug_img", 1);
-
 	mavros_imu_sub_ = nh_.subscribe("/mavros/imu/data", 1,
 			&Localization::mavrosImuCb, this);
 	mavros_mag_sub_ = nh_.subscribe("/mavros/imu/mag", 1,
@@ -87,6 +84,12 @@ Localization::Localization()
 	last_debug_publish = ros::Time::now();
 
 	nh_.param<bool>("publish_on_debug_topics", publish_on_debug_topics, 1);
+
+	if (publish_on_debug_topics)
+	{
+		debug_imu_pub_ = nh_.advertise<std_msgs::Float32MultiArray>("/vio/debug_imu", 1);
+		debug_img_pub_ = nh_.advertise<duo3d_ros::Duo3d>("/vio/debug_img", 1);
+	}
 
 	int num_points_per_anchor, num_anchors;
 	nh_.param<int>("num_points_per_anchor", num_points_per_anchor, 1);
@@ -290,6 +293,11 @@ void Localization::update(double dt, const cv::Mat& left_image, const cv::Mat& r
 	std::vector<double> IMU_data(23,0.0);
 	getIMUData(imu, mag, IMU_data);
 
+	if (publish_on_debug_topics)
+	{
+		debug_img_pub_.publish(last_duo_msg_);
+	}
+
 	emxArray_real_T *xt_out; // result
 	emxArray_real_T *P_apo_out;
 	emxArray_real_T *h_u_apo;
@@ -301,7 +309,7 @@ void Localization::update(double dt, const cv::Mat& left_image, const cv::Mat& r
 	emxInitArray_real_T(&map,2);
 
 	std::vector<double> reference(4,0.0);
-	//    reference[3] = 0.5;
+	reference[3] = 0.5;
 
 	double u_out[4];
 
@@ -333,11 +341,7 @@ void Localization::update(double dt, const cv::Mat& left_image, const cv::Mat& r
 	controller_out_msg.z = u_out[2];
 	controller_out_msg.yaw = u_out[3];
 
-	if (publish_on_debug_topics)
-	{
-		controller_pub.publish(controller_out_msg);
-		debug_img_pub_.publish(last_duo_msg_);
-	}
+	controller_pub.publish(controller_out_msg);
 
 	SLAM_reset_flag = false;
 
@@ -420,11 +424,14 @@ void Localization::getIMUData(const sensor_msgs::Imu& imu, const sensor_msgs::Ma
 	inertial_vec.at(21) = mavros_imu_data_.orientation.z;
 	inertial_vec.at(22) = mavros_imu_data_.orientation.w;
 
-	std_msgs::Float32MultiArray array;
-	array.data.clear();
-	for (int i = 0; i < inertial_vec.size(); i++)
-		array.data.push_back(inertial_vec[i]);
-	debug_imu_pub_.publish(array);
+	if (publish_on_debug_topics)
+	{
+		std_msgs::Float32MultiArray array;
+		array.data.clear();
+		for (int i = 0; i < inertial_vec.size(); i++)
+			array.data.push_back(inertial_vec[i]);
+		debug_imu_pub_.publish(array);
+	}
 }
 
 void Localization::displayTracks(const cv::Mat& left_image, double z_all_l[], double z_all_r[], std::vector<int> status, emxArray_real_T *h_u)
