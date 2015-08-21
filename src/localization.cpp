@@ -36,7 +36,7 @@ mavros_imu_data_buffer_(IMU_delay)
 
     controller_pub = nh_.advertise<onboard_localization::ControllerOut>("/onboard_localization/controller_output",10);
 
-    debug_imu_pub_ = nh_.advertise<std_msgs::Float32MultiArray>("/vio/debug", 1);
+    debug_imu_pub_ = nh_.advertise<std_msgs::Float32MultiArray>("/vio/debug_imu", 1);
     debug_img_pub_ = nh_.advertise<duo3d_ros::Duo3d>("/vio/debug_img", 1);
 
     mavros_imu_sub_ = nh_.subscribe("/mavros/imu/data", 1,
