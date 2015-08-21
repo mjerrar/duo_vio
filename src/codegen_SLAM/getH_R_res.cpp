@@ -5,7 +5,7 @@
 // File: getH_R_res.cpp
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 21-Aug-2015 15:06:39
+// C/C++ source code generated on  : 21-Aug-2015 16:43:03
 //
 
 // Include Files
@@ -196,7 +196,7 @@ void b_getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
   double R_v_data[1024];
   int R_v_size[2];
   double b_IMU_measurements[9];
-  double r_g_data[12];
+  double r_g_data[4];
   double R_g_data[9];
   double R_p_data[1];
   double r_p_data[1];
@@ -877,12 +877,12 @@ void b_getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
     }
 
     QuatFromRotJ(dv5, d);
-    r_g_size_idx_0 = 1;
+    r_g_size_idx_0 = 3;
     for (i1 = 0; i1 < 3; i1++) {
       r_g_data[i1] = d[i1];
     }
 
-    h_fprintf(r_g_data[0], r_g_data[1], r_g_data[2]);
+    b_fprintf(r_g_data[0], r_g_data[1], r_g_data[2]);
     i1 = H_g->size[0] * H_g->size[1];
     H_g->size[0] = 3;
     H_g->size[1] = (int)(errorStateSize + numAnchors * (6.0 + numPointsPerAnchor));
@@ -936,10 +936,8 @@ void b_getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
         r_data[i1] = z_data[i1];
       }
 
-      i1 = 0;
-      while (i1 <= r_g_size_idx_0 - 1) {
-        r_data[z_size_idx_0] = r_g_data[0];
-        i1 = 1;
+      for (i1 = 0; i1 < r_g_size_idx_0; i1++) {
+        r_data[i1 + z_size_idx_0] = r_g_data[i1];
       }
 
       i1 = 0;
@@ -1039,10 +1037,8 @@ void b_getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
         r_data[i1] = z_data[i1];
       }
 
-      i1 = 0;
-      while (i1 <= r_g_size_idx_0 - 1) {
-        r_data[z_size_idx_0] = r_g_data[0];
-        i1 = 1;
+      for (i1 = 0; i1 < r_g_size_idx_0; i1++) {
+        r_data[i1 + z_size_idx_0] = r_g_data[i1];
       }
 
       i1 = H->size[0] * H->size[1];
@@ -1310,7 +1306,7 @@ void getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
   int R_p_size[2];
   double R_v[4];
   double b_IMU_measurements[9];
-  double r_g_data[12];
+  double r_g_data[4];
   double R_g_data[9];
   double R_p_data[1];
   double r_p_data[1];
@@ -1943,12 +1939,12 @@ void getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
     }
 
     QuatFromRotJ(dv1, f_cameraparams_CameraParameters);
-    ib = 1;
+    ib = 3;
     for (ar = 0; ar < 3; ar++) {
       r_g_data[ar] = f_cameraparams_CameraParameters[ar];
     }
 
-    h_fprintf(r_g_data[0], r_g_data[1], r_g_data[2]);
+    b_fprintf(r_g_data[0], r_g_data[1], r_g_data[2]);
     ar = H_g->size[0] * H_g->size[1];
     H_g->size[0] = 3;
     H_g->size[1] = (int)(errorStateSize + numAnchors * (6.0 + numPointsPerAnchor));
@@ -2002,10 +1998,8 @@ void getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
         r_data[ar] = z[ar];
       }
 
-      ar = 0;
-      while (ar <= ib - 1) {
-        r_data[2] = r_g_data[0];
-        ar = 1;
+      for (ar = 0; ar < ib; ar++) {
+        r_data[ar + 2] = r_g_data[ar];
       }
 
       ar = 0;
@@ -2086,10 +2080,8 @@ void getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
         r_data[ar] = z[ar];
       }
 
-      ar = 0;
-      while (ar <= ib - 1) {
-        r_data[2] = r_g_data[0];
-        ar = 1;
+      for (ar = 0; ar < ib; ar++) {
+        r_data[ar + 2] = r_g_data[ar];
       }
 
       ar = H->size[0] * H->size[1];

@@ -5,7 +5,7 @@
 // File: SLAM_initialize.cpp
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 21-Aug-2015 15:06:39
+// C/C++ source code generated on  : 21-Aug-2015 16:43:03
 //
 
 // Include Files
@@ -26,7 +26,7 @@
 #define b_minFeatureThreshold          (2.0)
 #define b_sigma_Init                   (0.0001)
 #define b_maxEKFIterations             (1.0)
-#define b_orientationNoise             (0.001)
+#define b_orientationNoise             (0.01)
 
 // Variable Definitions
 static double numTrackFeatures;

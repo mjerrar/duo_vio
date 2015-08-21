@@ -5,19 +5,19 @@
 // File: SLAM.cpp
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 21-Aug-2015 15:06:39
+// C/C++ source code generated on  : 21-Aug-2015 16:43:03
 //
 
 // Include Files
 #include "rt_nonfinite.h"
 #include "SLAM.h"
 #include "SLAM_emxutil.h"
-#include "fprintf.h"
 #include "SLAM_updIT.h"
 #include "predictMeasurement_stereo.h"
 #include "blkdiag.h"
 #include "QuatFromRotJ.h"
 #include "SLAM_pred.h"
+#include "fprintf.h"
 #include "SLAM_rtwutil.h"
 #include "SLAM_data.h"
 #include <stdio.h>
@@ -26,7 +26,6 @@
 static boolean_T initialized_not_empty;
 static emxArray_real_T *xt;
 static emxArray_real_T *P;
-static double delayBuffer_k[322];
 static double last_u[4];
 
 // Function Declarations
@@ -104,8 +103,8 @@ void SLAM(double updateVect[16], const double z_all_l[32], const double z_all_r
           gains[3], emxArray_real_T *h_u_apo_out, emxArray_real_T *xt_out,
           emxArray_real_T *P_apo_out, emxArray_real_T *map_out, double u_out[4])
 {
-  int outsize_idx_0;
   double K_pos[2];
+  int outsize_idx_0;
   emxArray_real_T *b;
   emxArray_real_T *a;
   emxArray_real_T *r4;
@@ -129,12 +128,6 @@ void SLAM(double updateVect[16], const double z_all_l[32], const double z_all_r
   double u_out_yaw;
   double u_out_x[3];
   double b_R_bw[3];
-  b_fprintf();
-  for (outsize_idx_0 = 0; outsize_idx_0 < 23; outsize_idx_0++) {
-    d_fprintf(IMU_measurements[outsize_idx_0]);
-  }
-
-  f_fprintf();
   K_pos[0] = gains[0];
   K_pos[1] = gains[1];
 
@@ -159,11 +152,6 @@ void SLAM(double updateVect[16], const double z_all_l[32], const double z_all_r
   emxInit_real_T(&r5, 2);
   if ((!initialized_not_empty) || resetFlag) {
     initialized_not_empty = true;
-    memset(&delayBuffer_k[0], 0, 322U * sizeof(double));
-    for (outsize_idx_0 = 0; outsize_idx_0 < 14; outsize_idx_0++) {
-      memcpy(&delayBuffer_k[23 * outsize_idx_0], &IMU_measurements[0], 23U *
-             sizeof(double));
-    }
 
     //  if ~all(size(q) == [4, 1])
     //      error('q does not have the size of a quaternion')
@@ -411,18 +399,10 @@ void SLAM(double updateVect[16], const double z_all_l[32], const double z_all_r
     }
 
     u_out[3] = u_out_yaw;
-    v_fprintf(xt->data[0] - ref[0], xt->data[1] - ref[1], xt->data[2] - ref[2],
+    p_fprintf(xt->data[0] - ref[0], xt->data[1] - ref[1], xt->data[2] - ref[2],
               yaw - ref[3], d5, d6, d7, u_out_yaw);
-    for (k = 0; k < 13; k++) {
-      for (ibcol = 0; ibcol < 23; ibcol++) {
-        delayBuffer_k[ibcol + 23 * (13 - k)] = delayBuffer_k[ibcol + 23 * (12 -
-          k)];
-      }
-    }
 
-    memcpy(&delayBuffer_k[0], &IMU_measurements[0], 23U * sizeof(double));
-
-    //  IMU_measurements = delayBuffer_k(:,1);
+    //  IMU_measurements = delayBuffer_k(:,delay);
     for (outsize_idx_0 = 0; outsize_idx_0 < 4; outsize_idx_0++) {
       dv25[outsize_idx_0] = 0.0 * last_u[outsize_idx_0];
     }
