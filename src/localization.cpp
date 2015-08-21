@@ -37,7 +37,7 @@ Localization::Localization()
 
 	controller_pub = nh_.advertise<onboard_localization::ControllerOut>("/onboard_localization/controller_output",10);
 
-	debug_imu_pub_ = nh_.advertise<std_msgs::Float32MultiArray>("/vio/debug", 1);
+	debug_imu_pub_ = nh_.advertise<std_msgs::Float32MultiArray>("/vio/debug_imu", 1);
 	debug_img_pub_ = nh_.advertise<duo3d_ros::Duo3d>("/vio/debug_img", 1);
 
 	mavros_imu_sub_ = nh_.subscribe("/mavros/imu/data", 1,
@@ -140,7 +140,7 @@ void Localization::duo3dCb(const duo3d_ros::Duo3d& msg)
 {
 	if (!received_IMU_data)
 	{
-		printf("no IMU data yet!");
+		ROS_INFO("no IMU data yet!");
 		return;
 	}
 	double tic_total = ros::Time::now().toSec();
