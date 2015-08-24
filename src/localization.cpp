@@ -22,7 +22,6 @@ Localization::Localization()
   controller_gains(3,0.0),
   mavros_imu_data_buffer_(IMU_delay),
   received_IMU_data(false),
-  body2camera(0.5, 0.5, 0.5, 0.5),
   pos_reference(4, 0.0)
 {
 
@@ -268,15 +267,15 @@ void Localization::dynamicReconfigureCb(vio_ros::controllerConfig &config, uint3
 
 void Localization::positionReferenceCb(const onboard_localization::PositionReference& msg)
 {
-	printf("got position reference change        : (%.3f, %.3f, %.3f, %.3f)\n", msg.x, msg.y, msg.z, msg.yaw);
-	tf::Transform body2world = tf::Transform(body2camera) * tf::Transform(camera2world);
-	tf::Vector3 positionChange_world = body2world * tf::Vector3(msg.x, msg.y, msg.z);
+	double roll, pitch, yaw;
+	tf::Matrix3x3(camera2world).getRPY(roll, pitch, yaw);
+	tf::Quaternion q;
+	q.setRPY(0, 0, yaw+1.57);
+	tf::Vector3 positionChange_world = tf::Transform(q) * tf::Vector3(msg.x, msg.y, msg.z);
 	pos_reference[0] += positionChange_world.x();
 	pos_reference[1] += positionChange_world.y();
 	pos_reference[2] += positionChange_world.z();
 	pos_reference[3] += msg.yaw;
-	printf("got position reference change (world): (%.3f, %.3f, %.3f, %.3f)\n", positionChange_world.x(), positionChange_world.y(), positionChange_world.z(), msg.yaw);
-	printf("position reference: (%.3f, %.3f, %.3f, %.3f)\n", pos_reference[0], pos_reference[1], pos_reference[2], pos_reference[3]);
 
 	geometry_msgs::PoseStamped ref_viz;
 	ref_viz.header.stamp = ros::Time::now();
