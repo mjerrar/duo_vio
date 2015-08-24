@@ -273,6 +273,8 @@ void Localization::positionReferenceCb(const onboard_localization::PositionRefer
 	pos_reference.y += positionChange_world.y();
 	pos_reference.z += positionChange_world.z();
 	pos_reference.yaw += msg.yaw;
+	printf("position reference: (%.3f, %.3f, %.3f, %.3f)\n", pos_reference.x, pos_reference.y, pos_reference.z, pos_reference.yaw);
+
 }
 
 void Localization::update(double dt, const cv::Mat& left_image, const cv::Mat& right_image, const sensor_msgs::Imu& imu,
