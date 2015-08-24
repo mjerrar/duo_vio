@@ -22,7 +22,7 @@ Localization::Localization()
   controller_gains(3,0.0),
   mavros_imu_data_buffer_(IMU_delay),
   received_IMU_data(false),
-  body2camera(tf::Quaternion(0.5, 0.5, 0.5, 0.5))
+  body2camera(0.5, 0.5, 0.5, 0.5)
 {
 
 	SLAM_initialize();
@@ -202,11 +202,10 @@ void Localization::duo3dCb(const duo3d_ros::Duo3d& msg)
 
 
 	// Generate and publish pose as transform
+	camera2world = tf::Quaternion(pose.orientation.x,pose.orientation.y,
+			pose.orientation.z,pose.orientation.w);
 	tf::Transform transform;
-	transform.setRotation(tf::Quaternion(pose.orientation.x,pose.orientation.y,
-			pose.orientation.z,pose.orientation.w));
-	camera2world = transform;
-
+	transform.setRotation(camera2world);
 	transform.setOrigin(tf::Vector3(pose.position.x, pose.position.y, pose.position.z));
 
 	tf_broadcaster_.sendTransform(tf::StampedTransform(transform, /*pose_stamped.header.stamp*/ ros::Time::now(), "world", "SLAM"));
@@ -269,26 +268,24 @@ void Localization::dynamicReconfigureCb(vio_ros::controllerConfig &config, uint3
 void Localization::positionReferenceCb(const onboard_localization::PositionReference& msg)
 {
 	printf("got position reference change        : (%.3f, %.3f, %.3f, %.3f)\n", msg.x, msg.y, msg.z, msg.yaw);
-	tf::Transform body2world;
-	body2world = body2camera * camera2world;
-	tf::Vector3 positionChange_world;
-	positionChange_world = body2world * tf::Vector3(msg.x, msg.y, msg.z);
-	pos_reference.x += positionChange_world.x();
-	pos_reference.y += positionChange_world.y();
-	pos_reference.z += positionChange_world.z();
-	pos_reference.yaw += msg.yaw;
+	tf::Transform body2world = tf::Transform(body2camera) * tf::Transform(camera2world);
+	tf::Vector3 positionChange_world = body2world * tf::Vector3(msg.x, msg.y, msg.z);
+	pos_reference[0] += positionChange_world.x();
+	pos_reference[1] += positionChange_world.y();
+	pos_reference[2] += positionChange_world.z();
+	pos_reference[3] += msg.yaw;
 	printf("got position reference change (world): (%.3f, %.3f, %.3f, %.3f)\n", positionChange_world.x(), positionChange_world.y(), positionChange_world.z(), msg.yaw);
-	printf("position reference: (%.3f, %.3f, %.3f, %.3f)\n", pos_reference.x, pos_reference.y, pos_reference.z, pos_reference.yaw);
+	printf("position reference: (%.3f, %.3f, %.3f, %.3f)\n", pos_reference[0], pos_reference[1], pos_reference[2], pos_reference[3]);
 
 	geometry_msgs::PoseStamped ref_viz;
 	ref_viz.header.stamp = ros::Time::now();
 	ref_viz.header.frame_id = "world";
-	ref_viz.pose.position.x = pos_reference.x;
-	ref_viz.pose.position.y = pos_reference.y;
-	ref_viz.pose.position.z = pos_reference.z;
+	ref_viz.pose.position.x = pos_reference[0];
+	ref_viz.pose.position.y = pos_reference[1];
+	ref_viz.pose.position.z = pos_reference[2];
 
 	tf::Quaternion quaternion;
-	quaternion.setRPY(0.0, 0.0, pos_reference.yaw);
+	quaternion.setRPY(0.0, 0.0, pos_reference[3]);
 	ref_viz.pose.orientation.w = quaternion.getW();
 	ref_viz.pose.orientation.x = quaternion.getX();
 	ref_viz.pose.orientation.y = quaternion.getY();
@@ -345,12 +342,6 @@ void Localization::update(double dt, const cv::Mat& left_image, const cv::Mat& r
 	emxInitArray_real_T(&h_u_apo,1);
 	emxInitArray_real_T(&map,2);
 
-	std::vector<double> reference(4,0.0);
-	reference[0] = pos_reference.x;
-	reference[0] = pos_reference.y;
-	reference[0] = pos_reference.z;
-	reference[0] = pos_reference.yaw;
-
 	double u_out[4];
 
 	// Update SLAM and get pose estimation
@@ -367,7 +358,7 @@ void Localization::update(double dt, const cv::Mat& left_image, const cv::Mat& r
 			num_anchors_,
 			&cameraParams,
 			SLAM_reset_flag,
-			&reference[0],
+			&pos_reference[0],
 			&controller_gains[0],
 			h_u_apo,
 			xt_out,
