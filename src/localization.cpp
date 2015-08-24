@@ -265,7 +265,7 @@ void Localization::dynamicReconfigureCb(vio_ros::controllerConfig &config, uint3
 
 void Localization::positionReferenceCb(const onboard_localization::PositionReference& msg)
 {
-	printf("got position reference change: (%.3f, %.3f, %.3f, %.3f)\n", msg.x, msg.y, msg.z, msg.yaw);
+	printf("got position reference change        : (%.3f, %.3f, %.3f, %.3f)\n", msg.x, msg.y, msg.z, msg.yaw);
 	tf::Transform body2world;
 	body2world = body2camera * camera2world;
 	tf::Vector3 positionChange_world;
@@ -274,6 +274,7 @@ void Localization::positionReferenceCb(const onboard_localization::PositionRefer
 	pos_reference.y += positionChange_world.y();
 	pos_reference.z += positionChange_world.z();
 	pos_reference.yaw += msg.yaw;
+	printf("got position reference change (world): (%.3f, %.3f, %.3f, %.3f)\n", positionChange_world.x(), positionChange_world.y(), positionChange_world.z(), msg.yaw);
 	printf("position reference: (%.3f, %.3f, %.3f, %.3f)\n", pos_reference.x, pos_reference.y, pos_reference.z, pos_reference.yaw);
 
 	geometry_msgs::PoseStamped ref_viz;
