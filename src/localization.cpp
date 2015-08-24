@@ -22,7 +22,8 @@ Localization::Localization()
   controller_gains(3,0.0),
   mavros_imu_data_buffer_(IMU_delay),
   received_IMU_data(false),
-  body2camera(0.5, 0.5, 0.5, 0.5)
+  body2camera(0.5, 0.5, 0.5, 0.5),
+  pos_reference(4, 0.0)
 {
 
 	SLAM_initialize();
