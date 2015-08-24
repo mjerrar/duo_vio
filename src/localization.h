@@ -45,7 +45,6 @@
 
 #include "onboard_localization/PositionReference.h"
 
-
 class Localization
 {
 public:
@@ -125,6 +124,8 @@ private:
 	sensor_msgs::FluidPressure mavros_pressure_data_;
 	duo3d_ros::Duo3d last_duo_msg_;
 	onboard_localization::PositionReference pos_reference;
+	tf::Transform body2camera; // the rotation that transforms a vector in the camera frame to one in the body frame
+	tf::Transform camera2world; // the transformation that transforms a vector in the camera frame to one in the world frame
 
 	void visMarker(void);
 	void dynamicReconfigureCb(vio_ros::controllerConfig &config, uint32_t level);

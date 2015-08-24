@@ -21,7 +21,8 @@ Localization::Localization()
   SLAM_reset_flag(0),
   controller_gains(3,0.0),
   mavros_imu_data_buffer_(IMU_delay),
-  received_IMU_data(false)
+  received_IMU_data(false),
+  body2camera(tf::Quaternion(0.5, 0.5, 0.5, 0.5))
 {
 
 	SLAM_initialize();
@@ -200,15 +201,14 @@ void Localization::duo3dCb(const duo3d_ros::Duo3d& msg)
 
 
 	// Generate and publish pose as transform
-	tf::Transform transform;
-	transform.setOrigin(tf::Vector3(pose.position.x, pose.position.y, pose.position.z));
-	transform.setRotation(tf::Quaternion(pose.orientation.x,pose.orientation.y,
+	camera2world.setOrigin(tf::Vector3(pose.position.x, pose.position.y, pose.position.z));
+	camera2world.setRotation(tf::Quaternion(pose.orientation.x,pose.orientation.y,
 			pose.orientation.z,pose.orientation.w));
 
-	tf_broadcaster_.sendTransform(tf::StampedTransform(transform, /*pose_stamped.header.stamp*/ ros::Time::now(), "world", "SLAM"));
+	tf_broadcaster_.sendTransform(tf::StampedTransform(camera2world, /*pose_stamped.header.stamp*/ ros::Time::now(), "world", "SLAM"));
 	if (debug_publish)
 	{
-		tf_broadcaster_.sendTransform(tf::StampedTransform(transform, /*pose_stamped.header.stamp*/ ros::Time::now(), "world", "SLAM_rviz"));
+		tf_broadcaster_.sendTransform(tf::StampedTransform(camera2world, /*pose_stamped.header.stamp*/ ros::Time::now(), "world", "SLAM_rviz"));
 	}
 
 	updateDronePose(debug_publish);
@@ -264,8 +264,15 @@ void Localization::dynamicReconfigureCb(vio_ros::controllerConfig &config, uint3
 
 void Localization::positionReferenceCb(const onboard_localization::PositionReference& msg)
 {
-	printf("got position reference: (%.3f, %.3f, %.3f, %.3f)\n", msg.x, msg.y, msg.z, msg.yaw);
-	pos_reference = msg;
+	printf("got position reference change: (%.3f, %.3f, %.3f, %.3f)\n", msg.x, msg.y, msg.z, msg.yaw);
+	tf::Transform body2world;
+	body2world = body2camera * camera2world;
+	tf::Vector3 positionChange_world;
+	positionChange_world = body2world * tf::Vector3(msg.x, msg.y, msg.z);
+	pos_reference.x += positionChange_world.x();
+	pos_reference.y += positionChange_world.y();
+	pos_reference.z += positionChange_world.z();
+	pos_reference.yaw += msg.yaw;
 }
 
 void Localization::update(double dt, const cv::Mat& left_image, const cv::Mat& right_image, const sensor_msgs::Imu& imu,
