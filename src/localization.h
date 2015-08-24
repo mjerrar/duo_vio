@@ -73,6 +73,7 @@ private:
 	ros::Publisher pose_pub_;
 	ros::Publisher velocity_pub_;
 	ros::Publisher controller_pub;
+	ros::Publisher reference_viz_pub;
 
 	ros::Publisher debug_imu_pub_; // publisher that publishes the imu data that is fed to SLAM, for rosbags
 	ros::Publisher debug_img_pub_; // publisher that publishes the images that are fed to SLAM, for rosbags

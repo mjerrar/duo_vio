@@ -35,6 +35,7 @@ Localization::Localization()
 	point_cloud_pub_ = nh_.advertise<sensor_msgs::PointCloud>("/vio/features_point_cloud",1); //TODO: add to debug parameter
 	path_pub_ = nh_.advertise<nav_msgs::Path>("/vio/SLAM_path",1);
 	vis_pub_ = nh_.advertise<visualization_msgs::Marker>( "drone", 0 );
+	reference_viz_pub = nh_.advertise<geometry_msgs::PoseStamped>("/onboard_localization/position_reference_viz",1);
 
 	controller_pub = nh_.advertise<onboard_localization::ControllerOut>("/onboard_localization/controller_output",10);
 
@@ -275,6 +276,21 @@ void Localization::positionReferenceCb(const onboard_localization::PositionRefer
 	pos_reference.yaw += msg.yaw;
 	printf("position reference: (%.3f, %.3f, %.3f, %.3f)\n", pos_reference.x, pos_reference.y, pos_reference.z, pos_reference.yaw);
 
+	geometry_msgs::PoseStamped ref_viz;
+	ref_viz.header.stamp = ros::Time::now();
+	ref_viz.header.frame_id = "world";
+	ref_viz.pose.position.x = pos_reference.x;
+	ref_viz.pose.position.y = pos_reference.y;
+	ref_viz.pose.position.z = pos_reference.z;
+
+	tf::Quaternion quaternion;
+	quaternion.setRPY(0.0, 0.0, pos_reference.yaw);
+	ref_viz.pose.orientation.w = quaternion.getW();
+	ref_viz.pose.orientation.x = quaternion.getX();
+	ref_viz.pose.orientation.y = quaternion.getY();
+	ref_viz.pose.orientation.z = quaternion.getZ();
+
+	reference_viz_pub.publish(ref_viz);
 }
 
 void Localization::update(double dt, const cv::Mat& left_image, const cv::Mat& right_image, const sensor_msgs::Imu& imu,
