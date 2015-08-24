@@ -202,14 +202,17 @@ void Localization::duo3dCb(const duo3d_ros::Duo3d& msg)
 
 
 	// Generate and publish pose as transform
-	camera2world.setOrigin(tf::Vector3(pose.position.x, pose.position.y, pose.position.z));
-	camera2world.setRotation(tf::Quaternion(pose.orientation.x,pose.orientation.y,
+	tf::Transform transform;
+	transform.setRotation(tf::Quaternion(pose.orientation.x,pose.orientation.y,
 			pose.orientation.z,pose.orientation.w));
+	camera2world = transform;
 
-	tf_broadcaster_.sendTransform(tf::StampedTransform(camera2world, /*pose_stamped.header.stamp*/ ros::Time::now(), "world", "SLAM"));
+	transform.setOrigin(tf::Vector3(pose.position.x, pose.position.y, pose.position.z));
+
+	tf_broadcaster_.sendTransform(tf::StampedTransform(transform, /*pose_stamped.header.stamp*/ ros::Time::now(), "world", "SLAM"));
 	if (debug_publish)
 	{
-		tf_broadcaster_.sendTransform(tf::StampedTransform(camera2world, /*pose_stamped.header.stamp*/ ros::Time::now(), "world", "SLAM_rviz"));
+		tf_broadcaster_.sendTransform(tf::StampedTransform(transform, /*pose_stamped.header.stamp*/ ros::Time::now(), "world", "SLAM_rviz"));
 	}
 
 	updateDronePose(debug_publish);
