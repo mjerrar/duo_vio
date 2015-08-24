@@ -5,7 +5,7 @@
 // File: SLAM.cpp
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 24-Aug-2015 20:23:47
+// C/C++ source code generated on  : 24-Aug-2015 21:00:43
 //
 
 // Include Files
@@ -222,9 +222,10 @@ void SLAM(double updateVect[16], const double z_all_l[32], const double z_all_r
     k = xt->size[0];
     xt->size[0] = 13 + b->size[0];
     emxEnsureCapacity((emxArray__common *)xt, k, (int)sizeof(double));
-    xt->data[0] = 0.0;
-    xt->data[1] = 0.0;
-    xt->data[2] = 0.0;
+    for (k = 0; k < 3; k++) {
+      xt->data[k] = ref[k];
+    }
+
     for (k = 0; k < 4; k++) {
       xt->data[k + 3] = dv25[k];
     }
