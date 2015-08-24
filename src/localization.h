@@ -43,6 +43,8 @@
 
 #include "std_msgs/Float32MultiArray.h"
 
+#include "onboard_localization/PositionReference.h"
+
 
 class Localization
 {
@@ -66,6 +68,8 @@ private:
 	ros::Subscriber mavros_mag_sub_;
 	ros::Subscriber mavros_pressure_sub_;
 	ros::Subscriber joy_sub_;
+    ros::Subscriber position_reference_sub_;
+
 
 	ros::Publisher pose_pub_;
 	ros::Publisher velocity_pub_;
@@ -95,7 +99,8 @@ private:
 	void mavrosImuCb(const sensor_msgs::Imu msg);
 	void mavrosMagCb(const sensor_msgs::MagneticField msg);
 	void mavrosPressureCb(const sensor_msgs::FluidPressure msg);
-	void joystickCb(const sensor_msgs::Joy::ConstPtr& joy);
+	void joystickCb(const sensor_msgs::Joy::ConstPtr& msg);
+	void positionReferenceCb(const onboard_localization::PositionReference& msg);
 
 	void update(double dt, const cv::Mat& left_image, const cv::Mat& right_image, const sensor_msgs::Imu& imu,
 			const sensor_msgs::MagneticField& mag, geometry_msgs::Pose& pose, geometry_msgs::Twist& velocity, bool debug_publish);
@@ -119,6 +124,7 @@ private:
 	sensor_msgs::MagneticField mavros_mag_data_;
 	sensor_msgs::FluidPressure mavros_pressure_data_;
 	duo3d_ros::Duo3d last_duo_msg_;
+	onboard_localization::PositionReference pos_reference;
 
 	void visMarker(void);
 	void dynamicReconfigureCb(vio_ros::controllerConfig &config, uint32_t level);

@@ -44,6 +44,8 @@ Localization::Localization()
 	mavros_pressure_sub_ = nh_.subscribe("/mavros/imu/atm_pressure", 1,
 			&Localization::mavrosPressureCb, this);
 	joy_sub_ = nh_.subscribe("/joy",1, &Localization::joystickCb, this);
+	position_reference_sub_ = nh_.subscribe("/onboard_localization/position_reference",1, &Localization::positionReferenceCb, this);
+
 
 	// Init parameters
 	// TODO Check default values and give meaningful names
@@ -243,9 +245,9 @@ void Localization::mavrosPressureCb(const sensor_msgs::FluidPressure msg)
 	mavros_pressure_data_ = msg;
 }
 
-void Localization::joystickCb(const sensor_msgs::Joy::ConstPtr& joy)
+void Localization::joystickCb(const sensor_msgs::Joy::ConstPtr& msg)
 {
-	if (joy->buttons[0] && !SLAM_reset_flag)
+	if (msg->buttons[0] && !SLAM_reset_flag)
 	{
 		SLAM_reset_flag = true;
 		ROS_INFO("resetting SLAM");
@@ -258,6 +260,12 @@ void Localization::dynamicReconfigureCb(vio_ros::controllerConfig &config, uint3
 	controller_gains[0] = config.Kp_pos;
 	controller_gains[1] = config.Kd_pos;
 	controller_gains[2] = config.Kp_yaw;
+}
+
+void Localization::positionReferenceCb(const onboard_localization::PositionReference& msg)
+{
+	printf("got position reference: (%.3f, %.3f, %.3f, %.3f)\n", msg.x, msg.y, msg.z, msg.yaw);
+	pos_reference = msg;
 }
 
 void Localization::update(double dt, const cv::Mat& left_image, const cv::Mat& right_image, const sensor_msgs::Imu& imu,
@@ -309,7 +317,10 @@ void Localization::update(double dt, const cv::Mat& left_image, const cv::Mat& r
 	emxInitArray_real_T(&map,2);
 
 	std::vector<double> reference(4,0.0);
-	reference[3] = 0.5;
+	reference[0] = pos_reference.x;
+	reference[0] = pos_reference.y;
+	reference[0] = pos_reference.z;
+	reference[0] = pos_reference.yaw;
 
 	double u_out[4];
 
