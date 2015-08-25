@@ -5,12 +5,12 @@
   <arg name="FPS_duo" default="60" />
   <arg name="resolution_width_duo" default="320" />
   <arg name="resolution_height_duo" default="240" />
-  <arg name="im_noise" default="5" />
+  <arg name="im_noise" default="1" />
   <arg name="acc_noise" default="1" />
-  <arg name="gyro_noise" default="10" />
+  <arg name="gyro_noise" default="1" />
   <arg name="Kp_pos" default="1" />
-  <arg name="Kd_pos" default="0" />
-  <arg name="Kp_yaw" default="0" />
+  <arg name="Kd_pos" default="1.4" />
+  <arg name="Kp_yaw" default="1" />
 
   <arg name="camera_name" default="101" /> <!-- the camera name is equal to the last 3 digits of the odroid's IP -->
   <arg name="lense_type" default="FS3028B13M8" />
