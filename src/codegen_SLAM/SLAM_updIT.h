@@ -5,7 +5,7 @@
 // File: SLAM_updIT.h
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 25-Aug-2015 08:57:35
+// C/C++ source code generated on  : 25-Aug-2015 10:22:12
 //
 #ifndef __SLAM_UPDIT_H__
 #define __SLAM_UPDIT_H__
@@ -30,8 +30,9 @@ extern void SLAM_updIT(emxArray_real_T *P_apr, emxArray_real_T *b_xt, const
   h_cameraparams_CameraParameters[2], const double cameraparams_r_lr[3], const
   double cameraparams_R_lr[9], const double cameraparams_R_rl[9], double
   updateVect[16], const double z_all_l[32], const double z_all_r[32], const
-  double imNoise[2], const double IMU_measurements[23], double
-  numPointsPerAnchor, double numAnchors, double height_offset_pressure,
+  double noiseParameters_image_noise[2], double c_noiseParameters_orientation_n,
+  double noiseParameters_pressure_noise, const double IMU_measurements[23],
+  double numPointsPerAnchor, double numAnchors, double height_offset_pressure,
   emxArray_real_T *h_u_apo, emxArray_real_T *map);
 extern void SLAM_updIT_free();
 extern void SLAM_updIT_init();

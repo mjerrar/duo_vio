@@ -79,7 +79,7 @@ find_package(
 # )
 
 generate_dynamic_reconfigure_options(
-  cfg/controller.cfg
+  cfg/vio_ros.cfg
 )
 
 ###################################

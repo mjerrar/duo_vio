@@ -25,11 +25,12 @@
 #include "SLAM.h"
 #include "SLAM_includes.h"
 #include "stereoParameters.h"
+#include "NoiseParameters.h"
 
 #include "onboard_localization/ControllerOut.h"
 
 #include <dynamic_reconfigure/server.h>
-#include <vio_ros/controllerConfig.h>
+#include <vio_ros/vio_rosConfig.h>
 
 #include <duo3d_ros/Duo3d.h>
 
@@ -60,6 +61,7 @@ private:
 	ros::Time last_debug_publish;
 
 	stereoParameters cameraParams;
+	NoiseParameters noiseParams;
 	ros::NodeHandle nh_;
 
 	ros::Subscriber combined_sub;
@@ -80,7 +82,7 @@ private:
 
 	tf::TransformBroadcaster tf_broadcaster_;
 
-	dynamic_reconfigure::Server<vio_ros::controllerConfig> dynamic_reconfigure_server;
+	dynamic_reconfigure::Server<vio_ros::vio_rosConfig> dynamic_reconfigure_server;
 
 	ros::Time prev_time_;
 	std::vector<int> update_vec_;
@@ -128,7 +130,7 @@ private:
 	tf::Quaternion camera2world; // the rotation that transforms a vector in the camera frame to one in the world frame
 
 	void visMarker(void);
-	void dynamicReconfigureCb(vio_ros::controllerConfig &config, uint32_t level);
+	void dynamicReconfigureCb(vio_ros::vio_rosConfig &config, uint32_t level);
 
 };
 

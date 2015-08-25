@@ -5,7 +5,7 @@
 // File: SLAM_updIT.cpp
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 25-Aug-2015 08:57:35
+// C/C++ source code generated on  : 25-Aug-2015 10:22:12
 //
 
 // Include Files
@@ -73,7 +73,9 @@ static double rt_roundd_snf(double u)
 //                double updateVect[16]
 //                const double z_all_l[32]
 //                const double z_all_r[32]
-//                const double imNoise[2]
+//                const double noiseParameters_image_noise[2]
+//                double c_noiseParameters_orientation_n
+//                double noiseParameters_pressure_noise
 //                const double IMU_measurements[23]
 //                double numPointsPerAnchor
 //                double numAnchors
@@ -91,10 +93,13 @@ void SLAM_updIT(emxArray_real_T *P_apr, emxArray_real_T *b_xt, const double
                 h_cameraparams_CameraParameters[2], const double
                 cameraparams_r_lr[3], const double cameraparams_R_lr[9], const
                 double cameraparams_R_rl[9], double updateVect[16], const double
-                z_all_l[32], const double z_all_r[32], const double imNoise[2],
-                const double IMU_measurements[23], double numPointsPerAnchor,
-                double numAnchors, double height_offset_pressure,
-                emxArray_real_T *h_u_apo, emxArray_real_T *map)
+                z_all_l[32], const double z_all_r[32], const double
+                noiseParameters_image_noise[2], double
+                c_noiseParameters_orientation_n, double
+                noiseParameters_pressure_noise, const double IMU_measurements[23],
+                double numPointsPerAnchor, double numAnchors, double
+                height_offset_pressure, emxArray_real_T *h_u_apo,
+                emxArray_real_T *map)
 {
   double c_numTrackFeatures;
   int i8;
@@ -417,8 +422,11 @@ void SLAM_updIT(emxArray_real_T *P_apr, emxArray_real_T *b_xt, const double
                        numPointsPerAnchor, c_cameraparams_CameraParameters,
                        d_cameraparams_CameraParameters,
                        e_cameraparams_CameraParameters, anchorFeatures, m_vect,
-                       imNoise, IMU_measurements, height_offset_pressure,
-                       validFeatures_data, validFeatures_size);
+                       noiseParameters_image_noise,
+                       c_noiseParameters_orientation_n,
+                       noiseParameters_pressure_noise, IMU_measurements,
+                       height_offset_pressure, validFeatures_data,
+                       validFeatures_size);
     for (i8 = 0; i8 < loop_ub; i8++) {
       ii_data[i8] = indMeas_data[i8];
     }

@@ -53,13 +53,17 @@ Localization::Localization()
 	// TODO Check default values and give meaningful names
 	nh_.param<bool>("show_tracker_images", show_tracker_images_, false);
 
-	nh_.param<double>("process_noise_1", process_noise_[0], 100);
-	nh_.param<double>("process_noise_2", process_noise_[1], 1);
-	nh_.param<double>("process_noise_3", process_noise_[2], 0.0);
-	// nh_.param<double>("process_noise_4", process_noise_[3], 0.0);
+	nh_.param<double>("acc_noise", noiseParams.process_noise[0], 1);
+	nh_.param<double>("gyro_noise", noiseParams.process_noise[1], 1);
+	nh_.param<double>("process_noise_3", noiseParams.process_noise[2], 0.0);
+	// nh_.param<double>("process_noise_4", noiseParams.process_noise[3], 0.0);
 
-	nh_.param<double>("im_noise_1", im_noise_[0], 2.0);
-	nh_.param<double>("im_noise_2", im_noise_[1], 2.0);
+	nh_.param<double>("im_noise", noiseParams.image_noise[0], 1.0);
+	nh_.param<double>("im_noise", noiseParams.image_noise[1], 1.0);
+
+	nh_.param<double>("orientation_noise", noiseParams.orientation_noise, 1.0);
+	nh_.param<double>("pressure_noise", noiseParams.pressure_noise, 1.0);
+	nh_.param<double>("sigma_init", noiseParams.sigmaInit, 0.0001);
 
 	std::string camera_name;
 	nh_.param<std::string>("camera_name", camera_name, "NoName");
@@ -119,7 +123,7 @@ Localization::Localization()
 		num_points_per_anchor_ = static_cast<unsigned int>(num_points_per_anchor);
 	}
 
-	dynamic_reconfigure::Server<vio_ros::controllerConfig>::CallbackType f = boost::bind(&Localization::dynamicReconfigureCb, this, _1, _2);
+	dynamic_reconfigure::Server<vio_ros::vio_rosConfig>::CallbackType f = boost::bind(&Localization::dynamicReconfigureCb, this, _1, _2);
 	dynamic_reconfigure_server.setCallback(f);
 
 	num_points_ = num_anchors_*num_points_per_anchor_;
@@ -257,12 +261,19 @@ void Localization::joystickCb(const sensor_msgs::Joy::ConstPtr& msg)
 	}
 }
 
-void Localization::dynamicReconfigureCb(vio_ros::controllerConfig &config, uint32_t level)
+void Localization::dynamicReconfigureCb(vio_ros::vio_rosConfig &config, uint32_t level)
 {
 	ROS_INFO("Reconfigure Request: Position: Kp: %.3f, Kd %.3f, Yaw: Kp %.3f", config.Kp_pos, config.Kd_pos, config.Kp_yaw);
 	controller_gains[0] = config.Kp_pos;
 	controller_gains[1] = config.Kd_pos;
 	controller_gains[2] = config.Kp_yaw;
+
+	noiseParams.image_noise[0] = config.im_noise;
+	noiseParams.image_noise[1] = config.im_noise;
+	noiseParams.orientation_noise = config.orientation_noise;
+	noiseParams.pressure_noise = config.pressure_noise;
+	noiseParams.sigmaInit = config.sigma_init;
+
 }
 
 void Localization::positionReferenceCb(const onboard_localization::PositionReference& msg)
@@ -351,9 +362,8 @@ void Localization::update(double dt, const cv::Mat& left_image, const cv::Mat& r
 			&z_all_l[0],
 			&z_all_r[0],
 			dt,
-			&process_noise_[0],
+			&noiseParams,
 			&IMU_data[0],
-			&im_noise_[0],
 			num_points_per_anchor_,
 			num_anchors_,
 			&cameraParams,

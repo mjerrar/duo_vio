@@ -5,7 +5,7 @@
 // File: SLAM_types.h
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 25-Aug-2015 08:57:35
+// C/C++ source code generated on  : 25-Aug-2015 10:22:12
 //
 #ifndef __SLAM_TYPES_H__
 #define __SLAM_TYPES_H__
@@ -15,6 +15,7 @@
 
 // Type Definitions
 #include <stdio.h>
+#include "../NoiseParameters.h"
 #include "../stereoParameters.h"
 #ifndef struct_emxArray__common
 #define struct_emxArray__common

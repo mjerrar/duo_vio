@@ -5,7 +5,7 @@
 // File: OnePointRANSAC_EKF.cpp
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 25-Aug-2015 08:57:35
+// C/C++ source code generated on  : 25-Aug-2015 10:22:12
 //
 
 // Include Files
@@ -43,7 +43,9 @@
 //                const double e_cameraparams_CameraParameters[2]
 //                const emxArray_real_T *b_anchorFeatures
 //                const emxArray_real_T *b_m_vect
-//                const double imNoise[2]
+//                const double noiseParameters_image_noise[2]
+//                double c_noiseParameters_orientation_n
+//                double noiseParameters_pressure_noise
 //                const double IMU_measurements[23]
 //                double height_offset_pressure
 //                double validFeatures_data[]
@@ -55,8 +57,9 @@ void OnePointRANSAC_EKF(emxArray_real_T *b_xt, emxArray_real_T *b_P, const
   numPointsPerAnchor, const double c_cameraparams_CameraParameters[3], const
   double d_cameraparams_CameraParameters[2], const double
   e_cameraparams_CameraParameters[2], const emxArray_real_T *b_anchorFeatures,
-  const emxArray_real_T *b_m_vect, const double imNoise[2], const double
-  IMU_measurements[23], double height_offset_pressure, double
+  const emxArray_real_T *b_m_vect, const double noiseParameters_image_noise[2],
+  double c_noiseParameters_orientation_n, double noiseParameters_pressure_noise,
+  const double IMU_measurements[23], double height_offset_pressure, double
   validFeatures_data[], int validFeatures_size[1])
 {
   emxArray_boolean_T *c_anchorFeatures;
@@ -159,7 +162,6 @@ void OnePointRANSAC_EKF(emxArray_real_T *b_xt, emxArray_real_T *b_P, const
   emxInit_boolean_T(&c_anchorFeatures, 2);
 
   //  threshold for LI innovation test
-  // 9.487729036781154; % HI mahalanobis gate
   // 9.487729036781154; % HI mahalanobis gate
   //  threshold for minimum LI supporter
   numAnchors = b_anchorFeatures->size[1];
@@ -268,8 +270,10 @@ void OnePointRANSAC_EKF(emxArray_real_T *b_xt, emxArray_real_T *b_P, const
                c_cameraparams_CameraParameters, d_cameraparams_CameraParameters,
                e_cameraparams_CameraParameters, (double)numAnchors,
                numPointsPerAnchor, anchorInd, featureAnchorInd, b_m_vect,
-               imNoise, IMU_measurements, height_offset_pressure, r_data,
-               unusedU2_size, H_i, r, R_data, R_size);
+               noiseParameters_image_noise, c_noiseParameters_orientation_n,
+               noiseParameters_pressure_noise, IMU_measurements,
+               height_offset_pressure, r_data, unusedU2_size, H_i, r, R_data,
+               R_size);
     if ((H_i->size[1] == 1) || (b_P->size[0] == 1)) {
       i13 = y->size[0] * y->size[1];
       y->size[0] = H_i->size[0];
@@ -1010,8 +1014,10 @@ void OnePointRANSAC_EKF(emxArray_real_T *b_xt, emxArray_real_T *b_P, const
                    d_cameraparams_CameraParameters,
                    e_cameraparams_CameraParameters, (double)numAnchors,
                    numPointsPerAnchor, anchorInd, featureAnchorInd, b_m_vect,
-                   imNoise, IMU_measurements, height_offset_pressure, b_r_data,
-                   r_size, H, unusedU2_data, unusedU2_size, b_R_data, b_R_size);
+                   noiseParameters_image_noise, c_noiseParameters_orientation_n,
+                   noiseParameters_pressure_noise, IMU_measurements,
+                   height_offset_pressure, b_r_data, r_size, H, unusedU2_data,
+                   unusedU2_size, b_R_data, b_R_size);
       if ((H->size[1] == 1) || (b_P->size[0] == 1)) {
         i14 = y->size[0] * y->size[1];
         y->size[0] = H->size[0];
@@ -1671,8 +1677,10 @@ void OnePointRANSAC_EKF(emxArray_real_T *b_xt, emxArray_real_T *b_P, const
                  d_cameraparams_CameraParameters,
                  e_cameraparams_CameraParameters, (double)numAnchors,
                  numPointsPerAnchor, anchorInd, featureAnchorInd, b_m_vect,
-                 imNoise, IMU_measurements, height_offset_pressure, b_r_data,
-                 r_size, H, unusedU2_data, unusedU2_size, b_R_data, b_R_size);
+                 noiseParameters_image_noise, c_noiseParameters_orientation_n,
+                 noiseParameters_pressure_noise, IMU_measurements,
+                 height_offset_pressure, b_r_data, r_size, H, unusedU2_data,
+                 unusedU2_size, b_R_data, b_R_size);
     if (1.0 + (double)it == 1.0) {
       //  only do outlier rejection in first iteration
       if ((H->size[1] == 1) || (b_P->size[0] == 1)) {

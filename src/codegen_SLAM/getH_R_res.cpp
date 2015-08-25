@@ -5,7 +5,7 @@
 // File: getH_R_res.cpp
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 25-Aug-2015 08:57:35
+// C/C++ source code generated on  : 25-Aug-2015 10:22:12
 //
 
 // Include Files
@@ -65,7 +65,9 @@
 //                const emxArray_real_T *anchorIdx
 //                const emxArray_real_T *featureAnchorIdx
 //                const emxArray_real_T *b_m_vect
-//                const double imNoise[2]
+//                const double noiseParameters_image_noise[2]
+//                double c_noiseParameters_orientation_n
+//                double noiseParameters_pressure_noise
 //                const double IMU_measurements[23]
 //                double height_offset_pressure
 //                double r_data[]
@@ -86,10 +88,12 @@ void b_getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
                   e_cameraparams_CameraParameters[2], double numAnchors, double
                   numPointsPerAnchor, const emxArray_real_T *anchorIdx, const
                   emxArray_real_T *featureAnchorIdx, const emxArray_real_T
-                  *b_m_vect, const double imNoise[2], const double
-                  IMU_measurements[23], double height_offset_pressure, double
-                  r_data[], int r_size[1], emxArray_real_T *H, double h_u_data[],
-                  int h_u_size[1], double R_data[], int R_size[2])
+                  *b_m_vect, const double noiseParameters_image_noise[2], double
+                  c_noiseParameters_orientation_n, double
+                  noiseParameters_pressure_noise, const double IMU_measurements
+                  [23], double height_offset_pressure, double r_data[], int
+                  r_size[1], emxArray_real_T *H, double h_u_data[], int
+                  h_u_size[1], double R_data[], int R_size[2])
 {
   emxArray_real_T *H_xm;
   double R_cw[9];
@@ -99,7 +103,7 @@ void b_getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
   double k2_l;
   double k3_l;
   int i5;
-  int cr;
+  int br;
   emxArray_real_T *H_xc;
   int z_size_idx_0;
   double z_data[32];
@@ -114,6 +118,7 @@ void b_getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
   double h_cin_l[3];
   int nm1d2;
   double dv3[2];
+  int cr;
   double indMeas;
   signed char b_k;
   signed char iv0[2];
@@ -169,7 +174,6 @@ void b_getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
   double b_anchorRot[9];
   static const signed char b[9] = { 1, 0, 0, 0, 1, 0, 0, 0, 1 };
 
-  int br;
   double anew;
   double apnd;
   double ndbl;
@@ -179,7 +183,7 @@ void b_getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
   double f_fx_l[4];
   double dv6[6];
   double c_y[6];
-  double d_y[2];
+  double v[2];
   int ic;
   int ar;
   int ib;
@@ -195,6 +199,7 @@ void b_getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
   double b_IMU_measurements[9];
   double r_g_data[4];
   double R_g_data[9];
+  double R_p_data[1];
   double r_p_data[1];
   int tmp_data[3];
   int b_tmp_data[3];
@@ -236,8 +241,8 @@ void b_getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
   i5 = H_xm->size[0] * H_xm->size[1];
   H_xm->size[1] = (int)(numAnchors * (6.0 + numPointsPerAnchor));
   emxEnsureCapacity((emxArray__common *)H_xm, i5, (int)sizeof(double));
-  cr = (indMeas_size[0] << 1) * (int)(numAnchors * (6.0 + numPointsPerAnchor));
-  for (i5 = 0; i5 < cr; i5++) {
+  br = (indMeas_size[0] << 1) * (int)(numAnchors * (6.0 + numPointsPerAnchor));
+  for (i5 = 0; i5 < br; i5++) {
     H_xm->data[i5] = 0.0;
   }
 
@@ -248,20 +253,20 @@ void b_getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
   i5 = H_xc->size[0] * H_xc->size[1];
   H_xc->size[1] = (int)errorStateSize;
   emxEnsureCapacity((emxArray__common *)H_xc, i5, (int)sizeof(double));
-  cr = (indMeas_size[0] << 1) * (int)errorStateSize;
-  for (i5 = 0; i5 < cr; i5++) {
+  br = (indMeas_size[0] << 1) * (int)errorStateSize;
+  for (i5 = 0; i5 < br; i5++) {
     H_xc->data[i5] = 0.0;
   }
 
   z_size_idx_0 = indMeas_size[0] << 1;
-  cr = indMeas_size[0] << 1;
-  for (i5 = 0; i5 < cr; i5++) {
+  br = indMeas_size[0] << 1;
+  for (i5 = 0; i5 < br; i5++) {
     z_data[i5] = 0.0;
   }
 
   h_u_size[0] = indMeas_size[0] << 1;
-  cr = indMeas_size[0] << 1;
-  for (i5 = 0; i5 < cr; i5++) {
+  br = indMeas_size[0] << 1;
+  for (i5 = 0; i5 < br; i5++) {
     h_u_data[i5] = 0.0;
   }
 
@@ -306,11 +311,11 @@ void b_getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
       iv0[i5] = (signed char)(i5 + b_k);
     }
 
-    cr = H_xc->size[1];
+    br = H_xc->size[1];
     i5 = r2->size[0];
-    r2->size[0] = cr;
+    r2->size[0] = br;
     emxEnsureCapacity((emxArray__common *)r2, i5, (int)sizeof(int));
-    for (i5 = 0; i5 < cr; i5++) {
+    for (i5 = 0; i5 < br; i5++) {
       r2->data[i5] = i5;
     }
 
@@ -651,8 +656,8 @@ void b_getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
     i5 = r2->size[0];
     r2->size[0] = y->size[1];
     emxEnsureCapacity((emxArray__common *)r2, i5, (int)sizeof(int));
-    cr = y->size[1];
-    for (i5 = 0; i5 < cr; i5++) {
+    br = y->size[1];
+    for (i5 = 0; i5 < br; i5++) {
       r2->data[i5] = (int)(b_anchorIdx + y->data[y->size[0] * i5]) - 1;
     }
 
@@ -692,15 +697,15 @@ void b_getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
       }
     }
 
-    d_y[1] = H_iy->size[1];
+    v[1] = H_iy->size[1];
     i5 = C->size[0] * C->size[1];
     C->size[0] = 2;
     emxEnsureCapacity((emxArray__common *)C, i5, (int)sizeof(double));
     i5 = C->size[0] * C->size[1];
-    C->size[1] = (int)d_y[1];
+    C->size[1] = (int)v[1];
     emxEnsureCapacity((emxArray__common *)C, i5, (int)sizeof(double));
-    cr = (int)d_y[1] << 1;
-    for (i5 = 0; i5 < cr; i5++) {
+    br = (int)v[1] << 1;
+    for (i5 = 0; i5 < br; i5++) {
       C->data[i5] = 0.0;
     }
 
@@ -729,8 +734,8 @@ void b_getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
       br += 3;
     }
 
-    cr = C->size[1];
-    for (i5 = 0; i5 < cr; i5++) {
+    br = C->size[1];
+    for (i5 = 0; i5 < br; i5++) {
       for (i6 = 0; i6 < 2; i6++) {
         H_xm->data[iv0[i6] + H_xm->size[0] * r2->data[i5]] = C->data[i6 +
           C->size[0] * i5];
@@ -752,26 +757,26 @@ void b_getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
   emxInit_real_T(&H_v, 2);
 
   //  residual with respect to camera measurements
-  br = 0;
+  ar = 0;
 
   //  gravity residual
-  ib = 0;
+  ia = 0;
 
   //  pressure residual
   i5 = H_v->size[0] * H_v->size[1];
   H_v->size[0] = H_xc->size[0];
   H_v->size[1] = H_xc->size[1] + H_xm->size[1];
   emxEnsureCapacity((emxArray__common *)H_v, i5, (int)sizeof(double));
-  cr = H_xc->size[1];
-  for (i5 = 0; i5 < cr; i5++) {
+  br = H_xc->size[1];
+  for (i5 = 0; i5 < br; i5++) {
     nm1d2 = H_xc->size[0];
     for (i6 = 0; i6 < nm1d2; i6++) {
       H_v->data[i6 + H_v->size[0] * i5] = H_xc->data[i6 + H_xc->size[0] * i5];
     }
   }
 
-  cr = H_xm->size[1];
-  for (i5 = 0; i5 < cr; i5++) {
+  br = H_xm->size[1];
+  for (i5 = 0; i5 < br; i5++) {
     nm1d2 = H_xm->size[0];
     for (i6 = 0; i6 < nm1d2; i6++) {
       H_v->data[i6 + H_v->size[0] * (i5 + H_xc->size[1])] = H_xm->data[i6 +
@@ -795,20 +800,18 @@ void b_getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
   emxEnsureCapacity((emxArray__common *)H_p, i5, (int)sizeof(double));
 
   //  jacobian for pressure residual
-  ia = 0;
-  ar = 0;
+  ib = 0;
+  cr = 0;
   ic = 0;
   R_p_size_idx_1 = 0;
-  for (k = 0; k < 2; k++) {
-    d_y[k] = imNoise[k] * imNoise[k];
-  }
-
+  v[0] = noiseParameters_image_noise[0] * noiseParameters_image_noise[0];
+  v[1] = noiseParameters_image_noise[1] * noiseParameters_image_noise[1];
   for (i5 = 0; i5 < 4; i5++) {
     d[i5] = 0.0;
   }
 
   for (nm1d2 = 0; nm1d2 < 2; nm1d2++) {
-    d[nm1d2 + (nm1d2 << 1)] = d_y[nm1d2];
+    d[nm1d2 + (nm1d2 << 1)] = v[nm1d2];
   }
 
   emxInit_real_T(&r3, 2);
@@ -861,7 +864,7 @@ void b_getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
     }
 
     QuatFromRotJ(dv5, d);
-    br = 3;
+    ar = 3;
     for (i5 = 0; i5 < 3; i5++) {
       r_g_data[i5] = d[i5];
     }
@@ -870,8 +873,8 @@ void b_getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
     H_g->size[0] = 3;
     H_g->size[1] = (int)(errorStateSize + numAnchors * (6.0 + numPointsPerAnchor));
     emxEnsureCapacity((emxArray__common *)H_g, i5, (int)sizeof(double));
-    cr = 3 * (int)(errorStateSize + numAnchors * (6.0 + numPointsPerAnchor));
-    for (i5 = 0; i5 < cr; i5++) {
+    br = 3 * (int)(errorStateSize + numAnchors * (6.0 + numPointsPerAnchor));
+    for (i5 = 0; i5 < br; i5++) {
       H_g->data[i5] = 0.0;
     }
 
@@ -886,10 +889,10 @@ void b_getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
       }
     }
 
-    ia = 3;
-    ar = 3;
+    ib = 3;
+    cr = 3;
     for (i5 = 0; i5 < 9; i5++) {
-      R_g_data[i5] = orientationNoise * (double)b[i5];
+      R_g_data[i5] = c_noiseParameters_orientation_n * (double)b[i5];
     }
   }
 
@@ -898,33 +901,34 @@ void b_getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
     H_p->size[0] = 1;
     H_p->size[1] = (int)(errorStateSize + numAnchors * (6.0 + numPointsPerAnchor));
     emxEnsureCapacity((emxArray__common *)H_p, i5, (int)sizeof(double));
-    cr = (int)(errorStateSize + numAnchors * (6.0 + numPointsPerAnchor));
-    for (i5 = 0; i5 < cr; i5++) {
+    br = (int)(errorStateSize + numAnchors * (6.0 + numPointsPerAnchor));
+    for (i5 = 0; i5 < br; i5++) {
       H_p->data[i5] = 0.0;
     }
 
     H_p->data[2] = 1.0;
     ic = 1;
     R_p_size_idx_1 = 1;
-    ib = 1;
+    R_p_data[0] = noiseParameters_pressure_noise;
+    ia = 1;
     r_p_data[0] = (1.0 - rt_powd_snf(IMU_measurements[9] / 101325.0, 0.190284)) *
       145366.45 - height_offset_pressure;
   }
 
   if (useOrientation) {
     if (useAirPressure) {
-      r_size[0] = (z_size_idx_0 + br) + ib;
+      r_size[0] = (z_size_idx_0 + ar) + ia;
       for (i5 = 0; i5 < z_size_idx_0; i5++) {
         r_data[i5] = z_data[i5];
       }
 
-      for (i5 = 0; i5 < br; i5++) {
+      for (i5 = 0; i5 < ar; i5++) {
         r_data[i5 + z_size_idx_0] = r_g_data[i5];
       }
 
       i5 = 0;
-      while (i5 <= ib - 1) {
-        r_data[z_size_idx_0 + br] = r_p_data[0];
+      while (i5 <= ia - 1) {
+        r_data[z_size_idx_0 + ar] = r_p_data[0];
         i5 = 1;
       }
 
@@ -932,16 +936,16 @@ void b_getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
       H->size[0] = (H_v->size[0] + H_g->size[0]) + H_p->size[0];
       H->size[1] = H_v->size[1];
       emxEnsureCapacity((emxArray__common *)H, i5, (int)sizeof(double));
-      cr = H_v->size[1];
-      for (i5 = 0; i5 < cr; i5++) {
+      br = H_v->size[1];
+      for (i5 = 0; i5 < br; i5++) {
         nm1d2 = H_v->size[0];
         for (i6 = 0; i6 < nm1d2; i6++) {
           H->data[i6 + H->size[0] * i5] = H_v->data[i6 + H_v->size[0] * i5];
         }
       }
 
-      cr = H_g->size[1];
-      for (i5 = 0; i5 < cr; i5++) {
+      br = H_g->size[1];
+      for (i5 = 0; i5 < br; i5++) {
         nm1d2 = H_g->size[0];
         for (i6 = 0; i6 < nm1d2; i6++) {
           H->data[(i6 + H_v->size[0]) + H->size[0] * i5] = H_g->data[i6 +
@@ -949,8 +953,8 @@ void b_getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
         }
       }
 
-      cr = H_p->size[1];
-      for (i5 = 0; i5 < cr; i5++) {
+      br = H_p->size[1];
+      for (i5 = 0; i5 < br; i5++) {
         nm1d2 = H_p->size[0];
         for (i6 = 0; i6 < nm1d2; i6++) {
           H->data[((i6 + H_v->size[0]) + H_g->size[0]) + H->size[0] * i5] =
@@ -958,50 +962,50 @@ void b_getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
         }
       }
 
-      i5 = (R_v_size[0] + ia) + ia;
+      i5 = (R_v_size[0] + ib) + ib;
       R_size[0] = i5;
       R_size[1] = i5;
-      cr = i5 * i5;
-      for (i5 = 0; i5 < cr; i5++) {
+      br = i5 * i5;
+      for (i5 = 0; i5 < br; i5++) {
         R_data[i5] = 0.0;
       }
 
       //  faster than blkdiag
-      cr = R_v_size[1];
-      for (i5 = 0; i5 < cr; i5++) {
+      br = R_v_size[1];
+      for (i5 = 0; i5 < br; i5++) {
         nm1d2 = R_v_size[0];
         for (i6 = 0; i6 < nm1d2; i6++) {
           R_data[i6 + R_size[0] * i5] = R_v_data[i6 + R_v_size[0] * i5];
         }
       }
 
-      cr = ia - 1;
-      for (i5 = 0; i5 <= cr; i5++) {
+      br = ib - 1;
+      for (i5 = 0; i5 <= br; i5++) {
         tmp_data[i5] = (int)((double)R_v_size[0] + (1.0 + (double)i5)) - 1;
       }
 
-      cr = ia - 1;
-      for (i5 = 0; i5 <= cr; i5++) {
+      br = ib - 1;
+      for (i5 = 0; i5 <= br; i5++) {
         b_tmp_data[i5] = (int)((double)R_v_size[0] + (1.0 + (double)i5)) - 1;
       }
 
-      for (i5 = 0; i5 < ar; i5++) {
-        for (i6 = 0; i6 < ia; i6++) {
-          R_data[tmp_data[i6] + R_size[0] * b_tmp_data[i5]] = R_g_data[i6 + ia *
+      for (i5 = 0; i5 < cr; i5++) {
+        for (i6 = 0; i6 < ib; i6++) {
+          R_data[tmp_data[i6] + R_size[0] * b_tmp_data[i5]] = R_g_data[i6 + ib *
             i5];
         }
       }
 
       i5 = (R_v_size[0] + ic) + 1;
-      if (i5 > (R_v_size[0] + ia) + ic) {
+      if (i5 > (R_v_size[0] + ib) + ic) {
         i5 = 0;
       } else {
         i5--;
       }
 
-      nm1d2 = (signed char)((signed char)R_v_size[0] + ia);
-      cr = ia - 1;
-      for (i6 = 0; i6 <= cr; i6++) {
+      nm1d2 = (signed char)((signed char)R_v_size[0] + ib);
+      br = ib - 1;
+      for (i6 = 0; i6 <= br; i6++) {
         tmp_data[i6] = nm1d2 + i6;
       }
 
@@ -1009,19 +1013,19 @@ void b_getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
       while (i6 <= R_p_size_idx_1 - 1) {
         i6 = 0;
         while (i6 <= ic - 1) {
-          R_data[tmp_data[0] + R_size[0] * i5] = 2.0;
+          R_data[tmp_data[0] + R_size[0] * i5] = R_p_data[0];
           i6 = 1;
         }
 
         i6 = 1;
       }
     } else {
-      r_size[0] = z_size_idx_0 + br;
+      r_size[0] = z_size_idx_0 + ar;
       for (i5 = 0; i5 < z_size_idx_0; i5++) {
         r_data[i5] = z_data[i5];
       }
 
-      for (i5 = 0; i5 < br; i5++) {
+      for (i5 = 0; i5 < ar; i5++) {
         r_data[i5 + z_size_idx_0] = r_g_data[i5];
       }
 
@@ -1029,16 +1033,16 @@ void b_getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
       H->size[0] = H_v->size[0] + H_g->size[0];
       H->size[1] = H_v->size[1];
       emxEnsureCapacity((emxArray__common *)H, i5, (int)sizeof(double));
-      cr = H_v->size[1];
-      for (i5 = 0; i5 < cr; i5++) {
+      br = H_v->size[1];
+      for (i5 = 0; i5 < br; i5++) {
         nm1d2 = H_v->size[0];
         for (i6 = 0; i6 < nm1d2; i6++) {
           H->data[i6 + H->size[0] * i5] = H_v->data[i6 + H_v->size[0] * i5];
         }
       }
 
-      cr = H_g->size[1];
-      for (i5 = 0; i5 < cr; i5++) {
+      br = H_g->size[1];
+      for (i5 = 0; i5 < br; i5++) {
         nm1d2 = H_g->size[0];
         for (i6 = 0; i6 < nm1d2; i6++) {
           H->data[(i6 + H_v->size[0]) + H->size[0] * i5] = H_g->data[i6 +
@@ -1046,48 +1050,48 @@ void b_getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
         }
       }
 
-      i5 = R_v_size[0] + ia;
+      i5 = R_v_size[0] + ib;
       R_size[0] = i5;
       R_size[1] = i5;
-      cr = i5 * i5;
-      for (i5 = 0; i5 < cr; i5++) {
+      br = i5 * i5;
+      for (i5 = 0; i5 < br; i5++) {
         R_data[i5] = 0.0;
       }
 
       //  faster than blkdiag
-      cr = R_v_size[1];
-      for (i5 = 0; i5 < cr; i5++) {
+      br = R_v_size[1];
+      for (i5 = 0; i5 < br; i5++) {
         nm1d2 = R_v_size[0];
         for (i6 = 0; i6 < nm1d2; i6++) {
           R_data[i6 + R_size[0] * i5] = R_v_data[i6 + R_v_size[0] * i5];
         }
       }
 
-      cr = ia - 1;
-      for (i5 = 0; i5 <= cr; i5++) {
+      br = ib - 1;
+      for (i5 = 0; i5 <= br; i5++) {
         tmp_data[i5] = (int)((double)R_v_size[0] + (1.0 + (double)i5)) - 1;
       }
 
-      cr = ia - 1;
-      for (i5 = 0; i5 <= cr; i5++) {
+      br = ib - 1;
+      for (i5 = 0; i5 <= br; i5++) {
         b_tmp_data[i5] = (int)((double)R_v_size[0] + (1.0 + (double)i5)) - 1;
       }
 
-      for (i5 = 0; i5 < ar; i5++) {
-        for (i6 = 0; i6 < ia; i6++) {
-          R_data[tmp_data[i6] + R_size[0] * b_tmp_data[i5]] = R_g_data[i6 + ia *
+      for (i5 = 0; i5 < cr; i5++) {
+        for (i6 = 0; i6 < ib; i6++) {
+          R_data[tmp_data[i6] + R_size[0] * b_tmp_data[i5]] = R_g_data[i6 + ib *
             i5];
         }
       }
     }
   } else if (useAirPressure) {
-    r_size[0] = z_size_idx_0 + ib;
+    r_size[0] = z_size_idx_0 + ia;
     for (i5 = 0; i5 < z_size_idx_0; i5++) {
       r_data[i5] = z_data[i5];
     }
 
     i5 = 0;
-    while (i5 <= ib - 1) {
+    while (i5 <= ia - 1) {
       r_data[z_size_idx_0] = r_p_data[0];
       i5 = 1;
     }
@@ -1096,16 +1100,16 @@ void b_getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
     H->size[0] = H_v->size[0] + H_p->size[0];
     H->size[1] = H_v->size[1];
     emxEnsureCapacity((emxArray__common *)H, i5, (int)sizeof(double));
-    cr = H_v->size[1];
-    for (i5 = 0; i5 < cr; i5++) {
+    br = H_v->size[1];
+    for (i5 = 0; i5 < br; i5++) {
       nm1d2 = H_v->size[0];
       for (i6 = 0; i6 < nm1d2; i6++) {
         H->data[i6 + H->size[0] * i5] = H_v->data[i6 + H_v->size[0] * i5];
       }
     }
 
-    cr = H_p->size[1];
-    for (i5 = 0; i5 < cr; i5++) {
+    br = H_p->size[1];
+    for (i5 = 0; i5 < br; i5++) {
       nm1d2 = H_p->size[0];
       for (i6 = 0; i6 < nm1d2; i6++) {
         H->data[(i6 + H_v->size[0]) + H->size[0] * i5] = H_p->data[i6 +
@@ -1116,30 +1120,30 @@ void b_getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
     i5 = R_v_size[0] + ic;
     R_size[0] = i5;
     R_size[1] = i5;
-    cr = i5 * i5;
-    for (i5 = 0; i5 < cr; i5++) {
+    br = i5 * i5;
+    for (i5 = 0; i5 < br; i5++) {
       R_data[i5] = 0.0;
     }
 
     //  faster than blkdiag
-    cr = R_v_size[1];
-    for (i5 = 0; i5 < cr; i5++) {
+    br = R_v_size[1];
+    for (i5 = 0; i5 < br; i5++) {
       nm1d2 = R_v_size[0];
       for (i6 = 0; i6 < nm1d2; i6++) {
         R_data[i6 + R_size[0] * i5] = R_v_data[i6 + R_v_size[0] * i5];
       }
     }
 
-    cr = ic - 1;
+    br = ic - 1;
     i5 = 0;
-    while (i5 <= cr) {
+    while (i5 <= br) {
       c_tmp_data[0] = (R_v_size[0] + 1) - 1;
       i5 = 1;
     }
 
-    cr = ic - 1;
+    br = ic - 1;
     i5 = 0;
-    while (i5 <= cr) {
+    while (i5 <= br) {
       d_tmp_data[0] = (R_v_size[0] + 1) - 1;
       i5 = 1;
     }
@@ -1148,7 +1152,7 @@ void b_getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
     while (i5 <= R_p_size_idx_1 - 1) {
       i5 = 0;
       while (i5 <= ic - 1) {
-        R_data[c_tmp_data[0] + R_size[0] * d_tmp_data[0]] = 2.0;
+        R_data[c_tmp_data[0] + R_size[0] * d_tmp_data[0]] = R_p_data[0];
         i5 = 1;
       }
 
@@ -1164,15 +1168,15 @@ void b_getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
     H->size[0] = H_v->size[0];
     H->size[1] = H_v->size[1];
     emxEnsureCapacity((emxArray__common *)H, i5, (int)sizeof(double));
-    cr = H_v->size[0] * H_v->size[1];
-    for (i5 = 0; i5 < cr; i5++) {
+    br = H_v->size[0] * H_v->size[1];
+    for (i5 = 0; i5 < br; i5++) {
       H->data[i5] = H_v->data[i5];
     }
 
     R_size[0] = R_v_size[0];
     R_size[1] = R_v_size[1];
-    cr = R_v_size[0] * R_v_size[1];
-    for (i5 = 0; i5 < cr; i5++) {
+    br = R_v_size[0] * R_v_size[1];
+    for (i5 = 0; i5 < br; i5++) {
       R_data[i5] = R_v_data[i5];
     }
   }
@@ -1221,7 +1225,9 @@ void b_getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
 //                const emxArray_real_T *anchorIdx
 //                const emxArray_real_T *featureAnchorIdx
 //                const emxArray_real_T *b_m_vect
-//                const double imNoise[2]
+//                const double noiseParameters_image_noise[2]
+//                double c_noiseParameters_orientation_n
+//                double noiseParameters_pressure_noise
 //                const double IMU_measurements[23]
 //                double height_offset_pressure
 //                double r_data[]
@@ -1240,10 +1246,11 @@ void getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
                 e_cameraparams_CameraParameters[2], double numAnchors, double
                 numPointsPerAnchor, const emxArray_real_T *anchorIdx, const
                 emxArray_real_T *featureAnchorIdx, const emxArray_real_T
-                *b_m_vect, const double imNoise[2], const double
-                IMU_measurements[23], double height_offset_pressure, double
-                r_data[], int r_size[1], emxArray_real_T *H, double h_u[2],
-                double R_data[], int R_size[2])
+                *b_m_vect, const double noiseParameters_image_noise[2], double
+                c_noiseParameters_orientation_n, double
+                noiseParameters_pressure_noise, const double IMU_measurements[23],
+                double height_offset_pressure, double r_data[], int r_size[1],
+                emxArray_real_T *H, double h_u[2], double R_data[], int R_size[2])
 {
   emxArray_real_T *H_xm;
   double R_cw[9];
@@ -1318,7 +1325,7 @@ void getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
   double dv2[6];
   double c_y[6];
   emxArray_real_T *H_v;
-  double d_y[2];
+  double v[2];
   int ic;
   int ar;
   int ia;
@@ -1332,6 +1339,7 @@ void getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
   double b_IMU_measurements[9];
   double r_g_data[4];
   double R_g_data[9];
+  double R_p_data[1];
   double r_p_data[1];
   signed char tmp_data[3];
   emxInit_real_T(&H_xm, 2);
@@ -1790,14 +1798,14 @@ void getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
   }
 
   emxInit_real_T(&H_v, 2);
-  d_y[1] = H_iy->size[1];
+  v[1] = H_iy->size[1];
   ib = H_v->size[0] * H_v->size[1];
   H_v->size[0] = 2;
   emxEnsureCapacity((emxArray__common *)H_v, ib, (int)sizeof(double));
   ib = H_v->size[0] * H_v->size[1];
-  H_v->size[1] = (int)d_y[1];
+  H_v->size[1] = (int)v[1];
   emxEnsureCapacity((emxArray__common *)H_v, ib, (int)sizeof(double));
-  n = (int)d_y[1] << 1;
+  n = (int)v[1] << 1;
   for (ib = 0; ib < n; ib++) {
     H_v->data[ib] = 0.0;
   }
@@ -1888,16 +1896,14 @@ void getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
   R_g_size_idx_1 = 0;
   R_p_size_idx_0 = 0;
   R_p_size_idx_1 = 0;
-  for (br = 0; br < 2; br++) {
-    d_y[br] = imNoise[br] * imNoise[br];
-  }
-
+  v[0] = noiseParameters_image_noise[0] * noiseParameters_image_noise[0];
+  v[1] = noiseParameters_image_noise[1] * noiseParameters_image_noise[1];
   for (ib = 0; ib < 4; ib++) {
     d[ib] = 0.0;
   }
 
   for (nm1d2 = 0; nm1d2 < 2; nm1d2++) {
-    d[nm1d2 + (nm1d2 << 1)] = d_y[nm1d2];
+    d[nm1d2 + (nm1d2 << 1)] = v[nm1d2];
   }
 
   nm1d2 = -1;
@@ -1982,7 +1988,7 @@ void getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
     ic = 3;
     R_g_size_idx_1 = 3;
     for (ib = 0; ib < 9; ib++) {
-      R_g_data[ib] = orientationNoise * (double)b[ib];
+      R_g_data[ib] = c_noiseParameters_orientation_n * (double)b[ib];
     }
   }
 
@@ -1999,6 +2005,7 @@ void getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
     H_p->data[2] = 1.0;
     R_p_size_idx_0 = 1;
     R_p_size_idx_1 = 1;
+    R_p_data[0] = noiseParameters_pressure_noise;
     ia = 1;
     r_p_data[0] = (1.0 - rt_powd_snf(IMU_measurements[9] / 101325.0, 0.190284)) *
       145366.45 - height_offset_pressure;
@@ -2097,7 +2104,7 @@ void getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
       while (br <= R_p_size_idx_1 - 1) {
         br = 0;
         while (br <= R_p_size_idx_0 - 1) {
-          R_data[tmp_data[0] + R_size[0] * (ib - 1)] = 2.0;
+          R_data[tmp_data[0] + R_size[0] * (ib - 1)] = R_p_data[0];
           br = 1;
         }
 
@@ -2225,7 +2232,7 @@ void getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
     while (n <= R_p_size_idx_1 - 1) {
       n = 0;
       while (n <= R_p_size_idx_0 - 1) {
-        R_data[ib + R_size[0] * br] = 2.0;
+        R_data[ib + R_size[0] * br] = R_p_data[0];
         n = 1;
       }
 

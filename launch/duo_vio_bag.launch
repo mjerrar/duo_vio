@@ -5,6 +5,9 @@
   <arg name="im_noise" default="5" />
   <arg name="acc_noise" default="1" />
   <arg name="gyro_noise" default="10" />
+  <arg name="orientation_noise" default="1" />
+  <arg name="pressure_noise" default="1" />
+  <arg name="sigma_init" default="0.0001" />
   <arg name="Kp_pos" default="1" />
   <arg name="Kd_pos" default="0" />
   <arg name="Kp_yaw" default="0" />
@@ -20,12 +23,15 @@
     <remap from="/left_image" to="/duo3d_camera/left/image_raw"/>
     <remap from="/right_image" to="/duo3d_camera/right/image_raw"/>
 
-    <param name="process_noise_1" type="double" value="$(arg acc_noise)" />
-    <param name="process_noise_2" type="double" value="$(arg gyro_noise)" />
+    <param name="acc_noise" type="double" value="$(arg acc_noise)" />
+    <param name="gyro_noise" type="double" value="$(arg gyro_noise)" />
     <param name="process_noise_3" type="double" value="0.0" />
 
-    <param name="im_noise_1" type="double" value="$(arg im_noise)" />
-    <param name="im_noise_2" type="double" value="$(arg im_noise)" />
+    <param name="im_noise" type="double" value="$(arg im_noise)" />
+
+    <param name="orientation_noise" type="double" value="$(arg orientation_noise)" />
+    <param name="pressure_noise" type="double" value="$(arg pressure_noise)" />
+    <param name="sigma_init" type="double" value="$(arg sigma_init)" />
 
     <param name="Kp_pos" type="double" value="$(arg Kp_pos)" />
     <param name="Kd_pos" type="double" value="$(arg Kd_pos)" />
