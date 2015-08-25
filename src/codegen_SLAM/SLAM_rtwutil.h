@@ -5,7 +5,7 @@
 // File: SLAM_rtwutil.h
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 25-Aug-2015 16:09:08
+// C/C++ source code generated on  : 25-Aug-2015 17:43:12
 //
 #ifndef __SLAM_RTWUTIL_H__
 #define __SLAM_RTWUTIL_H__
@@ -24,6 +24,7 @@
 extern int div_nzp_s32_floor(int numerator, int denominator);
 extern double rt_hypotd_snf(double u0, double u1);
 extern double rt_powd_snf(double u0, double u1);
+extern double rt_roundd_snf(double u);
 
 #endif
 

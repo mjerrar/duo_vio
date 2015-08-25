@@ -5,7 +5,7 @@
 // File: SLAM.cpp
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 25-Aug-2015 16:09:08
+// C/C++ source code generated on  : 25-Aug-2015 17:43:12
 //
 
 // Include Files
@@ -14,8 +14,10 @@
 #include "SLAM_emxutil.h"
 #include "SLAM_updIT.h"
 #include "predictMeasurement_stereo.h"
+#include "repmat.h"
 #include "QuatFromRotJ.h"
 #include "SLAM_pred.h"
+#include "fprintf.h"
 #include "SLAM_rtwutil.h"
 #include "SLAM_data.h"
 #include <stdio.h>
@@ -100,35 +102,65 @@ void SLAM(double updateVect[16], const double z_all_l[32], const double z_all_r
           emxArray_real_T *h_u_apo_out, emxArray_real_T *xt_out, emxArray_real_T
           *P_apo_out, emxArray_real_T *map_out, double u_out[4])
 {
-  int outsize_idx_0;
-  emxArray_real_T *b;
-  emxArray_real_T *a;
-  int k;
-  int loop_ub;
-  int outsize_idx_1;
-  int ibcol;
-  double dv24[9];
-  double b_IMU_measurements[9];
-  double dv25[4];
+  int i;
   double d5;
+  signed char i8;
+  emxArray_real_T *r4;
+  emxArray_real_T *r5;
+  double R_bw[9];
+  int i9;
+  int i10;
+  double b_R_bw[9];
+  double b_IMU_measurements[9];
+  double dv24[4];
+  int loop_ub;
+  int unnamed_idx_1;
   static const double y[9] = { 0.01, 0.0, 0.0, 0.0, 0.01, 0.0, 0.0, 0.0, 0.01 };
 
   double u_out_x;
   double u_out_y;
   double u_out_z;
-  double R_bw[9];
   double u_out_yaw;
   double b_u_out_x[3];
-  double b_R_bw[3];
+  double c_R_bw[3];
 
   //  for coder
-  for (outsize_idx_0 = 0; outsize_idx_0 < 4; outsize_idx_0++) {
-    u_out[outsize_idx_0] = 0.0;
+  for (i = 0; i < 4; i++) {
+    u_out[i] = 0.0;
   }
 
   //  for coder
-  b_emxInit_real_T(&b, 1);
-  b_emxInit_real_T(&a, 1);
+  b_fprintf(noiseParameters->image_noise[0], noiseParameters->image_noise[1]);
+  d_fprintf(noiseParameters->orientation_noise);
+  f_fprintf(noiseParameters->pressure_noise);
+  h_fprintf(noiseParameters->sigmaInit);
+  j_fprintf(b_VIOParameters->max_ekf_iterations);
+  l_fprintf(b_VIOParameters->num_anchors);
+  d5 = rt_roundd_snf(b_VIOParameters->num_points_per_anchor);
+  if (d5 < 128.0) {
+    if (d5 >= -128.0) {
+      i8 = (signed char)d5;
+    } else {
+      i8 = MIN_int8_T;
+    }
+  } else if (d5 >= 128.0) {
+    i8 = MAX_int8_T;
+  } else {
+    i8 = 0;
+  }
+
+  n_fprintf(i8);
+  p_fprintf((signed char)b_VIOParameters->use_controller_to_predict);
+  r_fprintf((signed char)b_VIOParameters->use_magnetometer);
+  t_fprintf((signed char)b_VIOParameters->use_orientation);
+  v_fprintf((signed char)b_VIOParameters->use_pressure);
+  x_fprintf(b_ControllerGains->Kd_xy);
+  ab_fprintf(b_ControllerGains->Kd_z);
+  cb_fprintf(b_ControllerGains->Kp_xy);
+  eb_fprintf(b_ControllerGains->Kp_yaw);
+  gb_fprintf(b_ControllerGains->Kp_z);
+  b_emxInit_real_T(&r4, 1);
+  b_emxInit_real_T(&r5, 1);
   if ((!initialized_not_empty) || resetFlag) {
     initialized_not_empty = true;
 
@@ -138,33 +170,9 @@ void SLAM(double updateVect[16], const double z_all_l[32], const double z_all_r
     //  if abs(norm(q) - 1) > 1e-3
     //      error('The provided quaternion is not a valid rotation quaternion because it does not have norm 1') 
     //  end
-    k = a->size[0];
-    a->size[0] = 7 + (int)b_VIOParameters->num_points_per_anchor;
-    emxEnsureCapacity((emxArray__common *)a, k, (int)sizeof(double));
-    a->data[0] = 0.0;
-    a->data[1] = 0.0;
-    a->data[2] = 0.0;
-    a->data[3] = 0.0;
-    a->data[4] = 0.0;
-    a->data[5] = 0.0;
-    a->data[6] = 1.0;
-    loop_ub = (int)b_VIOParameters->num_points_per_anchor;
-    for (k = 0; k < loop_ub; k++) {
-      a->data[k + 7] = 0.0;
-    }
-
-    outsize_idx_0 = a->size[0] * (int)b_VIOParameters->num_anchors;
-    k = b->size[0];
-    b->size[0] = outsize_idx_0;
-    emxEnsureCapacity((emxArray__common *)b, k, (int)sizeof(double));
-    if (!(outsize_idx_0 == 0)) {
-      outsize_idx_0 = a->size[0];
-      for (outsize_idx_1 = 1; outsize_idx_1 <= (int)b_VIOParameters->num_anchors;
-           outsize_idx_1++) {
-        ibcol = (outsize_idx_1 - 1) * outsize_idx_0;
-        for (k = 0; k + 1 <= outsize_idx_0; k++) {
-          b->data[ibcol + k] = a->data[k];
-        }
+    for (i9 = 0; i9 < 3; i9++) {
+      for (i10 = 0; i10 < 3; i10++) {
+        R_bw[i10 + 3 * i9] = R_bc[i9 + 3 * i10];
       }
     }
 
@@ -189,38 +197,54 @@ void SLAM(double updateVect[16], const double z_all_l[32], const double z_all_r
     b_IMU_measurements[8] = ((-(IMU_measurements[19] * IMU_measurements[19]) -
       IMU_measurements[20] * IMU_measurements[20]) + IMU_measurements[21] *
       IMU_measurements[21]) + IMU_measurements[22] * IMU_measurements[22];
-    for (k = 0; k < 3; k++) {
-      for (ibcol = 0; ibcol < 3; ibcol++) {
-        dv24[k + 3 * ibcol] = 0.0;
-        for (outsize_idx_0 = 0; outsize_idx_0 < 3; outsize_idx_0++) {
-          dv24[k + 3 * ibcol] += R_bc[outsize_idx_0 + 3 * k] *
-            b_IMU_measurements[outsize_idx_0 + 3 * ibcol];
+    for (i9 = 0; i9 < 3; i9++) {
+      for (i10 = 0; i10 < 3; i10++) {
+        b_R_bw[i9 + 3 * i10] = 0.0;
+        for (i = 0; i < 3; i++) {
+          b_R_bw[i9 + 3 * i10] += R_bw[i9 + 3 * i] * b_IMU_measurements[i + 3 *
+            i10];
         }
       }
     }
 
-    QuatFromRotJ(dv24, dv25);
-    k = xt->size[0];
-    xt->size[0] = 13 + b->size[0];
-    emxEnsureCapacity((emxArray__common *)xt, k, (int)sizeof(double));
-    for (k = 0; k < 3; k++) {
-      xt->data[k] = ref[k];
+    QuatFromRotJ(b_R_bw, dv24);
+    i9 = r5->size[0];
+    r5->size[0] = 7 + (int)b_VIOParameters->num_points_per_anchor;
+    emxEnsureCapacity((emxArray__common *)r5, i9, (int)sizeof(double));
+    r5->data[0] = 0.0;
+    r5->data[1] = 0.0;
+    r5->data[2] = 0.0;
+    r5->data[3] = 0.0;
+    r5->data[4] = 0.0;
+    r5->data[5] = 0.0;
+    r5->data[6] = 1.0;
+    loop_ub = (int)b_VIOParameters->num_points_per_anchor;
+    for (i9 = 0; i9 < loop_ub; i9++) {
+      r5->data[i9 + 7] = 0.0;
     }
 
-    for (k = 0; k < 4; k++) {
-      xt->data[k + 3] = dv25[k];
+    repmat(r5, b_VIOParameters->num_anchors, r4);
+    i9 = xt->size[0];
+    xt->size[0] = 13 + r4->size[0];
+    emxEnsureCapacity((emxArray__common *)xt, i9, (int)sizeof(double));
+    for (i9 = 0; i9 < 3; i9++) {
+      xt->data[i9] = ref[i9];
+    }
+
+    for (i9 = 0; i9 < 4; i9++) {
+      xt->data[i9 + 3] = dv24[i9];
     }
 
     xt->data[7] = 0.0;
     xt->data[8] = 0.0;
     xt->data[9] = 0.0;
-    for (k = 0; k < 3; k++) {
-      xt->data[k + 10] = 0.0 * IMU_measurements[k];
+    for (i9 = 0; i9 < 3; i9++) {
+      xt->data[i9 + 10] = 0.0 * IMU_measurements[i9];
     }
 
-    loop_ub = b->size[0];
-    for (k = 0; k < loop_ub; k++) {
-      xt->data[k + 13] = b->data[k];
+    loop_ub = r4->size[0];
+    for (i9 = 0; i9 < loop_ub; i9++) {
+      xt->data[i9 + 13] = r4->data[i9];
     }
 
     //  initial real vector
@@ -228,83 +252,83 @@ void SLAM(double updateVect[16], const double z_all_l[32], const double z_all_r
       b_VIOParameters->num_points_per_anchor);
     loop_ub = (int)(b_VIOParameters->num_anchors * (6.0 +
       b_VIOParameters->num_points_per_anchor));
-    outsize_idx_0 = (int)numStates + (int)d5;
-    outsize_idx_1 = (int)numStates + (int)d5;
-    k = P->size[0] * P->size[1];
-    P->size[0] = outsize_idx_0;
-    emxEnsureCapacity((emxArray__common *)P, k, (int)sizeof(double));
-    k = P->size[0] * P->size[1];
-    P->size[1] = outsize_idx_1;
-    emxEnsureCapacity((emxArray__common *)P, k, (int)sizeof(double));
-    outsize_idx_0 *= outsize_idx_1;
-    for (k = 0; k < outsize_idx_0; k++) {
-      P->data[k] = 0.0;
+    i = (int)numStates + (int)d5;
+    unnamed_idx_1 = (int)numStates + (int)d5;
+    i9 = P->size[0] * P->size[1];
+    P->size[0] = i;
+    emxEnsureCapacity((emxArray__common *)P, i9, (int)sizeof(double));
+    i9 = P->size[0] * P->size[1];
+    P->size[1] = unnamed_idx_1;
+    emxEnsureCapacity((emxArray__common *)P, i9, (int)sizeof(double));
+    i *= unnamed_idx_1;
+    for (i9 = 0; i9 < i; i9++) {
+      P->data[i9] = 0.0;
     }
 
     if ((int)numStates > 0) {
-      outsize_idx_0 = (int)numStates;
-      for (k = 0; k < outsize_idx_0; k++) {
-        outsize_idx_1 = (int)numStates;
-        for (ibcol = 0; ibcol < outsize_idx_1; ibcol++) {
-          P->data[ibcol + P->size[0] * k] = 0.0;
+      i = (int)numStates;
+      for (i9 = 0; i9 < i; i9++) {
+        unnamed_idx_1 = (int)numStates;
+        for (i10 = 0; i10 < unnamed_idx_1; i10++) {
+          P->data[i10 + P->size[0] * i9] = 0.0;
         }
       }
     }
 
     if ((int)d5 > 0) {
       if ((int)numStates + 1 > (int)numStates + (int)d5) {
-        k = 1;
+        i9 = 1;
       } else {
-        k = (int)numStates + 1;
+        i9 = (int)numStates + 1;
       }
 
       if ((int)numStates + 1 > (int)numStates + (int)d5) {
-        ibcol = 1;
+        i10 = 1;
       } else {
-        ibcol = (int)numStates + 1;
+        i10 = (int)numStates + 1;
       }
 
-      for (outsize_idx_0 = 0; outsize_idx_0 < loop_ub; outsize_idx_0++) {
-        for (outsize_idx_1 = 0; outsize_idx_1 < loop_ub; outsize_idx_1++) {
-          P->data[((k + outsize_idx_1) + P->size[0] * ((ibcol + outsize_idx_0) -
-                    1)) - 1] = 0.0;
+      for (i = 0; i < loop_ub; i++) {
+        for (unnamed_idx_1 = 0; unnamed_idx_1 < loop_ub; unnamed_idx_1++) {
+          P->data[((i9 + unnamed_idx_1) + P->size[0] * ((i10 + i) - 1)) - 1] =
+            0.0;
         }
       }
     }
 
     //  initial error state covariance
-    for (k = 0; k < 3; k++) {
-      for (ibcol = 0; ibcol < 3; ibcol++) {
-        P->data[ibcol + P->size[0] * k] = 0.0;
+    for (i9 = 0; i9 < 3; i9++) {
+      for (i10 = 0; i10 < 3; i10++) {
+        P->data[i10 + P->size[0] * i9] = 0.0;
       }
     }
 
     //  position
-    for (k = 0; k < 3; k++) {
-      for (ibcol = 0; ibcol < 3; ibcol++) {
-        P->data[(ibcol + P->size[0] * (3 + k)) + 3] = 0.0;
+    for (i9 = 0; i9 < 3; i9++) {
+      for (i10 = 0; i10 < 3; i10++) {
+        P->data[(i10 + P->size[0] * (3 + i9)) + 3] = 0.0;
       }
     }
 
     //  orientation
     //      P(4:6,4:6) = R_iw_init * diag([1 1 0]) * R_iw_init';
     //      P(4:6,4:6) = diag([0 0 1]);
-    for (k = 0; k < 3; k++) {
-      for (ibcol = 0; ibcol < 3; ibcol++) {
-        P->data[(ibcol + P->size[0] * (6 + k)) + 6] = 0.0;
+    for (i9 = 0; i9 < 3; i9++) {
+      for (i10 = 0; i10 < 3; i10++) {
+        P->data[(i10 + P->size[0] * (6 + i9)) + 6] = 0.0;
       }
     }
 
     //  velocity
-    for (k = 0; k < 3; k++) {
-      for (ibcol = 0; ibcol < 3; ibcol++) {
-        P->data[(ibcol + P->size[0] * (9 + k)) + 9] = y[ibcol + 3 * k];
+    for (i9 = 0; i9 < 3; i9++) {
+      for (i10 = 0; i10 < 3; i10++) {
+        P->data[(i10 + P->size[0] * (9 + i9)) + 9] = y[i10 + 3 * i9];
       }
     }
 
     //  gyro bias
-    for (outsize_idx_0 = 0; outsize_idx_0 < 16; outsize_idx_0++) {
-      updateVect[outsize_idx_0] = 0.0;
+    for (i = 0; i < 16; i++) {
+      updateVect[i] = 0.0;
     }
 
     SLAM_updIT(P, xt, b_cameraParameters->CameraParameters1.RadialDistortion,
@@ -319,25 +343,25 @@ void SLAM(double updateVect[16], const double z_all_l[32], const double z_all_r
                noiseParameters->pressure_noise, IMU_measurements, (1.0 -
                 rt_powd_snf(IMU_measurements[9] / 101325.0, 0.190284)) *
                145366.45, *b_VIOParameters, h_u_apo_out, map_out);
-    k = xt_out->size[0];
+    i9 = xt_out->size[0];
     xt_out->size[0] = xt->size[0];
-    emxEnsureCapacity((emxArray__common *)xt_out, k, (int)sizeof(double));
+    emxEnsureCapacity((emxArray__common *)xt_out, i9, (int)sizeof(double));
     loop_ub = xt->size[0];
-    for (k = 0; k < loop_ub; k++) {
-      xt_out->data[k] = xt->data[k];
+    for (i9 = 0; i9 < loop_ub; i9++) {
+      xt_out->data[i9] = xt->data[i9];
     }
 
-    k = P_apo_out->size[0] * P_apo_out->size[1];
+    i9 = P_apo_out->size[0] * P_apo_out->size[1];
     P_apo_out->size[0] = P->size[0];
     P_apo_out->size[1] = P->size[1];
-    emxEnsureCapacity((emxArray__common *)P_apo_out, k, (int)sizeof(double));
+    emxEnsureCapacity((emxArray__common *)P_apo_out, i9, (int)sizeof(double));
     loop_ub = P->size[0] * P->size[1];
-    for (k = 0; k < loop_ub; k++) {
-      P_apo_out->data[k] = P->data[k];
+    for (i9 = 0; i9 < loop_ub; i9++) {
+      P_apo_out->data[i9] = P->data[i9];
     }
 
-    for (outsize_idx_0 = 0; outsize_idx_0 < 4; outsize_idx_0++) {
-      last_u[outsize_idx_0] = 0.0;
+    for (i = 0; i < 4; i++) {
+      last_u[i] = 0.0;
     }
 
     //  the last control outputs (in camera frame)
@@ -360,24 +384,23 @@ void SLAM(double updateVect[16], const double z_all_l[32], const double z_all_r
     //  if abs(norm(q) - 1) > 1e-3
     //      error('The provided quaternion is not a valid rotation quaternion because it does not have norm 1') 
     //  end
-    dv24[0] = ((xt->data[3] * xt->data[3] - xt->data[4] * xt->data[4]) -
-               xt->data[5] * xt->data[5]) + xt->data[6] * xt->data[6];
-    dv24[3] = 2.0 * (xt->data[3] * xt->data[4] + xt->data[5] * xt->data[6]);
-    dv24[6] = 2.0 * (xt->data[3] * xt->data[5] - xt->data[4] * xt->data[6]);
-    dv24[1] = 2.0 * (xt->data[3] * xt->data[4] - xt->data[5] * xt->data[6]);
-    dv24[4] = ((-(xt->data[3] * xt->data[3]) + xt->data[4] * xt->data[4]) -
-               xt->data[5] * xt->data[5]) + xt->data[6] * xt->data[6];
-    dv24[7] = 2.0 * (xt->data[4] * xt->data[5] + xt->data[3] * xt->data[6]);
-    dv24[2] = 2.0 * (xt->data[3] * xt->data[5] + xt->data[4] * xt->data[6]);
-    dv24[5] = 2.0 * (xt->data[4] * xt->data[5] - xt->data[3] * xt->data[6]);
-    dv24[8] = ((-(xt->data[3] * xt->data[3]) - xt->data[4] * xt->data[4]) +
-               xt->data[5] * xt->data[5]) + xt->data[6] * xt->data[6];
-    for (k = 0; k < 3; k++) {
-      for (ibcol = 0; ibcol < 3; ibcol++) {
-        R_bw[k + 3 * ibcol] = 0.0;
-        for (outsize_idx_0 = 0; outsize_idx_0 < 3; outsize_idx_0++) {
-          R_bw[k + 3 * ibcol] += R_bc[k + 3 * outsize_idx_0] *
-            dv24[outsize_idx_0 + 3 * ibcol];
+    b_R_bw[0] = ((xt->data[3] * xt->data[3] - xt->data[4] * xt->data[4]) -
+                 xt->data[5] * xt->data[5]) + xt->data[6] * xt->data[6];
+    b_R_bw[3] = 2.0 * (xt->data[3] * xt->data[4] + xt->data[5] * xt->data[6]);
+    b_R_bw[6] = 2.0 * (xt->data[3] * xt->data[5] - xt->data[4] * xt->data[6]);
+    b_R_bw[1] = 2.0 * (xt->data[3] * xt->data[4] - xt->data[5] * xt->data[6]);
+    b_R_bw[4] = ((-(xt->data[3] * xt->data[3]) + xt->data[4] * xt->data[4]) -
+                 xt->data[5] * xt->data[5]) + xt->data[6] * xt->data[6];
+    b_R_bw[7] = 2.0 * (xt->data[4] * xt->data[5] + xt->data[3] * xt->data[6]);
+    b_R_bw[2] = 2.0 * (xt->data[3] * xt->data[5] + xt->data[4] * xt->data[6]);
+    b_R_bw[5] = 2.0 * (xt->data[4] * xt->data[5] - xt->data[3] * xt->data[6]);
+    b_R_bw[8] = ((-(xt->data[3] * xt->data[3]) - xt->data[4] * xt->data[4]) +
+                 xt->data[5] * xt->data[5]) + xt->data[6] * xt->data[6];
+    for (i9 = 0; i9 < 3; i9++) {
+      for (i10 = 0; i10 < 3; i10++) {
+        R_bw[i9 + 3 * i10] = 0.0;
+        for (i = 0; i < 3; i++) {
+          R_bw[i9 + 3 * i10] += R_bc[i9 + 3 * i] * b_R_bw[i + 3 * i10];
         }
       }
     }
@@ -387,15 +410,15 @@ void SLAM(double updateVect[16], const double z_all_l[32], const double z_all_r
     b_u_out_x[0] = u_out_x;
     b_u_out_x[1] = u_out_y;
     b_u_out_x[2] = u_out_z;
-    for (k = 0; k < 3; k++) {
-      b_R_bw[k] = 0.0;
-      for (ibcol = 0; ibcol < 3; ibcol++) {
-        b_R_bw[k] += R_bw[k + 3 * ibcol] * b_u_out_x[ibcol];
+    for (i9 = 0; i9 < 3; i9++) {
+      c_R_bw[i9] = 0.0;
+      for (i10 = 0; i10 < 3; i10++) {
+        c_R_bw[i9] += R_bw[i9 + 3 * i10] * b_u_out_x[i10];
       }
     }
 
-    for (k = 0; k < 3; k++) {
-      u_out[k] = b_R_bw[k];
+    for (i9 = 0; i9 < 3; i9++) {
+      u_out[i9] = c_R_bw[i9];
     }
 
     u_out[3] = u_out_yaw;
@@ -403,8 +426,8 @@ void SLAM(double updateVect[16], const double z_all_l[32], const double z_all_r
     //  fprintf('position error (%.3f, %.3f, %.3f, %.3f), control: (%.3f, %.3f, %.3f, %.3f)\n', xt(1) - ref(1), xt(2) - ref(2), xt(3) - ref(3), yaw - ref(4), u_out_x, u_out_y, u_out_z, u_out_yaw); 
     if (b_VIOParameters->use_controller_to_predict) {
     } else {
-      for (outsize_idx_0 = 0; outsize_idx_0 < 4; outsize_idx_0++) {
-        last_u[outsize_idx_0] = 0.0;
+      for (i = 0; i < 4; i++) {
+        last_u[i] = 0.0;
       }
     }
 
@@ -421,21 +444,21 @@ void SLAM(double updateVect[16], const double z_all_l[32], const double z_all_r
                noiseParameters->image_noise, noiseParameters->orientation_noise,
                noiseParameters->pressure_noise, IMU_measurements, 0.0,
                *b_VIOParameters, h_u_apo_out, map_out);
-    k = xt_out->size[0];
+    i9 = xt_out->size[0];
     xt_out->size[0] = xt->size[0];
-    emxEnsureCapacity((emxArray__common *)xt_out, k, (int)sizeof(double));
+    emxEnsureCapacity((emxArray__common *)xt_out, i9, (int)sizeof(double));
     loop_ub = xt->size[0];
-    for (k = 0; k < loop_ub; k++) {
-      xt_out->data[k] = xt->data[k];
+    for (i9 = 0; i9 < loop_ub; i9++) {
+      xt_out->data[i9] = xt->data[i9];
     }
 
-    k = P_apo_out->size[0] * P_apo_out->size[1];
+    i9 = P_apo_out->size[0] * P_apo_out->size[1];
     P_apo_out->size[0] = P->size[0];
     P_apo_out->size[1] = P->size[1];
-    emxEnsureCapacity((emxArray__common *)P_apo_out, k, (int)sizeof(double));
+    emxEnsureCapacity((emxArray__common *)P_apo_out, i9, (int)sizeof(double));
     loop_ub = P->size[0] * P->size[1];
-    for (k = 0; k < loop_ub; k++) {
-      P_apo_out->data[k] = P->data[k];
+    for (i9 = 0; i9 < loop_ub; i9++) {
+      P_apo_out->data[i9] = P->data[i9];
     }
 
     last_u[0] = u_out_x;
@@ -446,8 +469,8 @@ void SLAM(double updateVect[16], const double z_all_l[32], const double z_all_r
     // % output asserts for coder
   }
 
-  emxFree_real_T(&a);
-  emxFree_real_T(&b);
+  emxFree_real_T(&r5);
+  emxFree_real_T(&r4);
 }
 
 //

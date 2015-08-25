@@ -23,6 +23,7 @@
   <arg name="use_pressure" default="0" />
   <arg name="use_magnetometer" default="0" />
   <arg name="use_controller_to_predict" default="0" />
+  <arg name="max_ekf_iterations" default="1" />
 
   <arg name="camera_name" default="101" /> <!-- the camera name is equal to the last 3 digits of the odroid's IP -->
   <arg name="lense_type" default="FS3028B13M8" />
@@ -47,13 +48,13 @@
     <param name="acc_noise" type="double" value="$(arg acc_noise)" />
     <param name="gyro_noise" type="double" value="$(arg gyro_noise)" />
     <param name="process_noise_3" type="double" value="0.0" />
-
     <param name="im_noise" type="double" value="$(arg im_noise)" />
 
     <param name="use_orientation" type="bool" value="$(arg use_orientation)" />
     <param name="use_pressure" type="bool" value="$(arg use_pressure)" />
     <param name="use_magnetometer" type="bool" value="$(arg use_magnetometer)" />
     <param name="use_controller_to_predict" type="bool" value="$(arg use_controller_to_predict)" />
+    <param name="max_ekf_iterations" type="int" value="$(arg max_ekf_iterations)" />
 
     <param name="orientation_noise" type="double" value="$(arg orientation_noise)" />
     <param name="pressure_noise" type="double" value="$(arg pressure_noise)" />

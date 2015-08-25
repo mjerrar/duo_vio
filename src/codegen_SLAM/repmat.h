@@ -2,13 +2,13 @@
 // Academic License - for use in teaching, academic research, and meeting
 // course requirements at degree granting institutions only.  Not for
 // government, commercial, or other organizational use.
-// File: eye.h
+// File: repmat.h
 //
 // MATLAB Coder version            : 2.8
 // C/C++ source code generated on  : 25-Aug-2015 17:43:12
 //
-#ifndef __EYE_H__
-#define __EYE_H__
+#ifndef __REPMAT_H__
+#define __REPMAT_H__
 
 // Include Files
 #include <math.h>
@@ -21,13 +21,13 @@
 #include "SLAM_types.h"
 
 // Function Declarations
-extern void b_eye(const double varargin_1[2], emxArray_real_T *I);
-extern void eye(double varargin_1, emxArray_real_T *I);
+extern void repmat(const emxArray_real_T *a, double varargin_1, emxArray_real_T *
+                   b);
 
 #endif
 
 //
-// File trailer for eye.h
+// File trailer for repmat.h
 //
 // [EOF]
 //
