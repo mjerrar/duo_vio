@@ -5,7 +5,7 @@
 // File: SLAM.cpp
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 25-Aug-2015 17:43:12
+// C/C++ source code generated on  : 25-Aug-2015 17:57:02
 //
 
 // Include Files
@@ -133,9 +133,11 @@ void SLAM(double updateVect[16], const double z_all_l[32], const double z_all_r
   b_fprintf(noiseParameters->image_noise[0], noiseParameters->image_noise[1]);
   d_fprintf(noiseParameters->orientation_noise);
   f_fprintf(noiseParameters->pressure_noise);
-  h_fprintf(noiseParameters->sigmaInit);
-  j_fprintf(b_VIOParameters->max_ekf_iterations);
-  l_fprintf(b_VIOParameters->num_anchors);
+  h_fprintf(noiseParameters->process_noise[0], noiseParameters->process_noise[1],
+            noiseParameters->process_noise[2], noiseParameters->process_noise[3]);
+  j_fprintf(noiseParameters->sigmaInit);
+  l_fprintf(b_VIOParameters->max_ekf_iterations);
+  n_fprintf(b_VIOParameters->num_anchors);
   d5 = rt_roundd_snf(b_VIOParameters->num_points_per_anchor);
   if (d5 < 128.0) {
     if (d5 >= -128.0) {
@@ -149,16 +151,16 @@ void SLAM(double updateVect[16], const double z_all_l[32], const double z_all_r
     i8 = 0;
   }
 
-  n_fprintf(i8);
-  p_fprintf((signed char)b_VIOParameters->use_controller_to_predict);
-  r_fprintf((signed char)b_VIOParameters->use_magnetometer);
-  t_fprintf((signed char)b_VIOParameters->use_orientation);
-  v_fprintf((signed char)b_VIOParameters->use_pressure);
-  x_fprintf(b_ControllerGains->Kd_xy);
-  ab_fprintf(b_ControllerGains->Kd_z);
-  cb_fprintf(b_ControllerGains->Kp_xy);
-  eb_fprintf(b_ControllerGains->Kp_yaw);
-  gb_fprintf(b_ControllerGains->Kp_z);
+  p_fprintf(i8);
+  r_fprintf((signed char)b_VIOParameters->use_controller_to_predict);
+  t_fprintf((signed char)b_VIOParameters->use_magnetometer);
+  v_fprintf((signed char)b_VIOParameters->use_orientation);
+  x_fprintf((signed char)b_VIOParameters->use_pressure);
+  ab_fprintf(b_ControllerGains->Kd_xy);
+  cb_fprintf(b_ControllerGains->Kd_z);
+  eb_fprintf(b_ControllerGains->Kp_xy);
+  gb_fprintf(b_ControllerGains->Kp_yaw);
+  ib_fprintf(b_ControllerGains->Kp_z);
   b_emxInit_real_T(&r4, 1);
   b_emxInit_real_T(&r5, 1);
   if ((!initialized_not_empty) || resetFlag) {

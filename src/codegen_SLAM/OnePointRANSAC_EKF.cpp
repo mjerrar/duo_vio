@@ -5,7 +5,7 @@
 // File: OnePointRANSAC_EKF.cpp
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 25-Aug-2015 17:43:12
+// C/C++ source code generated on  : 25-Aug-2015 17:57:02
 //
 
 // Include Files
@@ -1630,7 +1630,7 @@ void OnePointRANSAC_EKF(emxArray_real_T *b_xt, emxArray_real_T *b_P, const
     // ROS_WARN Print to ROS_WARN in ROS or to console in Matlab
     //      coder.cinclude('<ros/console.h>')
     //      coder.ceval('ROS_WARN', [str, 0], varargin{:});
-    ib_fprintf(idx);
+    kb_fprintf(idx);
   }
 
   // % D Partial EKF update using high-innovation inliers
@@ -2562,7 +2562,7 @@ void OnePointRANSAC_EKF(emxArray_real_T *b_xt, emxArray_real_T *b_P, const
     // ROS_WARN Print to ROS_WARN in ROS or to console in Matlab
     //      coder.cinclude('<ros/console.h>')
     //      coder.ceval('ROS_WARN', [str, 0], varargin{:});
-    kb_fprintf();
+    mb_fprintf();
   }
 }
 
