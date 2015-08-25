@@ -5,7 +5,7 @@
 // File: SLAM_pred.cpp
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 25-Aug-2015 10:22:12
+// C/C++ source code generated on  : 25-Aug-2015 13:12:32
 //
 
 // Include Files
@@ -330,6 +330,7 @@ static void b_dxdt_dPdt(double dt, const double meas[6], const emxArray_real_T
     x_dot->data[7 + br] = control_input[br] / 0.5;
   }
 
+  //  NOTE: The control froces are already in world frame
   for (br = 0; br < 3; br++) {
     x_dot->data[10 + br] = 0.0;
   }
@@ -726,6 +727,7 @@ static void dxdt_dPdt(double dt, const double meas[6], const emxArray_real_T *x,
     x_dot->data[7 + c] = control_input[c] / 0.5;
   }
 
+  //  NOTE: The control froces are already in world frame
   for (c = 0; c < 3; c++) {
     x_dot->data[10 + c] = 0.0;
   }

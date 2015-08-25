@@ -5,7 +5,7 @@
 // File: SLAM.cpp
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 25-Aug-2015 10:22:12
+// C/C++ source code generated on  : 25-Aug-2015 13:12:32
 //
 
 // Include Files
@@ -421,12 +421,8 @@ void SLAM(double updateVect[16], const double z_all_l[32], const double z_all_r
     u_out[3] = u_out_yaw;
     n_fprintf(xt->data[0] - ref[0], xt->data[1] - ref[1], xt->data[2] - ref[2],
               yaw - ref[3], d5, d6, d7, u_out_yaw);
-    for (outsize_idx_0 = 0; outsize_idx_0 < 4; outsize_idx_0++) {
-      dv25[outsize_idx_0] = 0.0 * last_u[outsize_idx_0];
-    }
-
     SLAM_pred(P, xt, dt, noiseParameters->process_noise, IMU_measurements,
-              numStates, dv25);
+              numStates, last_u);
     SLAM_updIT(P, xt, cameraParams->CameraParameters1.RadialDistortion,
                cameraParams->CameraParameters1.FocalLength,
                cameraParams->CameraParameters1.PrincipalPoint,
