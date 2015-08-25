@@ -48,6 +48,7 @@ Localization::Localization()
 	nh_.param<double>("acc_noise", noiseParams.process_noise[0], 1);
 	nh_.param<double>("gyro_noise", noiseParams.process_noise[1], 1);
 	nh_.param<double>("process_noise_3", noiseParams.process_noise[2], 0.0);
+	nh_.param<double>("process_noise_4", noiseParams.process_noise[3], 0.0);
 	nh_.param<double>("orientation_noise", noiseParams.orientation_noise, 1.0);
 	nh_.param<double>("pressure_noise", noiseParams.pressure_noise, 1.0);
 	nh_.param<double>("sigma_init", noiseParams.sigmaInit, 0.0001);

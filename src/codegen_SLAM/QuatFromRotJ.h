@@ -5,7 +5,7 @@
 // File: QuatFromRotJ.h
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 25-Aug-2015 17:57:02
+// C/C++ source code generated on  : 25-Aug-2015 18:09:06
 //
 #ifndef __QUATFROMROTJ_H__
 #define __QUATFROMROTJ_H__

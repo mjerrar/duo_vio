@@ -5,7 +5,7 @@
 // File: SLAM_rtwutil.cpp
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 25-Aug-2015 17:57:02
+// C/C++ source code generated on  : 25-Aug-2015 18:09:06
 //
 
 // Include Files
@@ -131,28 +131,6 @@ double rt_powd_snf(double u0, double u1)
     } else {
       y = pow(u0, u1);
     }
-  }
-
-  return y;
-}
-
-//
-// Arguments    : double u
-// Return Type  : double
-//
-double rt_roundd_snf(double u)
-{
-  double y;
-  if (fabs(u) < 4.503599627370496E+15) {
-    if (u >= 0.5) {
-      y = floor(u + 0.5);
-    } else if (u > -0.5) {
-      y = u * 0.0;
-    } else {
-      y = ceil(u - 0.5);
-    }
-  } else {
-    y = u;
   }
 
   return y;

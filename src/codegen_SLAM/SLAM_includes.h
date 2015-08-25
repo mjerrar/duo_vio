@@ -21,7 +21,6 @@
 #include <quatmultJ.h>
 #include <quatPlusThetaJ.h>
 #include <rand.h>
-#include <repmat.h>
 #include <rt_defines.h>
 #include <rtGetInf.h>
 #include <rtGetNaN.h>
