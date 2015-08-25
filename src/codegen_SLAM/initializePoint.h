@@ -5,7 +5,7 @@
 // File: initializePoint.h
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 25-Aug-2015 18:09:06
+// C/C++ source code generated on  : 25-Aug-2015 18:19:48
 //
 #ifndef __INITIALIZEPOINT_H__
 #define __INITIALIZEPOINT_H__

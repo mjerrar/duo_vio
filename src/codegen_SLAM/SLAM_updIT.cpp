@@ -5,7 +5,7 @@
 // File: SLAM_updIT.cpp
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 25-Aug-2015 18:09:06
+// C/C++ source code generated on  : 25-Aug-2015 18:19:48
 //
 
 // Include Files
@@ -291,7 +291,7 @@ void SLAM_updIT(emxArray_real_T *P_apr, emxArray_real_T *b_xt, const double
       anchorIdx->data[i8] = ii->data[i8];
     }
 
-    if (!(anchorIdx->size[1] == 0)) {
+    if ((!(anchorIdx->size[1] == 0)) && (updateVect[i] != 1.0)) {
       n = 0;
       i8 = b_anchorIdx->size[0];
       b_anchorIdx->size[0] = anchorIdx->size[1];

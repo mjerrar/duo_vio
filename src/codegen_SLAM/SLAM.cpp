@@ -5,7 +5,7 @@
 // File: SLAM.cpp
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 25-Aug-2015 18:09:06
+// C/C++ source code generated on  : 25-Aug-2015 18:19:48
 //
 
 // Include Files
@@ -410,8 +410,17 @@ void SLAM(double updateVect[16], const double z_all_l[32], const double z_all_r
 
     SLAM_pred(P, xt, dt, noiseParameters->process_noise, IMU_measurements,
               numStates, last_u);
-
-    //  [h_u_apo, xt, P, updateVect, map] = SLAM_updIT(P, xt, cameraParameters, updateVect, z_all_l, z_all_r, noiseParameters, IMU_measurements, height_offset_pressure, VIOParameters); 
+    SLAM_updIT(P, xt, b_cameraParameters->CameraParameters1.RadialDistortion,
+               b_cameraParameters->CameraParameters1.FocalLength,
+               b_cameraParameters->CameraParameters1.PrincipalPoint,
+               b_cameraParameters->CameraParameters2.RadialDistortion,
+               b_cameraParameters->CameraParameters2.FocalLength,
+               b_cameraParameters->CameraParameters2.PrincipalPoint,
+               b_cameraParameters->r_lr, b_cameraParameters->R_lr,
+               b_cameraParameters->R_rl, updateVect, z_all_l, z_all_r,
+               noiseParameters->image_noise, noiseParameters->orientation_noise,
+               noiseParameters->pressure_noise, IMU_measurements, 0.0,
+               *b_VIOParameters, h_u_apo_out, map_out);
     k = xt_out->size[0];
     xt_out->size[0] = xt->size[0];
     emxEnsureCapacity((emxArray__common *)xt_out, k, (int)sizeof(double));
@@ -427,25 +436,6 @@ void SLAM(double updateVect[16], const double z_all_l[32], const double z_all_r
     loop_ub = P->size[0] * P->size[1];
     for (k = 0; k < loop_ub; k++) {
       P_apo_out->data[k] = P->data[k];
-    }
-
-    //  h_u_apo_out = h_u_apo;
-    //  map_out = map;
-    k = h_u_apo_out->size[0];
-    h_u_apo_out->size[0] = (int)(numTrackFeatures * 4.0);
-    emxEnsureCapacity((emxArray__common *)h_u_apo_out, k, (int)sizeof(double));
-    loop_ub = (int)(numTrackFeatures * 4.0);
-    for (k = 0; k < loop_ub; k++) {
-      h_u_apo_out->data[k] = 0.0;
-    }
-
-    k = map_out->size[0] * map_out->size[1];
-    map_out->size[0] = 3;
-    map_out->size[1] = (int)numTrackFeatures;
-    emxEnsureCapacity((emxArray__common *)map_out, k, (int)sizeof(double));
-    loop_ub = 3 * (int)numTrackFeatures;
-    for (k = 0; k < loop_ub; k++) {
-      map_out->data[k] = 0.0;
     }
 
     last_u[0] = u_out_x;
