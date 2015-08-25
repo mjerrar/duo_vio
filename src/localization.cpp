@@ -11,20 +11,13 @@
 #include <stdio.h>
 #include <visualization_msgs/Marker.h>
 
-static const unsigned int IMU_delay = 1;
-
 Localization::Localization()
 : nh_("~"),
-  process_noise_(4,0.0),
-  im_noise_(2,0.0),
   t_avg(0.0),
   SLAM_reset_flag(0),
-  controller_gains(3,0.0),
-  mavros_imu_data_buffer_(IMU_delay),
   received_IMU_data(false),
   pos_reference(4, 0.0)
 {
-
 	SLAM_initialize();
 	emxInitArray_real_T(&h_u_apo_,1);
 
@@ -50,20 +43,32 @@ Localization::Localization()
 
 
 	// Init parameters
-	// TODO Check default values and give meaningful names
 	nh_.param<bool>("show_tracker_images", show_tracker_images_, false);
 
 	nh_.param<double>("acc_noise", noiseParams.process_noise[0], 1);
 	nh_.param<double>("gyro_noise", noiseParams.process_noise[1], 1);
 	nh_.param<double>("process_noise_3", noiseParams.process_noise[2], 0.0);
-	// nh_.param<double>("process_noise_4", noiseParams.process_noise[3], 0.0);
-
-	nh_.param<double>("im_noise", noiseParams.image_noise[0], 1.0);
-	nh_.param<double>("im_noise", noiseParams.image_noise[1], 1.0);
-
 	nh_.param<double>("orientation_noise", noiseParams.orientation_noise, 1.0);
 	nh_.param<double>("pressure_noise", noiseParams.pressure_noise, 1.0);
 	nh_.param<double>("sigma_init", noiseParams.sigmaInit, 0.0001);
+	nh_.param<double>("im_noise", noiseParams.image_noise[0], 1.0);
+	nh_.param<double>("im_noise", noiseParams.image_noise[1], 1.0);
+
+	nh_.param<int>("num_points_per_anchor", vioParams.num_points_per_anchor, 1);
+	nh_.param<int>("num_anchors", vioParams.num_anchors, 1);
+	nh_.param<int>("max_ekf_iterations", vioParams.max_ekf_iterations, 1);
+
+	nh_.param<bool>("use_orientation", vioParams.use_orientation, false);
+	nh_.param<bool>("use_pressure", vioParams.use_pressure, false);
+	nh_.param<bool>("use_magnetometer", vioParams.use_magnetometer, false);
+	nh_.param<bool>("use_controller_to_predict", vioParams.use_controller_to_predict, 1);
+
+	nh_.param<double>("Kp_xy", controllerGains.Kp_xy, 1);
+	nh_.param<double>("Kd_xy", controllerGains.Kd_xy, 1);
+	nh_.param<double>("Kp_z", controllerGains.Kp_xy, 1);
+	nh_.param<double>("Kd_z", controllerGains.Kd_z, 1);
+	nh_.param<double>("Kp_yaw", controllerGains.Kp_yaw, 1);
+
 
 	std::string camera_name;
 	nh_.param<std::string>("camera_name", camera_name, "NoName");
@@ -99,48 +104,16 @@ Localization::Localization()
 		debug_img_pub_ = nh_.advertise<duo3d_ros::Duo3d>("/vio/debug_img", 1);
 	}
 
-	int num_points_per_anchor, num_anchors;
-	nh_.param<int>("num_points_per_anchor", num_points_per_anchor, 1);
-	nh_.param<int>("num_anchors", num_anchors, 32);
-
-	if (num_anchors < 0.0)
-	{
-		ROS_ERROR("Number of anchors must not be negative!");
-		nh_.shutdown();
-	}
-	else
-	{
-		num_anchors_ = static_cast<unsigned int>(num_anchors);
-	}
-
-	if (num_points_per_anchor < 0.0)
-	{
-		ROS_ERROR("Number of points per anchors must not be negative!");
-		nh_.shutdown();
-	}
-	else
-	{
-		num_points_per_anchor_ = static_cast<unsigned int>(num_points_per_anchor);
-	}
-
 	dynamic_reconfigure::Server<vio_ros::vio_rosConfig>::CallbackType f = boost::bind(&Localization::dynamicReconfigureCb, this, _1, _2);
 	dynamic_reconfigure_server.setCallback(f);
 
-	num_points_ = num_anchors_*num_points_per_anchor_;
+	num_points_ = vioParams.num_anchors*vioParams.num_points_per_anchor;
 
 	update_vec_.assign(num_points_, 0);
 
 	// initialize a valid quaternion in case this topic does not publish
-	sensor_msgs::Imu mavros_imu_data;
-	mavros_imu_data.orientation.x = 0.0;
-	mavros_imu_data.orientation.y = 0.0;
-	mavros_imu_data.orientation.z = 0.0;
-	mavros_imu_data.orientation.w = 1.0;
+	mavros_imu_data_.orientation.w = 1.0;
 
-	for (int i = 0; i < IMU_delay; i++)
-	{
-		mavros_imu_data_buffer_.push_back(mavros_imu_data);
-	}
 }
 
 Localization::~Localization()
@@ -263,16 +236,24 @@ void Localization::joystickCb(const sensor_msgs::Joy::ConstPtr& msg)
 
 void Localization::dynamicReconfigureCb(vio_ros::vio_rosConfig &config, uint32_t level)
 {
-	ROS_INFO("Reconfigure Request: Position: Kp: %.3f, Kd %.3f, Yaw: Kp %.3f", config.Kp_pos, config.Kd_pos, config.Kp_yaw);
-	controller_gains[0] = config.Kp_pos;
-	controller_gains[1] = config.Kd_pos;
-	controller_gains[2] = config.Kp_yaw;
+	controllerGains.Kp_xy = config.Kp_xy;
+	controllerGains.Kd_xy = config.Kd_xy;
+	controllerGains.Kp_z = config.Kp_z;
+	controllerGains.Kd_z = config.Kd_z;
+	controllerGains.Kp_yaw = config.Kp_yaw;
 
 	noiseParams.image_noise[0] = config.im_noise;
 	noiseParams.image_noise[1] = config.im_noise;
+	noiseParams.process_noise[0] = config.acc_noise;
+	noiseParams.process_noise[1] = config.gyro_noise;
 	noiseParams.orientation_noise = config.orientation_noise;
 	noiseParams.pressure_noise = config.pressure_noise;
 	noiseParams.sigmaInit = config.sigma_init;
+
+	vioParams.use_orientation = config.use_orientation;
+	vioParams.use_pressure = config.use_pressure;
+	vioParams.use_magnetometer = config.use_magnetometer;
+	vioParams.use_controller_to_predict = config.use_controller_to_predict;
 
 }
 
@@ -362,14 +343,13 @@ void Localization::update(double dt, const cv::Mat& left_image, const cv::Mat& r
 			&z_all_l[0],
 			&z_all_r[0],
 			dt,
-			&noiseParams,
 			&IMU_data[0],
-			num_points_per_anchor_,
-			num_anchors_,
-			&cameraParams,
-			SLAM_reset_flag,
 			&pos_reference[0],
-			&controller_gains[0],
+			&vioParams,
+			&cameraParams,
+			&noiseParams,
+			&controllerGains,
+			SLAM_reset_flag,
 			h_u_apo,
 			xt_out,
 			P_apo_out,
@@ -425,15 +405,10 @@ void Localization::update(double dt, const cv::Mat& left_image, const cv::Mat& r
 	emxDestroyArray_real_T(P_apo_out);
 	emxDestroyArray_real_T(h_u_apo);
 	emxDestroyArray_real_T(map);
-
-
 }
 
 void Localization::getIMUData(const sensor_msgs::Imu& imu, const sensor_msgs::MagneticField& mag, std::vector<double>& inertial_vec)
 {
-	// push the most recent IMU data into the buffer
-	mavros_imu_data_buffer_.push_back(mavros_imu_data_);
-
 	inertial_vec.at(0) = +imu.angular_velocity.x;
 	inertial_vec.at(1) = -imu.angular_velocity.y;
 	inertial_vec.at(2) = +imu.angular_velocity.z;
@@ -527,7 +502,7 @@ void Localization::publishPointCloud(double *map)
 	features.header.frame_id = "world";
 	features.header.stamp = ros::Time::now();
 
-	for(int cnt = 0; cnt < num_points_per_anchor_*num_anchors_; cnt++)
+	for(int cnt = 0; cnt < vioParams.num_points_per_anchor * vioParams.num_anchors; cnt++)
 	{
 		geometry_msgs::Point32 point;
 		point.x = map[cnt*3];

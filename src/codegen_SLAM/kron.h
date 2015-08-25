@@ -5,7 +5,7 @@
 // File: kron.h
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 25-Aug-2015 13:12:32
+// C/C++ source code generated on  : 25-Aug-2015 16:09:08
 //
 #ifndef __KRON_H__
 #define __KRON_H__

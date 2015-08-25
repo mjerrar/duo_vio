@@ -1,16 +1,28 @@
 <launch>
 
+  <arg name="exposure_duo" default="50" />
+  <arg name="gain_duo" default="100" />
+  <arg name="FPS_duo" default="60" />
   <arg name="resolution_width_duo" default="320" />
   <arg name="resolution_height_duo" default="240" />
-  <arg name="im_noise" default="5" />
+  
+  <arg name="im_noise" default="1" />
   <arg name="acc_noise" default="1" />
-  <arg name="gyro_noise" default="10" />
+  <arg name="gyro_noise" default="1" />
   <arg name="orientation_noise" default="1" />
   <arg name="pressure_noise" default="1" />
   <arg name="sigma_init" default="0.0001" />
-  <arg name="Kp_pos" default="1" />
-  <arg name="Kd_pos" default="0" />
-  <arg name="Kp_yaw" default="0" />
+  
+  <arg name="Kp_xy" default="1" />
+  <arg name="Kd_xy" default="1.4" />
+  <arg name="Kp_z" default="1" />
+  <arg name="Kd_z" default="1.4" />
+  <arg name="Kp_yaw" default="1" />
+  
+  <arg name="use_orientation" default="1" />
+  <arg name="use_pressure" default="0" />
+  <arg name="use_magnetometer" default="0" />
+  <arg name="use_controller_to_predict" default="0" />
 
   <arg name="camera_name" default="101" /> <!-- the camera name is equal to the last 3 digits of the odroid's IP -->
   <arg name="lense_type" default="FS3028B13M8" />
@@ -26,15 +38,21 @@
     <param name="acc_noise" type="double" value="$(arg acc_noise)" />
     <param name="gyro_noise" type="double" value="$(arg gyro_noise)" />
     <param name="process_noise_3" type="double" value="0.0" />
-
     <param name="im_noise" type="double" value="$(arg im_noise)" />
+
+    <param name="use_orientation" type="bool" value="$(arg use_orientation)" />
+    <param name="use_pressure" type="bool" value="$(arg use_pressure)" />
+    <param name="use_magnetometer" type="bool" value="$(arg use_magnetometer)" />
+    <param name="use_controller_to_predict" type="bool" value="$(arg use_controller_to_predict)" />
 
     <param name="orientation_noise" type="double" value="$(arg orientation_noise)" />
     <param name="pressure_noise" type="double" value="$(arg pressure_noise)" />
     <param name="sigma_init" type="double" value="$(arg sigma_init)" />
 
-    <param name="Kp_pos" type="double" value="$(arg Kp_pos)" />
-    <param name="Kd_pos" type="double" value="$(arg Kd_pos)" />
+    <param name="Kp_xy" type="double" value="$(arg Kp_xy)" />
+    <param name="Kd_xy" type="double" value="$(arg Kd_xy)" />
+    <param name="Kp_z" type="double" value="$(arg Kp_z)" />
+    <param name="Kd_z" type="double" value="$(arg Kd_z)" />
     <param name="Kp_yaw" type="double" value="$(arg Kp_yaw)" />
 
     <!-- note that these parameters are not free. The total number of points num_anchors*num_points_per_anchor must equal the total number of points with wich SLAM was codered in Matlab. -->

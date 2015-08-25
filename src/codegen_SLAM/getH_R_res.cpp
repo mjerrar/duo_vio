@@ -5,7 +5,7 @@
 // File: getH_R_res.cpp
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 25-Aug-2015 13:12:32
+// C/C++ source code generated on  : 25-Aug-2015 16:09:08
 //
 
 // Include Files
@@ -60,8 +60,6 @@
 //                const double c_cameraparams_CameraParameters[3]
 //                const double d_cameraparams_CameraParameters[2]
 //                const double e_cameraparams_CameraParameters[2]
-//                double numAnchors
-//                double numPointsPerAnchor
 //                const emxArray_real_T *anchorIdx
 //                const emxArray_real_T *featureAnchorIdx
 //                const emxArray_real_T *b_m_vect
@@ -70,6 +68,7 @@
 //                double noiseParameters_pressure_noise
 //                const double IMU_measurements[23]
 //                double height_offset_pressure
+//                const VIOParameters b_VIOParameters
 //                double r_data[]
 //                int r_size[1]
 //                emxArray_real_T *H
@@ -85,17 +84,21 @@ void b_getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
                   emxArray_real_T *map, const double
                   c_cameraparams_CameraParameters[3], const double
                   d_cameraparams_CameraParameters[2], const double
-                  e_cameraparams_CameraParameters[2], double numAnchors, double
-                  numPointsPerAnchor, const emxArray_real_T *anchorIdx, const
-                  emxArray_real_T *featureAnchorIdx, const emxArray_real_T
-                  *b_m_vect, const double noiseParameters_image_noise[2], double
+                  e_cameraparams_CameraParameters[2], const emxArray_real_T
+                  *anchorIdx, const emxArray_real_T *featureAnchorIdx, const
+                  emxArray_real_T *b_m_vect, const double
+                  noiseParameters_image_noise[2], double
                   c_noiseParameters_orientation_n, double
                   noiseParameters_pressure_noise, const double IMU_measurements
-                  [23], double height_offset_pressure, double r_data[], int
-                  r_size[1], emxArray_real_T *H, double h_u_data[], int
-                  h_u_size[1], double R_data[], int R_size[2])
+                  [23], double height_offset_pressure, const VIOParameters
+                  b_VIOParameters, double r_data[], int r_size[1],
+                  emxArray_real_T *H, double h_u_data[], int h_u_size[1], double
+                  R_data[], int R_size[2])
 {
   emxArray_real_T *H_xm;
+  double numPointsPerAnchor;
+  double numStatesPerAnchor;
+  double numErrorStatesPerAnchor;
   double R_cw[9];
   double fx_l;
   double fy_l;
@@ -206,6 +209,9 @@ void b_getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
   int c_tmp_data[1];
   int d_tmp_data[1];
   emxInit_real_T(&H_xm, 2);
+  numPointsPerAnchor = b_VIOParameters.num_points_per_anchor;
+  numStatesPerAnchor = 7.0 + b_VIOParameters.num_points_per_anchor;
+  numErrorStatesPerAnchor = 6.0 + b_VIOParameters.num_points_per_anchor;
 
   //  if ~all(size(q) == [4, 1])
   //      error('q does not have the size of a quaternion')
@@ -239,9 +245,11 @@ void b_getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
   H_xm->size[0] = indMeas_size[0] << 1;
   emxEnsureCapacity((emxArray__common *)H_xm, i5, (int)sizeof(double));
   i5 = H_xm->size[0] * H_xm->size[1];
-  H_xm->size[1] = (int)(numAnchors * (6.0 + numPointsPerAnchor));
+  H_xm->size[1] = (int)(b_VIOParameters.num_anchors * (6.0 +
+    b_VIOParameters.num_points_per_anchor));
   emxEnsureCapacity((emxArray__common *)H_xm, i5, (int)sizeof(double));
-  br = (indMeas_size[0] << 1) * (int)(numAnchors * (6.0 + numPointsPerAnchor));
+  br = (indMeas_size[0] << 1) * (int)(b_VIOParameters.num_anchors * (6.0 +
+    b_VIOParameters.num_points_per_anchor));
   for (i5 = 0; i5 < br; i5++) {
     H_xm->data[i5] = 0.0;
   }
@@ -396,89 +404,89 @@ void b_getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
     //      error('The provided quaternion is not a valid rotation quaternion because it does not have norm 1') 
     //  end
     b_stateSize = stateSize + (anchorIdx->data[(int)indMeas_data[k] - 1] - 1.0) *
-      (7.0 + numPointsPerAnchor);
+      numStatesPerAnchor;
     a = b_xt->data[(int)(b_stateSize + 4.0) - 1];
     b_stateSize = stateSize + (anchorIdx->data[(int)indMeas_data[k] - 1] - 1.0) *
-      (7.0 + numPointsPerAnchor);
+      numStatesPerAnchor;
     b_a = b_xt->data[(int)(b_stateSize + 5.0) - 1];
     b_stateSize = stateSize + (anchorIdx->data[(int)indMeas_data[k] - 1] - 1.0) *
-      (7.0 + numPointsPerAnchor);
+      numStatesPerAnchor;
     c_a = b_xt->data[(int)(b_stateSize + 6.0) - 1];
     b_stateSize = stateSize + (anchorIdx->data[(int)indMeas_data[k] - 1] - 1.0) *
-      (7.0 + numPointsPerAnchor);
+      numStatesPerAnchor;
     d_a = b_xt->data[(int)(b_stateSize + 7.0) - 1];
     b_stateSize = stateSize + (anchorIdx->data[(int)indMeas_data[k] - 1] - 1.0) *
-      (7.0 + numPointsPerAnchor);
+      numStatesPerAnchor;
     e_a = b_xt->data[(int)(b_stateSize + 4.0) - 1];
     b_stateSize = stateSize + (anchorIdx->data[(int)indMeas_data[k] - 1] - 1.0) *
-      (7.0 + numPointsPerAnchor);
+      numStatesPerAnchor;
     f_a = b_xt->data[(int)(b_stateSize + 5.0) - 1];
     b_stateSize = stateSize + (anchorIdx->data[(int)indMeas_data[k] - 1] - 1.0) *
-      (7.0 + numPointsPerAnchor);
+      numStatesPerAnchor;
     g_a = b_xt->data[(int)(b_stateSize + 6.0) - 1];
     b_stateSize = stateSize + (anchorIdx->data[(int)indMeas_data[k] - 1] - 1.0) *
-      (7.0 + numPointsPerAnchor);
+      numStatesPerAnchor;
     h_a = b_xt->data[(int)(b_stateSize + 7.0) - 1];
     b_stateSize = stateSize + (anchorIdx->data[(int)indMeas_data[k] - 1] - 1.0) *
-      (7.0 + numPointsPerAnchor);
+      numStatesPerAnchor;
     i_a = b_xt->data[(int)(b_stateSize + 4.0) - 1];
     b_stateSize = stateSize + (anchorIdx->data[(int)indMeas_data[k] - 1] - 1.0) *
-      (7.0 + numPointsPerAnchor);
+      numStatesPerAnchor;
     j_a = b_xt->data[(int)(b_stateSize + 5.0) - 1];
     b_stateSize = stateSize + (anchorIdx->data[(int)indMeas_data[k] - 1] - 1.0) *
-      (7.0 + numPointsPerAnchor);
+      numStatesPerAnchor;
     k_a = b_xt->data[(int)(b_stateSize + 6.0) - 1];
     b_stateSize = stateSize + (anchorIdx->data[(int)indMeas_data[k] - 1] - 1.0) *
-      (7.0 + numPointsPerAnchor);
+      numStatesPerAnchor;
     l_a = b_xt->data[(int)(b_stateSize + 7.0) - 1];
     b_stateSize = stateSize + (anchorIdx->data[(int)indMeas_data[k] - 1] - 1.0) *
-      (7.0 + numPointsPerAnchor);
+      numStatesPerAnchor;
     c_stateSize = stateSize + (anchorIdx->data[(int)indMeas_data[k] - 1] - 1.0) *
-      (7.0 + numPointsPerAnchor);
+      numStatesPerAnchor;
     d_stateSize = stateSize + (anchorIdx->data[(int)indMeas_data[k] - 1] - 1.0) *
-      (7.0 + numPointsPerAnchor);
+      numStatesPerAnchor;
     e_stateSize = stateSize + (anchorIdx->data[(int)indMeas_data[k] - 1] - 1.0) *
-      (7.0 + numPointsPerAnchor);
+      numStatesPerAnchor;
     f_stateSize = stateSize + (anchorIdx->data[(int)indMeas_data[k] - 1] - 1.0) *
-      (7.0 + numPointsPerAnchor);
+      numStatesPerAnchor;
     g_stateSize = stateSize + (anchorIdx->data[(int)indMeas_data[k] - 1] - 1.0) *
-      (7.0 + numPointsPerAnchor);
+      numStatesPerAnchor;
     h_stateSize = stateSize + (anchorIdx->data[(int)indMeas_data[k] - 1] - 1.0) *
-      (7.0 + numPointsPerAnchor);
+      numStatesPerAnchor;
     i_stateSize = stateSize + (anchorIdx->data[(int)indMeas_data[k] - 1] - 1.0) *
-      (7.0 + numPointsPerAnchor);
+      numStatesPerAnchor;
     j_stateSize = stateSize + (anchorIdx->data[(int)indMeas_data[k] - 1] - 1.0) *
-      (7.0 + numPointsPerAnchor);
+      numStatesPerAnchor;
     k_stateSize = stateSize + (anchorIdx->data[(int)indMeas_data[k] - 1] - 1.0) *
-      (7.0 + numPointsPerAnchor);
+      numStatesPerAnchor;
     l_stateSize = stateSize + (anchorIdx->data[(int)indMeas_data[k] - 1] - 1.0) *
-      (7.0 + numPointsPerAnchor);
+      numStatesPerAnchor;
     m_stateSize = stateSize + (anchorIdx->data[(int)indMeas_data[k] - 1] - 1.0) *
-      (7.0 + numPointsPerAnchor);
+      numStatesPerAnchor;
     n_stateSize = stateSize + (anchorIdx->data[(int)indMeas_data[k] - 1] - 1.0) *
-      (7.0 + numPointsPerAnchor);
+      numStatesPerAnchor;
     o_stateSize = stateSize + (anchorIdx->data[(int)indMeas_data[k] - 1] - 1.0) *
-      (7.0 + numPointsPerAnchor);
+      numStatesPerAnchor;
     p_stateSize = stateSize + (anchorIdx->data[(int)indMeas_data[k] - 1] - 1.0) *
-      (7.0 + numPointsPerAnchor);
+      numStatesPerAnchor;
     q_stateSize = stateSize + (anchorIdx->data[(int)indMeas_data[k] - 1] - 1.0) *
-      (7.0 + numPointsPerAnchor);
+      numStatesPerAnchor;
     r_stateSize = stateSize + (anchorIdx->data[(int)indMeas_data[k] - 1] - 1.0) *
-      (7.0 + numPointsPerAnchor);
+      numStatesPerAnchor;
     s_stateSize = stateSize + (anchorIdx->data[(int)indMeas_data[k] - 1] - 1.0) *
-      (7.0 + numPointsPerAnchor);
+      numStatesPerAnchor;
     t_stateSize = stateSize + (anchorIdx->data[(int)indMeas_data[k] - 1] - 1.0) *
-      (7.0 + numPointsPerAnchor);
+      numStatesPerAnchor;
     u_stateSize = stateSize + (anchorIdx->data[(int)indMeas_data[k] - 1] - 1.0) *
-      (7.0 + numPointsPerAnchor);
+      numStatesPerAnchor;
     v_stateSize = stateSize + (anchorIdx->data[(int)indMeas_data[k] - 1] - 1.0) *
-      (7.0 + numPointsPerAnchor);
+      numStatesPerAnchor;
     w_stateSize = stateSize + (anchorIdx->data[(int)indMeas_data[k] - 1] - 1.0) *
-      (7.0 + numPointsPerAnchor);
+      numStatesPerAnchor;
     x_stateSize = stateSize + (anchorIdx->data[(int)indMeas_data[k] - 1] - 1.0) *
-      (7.0 + numPointsPerAnchor);
+      numStatesPerAnchor;
     y_stateSize = stateSize + (anchorIdx->data[(int)indMeas_data[k] - 1] - 1.0) *
-      (7.0 + numPointsPerAnchor);
+      numStatesPerAnchor;
     anchorRot[0] = ((a * a - b_a * b_a) - c_a * c_a) + d_a * d_a;
     anchorRot[3] = 2.0 * (b_xt->data[(int)(b_stateSize + 4.0) - 1] * b_xt->data
                           [(int)(c_stateSize + 5.0) - 1] + b_xt->data[(int)
@@ -507,8 +515,8 @@ void b_getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
                           (y_stateSize + 7.0) - 1]);
     anchorRot[8] = ((-(i_a * i_a) - j_a * j_a) + k_a * k_a) + l_a * l_a;
     c_xt = b_xt->data[(int)(((stateSize + (anchorIdx->data[(int)indMeas_data[k]
-      - 1] - 1.0) * (7.0 + numPointsPerAnchor)) + 7.0) + featureAnchorIdx->data
-      [(int)indMeas_data[k] - 1]) - 1];
+      - 1] - 1.0) * numStatesPerAnchor) + 7.0) + featureAnchorIdx->data[(int)
+      indMeas_data[k] - 1]) - 1];
     for (i5 = 0; i5 < 3; i5++) {
       d2 = 0.0;
       for (i6 = 0; i6 < 3; i6++) {
@@ -520,11 +528,11 @@ void b_getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
     }
 
     c = b_xt->data[(int)(((stateSize + (anchorIdx->data[(int)indMeas_data[k] - 1]
-      - 1.0) * (7.0 + numPointsPerAnchor)) + 7.0) + featureAnchorIdx->data[(int)
+      - 1.0) * numStatesPerAnchor) + 7.0) + featureAnchorIdx->data[(int)
                          indMeas_data[k] - 1]) - 1] * b_xt->data[(int)
-      (((stateSize + (anchorIdx->data[(int)indMeas_data[k] - 1] - 1.0) * (7.0 +
-          numPointsPerAnchor)) + 7.0) + featureAnchorIdx->data[(int)
-       indMeas_data[k] - 1]) - 1];
+      (((stateSize + (anchorIdx->data[(int)indMeas_data[k] - 1] - 1.0) *
+         numStatesPerAnchor) + 7.0) + featureAnchorIdx->data[(int)indMeas_data[k]
+       - 1]) - 1];
     dv5[0] = 0.0;
     dv5[3] = -b_y[2];
     dv5[6] = b_y[1];
@@ -590,7 +598,7 @@ void b_getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
       iv0[i5] = (signed char)(i5 + b_k);
     }
 
-    if (rtIsNaN(6.0 + numPointsPerAnchor)) {
+    if (rtIsNaN(numErrorStatesPerAnchor)) {
       br = 0;
       anew = rtNaN;
       apnd = 6.0 + numPointsPerAnchor;
@@ -598,13 +606,13 @@ void b_getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
       br = -1;
       anew = 1.0;
       apnd = 6.0 + numPointsPerAnchor;
-    } else if (rtIsInf(6.0 + numPointsPerAnchor)) {
+    } else if (rtIsInf(numErrorStatesPerAnchor)) {
       br = 0;
       anew = rtNaN;
       apnd = 6.0 + numPointsPerAnchor;
     } else {
       anew = 1.0;
-      ndbl = floor(((6.0 + numPointsPerAnchor) - 1.0) + 0.5);
+      ndbl = floor((numErrorStatesPerAnchor - 1.0) + 0.5);
       apnd = 1.0 + ndbl;
       cdiff = (1.0 + ndbl) - (6.0 + numPointsPerAnchor);
       absb = fabs(6.0 + numPointsPerAnchor);
@@ -818,7 +826,7 @@ void b_getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
   eye((double)indMeas_size[0], r3);
   kron(r3->data, r3->size, d, R_v_data, R_v_size);
   emxFree_real_T(&r3);
-  if (useOrientation) {
+  if (b_VIOParameters.use_orientation) {
     //  if ~all(size(q) == [4, 1])
     //      error('q does not have the size of a quaternion')
     //  end
@@ -871,9 +879,11 @@ void b_getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
 
     i5 = H_g->size[0] * H_g->size[1];
     H_g->size[0] = 3;
-    H_g->size[1] = (int)(errorStateSize + numAnchors * (6.0 + numPointsPerAnchor));
+    H_g->size[1] = (int)(errorStateSize + b_VIOParameters.num_anchors * (6.0 +
+      b_VIOParameters.num_points_per_anchor));
     emxEnsureCapacity((emxArray__common *)H_g, i5, (int)sizeof(double));
-    br = 3 * (int)(errorStateSize + numAnchors * (6.0 + numPointsPerAnchor));
+    br = 3 * (int)(errorStateSize + b_VIOParameters.num_anchors * (6.0 +
+      b_VIOParameters.num_points_per_anchor));
     for (i5 = 0; i5 < br; i5++) {
       H_g->data[i5] = 0.0;
     }
@@ -896,12 +906,14 @@ void b_getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
     }
   }
 
-  if (useAirPressure) {
+  if (b_VIOParameters.use_pressure) {
     i5 = H_p->size[0] * H_p->size[1];
     H_p->size[0] = 1;
-    H_p->size[1] = (int)(errorStateSize + numAnchors * (6.0 + numPointsPerAnchor));
+    H_p->size[1] = (int)(errorStateSize + b_VIOParameters.num_anchors * (6.0 +
+      b_VIOParameters.num_points_per_anchor));
     emxEnsureCapacity((emxArray__common *)H_p, i5, (int)sizeof(double));
-    br = (int)(errorStateSize + numAnchors * (6.0 + numPointsPerAnchor));
+    br = (int)(errorStateSize + b_VIOParameters.num_anchors * (6.0 +
+                b_VIOParameters.num_points_per_anchor));
     for (i5 = 0; i5 < br; i5++) {
       H_p->data[i5] = 0.0;
     }
@@ -915,8 +927,8 @@ void b_getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
       145366.45 - height_offset_pressure;
   }
 
-  if (useOrientation) {
-    if (useAirPressure) {
+  if (b_VIOParameters.use_orientation) {
+    if (b_VIOParameters.use_pressure) {
       r_size[0] = (z_size_idx_0 + ar) + ia;
       for (i5 = 0; i5 < z_size_idx_0; i5++) {
         r_data[i5] = z_data[i5];
@@ -1084,7 +1096,7 @@ void b_getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
         }
       }
     }
-  } else if (useAirPressure) {
+  } else if (b_VIOParameters.use_pressure) {
     r_size[0] = z_size_idx_0 + ia;
     for (i5 = 0; i5 < z_size_idx_0; i5++) {
       r_data[i5] = z_data[i5];
@@ -1220,8 +1232,6 @@ void b_getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
 //                const double c_cameraparams_CameraParameters[3]
 //                const double d_cameraparams_CameraParameters[2]
 //                const double e_cameraparams_CameraParameters[2]
-//                double numAnchors
-//                double numPointsPerAnchor
 //                const emxArray_real_T *anchorIdx
 //                const emxArray_real_T *featureAnchorIdx
 //                const emxArray_real_T *b_m_vect
@@ -1230,6 +1240,7 @@ void b_getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
 //                double noiseParameters_pressure_noise
 //                const double IMU_measurements[23]
 //                double height_offset_pressure
+//                const VIOParameters b_VIOParameters
 //                double r_data[]
 //                int r_size[1]
 //                emxArray_real_T *H
@@ -1243,14 +1254,15 @@ void getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
                 emxArray_real_T *map, const double
                 c_cameraparams_CameraParameters[3], const double
                 d_cameraparams_CameraParameters[2], const double
-                e_cameraparams_CameraParameters[2], double numAnchors, double
-                numPointsPerAnchor, const emxArray_real_T *anchorIdx, const
-                emxArray_real_T *featureAnchorIdx, const emxArray_real_T
-                *b_m_vect, const double noiseParameters_image_noise[2], double
+                e_cameraparams_CameraParameters[2], const emxArray_real_T
+                *anchorIdx, const emxArray_real_T *featureAnchorIdx, const
+                emxArray_real_T *b_m_vect, const double
+                noiseParameters_image_noise[2], double
                 c_noiseParameters_orientation_n, double
                 noiseParameters_pressure_noise, const double IMU_measurements[23],
-                double height_offset_pressure, double r_data[], int r_size[1],
-                emxArray_real_T *H, double h_u[2], double R_data[], int R_size[2])
+                double height_offset_pressure, const VIOParameters
+                b_VIOParameters, double r_data[], int r_size[1], emxArray_real_T
+                *H, double h_u[2], double R_data[], int R_size[2])
 {
   emxArray_real_T *H_xm;
   double R_cw[9];
@@ -1368,9 +1380,11 @@ void getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
   //  Cy_l = cameraparams.CameraParameters1.PrincipalPoint(2);
   ib = H_xm->size[0] * H_xm->size[1];
   H_xm->size[0] = 2;
-  H_xm->size[1] = (int)(numAnchors * (6.0 + numPointsPerAnchor));
+  H_xm->size[1] = (int)(b_VIOParameters.num_anchors * (6.0 +
+    b_VIOParameters.num_points_per_anchor));
   emxEnsureCapacity((emxArray__common *)H_xm, ib, (int)sizeof(double));
-  n = (int)(numAnchors * (6.0 + numPointsPerAnchor)) << 1;
+  n = (int)(b_VIOParameters.num_anchors * (6.0 +
+             b_VIOParameters.num_points_per_anchor)) << 1;
   for (ib = 0; ib < n; ib++) {
     H_xm->data[ib] = 0.0;
   }
@@ -1498,89 +1512,89 @@ void getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
   //      error('The provided quaternion is not a valid rotation quaternion because it does not have norm 1') 
   //  end
   b_stateSize = stateSize + (anchorIdx->data[(int)indMeas - 1] - 1.0) * (7.0 +
-    numPointsPerAnchor);
+    b_VIOParameters.num_points_per_anchor);
   a = b_xt->data[(int)(b_stateSize + 4.0) - 1];
   b_stateSize = stateSize + (anchorIdx->data[(int)indMeas - 1] - 1.0) * (7.0 +
-    numPointsPerAnchor);
+    b_VIOParameters.num_points_per_anchor);
   b_a = b_xt->data[(int)(b_stateSize + 5.0) - 1];
   b_stateSize = stateSize + (anchorIdx->data[(int)indMeas - 1] - 1.0) * (7.0 +
-    numPointsPerAnchor);
+    b_VIOParameters.num_points_per_anchor);
   c_a = b_xt->data[(int)(b_stateSize + 6.0) - 1];
   b_stateSize = stateSize + (anchorIdx->data[(int)indMeas - 1] - 1.0) * (7.0 +
-    numPointsPerAnchor);
+    b_VIOParameters.num_points_per_anchor);
   d_a = b_xt->data[(int)(b_stateSize + 7.0) - 1];
   b_stateSize = stateSize + (anchorIdx->data[(int)indMeas - 1] - 1.0) * (7.0 +
-    numPointsPerAnchor);
+    b_VIOParameters.num_points_per_anchor);
   e_a = b_xt->data[(int)(b_stateSize + 4.0) - 1];
   b_stateSize = stateSize + (anchorIdx->data[(int)indMeas - 1] - 1.0) * (7.0 +
-    numPointsPerAnchor);
+    b_VIOParameters.num_points_per_anchor);
   f_a = b_xt->data[(int)(b_stateSize + 5.0) - 1];
   b_stateSize = stateSize + (anchorIdx->data[(int)indMeas - 1] - 1.0) * (7.0 +
-    numPointsPerAnchor);
+    b_VIOParameters.num_points_per_anchor);
   g_a = b_xt->data[(int)(b_stateSize + 6.0) - 1];
   b_stateSize = stateSize + (anchorIdx->data[(int)indMeas - 1] - 1.0) * (7.0 +
-    numPointsPerAnchor);
+    b_VIOParameters.num_points_per_anchor);
   h_a = b_xt->data[(int)(b_stateSize + 7.0) - 1];
   b_stateSize = stateSize + (anchorIdx->data[(int)indMeas - 1] - 1.0) * (7.0 +
-    numPointsPerAnchor);
+    b_VIOParameters.num_points_per_anchor);
   i_a = b_xt->data[(int)(b_stateSize + 4.0) - 1];
   b_stateSize = stateSize + (anchorIdx->data[(int)indMeas - 1] - 1.0) * (7.0 +
-    numPointsPerAnchor);
+    b_VIOParameters.num_points_per_anchor);
   j_a = b_xt->data[(int)(b_stateSize + 5.0) - 1];
   b_stateSize = stateSize + (anchorIdx->data[(int)indMeas - 1] - 1.0) * (7.0 +
-    numPointsPerAnchor);
+    b_VIOParameters.num_points_per_anchor);
   k_a = b_xt->data[(int)(b_stateSize + 6.0) - 1];
   b_stateSize = stateSize + (anchorIdx->data[(int)indMeas - 1] - 1.0) * (7.0 +
-    numPointsPerAnchor);
+    b_VIOParameters.num_points_per_anchor);
   l_a = b_xt->data[(int)(b_stateSize + 7.0) - 1];
   b_stateSize = stateSize + (anchorIdx->data[(int)indMeas - 1] - 1.0) * (7.0 +
-    numPointsPerAnchor);
+    b_VIOParameters.num_points_per_anchor);
   c_stateSize = stateSize + (anchorIdx->data[(int)indMeas - 1] - 1.0) * (7.0 +
-    numPointsPerAnchor);
+    b_VIOParameters.num_points_per_anchor);
   d_stateSize = stateSize + (anchorIdx->data[(int)indMeas - 1] - 1.0) * (7.0 +
-    numPointsPerAnchor);
+    b_VIOParameters.num_points_per_anchor);
   e_stateSize = stateSize + (anchorIdx->data[(int)indMeas - 1] - 1.0) * (7.0 +
-    numPointsPerAnchor);
+    b_VIOParameters.num_points_per_anchor);
   f_stateSize = stateSize + (anchorIdx->data[(int)indMeas - 1] - 1.0) * (7.0 +
-    numPointsPerAnchor);
+    b_VIOParameters.num_points_per_anchor);
   g_stateSize = stateSize + (anchorIdx->data[(int)indMeas - 1] - 1.0) * (7.0 +
-    numPointsPerAnchor);
+    b_VIOParameters.num_points_per_anchor);
   h_stateSize = stateSize + (anchorIdx->data[(int)indMeas - 1] - 1.0) * (7.0 +
-    numPointsPerAnchor);
+    b_VIOParameters.num_points_per_anchor);
   i_stateSize = stateSize + (anchorIdx->data[(int)indMeas - 1] - 1.0) * (7.0 +
-    numPointsPerAnchor);
+    b_VIOParameters.num_points_per_anchor);
   j_stateSize = stateSize + (anchorIdx->data[(int)indMeas - 1] - 1.0) * (7.0 +
-    numPointsPerAnchor);
+    b_VIOParameters.num_points_per_anchor);
   k_stateSize = stateSize + (anchorIdx->data[(int)indMeas - 1] - 1.0) * (7.0 +
-    numPointsPerAnchor);
+    b_VIOParameters.num_points_per_anchor);
   l_stateSize = stateSize + (anchorIdx->data[(int)indMeas - 1] - 1.0) * (7.0 +
-    numPointsPerAnchor);
+    b_VIOParameters.num_points_per_anchor);
   m_stateSize = stateSize + (anchorIdx->data[(int)indMeas - 1] - 1.0) * (7.0 +
-    numPointsPerAnchor);
+    b_VIOParameters.num_points_per_anchor);
   n_stateSize = stateSize + (anchorIdx->data[(int)indMeas - 1] - 1.0) * (7.0 +
-    numPointsPerAnchor);
+    b_VIOParameters.num_points_per_anchor);
   o_stateSize = stateSize + (anchorIdx->data[(int)indMeas - 1] - 1.0) * (7.0 +
-    numPointsPerAnchor);
+    b_VIOParameters.num_points_per_anchor);
   p_stateSize = stateSize + (anchorIdx->data[(int)indMeas - 1] - 1.0) * (7.0 +
-    numPointsPerAnchor);
+    b_VIOParameters.num_points_per_anchor);
   q_stateSize = stateSize + (anchorIdx->data[(int)indMeas - 1] - 1.0) * (7.0 +
-    numPointsPerAnchor);
+    b_VIOParameters.num_points_per_anchor);
   r_stateSize = stateSize + (anchorIdx->data[(int)indMeas - 1] - 1.0) * (7.0 +
-    numPointsPerAnchor);
+    b_VIOParameters.num_points_per_anchor);
   s_stateSize = stateSize + (anchorIdx->data[(int)indMeas - 1] - 1.0) * (7.0 +
-    numPointsPerAnchor);
+    b_VIOParameters.num_points_per_anchor);
   t_stateSize = stateSize + (anchorIdx->data[(int)indMeas - 1] - 1.0) * (7.0 +
-    numPointsPerAnchor);
+    b_VIOParameters.num_points_per_anchor);
   u_stateSize = stateSize + (anchorIdx->data[(int)indMeas - 1] - 1.0) * (7.0 +
-    numPointsPerAnchor);
+    b_VIOParameters.num_points_per_anchor);
   v_stateSize = stateSize + (anchorIdx->data[(int)indMeas - 1] - 1.0) * (7.0 +
-    numPointsPerAnchor);
+    b_VIOParameters.num_points_per_anchor);
   w_stateSize = stateSize + (anchorIdx->data[(int)indMeas - 1] - 1.0) * (7.0 +
-    numPointsPerAnchor);
+    b_VIOParameters.num_points_per_anchor);
   x_stateSize = stateSize + (anchorIdx->data[(int)indMeas - 1] - 1.0) * (7.0 +
-    numPointsPerAnchor);
+    b_VIOParameters.num_points_per_anchor);
   y_stateSize = stateSize + (anchorIdx->data[(int)indMeas - 1] - 1.0) * (7.0 +
-    numPointsPerAnchor);
+    b_VIOParameters.num_points_per_anchor);
   anchorRot[0] = ((a * a - b_a * b_a) - c_a * c_a) + d_a * d_a;
   anchorRot[3] = 2.0 * (b_xt->data[(int)(b_stateSize + 4.0) - 1] * b_xt->data
                         [(int)(c_stateSize + 5.0) - 1] + b_xt->data[(int)
@@ -1609,8 +1623,8 @@ void getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
     + 7.0) - 1]);
   anchorRot[8] = ((-(i_a * i_a) - j_a * j_a) + k_a * k_a) + l_a * l_a;
   anew = b_xt->data[(int)(((stateSize + (anchorIdx->data[(int)indMeas - 1] - 1.0)
-    * (7.0 + numPointsPerAnchor)) + 7.0) + featureAnchorIdx->data[(int)indMeas -
-    1]) - 1];
+    * (7.0 + b_VIOParameters.num_points_per_anchor)) + 7.0) +
+    featureAnchorIdx->data[(int)indMeas - 1]) - 1];
   for (ib = 0; ib < 3; ib++) {
     d1 = 0.0;
     for (br = 0; br < 3; br++) {
@@ -1622,10 +1636,11 @@ void getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
   }
 
   anew = b_xt->data[(int)(((stateSize + (anchorIdx->data[(int)indMeas - 1] - 1.0)
-    * (7.0 + numPointsPerAnchor)) + 7.0) + featureAnchorIdx->data[(int)indMeas -
-    1]) - 1] * b_xt->data[(int)(((stateSize + (anchorIdx->data[(int)indMeas - 1]
-    - 1.0) * (7.0 + numPointsPerAnchor)) + 7.0) + featureAnchorIdx->data[(int)
-    indMeas - 1]) - 1];
+    * (7.0 + b_VIOParameters.num_points_per_anchor)) + 7.0) +
+    featureAnchorIdx->data[(int)indMeas - 1]) - 1] * b_xt->data[(int)
+    (((stateSize + (anchorIdx->data[(int)indMeas - 1] - 1.0) * (7.0 +
+        b_VIOParameters.num_points_per_anchor)) + 7.0) + featureAnchorIdx->data
+     [(int)indMeas - 1]) - 1];
   dv1[0] = 0.0;
   dv1[3] = -y[2];
   dv1[6] = y[1];
@@ -1653,7 +1668,8 @@ void getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
   }
 
   emxInit_real_T(&H_iy, 2);
-  n = (int)(numPointsPerAnchor - featureAnchorIdx->data[(int)indMeas - 1]);
+  n = (int)(b_VIOParameters.num_points_per_anchor - featureAnchorIdx->data[(int)
+            indMeas - 1]);
   ib = H_iy->size[0] * H_iy->size[1];
   H_iy->size[0] = 3;
   H_iy->size[1] = (nm1d2 + n) + 7;
@@ -1686,31 +1702,31 @@ void getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
     }
   }
 
-  if (rtIsNaN(6.0 + numPointsPerAnchor)) {
+  if (rtIsNaN(6.0 + b_VIOParameters.num_points_per_anchor)) {
     n = 0;
     anew = rtNaN;
-    apnd = 6.0 + numPointsPerAnchor;
-  } else if (6.0 + numPointsPerAnchor < 1.0) {
+    apnd = 6.0 + b_VIOParameters.num_points_per_anchor;
+  } else if (6.0 + b_VIOParameters.num_points_per_anchor < 1.0) {
     n = -1;
     anew = 1.0;
-    apnd = 6.0 + numPointsPerAnchor;
-  } else if (rtIsInf(6.0 + numPointsPerAnchor)) {
+    apnd = 6.0 + b_VIOParameters.num_points_per_anchor;
+  } else if (rtIsInf(6.0 + b_VIOParameters.num_points_per_anchor)) {
     n = 0;
     anew = rtNaN;
-    apnd = 6.0 + numPointsPerAnchor;
+    apnd = 6.0 + b_VIOParameters.num_points_per_anchor;
   } else {
     anew = 1.0;
-    ndbl = floor(((6.0 + numPointsPerAnchor) - 1.0) + 0.5);
+    ndbl = floor(((6.0 + b_VIOParameters.num_points_per_anchor) - 1.0) + 0.5);
     apnd = 1.0 + ndbl;
-    cdiff = (1.0 + ndbl) - (6.0 + numPointsPerAnchor);
-    absb = fabs(6.0 + numPointsPerAnchor);
+    cdiff = (1.0 + ndbl) - (6.0 + b_VIOParameters.num_points_per_anchor);
+    absb = fabs(6.0 + b_VIOParameters.num_points_per_anchor);
     if ((1.0 >= absb) || rtIsNaN(absb)) {
       absb = 1.0;
     }
 
     if (fabs(cdiff) < 4.4408920985006262E-16 * absb) {
       ndbl++;
-      apnd = 6.0 + numPointsPerAnchor;
+      apnd = 6.0 + b_VIOParameters.num_points_per_anchor;
     } else if (cdiff > 0.0) {
       apnd = 1.0 + (ndbl - 1.0);
     } else {
@@ -1748,7 +1764,8 @@ void getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
     }
   }
 
-  anew = (anchorIdx->data[(int)indMeas - 1] - 1.0) * (6.0 + numPointsPerAnchor);
+  anew = (anchorIdx->data[(int)indMeas - 1] - 1.0) * (6.0 +
+    b_VIOParameters.num_points_per_anchor);
   ib = r0->size[0];
   r0->size[0] = b_y->size[1];
   emxEnsureCapacity((emxArray__common *)r0, ib, (int)sizeof(int));
@@ -1914,7 +1931,7 @@ void getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
     }
   }
 
-  if (useOrientation) {
+  if (b_VIOParameters.use_orientation) {
     //  if ~all(size(q) == [4, 1])
     //      error('q does not have the size of a quaternion')
     //  end
@@ -1967,9 +1984,11 @@ void getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
 
     ib = H_g->size[0] * H_g->size[1];
     H_g->size[0] = 3;
-    H_g->size[1] = (int)(errorStateSize + numAnchors * (6.0 + numPointsPerAnchor));
+    H_g->size[1] = (int)(errorStateSize + b_VIOParameters.num_anchors * (6.0 +
+      b_VIOParameters.num_points_per_anchor));
     emxEnsureCapacity((emxArray__common *)H_g, ib, (int)sizeof(double));
-    n = 3 * (int)(errorStateSize + numAnchors * (6.0 + numPointsPerAnchor));
+    n = 3 * (int)(errorStateSize + b_VIOParameters.num_anchors * (6.0 +
+      b_VIOParameters.num_points_per_anchor));
     for (ib = 0; ib < n; ib++) {
       H_g->data[ib] = 0.0;
     }
@@ -1992,12 +2011,14 @@ void getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
     }
   }
 
-  if (useAirPressure) {
+  if (b_VIOParameters.use_pressure) {
     ib = H_p->size[0] * H_p->size[1];
     H_p->size[0] = 1;
-    H_p->size[1] = (int)(errorStateSize + numAnchors * (6.0 + numPointsPerAnchor));
+    H_p->size[1] = (int)(errorStateSize + b_VIOParameters.num_anchors * (6.0 +
+      b_VIOParameters.num_points_per_anchor));
     emxEnsureCapacity((emxArray__common *)H_p, ib, (int)sizeof(double));
-    n = (int)(errorStateSize + numAnchors * (6.0 + numPointsPerAnchor));
+    n = (int)(errorStateSize + b_VIOParameters.num_anchors * (6.0 +
+               b_VIOParameters.num_points_per_anchor));
     for (ib = 0; ib < n; ib++) {
       H_p->data[ib] = 0.0;
     }
@@ -2011,8 +2032,8 @@ void getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
       145366.45 - height_offset_pressure;
   }
 
-  if (useOrientation) {
-    if (useAirPressure) {
+  if (b_VIOParameters.use_orientation) {
+    if (b_VIOParameters.use_pressure) {
       r_size[0] = (ar + ia) + 2;
       for (ib = 0; ib < 2; ib++) {
         r_data[ib] = z[ib];
@@ -2171,7 +2192,7 @@ void getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
         }
       }
     }
-  } else if (useAirPressure) {
+  } else if (b_VIOParameters.use_pressure) {
     r_size[0] = 2 + ia;
     for (ib = 0; ib < 2; ib++) {
       r_data[ib] = z[ib];

@@ -24,8 +24,7 @@
 
 #include "SLAM.h"
 #include "SLAM_includes.h"
-#include "stereoParameters.h"
-#include "NoiseParameters.h"
+#include "InterfaceStructs.h"
 
 #include "onboard_localization/ControllerOut.h"
 
@@ -62,6 +61,8 @@ private:
 
 	stereoParameters cameraParams;
 	NoiseParameters noiseParams;
+	ControllerGains controllerGains;
+	VIOParameters vioParams;
 	ros::NodeHandle nh_;
 
 	ros::Subscriber combined_sub;
@@ -87,12 +88,6 @@ private:
 	ros::Time prev_time_;
 	std::vector<int> update_vec_;
 
-	std::vector<double> process_noise_; // qv,qw,qwo,qao
-	std::vector<double> im_noise_; // x, y noise
-	std::vector<double> controller_gains; // position p, d; yaw p gains
-
-	unsigned int num_points_per_anchor_;
-	unsigned int num_anchors_;
 	unsigned int num_points_;
 	bool show_tracker_images_;
 	emxArray_real_T *h_u_apo_;
@@ -122,7 +117,6 @@ private:
 	ros::Publisher vis_pub_;
 
 	sensor_msgs::Imu mavros_imu_data_;
-	boost::circular_buffer<sensor_msgs::Imu> mavros_imu_data_buffer_;
 	sensor_msgs::MagneticField mavros_mag_data_;
 	sensor_msgs::FluidPressure mavros_pressure_data_;
 	duo3d_ros::Duo3d last_duo_msg_;

@@ -1,15 +1,53 @@
 /*
- * cameraParameters.h
+ * InterfaceStructs.h
  *
- *  Created on: Aug 17, 2015
+ *  Created on: Aug 25, 2015
  *      Author: nicolas
  */
 
-#ifndef VIO_ROS_CAMERAPARAMETERS_H_
-#define VIO_ROS_CAMERAPARAMETERS_H_
+#ifndef VIO_ROS_SRC_INTERFACESTRUCTS_H_
+#define VIO_ROS_SRC_INTERFACESTRUCTS_H_
 
 #include <yaml-cpp/yaml.h>
 
+
+// VIOParameters
+// =========================================================
+struct VIOParameters
+{
+	int num_points_per_anchor;
+	int num_anchors;
+	int max_ekf_iterations;
+	bool use_orientation;
+	bool use_pressure;
+	bool use_magnetometer;
+	bool use_controller_to_predict;
+};
+
+// ControllerGains
+// =========================================================
+struct ControllerGains
+{
+	double Kp_xy;
+	double Kd_xy;
+	double Kp_z;
+	double Kd_z;
+	double Kp_yaw;
+};
+
+// NoiseParamters
+// =========================================================
+struct NoiseParameters
+{
+	double process_noise[4];
+	double image_noise[2];
+	double orientation_noise;
+	double pressure_noise;
+	double sigmaInit;
+};
+
+// cameraParameters
+// =========================================================
 struct cameraParameters //  parameters of one camera
 {
 	double RadialDistortion[3];
@@ -109,4 +147,7 @@ inline stereoParameters parseYaml(const YAML::Node& node)
 	return v;
 }
 
-#endif /* VIO_ROS_CAMERAPARAMETERS_H_ */
+
+
+
+#endif /* VIO_ROS_SRC_INTERFACESTRUCTS_H_ */
