@@ -147,12 +147,22 @@ static void initMorePoints(
 
 	if ( descriptorsL.empty() )
 	{
-		printf("WARNING: Left descriptor empty in %s:%d",__FILE__,__LINE__);
+		printf("WARNING: Left descriptor empty\n");
+		for (int i = 0; i < updateVect.size(); i++)
+		{
+			if (updateVect[i] == 2)
+				updateVect[i] = 0;
+		}
 		return;
 	}
 	if ( descriptorsR.empty() )
 	{
-		printf("WARNING: Right descriptor empty in %s:%d",__FILE__,__LINE__);
+		printf("WARNING: Right descriptor empty\n");
+		for (int i = 0; i < updateVect.size(); i++)
+		{
+			if (updateVect[i] == 2)
+				updateVect[i] = 0;
+		}
 		return;
 	}
 
