@@ -169,10 +169,11 @@ void Localization::duo3dCb(const duo3d_ros::Duo3d& msg)
 	prev_time_ = msg.header.stamp;
 
 	bool debug_publish = (ros::Time::now() - last_debug_publish).toSec() > debug_publish_delay;
+	bool debug_display_tracks = (ros::Time::now() - last_debug_publish).toSec() > debug_publish_delay*10;
 	if (debug_publish)
 		last_debug_publish = ros::Time::now();
 
-	update(dt, cv_left_image->image, cv_right_image->image, msg.imu, mag, pose, velocity, debug_publish);
+	update(dt, cv_left_image->image, cv_right_image->image, msg.imu, mag, pose, velocity, debug_display_tracks);
 
 	pose_stamped.pose = pose;
 	pose_pub_.publish(pose_stamped);
