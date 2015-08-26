@@ -169,7 +169,15 @@ void Localization::duo3dCb(const duo3d_ros::Duo3d& msg)
 	prev_time_ = msg.header.stamp;
 
 	bool debug_publish = (ros::Time::now() - last_debug_publish).toSec() > debug_publish_delay;
-	bool debug_display_tracks = (ros::Time::now() - last_debug_publish).toSec() > debug_publish_delay*10;
+	bool debug_display_tracks;
+	if (display_tracks_cnt > 10)
+	{
+		debug_display_tracks = true;
+		display_tracks_cnt = 0;
+	} else {
+		display_tracks_cnt;
+	}
+
 	if (debug_publish)
 		last_debug_publish = ros::Time::now();
 

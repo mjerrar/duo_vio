@@ -57,6 +57,7 @@ private:
 	bool SLAM_reset_flag;
 	bool received_IMU_data;
 	bool publish_on_debug_topics;
+	int display_tracks_cnt;
 	ros::Time last_debug_publish;
 
 	stereoParameters cameraParams;
