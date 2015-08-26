@@ -5,7 +5,7 @@
 // File: SLAM.cpp
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 25-Aug-2015 18:19:48
+// C/C++ source code generated on  : 26-Aug-2015 16:12:33
 //
 
 // Include Files
@@ -315,7 +315,8 @@ void SLAM(double updateVect[16], const double z_all_l[32], const double z_all_r
                b_cameraParameters->CameraParameters2.PrincipalPoint,
                b_cameraParameters->r_lr, b_cameraParameters->R_lr,
                b_cameraParameters->R_rl, updateVect, z_all_l, z_all_r,
-               noiseParameters->image_noise, noiseParameters->orientation_noise,
+               noiseParameters->image_noise, noiseParameters->sigmaInit,
+               noiseParameters->orientation_noise,
                noiseParameters->pressure_noise, IMU_measurements, (1.0 -
                 rt_powd_snf(IMU_measurements[9] / 101325.0, 0.190284)) *
                145366.45, *b_VIOParameters, h_u_apo_out, map_out);
@@ -418,7 +419,8 @@ void SLAM(double updateVect[16], const double z_all_l[32], const double z_all_r
                b_cameraParameters->CameraParameters2.PrincipalPoint,
                b_cameraParameters->r_lr, b_cameraParameters->R_lr,
                b_cameraParameters->R_rl, updateVect, z_all_l, z_all_r,
-               noiseParameters->image_noise, noiseParameters->orientation_noise,
+               noiseParameters->image_noise, noiseParameters->sigmaInit,
+               noiseParameters->orientation_noise,
                noiseParameters->pressure_noise, IMU_measurements, 0.0,
                *b_VIOParameters, h_u_apo_out, map_out);
     k = xt_out->size[0];

@@ -5,7 +5,7 @@
 // File: quatmultJ.h
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 25-Aug-2015 18:19:48
+// C/C++ source code generated on  : 26-Aug-2015 16:12:33
 //
 #ifndef __QUATMULTJ_H__
 #define __QUATMULTJ_H__
