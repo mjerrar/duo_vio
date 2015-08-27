@@ -191,10 +191,10 @@ void Localization::duo3dCb(const duo3d_ros::Duo3d& msg)
 	pose_stamped.pose = pose;
 	pose_pub_.publish(pose_stamped);
 
-	if(use_vicon_for_control_)
-	{
-	  velocity_pub_.publish(velocity);
-	}
+//	if(use_vicon_for_control_)
+//	{
+	velocity_pub_.publish(velocity);
+//	}
 
 
 	// Generate and publish pose as transform
