@@ -127,11 +127,11 @@ Localization::~Localization()
 
 void Localization::duo3dCb(const duo3d_ros::Duo3d& msg)
 {
-//	if (!received_IMU_data)
-//	{
-//		ROS_INFO("No IMU data yet!");
-//		return;
-//	}
+	if (!received_IMU_data)
+	{
+		ROS_INFO("No IMU data yet!");
+		return;
+	}
 
 	last_duo_msg_ = msg;
 
