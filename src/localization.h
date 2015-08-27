@@ -124,6 +124,8 @@ private:
 	std::vector<double> pos_reference;
 	tf::Quaternion camera2world; // the rotation that transforms a vector in the camera frame to one in the world frame
 
+	bool use_vicon_for_control_;
+
 	void visMarker(void);
 	void dynamicReconfigureCb(vio_ros::vio_rosConfig &config, uint32_t level);
 
