@@ -5,7 +5,7 @@
 // File: SLAM_initialize.cpp
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 27-Aug-2015 19:38:13
+// C/C++ source code generated on  : 27-Aug-2015 20:28:48
 //
 
 // Include Files
@@ -18,6 +18,7 @@
 #include <stdio.h>
 
 // Named Constants
+#define b_fixFeatures                  (false)
 #define b_numStates                    (12.0)
 #define b_numTrackFeatures             (16.0)
 #define b_numStatesxt                  (13.0)
@@ -39,6 +40,7 @@ void SLAM_initialize()
 
   rt_InitInfAndNaN(8U);
   minFeatureThreshold = b_minFeatureThreshold;
+  fixFeatures = b_fixFeatures;
   numStatesxt = b_numStatesxt;
   numTrackFeatures = b_numTrackFeatures;
   numStates = b_numStates;

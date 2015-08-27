@@ -5,7 +5,7 @@
 // File: SLAM_updIT.cpp
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 27-Aug-2015 19:38:13
+// C/C++ source code generated on  : 27-Aug-2015 20:28:48
 //
 
 // Include Files
@@ -391,7 +391,7 @@ void SLAM_updIT(emxArray_real_T *P_apr, emxArray_real_T *b_xt, const double
 
   // % check if the fixed feature is still valid
   b_emxInit_real_T(&depthUncertainties, 1);
-  if (fixedFeatureIdx != 0.0) {
+  if (fixFeatures && (fixedFeatureIdx != 0.0)) {
     //  only do if features have already been initialized
     for (i8 = 0; i8 < 16; i8++) {
       b_x[i8] = (anchorFeatures->data[i8 + anchorFeatures->size[0] * ((int)
@@ -1543,142 +1543,146 @@ void SLAM_updIT(emxArray_real_T *P_apr, emxArray_real_T *b_xt, const double
           depthUncertainties->data[ixstart];
       }
 
-      //  fix the position of the oldest anchor
-      for (i8 = 0; i8 < 4; i8++) {
-        anchorAges[i8]++;
-      }
-
-      anchorAges[(int)initializeNewAnchor - 1] = 0.0;
-
-      //  set the position uncertainty of the oldest anchor to 0
-      ixstart = 1;
-      mtmp = anchorAges[0];
-      nx = 1;
-      if (rtIsNaN(anchorAges[0])) {
-        idx = 2;
-        exitg4 = false;
-        while ((!exitg4) && (idx < 5)) {
-          ixstart = idx;
-          if (!rtIsNaN(anchorAges[idx - 1])) {
-            mtmp = anchorAges[idx - 1];
-            nx = idx;
-            exitg4 = true;
-          } else {
-            idx++;
-          }
-        }
-      }
-
-      if (ixstart < 4) {
-        while (ixstart + 1 < 5) {
-          if (anchorAges[ixstart] > mtmp) {
-            mtmp = anchorAges[ixstart];
-            nx = ixstart + 1;
-          }
-
-          ixstart++;
-        }
-      }
-
-      if (oldestAnchorIdx != nx) {
-        oldestAnchorIdx = nx;
-        loop_ub = P_apr->size[1];
-        d6 = numStates + (oldestAnchorIdx - 1.0) * (6.0 +
-          b_VIOParameters.num_points_per_anchor);
-        for (i8 = 0; i8 < loop_ub; i8++) {
-          for (i9 = 0; i9 < 3; i9++) {
-            P_apr->data[((int)(d6 + (1.0 + (double)i9)) + P_apr->size[0] * i8) -
-              1] = 0.0;
-          }
+      if (fixFeatures) {
+        //  fix the position of the oldest anchor
+        for (i8 = 0; i8 < 4; i8++) {
+          anchorAges[i8]++;
         }
 
-        loop_ub = P_apr->size[0];
-        d6 = numStates + (oldestAnchorIdx - 1.0) * (6.0 +
-          b_VIOParameters.num_points_per_anchor);
-        for (i8 = 0; i8 < 3; i8++) {
-          for (i9 = 0; i9 < loop_ub; i9++) {
-            P_apr->data[i9 + P_apr->size[0] * ((int)(d6 + (1.0 + (double)i8)) -
-              1)] = 0.0;
-          }
-        }
+        anchorAges[(int)initializeNewAnchor - 1] = 0.0;
 
-        //  set the depth uncertainty of the most-converged feature of the
-        //  oldest anchor to 0
-        i8 = depthUncertainties->size[0];
-        depthUncertainties->size[0] = (int)b_VIOParameters.num_points_per_anchor;
-        emxEnsureCapacity((emxArray__common *)depthUncertainties, i8, (int)
-                          sizeof(double));
-        loop_ub = (int)b_VIOParameters.num_points_per_anchor;
-        for (i8 = 0; i8 < loop_ub; i8++) {
-          depthUncertainties->data[i8] = 0.0;
-        }
-
-        for (ixstart = 0; ixstart < (int)numPointsPerAnchor; ixstart++) {
-          uncertainty = P_apr->data[((int)(((numStates + (oldestAnchorIdx - 1.0)
-            * (6.0 + numPointsPerAnchor)) + 6.0) + (1.0 + (double)ixstart)) +
-            P_apr->size[0] * ((int)(((numStates + (oldestAnchorIdx - 1.0) * (6.0
-            + numPointsPerAnchor)) + 6.0) + (1.0 + (double)ixstart)) - 1)) - 1];
-          if (P_apr->data[((int)(((numStates + (oldestAnchorIdx - 1.0) *
-                  numStatesPerAnchor) + 6.0) + (1.0 + (double)ixstart)) +
-                           P_apr->size[0] * ((int)(((numStates +
-                   (oldestAnchorIdx - 1.0) * numStatesPerAnchor) + 6.0) + (1.0 +
-                  (double)ixstart)) - 1)) - 1] < 2.2204460492503131E-16) {
-            uncertainty = 100.0;
-
-            //  dont use features that we were not able to initialize
-          }
-
-          depthUncertainties->data[ixstart] = uncertainty;
-        }
-
+        //  set the position uncertainty of the oldest anchor to 0
         ixstart = 1;
-        n = depthUncertainties->size[0];
-        mtmp = depthUncertainties->data[0];
+        mtmp = anchorAges[0];
         nx = 1;
-        if (depthUncertainties->size[0] > 1) {
-          if (rtIsNaN(depthUncertainties->data[0])) {
-            idx = 2;
-            exitg3 = false;
-            while ((!exitg3) && (idx <= n)) {
-              ixstart = idx;
-              if (!rtIsNaN(depthUncertainties->data[idx - 1])) {
-                mtmp = depthUncertainties->data[idx - 1];
-                nx = idx;
-                exitg3 = true;
-              } else {
-                idx++;
-              }
-            }
-          }
-
-          if (ixstart < depthUncertainties->size[0]) {
-            while (ixstart + 1 <= n) {
-              if (depthUncertainties->data[ixstart] < mtmp) {
-                mtmp = depthUncertainties->data[ixstart];
-                nx = ixstart + 1;
-              }
-
-              ixstart++;
+        if (rtIsNaN(anchorAges[0])) {
+          idx = 2;
+          exitg4 = false;
+          while ((!exitg4) && (idx < 5)) {
+            ixstart = idx;
+            if (!rtIsNaN(anchorAges[idx - 1])) {
+              mtmp = anchorAges[idx - 1];
+              nx = idx;
+              exitg4 = true;
+            } else {
+              idx++;
             }
           }
         }
 
-        fixedFeatureIdx = nx;
-        loop_ub = P_apr->size[1];
-        i8 = (int)(((numStates + (oldestAnchorIdx - 1.0) * (6.0 +
-          b_VIOParameters.num_points_per_anchor)) + 6.0) + fixedFeatureIdx);
-        for (i9 = 0; i9 < loop_ub; i9++) {
-          P_apr->data[(i8 + P_apr->size[0] * i9) - 1] = 0.0;
+        if (ixstart < 4) {
+          while (ixstart + 1 < 5) {
+            if (anchorAges[ixstart] > mtmp) {
+              mtmp = anchorAges[ixstart];
+              nx = ixstart + 1;
+            }
+
+            ixstart++;
+          }
         }
 
-        loop_ub = P_apr->size[0];
-        i8 = (int)(((numStates + (oldestAnchorIdx - 1.0) * (6.0 +
-          b_VIOParameters.num_points_per_anchor)) + 6.0) + fixedFeatureIdx);
-        for (i9 = 0; i9 < loop_ub; i9++) {
-          P_apr->data[i9 + P_apr->size[0] * (i8 - 1)] = 0.0;
-        }
+        if (oldestAnchorIdx != nx) {
+          oldestAnchorIdx = nx;
+          loop_ub = P_apr->size[1];
+          d6 = numStates + (oldestAnchorIdx - 1.0) * (6.0 +
+            b_VIOParameters.num_points_per_anchor);
+          for (i8 = 0; i8 < loop_ub; i8++) {
+            for (i9 = 0; i9 < 3; i9++) {
+              P_apr->data[((int)(d6 + (1.0 + (double)i9)) + P_apr->size[0] * i8)
+                - 1] = 0.0;
+            }
+          }
 
-        //              fprintf('Fixing feature %i of anchor %i\n', fixedFeatureIdx, oldestAnchorIdx); 
+          loop_ub = P_apr->size[0];
+          d6 = numStates + (oldestAnchorIdx - 1.0) * (6.0 +
+            b_VIOParameters.num_points_per_anchor);
+          for (i8 = 0; i8 < 3; i8++) {
+            for (i9 = 0; i9 < loop_ub; i9++) {
+              P_apr->data[i9 + P_apr->size[0] * ((int)(d6 + (1.0 + (double)i8))
+                - 1)] = 0.0;
+            }
+          }
+
+          //  set the depth uncertainty of the most-converged feature of the
+          //  oldest anchor to 0
+          i8 = depthUncertainties->size[0];
+          depthUncertainties->size[0] = (int)
+            b_VIOParameters.num_points_per_anchor;
+          emxEnsureCapacity((emxArray__common *)depthUncertainties, i8, (int)
+                            sizeof(double));
+          loop_ub = (int)b_VIOParameters.num_points_per_anchor;
+          for (i8 = 0; i8 < loop_ub; i8++) {
+            depthUncertainties->data[i8] = 0.0;
+          }
+
+          for (ixstart = 0; ixstart < (int)numPointsPerAnchor; ixstart++) {
+            uncertainty = P_apr->data[((int)(((numStates + (oldestAnchorIdx -
+              1.0) * (6.0 + numPointsPerAnchor)) + 6.0) + (1.0 + (double)ixstart))
+              + P_apr->size[0] * ((int)(((numStates + (oldestAnchorIdx - 1.0) *
+              (6.0 + numPointsPerAnchor)) + 6.0) + (1.0 + (double)ixstart)) - 1))
+              - 1];
+            if (P_apr->data[((int)(((numStates + (oldestAnchorIdx - 1.0) *
+                    numStatesPerAnchor) + 6.0) + (1.0 + (double)ixstart)) +
+                             P_apr->size[0] * ((int)(((numStates +
+                     (oldestAnchorIdx - 1.0) * numStatesPerAnchor) + 6.0) + (1.0
+                    + (double)ixstart)) - 1)) - 1] < 2.2204460492503131E-16) {
+              uncertainty = 100.0;
+
+              //  dont use features that we were not able to initialize
+            }
+
+            depthUncertainties->data[ixstart] = uncertainty;
+          }
+
+          ixstart = 1;
+          n = depthUncertainties->size[0];
+          mtmp = depthUncertainties->data[0];
+          nx = 1;
+          if (depthUncertainties->size[0] > 1) {
+            if (rtIsNaN(depthUncertainties->data[0])) {
+              idx = 2;
+              exitg3 = false;
+              while ((!exitg3) && (idx <= n)) {
+                ixstart = idx;
+                if (!rtIsNaN(depthUncertainties->data[idx - 1])) {
+                  mtmp = depthUncertainties->data[idx - 1];
+                  nx = idx;
+                  exitg3 = true;
+                } else {
+                  idx++;
+                }
+              }
+            }
+
+            if (ixstart < depthUncertainties->size[0]) {
+              while (ixstart + 1 <= n) {
+                if (depthUncertainties->data[ixstart] < mtmp) {
+                  mtmp = depthUncertainties->data[ixstart];
+                  nx = ixstart + 1;
+                }
+
+                ixstart++;
+              }
+            }
+          }
+
+          fixedFeatureIdx = nx;
+          loop_ub = P_apr->size[1];
+          i8 = (int)(((numStates + (oldestAnchorIdx - 1.0) * (6.0 +
+            b_VIOParameters.num_points_per_anchor)) + 6.0) + fixedFeatureIdx);
+          for (i9 = 0; i9 < loop_ub; i9++) {
+            P_apr->data[(i8 + P_apr->size[0] * i9) - 1] = 0.0;
+          }
+
+          loop_ub = P_apr->size[0];
+          i8 = (int)(((numStates + (oldestAnchorIdx - 1.0) * (6.0 +
+            b_VIOParameters.num_points_per_anchor)) + 6.0) + fixedFeatureIdx);
+          for (i9 = 0; i9 < loop_ub; i9++) {
+            P_apr->data[i9 + P_apr->size[0] * (i8 - 1)] = 0.0;
+          }
+
+          //              fprintf('Fixing feature %i of anchor %i\n', fixedFeatureIdx, oldestAnchorIdx); 
+        }
       }
     } else {
       l_fprintf();

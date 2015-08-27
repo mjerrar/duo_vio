@@ -5,7 +5,7 @@
 // File: SLAM_data.h
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 27-Aug-2015 19:38:13
+// C/C++ source code generated on  : 27-Aug-2015 20:28:48
 //
 #ifndef __SLAM_DATA_H__
 #define __SLAM_DATA_H__
@@ -24,6 +24,7 @@
 extern double R_bc[9];
 extern double numStates;
 extern double numStatesxt;
+extern boolean_T fixFeatures;
 extern double minFeatureThreshold;
 extern unsigned int state[625];
 

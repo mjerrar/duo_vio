@@ -5,7 +5,7 @@
 // File: predictMeasurement_stereo.h
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 27-Aug-2015 19:38:13
+// C/C++ source code generated on  : 27-Aug-2015 20:28:48
 //
 #ifndef __PREDICTMEASUREMENT_STEREO_H__
 #define __PREDICTMEASUREMENT_STEREO_H__
