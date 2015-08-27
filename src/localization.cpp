@@ -70,6 +70,8 @@ Localization::Localization()
 	nh_.param<double>("Kd_z", controllerGains.Kd_z, 1);
 	nh_.param<double>("Kp_yaw", controllerGains.Kp_yaw, 1);
 
+	nh_.param<bool>("use_vicon_for_control", use_vicon_for_control_, false);
+
 
 	std::string camera_name;
 	nh_.param<std::string>("camera_name", camera_name, "NoName");
@@ -188,7 +190,11 @@ void Localization::duo3dCb(const duo3d_ros::Duo3d& msg)
 
 	pose_stamped.pose = pose;
 	pose_pub_.publish(pose_stamped);
-	velocity_pub_.publish(velocity);
+
+	if(use_vicon_for_control_)
+	{
+	  velocity_pub_.publish(velocity);
+	}
 
 
 	// Generate and publish pose as transform
@@ -369,13 +375,16 @@ void Localization::update(double dt, const cv::Mat& left_image, const cv::Mat& r
 			map,
 			u_out);
 
-	onboard_localization::ControllerOut controller_out_msg;
-	controller_out_msg.x = u_out[0];
-	controller_out_msg.y = u_out[1];
-	controller_out_msg.z = u_out[2];
-	controller_out_msg.yaw = u_out[3];
+	if(!use_vicon_for_control_)
+	{
+	  onboard_localization::ControllerOut controller_out_msg;
+	  controller_out_msg.x = u_out[0];
+	  controller_out_msg.y = u_out[1];
+	  controller_out_msg.z = u_out[2];
+	  controller_out_msg.yaw = u_out[3];
 
-	controller_pub.publish(controller_out_msg);
+	  controller_pub.publish(controller_out_msg);
+	}
 
 	SLAM_reset_flag = false;
 
@@ -570,7 +579,11 @@ void Localization::updateDronePose(bool debug_publish)
 	tf::Quaternion q_d2c;
 	q_d2c.setEuler(-M_PI/2, -M_PI/2, 0.0);
 	camera2drone.setRotation(q_d2c);
-	tf_broadcaster_.sendTransform(tf::StampedTransform(camera2drone, ros::Time::now(), "camera", "drone_base"));
+
+	if(use_vicon_for_control_)
+	{
+	  tf_broadcaster_.sendTransform(tf::StampedTransform(camera2drone, ros::Time::now(), "camera", "drone_base"));
+	}
 
 	if (debug_publish)
 	{
