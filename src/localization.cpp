@@ -125,11 +125,11 @@ Localization::~Localization()
 
 void Localization::duo3dCb(const duo3d_ros::Duo3d& msg)
 {
-	if (!received_IMU_data)
-	{
-		ROS_INFO("No IMU data yet!");
-		return;
-	}
+//	if (!received_IMU_data)
+//	{
+//		ROS_INFO("No IMU data yet!");
+//		return;
+//	}
 
 	last_duo_msg_ = msg;
 
@@ -169,7 +169,7 @@ void Localization::duo3dCb(const duo3d_ros::Duo3d& msg)
 	prev_time_ = msg.header.stamp;
 
 	bool debug_publish = (ros::Time::now() - last_debug_publish).toSec() > debug_publish_delay;
-	bool debug_display_tracks;
+	bool debug_display_tracks = false;
 
 	if (debug_publish)
 	{
@@ -329,8 +329,8 @@ void Localization::update(double dt, const cv::Mat& left_image, const cv::Mat& r
 	// SLAM
 	//*********************************************************************
 
-	std::vector<double> IMU_data(23,0.0);
-	getIMUData(imu, mag, IMU_data);
+	VIOMeasurements meas;
+	getIMUData(imu, mag, meas);
 
 	if (publish_on_debug_topics)
 	{
@@ -356,7 +356,7 @@ void Localization::update(double dt, const cv::Mat& left_image, const cv::Mat& r
 			&z_all_l[0],
 			&z_all_r[0],
 			dt,
-			&IMU_data[0],
+			&meas,
 			&pos_reference[0],
 			&vioParams,
 			&cameraParams,
@@ -420,45 +420,77 @@ void Localization::update(double dt, const cv::Mat& left_image, const cv::Mat& r
 	emxDestroyArray_real_T(map);
 }
 
-void Localization::getIMUData(const sensor_msgs::Imu& imu, const sensor_msgs::MagneticField& mag, std::vector<double>& inertial_vec)
+void Localization::getIMUData(const sensor_msgs::Imu& imu, const sensor_msgs::MagneticField& mag, VIOMeasurements& meas)
 {
-	inertial_vec.at(0) = +imu.angular_velocity.x;
-	inertial_vec.at(1) = -imu.angular_velocity.y;
-	inertial_vec.at(2) = +imu.angular_velocity.z;
+	meas.acc_duo[0] = +imu.linear_acceleration.x*9.81;
+	meas.acc_duo[1] = +imu.linear_acceleration.y*9.81;
+	meas.acc_duo[2] = +imu.linear_acceleration.z*9.81;
 
-	inertial_vec.at(3) = +imu.linear_acceleration.x*9.81;
-	inertial_vec.at(4) = -imu.linear_acceleration.y*9.81;
-	inertial_vec.at(5) = -imu.linear_acceleration.z*9.81;
+	meas.gyr_duo[0] = +imu.angular_velocity.x;
+	meas.gyr_duo[1] = +imu.angular_velocity.y;
+	meas.gyr_duo[2] = +imu.angular_velocity.z;
 
-	inertial_vec.at(6) = +mag.magnetic_field.x;
-	inertial_vec.at(7) = +mag.magnetic_field.y;
-	inertial_vec.at(8) = +mag.magnetic_field.z;
+	meas.mag_duo[0] = +mag.magnetic_field.x;
+	meas.mag_duo[1] = +mag.magnetic_field.y;
+	meas.mag_duo[2] = +mag.magnetic_field.z;
 
-	inertial_vec.at(9) = mavros_pressure_data_.fluid_pressure;
+	meas.acc_fmu[0] = mavros_imu_data_.linear_acceleration.x;
+	meas.acc_fmu[1] = mavros_imu_data_.linear_acceleration.y;
+	meas.acc_fmu[2] = mavros_imu_data_.linear_acceleration.z;
 
-	inertial_vec.at(10) = mavros_mag_data_.magnetic_field.x;
-	inertial_vec.at(11) = mavros_mag_data_.magnetic_field.y;
-	inertial_vec.at(12) = mavros_mag_data_.magnetic_field.z;
+	meas.gyr_fmu[0] = mavros_imu_data_.angular_velocity.x;
+	meas.gyr_fmu[1] = mavros_imu_data_.angular_velocity.y;
+	meas.gyr_fmu[2] = mavros_imu_data_.angular_velocity.z;
 
-	inertial_vec.at(13) = mavros_imu_data_.angular_velocity.x;
-	inertial_vec.at(14) = mavros_imu_data_.angular_velocity.y;
-	inertial_vec.at(15) = mavros_imu_data_.angular_velocity.z;
+	meas.bar_fmu = mavros_pressure_data_.fluid_pressure;
 
-	inertial_vec.at(16) = mavros_imu_data_.linear_acceleration.x;
-	inertial_vec.at(17) = mavros_imu_data_.linear_acceleration.y;
-	inertial_vec.at(18) = mavros_imu_data_.linear_acceleration.z;
+	meas.mag_fmu[0] = mavros_mag_data_.magnetic_field.x;
+	meas.mag_fmu[1] = mavros_mag_data_.magnetic_field.y;
+	meas.mag_fmu[2] = mavros_mag_data_.magnetic_field.z;
 
-	inertial_vec.at(19) = mavros_imu_data_.orientation.x;
-	inertial_vec.at(20) = mavros_imu_data_.orientation.y;
-	inertial_vec.at(21) = mavros_imu_data_.orientation.z;
-	inertial_vec.at(22) = mavros_imu_data_.orientation.w;
+	meas.att_fmu[0] = mavros_imu_data_.orientation.x;
+	meas.att_fmu[1] = mavros_imu_data_.orientation.y;
+	meas.att_fmu[2] = mavros_imu_data_.orientation.z;
+	meas.att_fmu[3] = mavros_imu_data_.orientation.w;
+
+	// TODO: Write external position measurement
 
 	if (publish_on_debug_topics)
 	{
 		std_msgs::Float32MultiArray array;
 		array.data.clear();
-		for (int i = 0; i < inertial_vec.size(); i++)
-			array.data.push_back(inertial_vec[i]);
+
+		array.data.push_back(+imu.angular_velocity.x);
+		array.data.push_back(-imu.angular_velocity.y);
+		array.data.push_back(+imu.angular_velocity.z);
+
+		array.data.push_back(+imu.linear_acceleration.x*9.81);
+		array.data.push_back(-imu.linear_acceleration.y*9.81);
+		array.data.push_back(-imu.linear_acceleration.z*9.81);
+
+		array.data.push_back(+mag.magnetic_field.x);
+		array.data.push_back(+mag.magnetic_field.y);
+		array.data.push_back(+mag.magnetic_field.z);
+
+		array.data.push_back(mavros_pressure_data_.fluid_pressure);
+
+		array.data.push_back(mavros_mag_data_.magnetic_field.x);
+		array.data.push_back(mavros_mag_data_.magnetic_field.y);
+		array.data.push_back(mavros_mag_data_.magnetic_field.z);
+
+		array.data.push_back(mavros_imu_data_.angular_velocity.x);
+		array.data.push_back(mavros_imu_data_.angular_velocity.y);
+		array.data.push_back(mavros_imu_data_.angular_velocity.z);
+
+		array.data.push_back(mavros_imu_data_.linear_acceleration.x);
+		array.data.push_back(mavros_imu_data_.linear_acceleration.y);
+		array.data.push_back(mavros_imu_data_.linear_acceleration.z);
+
+		array.data.push_back(mavros_imu_data_.orientation.x);
+		array.data.push_back(mavros_imu_data_.orientation.y);
+		array.data.push_back(mavros_imu_data_.orientation.z);
+		array.data.push_back(mavros_imu_data_.orientation.w);
+
 		debug_imu_pub_.publish(array);
 	}
 }

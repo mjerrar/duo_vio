@@ -5,7 +5,7 @@
 // File: initializePoint.cpp
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 26-Aug-2015 16:12:33
+// C/C++ source code generated on  : 27-Aug-2015 19:38:13
 //
 
 // Include Files
@@ -34,7 +34,7 @@ static double f_eml_xnrm2(int n, const double x[30], int ix0);
 static void b_eml_xgeqp3(double A[30], double tau[5], int jpvt[5])
 {
   double work[5];
-  int i19;
+  int i18;
   double vn1[5];
   double vn2[5];
   int k;
@@ -53,9 +53,9 @@ static void b_eml_xgeqp3(double A[30], double tau[5], int jpvt[5])
   int lastc;
   boolean_T exitg2;
   int32_T exitg1;
-  for (i19 = 0; i19 < 5; i19++) {
-    jpvt[i19] = 1 + i19;
-    work[i19] = 0.0;
+  for (i18 = 0; i18 < 5; i18++) {
+    jpvt[i18] = 1 + i18;
+    work[i18] = 0.0;
   }
 
   k = 1;
@@ -128,8 +128,8 @@ static void b_eml_xgeqp3(double A[30], double tau[5], int jpvt[5])
         itemp = 0;
         do {
           itemp++;
-          i19 = i_i - i;
-          for (k = i_i + 1; k + 1 <= i19 + 6; k++) {
+          i18 = i_i - i;
+          for (k = i_i + 1; k + 1 <= i18 + 6; k++) {
             A[k] *= 9.9792015476736E+291;
           }
 
@@ -144,8 +144,8 @@ static void b_eml_xgeqp3(double A[30], double tau[5], int jpvt[5])
 
         temp2 = (smax - absxk) / smax;
         absxk = 1.0 / (absxk - smax);
-        i19 = i_i - i;
-        for (k = i_i + 1; k + 1 <= i19 + 6; k++) {
+        i18 = i_i - i;
+        for (k = i_i + 1; k + 1 <= i18 + 6; k++) {
           A[k] *= absxk;
         }
 
@@ -157,8 +157,8 @@ static void b_eml_xgeqp3(double A[30], double tau[5], int jpvt[5])
       } else {
         temp2 = (smax - A[i_i]) / smax;
         absxk = 1.0 / (A[i_i] - smax);
-        i19 = i_i - i;
-        for (k = i_i + 1; k + 1 <= i19 + 6; k++) {
+        i18 = i_i - i;
+        for (k = i_i + 1; k + 1 <= i18 + 6; k++) {
           A[k] *= absxk;
         }
 
@@ -216,8 +216,8 @@ static void b_eml_xgeqp3(double A[30], double tau[5], int jpvt[5])
           }
 
           iy = 0;
-          i19 = i_ip1 + 6 * (lastc - 1);
-          for (itemp = i_ip1; itemp <= i19; itemp += 6) {
+          i18 = i_ip1 + 6 * (lastc - 1);
+          for (itemp = i_ip1; itemp <= i18; itemp += 6) {
             ix = i_i;
             smax = 0.0;
             pvt = (itemp + lastv) - 1;
@@ -239,8 +239,8 @@ static void b_eml_xgeqp3(double A[30], double tau[5], int jpvt[5])
             if (work[pvt] != 0.0) {
               smax = work[pvt] * -tau[i];
               ix = i_i;
-              i19 = lastv + itemp;
-              for (k = itemp; k + 1 <= i19; k++) {
+              i18 = lastv + itemp;
+              for (k = itemp; k + 1 <= i18; k++) {
                 A[k] += A[ix] * smax;
                 ix++;
               }
@@ -402,7 +402,7 @@ void initializePoint(const emxArray_real_T *b_xt, const double
   int i;
   double dv7[4];
   double rot[8];
-  static const signed char iv1[4] = { 0, 0, 0, 1 };
+  static const signed char iv3[4] = { 0, 0, 0, 1 };
 
   double zn_d_l[2];
   double zn_d_r[2];
@@ -461,7 +461,7 @@ void initializePoint(const emxArray_real_T *b_xt, const double
 
   QuatFromRotJ(b_cameraparams_R_lr, dv7);
   for (rankR = 0; rankR < 4; rankR++) {
-    rot[rankR] = iv1[rankR];
+    rot[rankR] = iv3[rankR];
     rot[4 + rankR] = dv7[rankR];
   }
 

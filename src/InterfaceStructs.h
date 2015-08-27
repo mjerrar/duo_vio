@@ -21,6 +21,7 @@ struct VIOParameters
 	bool use_orientation;
 	bool use_pressure;
 	bool use_magnetometer;
+	bool use_position;
 	bool use_controller_to_predict;
 };
 
@@ -43,12 +44,28 @@ struct NoiseParameters
 	double image_noise[2];
 	double orientation_noise;
 	double pressure_noise;
+	double position_noise;
 	double sigmaInit;
+};
+
+// VIOMeasurements
+// =========================================================
+struct VIOMeasurements
+{
+	double gyr_duo[3];
+	double acc_duo[3];
+	double mag_duo[3];
+	double bar_fmu;
+	double mag_fmu[3];
+	double gyr_fmu[3];
+	double acc_fmu[3];
+	double att_fmu[4];
+	double pos_ext[3];
 };
 
 // cameraParameters
 // =========================================================
-struct cameraParameters //  parameters of one camera
+struct CameraParameters //  parameters of one camera
 {
 	double RadialDistortion[3];
 	double TangentialDistortion[2];
@@ -56,19 +73,19 @@ struct cameraParameters //  parameters of one camera
 	double PrincipalPoint[2];
 };
 
-struct stereoParameters // parameters of both cameras plus stereo calibration
+struct StereoParameters // parameters of both cameras plus stereo calibration
 {
-	cameraParameters CameraParameters1;
-	cameraParameters CameraParameters2;
+	CameraParameters CameraParameters1;
+	CameraParameters CameraParameters2;
 
 	double r_lr[3];
 	double R_lr[9];
 	double R_rl[9];
 };
 
-inline stereoParameters parseYaml(const YAML::Node& node)
+inline StereoParameters parseYaml(const YAML::Node& node)
 {
-	stereoParameters v;
+	StereoParameters v;
 
 	YAML::Node r_lr = node["r_lr"];
 

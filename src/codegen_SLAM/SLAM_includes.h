@@ -11,7 +11,6 @@
 #include <getH_R_res.h>
 #include <getMap.h>
 #include <initializePoint.h>
-#include <kron.h>
 #include <mrdivide.h>
 #include <norm.h>
 #include <OnePointRANSAC_EKF.h>

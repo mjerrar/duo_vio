@@ -5,7 +5,7 @@
 // File: SLAM.cpp
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 26-Aug-2015 16:12:33
+// C/C++ source code generated on  : 27-Aug-2015 19:38:13
 //
 
 // Include Files
@@ -78,10 +78,10 @@ static double rt_atan2d_snf(double u0, double u1)
 //                const double z_all_l[32]
 //                const double z_all_r[32]
 //                double dt
-//                const double IMU_measurements[23]
+//                const VIOMeasurements *measurements
 //                const double ref[4]
 //                const VIOParameters *b_VIOParameters
-//                const stereoParameters *b_cameraParameters
+//                const StereoParameters *cameraParameters
 //                const NoiseParameters *noiseParameters
 //                const ControllerGains *b_ControllerGains
 //                boolean_T resetFlag
@@ -93,9 +93,9 @@ static double rt_atan2d_snf(double u0, double u1)
 // Return Type  : void
 //
 void SLAM(double updateVect[16], const double z_all_l[32], const double z_all_r
-          [32], double dt, const double IMU_measurements[23], const double ref[4],
-          const VIOParameters *b_VIOParameters, const stereoParameters
-          *b_cameraParameters, const NoiseParameters *noiseParameters, const
+          [32], double dt, const VIOMeasurements *measurements, const double
+          ref[4], const VIOParameters *b_VIOParameters, const StereoParameters
+          *cameraParameters, const NoiseParameters *noiseParameters, const
           ControllerGains *b_ControllerGains, boolean_T resetFlag,
           emxArray_real_T *h_u_apo_out, emxArray_real_T *xt_out, emxArray_real_T
           *P_apo_out, emxArray_real_T *map_out, double u_out[4])
@@ -108,7 +108,7 @@ void SLAM(double updateVect[16], const double z_all_l[32], const double z_all_r
   int outsize_idx_1;
   int ibcol;
   double dv24[9];
-  double b_IMU_measurements[9];
+  double b_measurements[9];
   double dv25[4];
   double d5;
   static const double y[9] = { 0.01, 0.0, 0.0, 0.0, 0.01, 0.0, 0.0, 0.0, 0.01 };
@@ -168,33 +168,36 @@ void SLAM(double updateVect[16], const double z_all_l[32], const double z_all_r
       }
     }
 
-    b_IMU_measurements[0] = ((IMU_measurements[19] * IMU_measurements[19] -
-      IMU_measurements[20] * IMU_measurements[20]) - IMU_measurements[21] *
-      IMU_measurements[21]) + IMU_measurements[22] * IMU_measurements[22];
-    b_IMU_measurements[3] = 2.0 * (IMU_measurements[19] * IMU_measurements[20] +
-      IMU_measurements[21] * IMU_measurements[22]);
-    b_IMU_measurements[6] = 2.0 * (IMU_measurements[19] * IMU_measurements[21] -
-      IMU_measurements[20] * IMU_measurements[22]);
-    b_IMU_measurements[1] = 2.0 * (IMU_measurements[19] * IMU_measurements[20] -
-      IMU_measurements[21] * IMU_measurements[22]);
-    b_IMU_measurements[4] = ((-(IMU_measurements[19] * IMU_measurements[19]) +
-      IMU_measurements[20] * IMU_measurements[20]) - IMU_measurements[21] *
-      IMU_measurements[21]) + IMU_measurements[22] * IMU_measurements[22];
-    b_IMU_measurements[7] = 2.0 * (IMU_measurements[20] * IMU_measurements[21] +
-      IMU_measurements[19] * IMU_measurements[22]);
-    b_IMU_measurements[2] = 2.0 * (IMU_measurements[19] * IMU_measurements[21] +
-      IMU_measurements[20] * IMU_measurements[22]);
-    b_IMU_measurements[5] = 2.0 * (IMU_measurements[20] * IMU_measurements[21] -
-      IMU_measurements[19] * IMU_measurements[22]);
-    b_IMU_measurements[8] = ((-(IMU_measurements[19] * IMU_measurements[19]) -
-      IMU_measurements[20] * IMU_measurements[20]) + IMU_measurements[21] *
-      IMU_measurements[21]) + IMU_measurements[22] * IMU_measurements[22];
+    b_measurements[0] = ((measurements->att_fmu[0] * measurements->att_fmu[0] -
+                          measurements->att_fmu[1] * measurements->att_fmu[1]) -
+                         measurements->att_fmu[2] * measurements->att_fmu[2]) +
+      measurements->att_fmu[3] * measurements->att_fmu[3];
+    b_measurements[3] = 2.0 * (measurements->att_fmu[0] * measurements->att_fmu
+      [1] + measurements->att_fmu[2] * measurements->att_fmu[3]);
+    b_measurements[6] = 2.0 * (measurements->att_fmu[0] * measurements->att_fmu
+      [2] - measurements->att_fmu[1] * measurements->att_fmu[3]);
+    b_measurements[1] = 2.0 * (measurements->att_fmu[0] * measurements->att_fmu
+      [1] - measurements->att_fmu[2] * measurements->att_fmu[3]);
+    b_measurements[4] = ((-(measurements->att_fmu[0] * measurements->att_fmu[0])
+                          + measurements->att_fmu[1] * measurements->att_fmu[1])
+                         - measurements->att_fmu[2] * measurements->att_fmu[2])
+      + measurements->att_fmu[3] * measurements->att_fmu[3];
+    b_measurements[7] = 2.0 * (measurements->att_fmu[1] * measurements->att_fmu
+      [2] + measurements->att_fmu[0] * measurements->att_fmu[3]);
+    b_measurements[2] = 2.0 * (measurements->att_fmu[0] * measurements->att_fmu
+      [2] + measurements->att_fmu[1] * measurements->att_fmu[3]);
+    b_measurements[5] = 2.0 * (measurements->att_fmu[1] * measurements->att_fmu
+      [2] - measurements->att_fmu[0] * measurements->att_fmu[3]);
+    b_measurements[8] = ((-(measurements->att_fmu[0] * measurements->att_fmu[0])
+                          - measurements->att_fmu[1] * measurements->att_fmu[1])
+                         + measurements->att_fmu[2] * measurements->att_fmu[2])
+      + measurements->att_fmu[3] * measurements->att_fmu[3];
     for (k = 0; k < 3; k++) {
       for (ibcol = 0; ibcol < 3; ibcol++) {
         dv24[k + 3 * ibcol] = 0.0;
         for (outsize_idx_0 = 0; outsize_idx_0 < 3; outsize_idx_0++) {
           dv24[k + 3 * ibcol] += R_bc[outsize_idx_0 + 3 * k] *
-            b_IMU_measurements[outsize_idx_0 + 3 * ibcol];
+            b_measurements[outsize_idx_0 + 3 * ibcol];
         }
       }
     }
@@ -214,10 +217,9 @@ void SLAM(double updateVect[16], const double z_all_l[32], const double z_all_r
     xt->data[7] = 0.0;
     xt->data[8] = 0.0;
     xt->data[9] = 0.0;
-    for (k = 0; k < 3; k++) {
-      xt->data[k + 10] = 0.0 * IMU_measurements[k];
-    }
-
+    xt->data[10] = 0.0;
+    xt->data[11] = 0.0;
+    xt->data[12] = 0.0;
     loop_ub = b->size[0];
     for (k = 0; k < loop_ub; k++) {
       xt->data[k + 13] = b->data[k];
@@ -307,19 +309,19 @@ void SLAM(double updateVect[16], const double z_all_l[32], const double z_all_r
       updateVect[outsize_idx_0] = 0.0;
     }
 
-    SLAM_updIT(P, xt, b_cameraParameters->CameraParameters1.RadialDistortion,
-               b_cameraParameters->CameraParameters1.FocalLength,
-               b_cameraParameters->CameraParameters1.PrincipalPoint,
-               b_cameraParameters->CameraParameters2.RadialDistortion,
-               b_cameraParameters->CameraParameters2.FocalLength,
-               b_cameraParameters->CameraParameters2.PrincipalPoint,
-               b_cameraParameters->r_lr, b_cameraParameters->R_lr,
-               b_cameraParameters->R_rl, updateVect, z_all_l, z_all_r,
+    SLAM_updIT(P, xt, cameraParameters->CameraParameters1.RadialDistortion,
+               cameraParameters->CameraParameters1.FocalLength,
+               cameraParameters->CameraParameters1.PrincipalPoint,
+               cameraParameters->CameraParameters2.RadialDistortion,
+               cameraParameters->CameraParameters2.FocalLength,
+               cameraParameters->CameraParameters2.PrincipalPoint,
+               cameraParameters->r_lr, cameraParameters->R_lr,
+               cameraParameters->R_rl, updateVect, z_all_l, z_all_r,
                noiseParameters->image_noise, noiseParameters->sigmaInit,
                noiseParameters->orientation_noise,
-               noiseParameters->pressure_noise, IMU_measurements, (1.0 -
-                rt_powd_snf(IMU_measurements[9] / 101325.0, 0.190284)) *
-               145366.45, *b_VIOParameters, h_u_apo_out, map_out);
+               noiseParameters->pressure_noise, noiseParameters->position_noise,
+               measurements, (1.0 - rt_powd_snf(measurements->bar_fmu / 101325.0,
+      0.190284)) * 145366.45, *b_VIOParameters, h_u_apo_out, map_out);
     k = xt_out->size[0];
     xt_out->size[0] = xt->size[0];
     emxEnsureCapacity((emxArray__common *)xt_out, k, (int)sizeof(double));
@@ -409,20 +411,20 @@ void SLAM(double updateVect[16], const double z_all_l[32], const double z_all_r
       }
     }
 
-    SLAM_pred(P, xt, dt, noiseParameters->process_noise, IMU_measurements,
-              numStates, last_u);
-    SLAM_updIT(P, xt, b_cameraParameters->CameraParameters1.RadialDistortion,
-               b_cameraParameters->CameraParameters1.FocalLength,
-               b_cameraParameters->CameraParameters1.PrincipalPoint,
-               b_cameraParameters->CameraParameters2.RadialDistortion,
-               b_cameraParameters->CameraParameters2.FocalLength,
-               b_cameraParameters->CameraParameters2.PrincipalPoint,
-               b_cameraParameters->r_lr, b_cameraParameters->R_lr,
-               b_cameraParameters->R_rl, updateVect, z_all_l, z_all_r,
+    SLAM_pred(P, xt, dt, noiseParameters->process_noise, measurements->gyr_duo,
+              measurements->acc_duo, numStates, last_u);
+    SLAM_updIT(P, xt, cameraParameters->CameraParameters1.RadialDistortion,
+               cameraParameters->CameraParameters1.FocalLength,
+               cameraParameters->CameraParameters1.PrincipalPoint,
+               cameraParameters->CameraParameters2.RadialDistortion,
+               cameraParameters->CameraParameters2.FocalLength,
+               cameraParameters->CameraParameters2.PrincipalPoint,
+               cameraParameters->r_lr, cameraParameters->R_lr,
+               cameraParameters->R_rl, updateVect, z_all_l, z_all_r,
                noiseParameters->image_noise, noiseParameters->sigmaInit,
                noiseParameters->orientation_noise,
-               noiseParameters->pressure_noise, IMU_measurements, 0.0,
-               *b_VIOParameters, h_u_apo_out, map_out);
+               noiseParameters->pressure_noise, noiseParameters->position_noise,
+               measurements, 0.0, *b_VIOParameters, h_u_apo_out, map_out);
     k = xt_out->size[0];
     xt_out->size[0] = xt->size[0];
     emxEnsureCapacity((emxArray__common *)xt_out, k, (int)sizeof(double));

@@ -60,7 +60,7 @@ private:
 	int display_tracks_cnt;
 	ros::Time last_debug_publish;
 
-	stereoParameters cameraParams;
+	StereoParameters cameraParams;
 	NoiseParameters noiseParams;
 	ControllerGains controllerGains;
 	VIOParameters vioParams;
@@ -103,7 +103,7 @@ private:
 	void update(double dt, const cv::Mat& left_image, const cv::Mat& right_image, const sensor_msgs::Imu& imu,
 			const sensor_msgs::MagneticField& mag, geometry_msgs::Pose& pose, geometry_msgs::Twist& velocity, bool debug_publish);
 
-	void getIMUData(const sensor_msgs::Imu& imu, const sensor_msgs::MagneticField& mag, std::vector<double>& inertial_vec);
+	void getIMUData(const sensor_msgs::Imu& imu, const sensor_msgs::MagneticField& mag, VIOMeasurements& meas);
 
 	void displayTracks(const cv::Mat& left_image, double z_all_l[], double z_all_r[],
 			std::vector<int> status, emxArray_real_T *h_u = NULL);
