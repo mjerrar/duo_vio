@@ -5,7 +5,7 @@
 // File: SLAM.cpp
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 27-Aug-2015 20:28:48
+// C/C++ source code generated on  : 27-Aug-2015 21:45:03
 //
 
 // Include Files
@@ -25,6 +25,8 @@ static boolean_T initialized_not_empty;
 static emxArray_real_T *xt;
 static emxArray_real_T *P;
 static double last_u[4];
+static boolean_T position_offset_initialized;
+static double position_offset[3];
 
 // Function Declarations
 static double rt_atan2d_snf(double u0, double u1);
@@ -78,7 +80,7 @@ static double rt_atan2d_snf(double u0, double u1)
 //                const double z_all_l[32]
 //                const double z_all_r[32]
 //                double dt
-//                const VIOMeasurements *measurements
+//                VIOMeasurements *measurements
 //                const double ref[4]
 //                const VIOParameters *b_VIOParameters
 //                const StereoParameters *cameraParameters
@@ -93,8 +95,8 @@ static double rt_atan2d_snf(double u0, double u1)
 // Return Type  : void
 //
 void SLAM(double updateVect[16], const double z_all_l[32], const double z_all_r
-          [32], double dt, const VIOMeasurements *measurements, const double
-          ref[4], const VIOParameters *b_VIOParameters, const StereoParameters
+          [32], double dt, VIOMeasurements *measurements, const double ref[4],
+          const VIOParameters *b_VIOParameters, const StereoParameters
           *cameraParameters, const NoiseParameters *noiseParameters, const
           ControllerGains *b_ControllerGains, boolean_T resetFlag,
           emxArray_real_T *h_u_apo_out, emxArray_real_T *xt_out, emxArray_real_T
@@ -131,6 +133,10 @@ void SLAM(double updateVect[16], const double z_all_l[32], const double z_all_r
   b_emxInit_real_T(&a, 1);
   if ((!initialized_not_empty) || resetFlag) {
     initialized_not_empty = true;
+    position_offset_initialized = false;
+    for (outsize_idx_0 = 0; outsize_idx_0 < 3; outsize_idx_0++) {
+      position_offset[outsize_idx_0] = 0.0;
+    }
 
     //  if ~all(size(q) == [4, 1])
     //      error('q does not have the size of a quaternion')
@@ -345,6 +351,24 @@ void SLAM(double updateVect[16], const double z_all_l[32], const double z_all_r
 
     //  the last control outputs (in camera frame)
   } else {
+    if (b_VIOParameters->use_position) {
+      if (!position_offset_initialized) {
+        for (k = 0; k < 3; k++) {
+          position_offset[k] = xt->data[k] - measurements->pos_ext[k];
+        }
+
+        for (outsize_idx_0 = 0; outsize_idx_0 < 3; outsize_idx_0++) {
+          measurements->pos_ext[outsize_idx_0] = 0.0;
+        }
+
+        position_offset_initialized = true;
+      } else {
+        for (k = 0; k < 3; k++) {
+          measurements->pos_ext[k] += position_offset[k];
+        }
+      }
+    }
+
     u_out_x = -(b_ControllerGains->Kp_xy * (xt->data[0] - ref[0]) +
                 b_ControllerGains->Kd_xy * xt->data[7]);
 
