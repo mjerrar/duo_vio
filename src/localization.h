@@ -89,6 +89,8 @@ private:
 
 	ros::Time prev_time_;
 	std::vector<int> update_vec_;
+	geometry_msgs::Pose pose;
+
 
 	unsigned int num_points_;
 	bool show_tracker_images_;
@@ -123,6 +125,7 @@ private:
 	sensor_msgs::FluidPressure mavros_pressure_data_;
 	duo3d_ros::Duo3d last_duo_msg_;
 	ReferenceCommand referenceCommand;
+	bool change_reference;
 	tf::Quaternion camera2world; // the rotation that transforms a vector in the camera frame to one in the world frame
 
 	bool use_vicon_for_control_;
