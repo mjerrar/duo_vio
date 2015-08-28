@@ -5,7 +5,7 @@
 // File: QuatFromRotJ.cpp
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 28-Aug-2015 20:07:15
+// C/C++ source code generated on  : 28-Aug-2015 21:19:22
 //
 
 // Include Files
