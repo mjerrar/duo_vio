@@ -476,7 +476,7 @@ void Localization::update(double dt, const cv::Mat& left_image, const cv::Mat& r
 	double failure_threshold = 2/60;
 
 
-	if (dx > failure_threshold || dy > failure_threshold || dz > failure_threshold)
+	if (!SLAM_reset_flag && (dx > failure_threshold || dy > failure_threshold || dz > failure_threshold))
 	{
 		ROS_ERROR("VIO FAILING. Resetting");
 
@@ -491,7 +491,6 @@ void Localization::update(double dt, const cv::Mat& left_image, const cv::Mat& r
 		controller_out_msg.yaw = u_out[3];
 
 		controller_pub.publish(controller_out_msg);
-
 
 		for(int i = 0; i < update_vec_.size(); i++)
 		{
