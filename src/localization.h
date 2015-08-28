@@ -8,6 +8,7 @@
 #include <message_filters/time_synchronizer.h>
 
 #include <tf/transform_broadcaster.h>
+#include <tf/transform_listener.h>
 #include <tf/tf.h>
 
 #include <sensor_msgs/Image.h>
@@ -126,6 +127,10 @@ private:
 	tf::Quaternion camera2world; // the rotation that transforms a vector in the camera frame to one in the world frame
 
 	bool use_vicon_for_control_;
+	tf::TransformListener tf_listener_;
+	void getViconPosition(void);
+	std::vector<double> vicon_pos;
+	std::vector<double> vicon_quaternion;
 
 	void visMarker(void);
 	void dynamicReconfigureCb(vio_ros::vio_rosConfig &config, uint32_t level);

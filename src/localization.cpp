@@ -17,7 +17,9 @@ Localization::Localization()
   SLAM_reset_flag(0),
   received_IMU_data(false),
   pos_reference(4, 0.0),
-  vel_reference(4, 0.0)
+  vel_reference(4, 0.0),
+  vicon_pos(3, 0.0),
+  vicon_quaternion(4, 0.0)
 {
 	SLAM_initialize();
 	emxInitArray_real_T(&h_u_apo_,1);
@@ -327,6 +329,11 @@ void Localization::positionReferenceCb(const onboard_localization::PositionRefer
 	pos_reference[2] += positionChange_world.z();
 	pos_reference[3] += msg.yaw;
 
+	vel_reference[0] = 0.1 * msg.x;
+	vel_reference[1] = 0.1 * msg.y;
+	vel_reference[2] = 0.0;
+	vel_reference[3] = 0.1 * msg.yaw;
+
 	geometry_msgs::PoseStamped ref_viz;
 	ref_viz.header.stamp = ros::Time::now();
 	ref_viz.header.frame_id = "world";
@@ -393,6 +400,11 @@ void Localization::update(double dt, const cv::Mat& left_image, const cv::Mat& r
 	emxInitArray_real_T(&map,2);
 
 	double u_out[4];
+
+	if(use_vicon_for_control_)
+	{
+	  getViconPosition();
+	}
 
 	// Update SLAM and get pose estimation
 	tic = ros::Time::now();
@@ -687,5 +699,28 @@ void Localization::visMarker(void)
 	vis_pub_.publish(marker);
 }
 
+void Localization::getViconPosition(void)
+{
 
+  tf::StampedTransform transform;
+  tf_listener_.lookupTransform( "/world", "/drone_base", ros::Time(0), transform);
+
+  tf::Vector3 position = transform.getOrigin();
+  tf::Matrix3x3 rotation = transform.getBasis();
+  double roll, pitch, yaw;
+  rotation.getRPY(roll, pitch, yaw);
+
+  tf::Quaternion world2control_quaternion;
+  world2control_quaternion.setRPY(0.0, 0.0, yaw);
+
+  vicon_pos[0] = position.x();
+  vicon_pos[1] = position.y();
+  vicon_pos[2] = position.z();
+
+  vicon_quaternion[0] = world2control_quaternion.getX();
+  vicon_quaternion[1] = world2control_quaternion.getY();
+  vicon_quaternion[2] = world2control_quaternion.getZ();
+  vicon_quaternion[3] = world2control_quaternion.getW();
+
+}
 
