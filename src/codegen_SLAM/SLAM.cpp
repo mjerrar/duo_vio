@@ -5,7 +5,7 @@
 // File: SLAM.cpp
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 28-Aug-2015 14:06:46
+// C/C++ source code generated on  : 28-Aug-2015 14:45:19
 //
 
 // Include Files
@@ -17,7 +17,6 @@
 #include "repmat.h"
 #include "QuatFromRotJ.h"
 #include "SLAM_pred.h"
-#include "fprintf.h"
 #include "SLAM_rtwutil.h"
 #include "SLAM_data.h"
 #include <stdio.h>
@@ -133,12 +132,6 @@ void SLAM(double updateVect[16], const double z_all_l[32], const double z_all_r
   }
 
   //  for coder
-  b_fprintf((signed char)b_VIOParameters->use_orientation);
-  d_fprintf((signed char)b_VIOParameters->use_pressure);
-  f_fprintf((signed char)b_VIOParameters->use_ext_pose);
-  h_fprintf((signed char)b_VIOParameters->use_magnetometer);
-  j_fprintf((signed char)b_VIOParameters->use_controller_to_predict);
-  l_fprintf((signed char)b_VIOParameters->fixed_anchor);
   b_emxInit_real_T(&r4, 1);
   b_emxInit_real_T(&r5, 1);
   if ((!initialized_not_empty) || resetFlag) {
