@@ -5,7 +5,7 @@
 // File: getH_R_res.cpp
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 28-Aug-2015 15:47:41
+// C/C++ source code generated on  : 28-Aug-2015 19:03:55
 //
 
 // Include Files
@@ -17,9 +17,12 @@
 #include "predictMeasurement_stereo.h"
 #include "Ch_dn_To_h_un.h"
 #include "predictMeasurement_left.h"
+#include "ros_error.h"
+#include "any.h"
 #include "eye.h"
 #include "SLAM_rtwutil.h"
 #include "SLAM_data.h"
+#include <ros/console.h>
 #include <stdio.h>
 
 // Function Definitions
@@ -117,6 +120,7 @@ void b_getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
   emxArray_real_T *H_pressure;
   emxArray_int32_T *r2;
   emxArray_real_T *C;
+  boolean_T bv1[3];
   double b_map[3];
   double r_orientation[3];
   int i2;
@@ -283,6 +287,14 @@ void b_getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
   emxInit_int32_T(&r2, 1);
   emxInit_real_T(&C, 2);
   while (k <= indMeas_size[0] - 1) {
+    for (ar = 0; ar < 3; ar++) {
+      bv1[ar] = rtIsNaN(map->data[ar + map->size[0] * ((int)indMeas_data[k] - 1)]);
+    }
+
+    if (c_any(bv1)) {
+      b_ros_error();
+    }
+
     for (ar = 0; ar < 3; ar++) {
       b_map[ar] = map->data[ar + map->size[0] * ((int)indMeas_data[k] - 1)] -
         b_xt->data[ar];
@@ -1235,6 +1247,7 @@ void getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
   int ar;
   int nm1d2;
   emxArray_real_T *H_xc;
+  boolean_T bv0[3];
   double b_map[3];
   double h_ci_l[3];
   int br;
@@ -1363,6 +1376,14 @@ void getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
   nm1d2 = (int)errorStateSize << 1;
   for (ar = 0; ar < nm1d2; ar++) {
     H_xc->data[ar] = 0.0;
+  }
+
+  for (ar = 0; ar < 3; ar++) {
+    bv0[ar] = rtIsNaN(map->data[ar + map->size[0] * ((int)indMeas - 1)]);
+  }
+
+  if (c_any(bv0)) {
+    b_ros_error();
   }
 
   for (ar = 0; ar < 3; ar++) {

@@ -1,6 +1,7 @@
 #ifndef __SLAM_INCLUDES__
 #define __SLAM_INCLUDES__
 #include <any.h>
+#include <blkdiag.h>
 #include <Ch_dn_To_h_un.h>
 #include <colon.h>
 #include <diag.h>
@@ -21,6 +22,7 @@
 #include <quatPlusThetaJ.h>
 #include <rand.h>
 #include <repmat.h>
+#include <ros_error.h>
 #include <rt_defines.h>
 #include <rtGetInf.h>
 #include <rtGetNaN.h>
@@ -37,5 +39,6 @@
 #include <SLAM_terminate.h>
 #include <SLAM_types.h>
 #include <SLAM_updIT.h>
+#include <sum.h>
 #include <svd.h>
 #endif

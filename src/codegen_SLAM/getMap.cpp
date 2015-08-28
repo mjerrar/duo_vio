@@ -5,7 +5,7 @@
 // File: getMap.cpp
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 28-Aug-2015 15:47:41
+// C/C++ source code generated on  : 28-Aug-2015 19:03:55
 //
 
 // Include Files
@@ -13,6 +13,7 @@
 #include "SLAM.h"
 #include "getMap.h"
 #include "SLAM_emxutil.h"
+#include <ros/console.h>
 #include <stdio.h>
 
 // Function Definitions
@@ -53,7 +54,7 @@ void getMap(const emxArray_real_T *x, const emxArray_real_T *b_anchorFeatures,
             stateSize, double numStatesPerAnchorxt, emxArray_real_T *map,
             emxArray_real_T *anchorInd, emxArray_real_T *featureAnchorInd)
 {
-  int i0;
+  int i4;
   int ii;
   int anchorIdx;
   int idx;
@@ -66,29 +67,29 @@ void getMap(const emxArray_real_T *x, const emxArray_real_T *b_anchorFeatures,
   double anchorPos[3];
   double b_x[9];
   double d0;
-  i0 = map->size[0] * map->size[1];
+  i4 = map->size[0] * map->size[1];
   map->size[0] = 3;
   map->size[1] = (int)c_numTrackFeatures;
-  emxEnsureCapacity((emxArray__common *)map, i0, (int)sizeof(double));
+  emxEnsureCapacity((emxArray__common *)map, i4, (int)sizeof(double));
   ii = 3 * (int)c_numTrackFeatures;
-  for (i0 = 0; i0 < ii; i0++) {
-    map->data[i0] = rtNaN;
+  for (i4 = 0; i4 < ii; i4++) {
+    map->data[i4] = rtNaN;
   }
 
-  i0 = anchorInd->size[0];
+  i4 = anchorInd->size[0];
   anchorInd->size[0] = (int)c_numTrackFeatures;
-  emxEnsureCapacity((emxArray__common *)anchorInd, i0, (int)sizeof(double));
+  emxEnsureCapacity((emxArray__common *)anchorInd, i4, (int)sizeof(double));
   ii = (int)c_numTrackFeatures;
-  for (i0 = 0; i0 < ii; i0++) {
-    anchorInd->data[i0] = 0.0;
+  for (i4 = 0; i4 < ii; i4++) {
+    anchorInd->data[i4] = 0.0;
   }
 
-  i0 = featureAnchorInd->size[0];
+  i4 = featureAnchorInd->size[0];
   featureAnchorInd->size[0] = (int)c_numTrackFeatures;
-  emxEnsureCapacity((emxArray__common *)featureAnchorInd, i0, (int)sizeof(double));
+  emxEnsureCapacity((emxArray__common *)featureAnchorInd, i4, (int)sizeof(double));
   ii = (int)c_numTrackFeatures;
-  for (i0 = 0; i0 < ii; i0++) {
-    featureAnchorInd->data[i0] = 0.0;
+  for (i4 = 0; i4 < ii; i4++) {
+    featureAnchorInd->data[i4] = 0.0;
   }
 
   for (anchorIdx = 0; anchorIdx < b_anchorFeatures->size[1]; anchorIdx++) {
@@ -127,8 +128,8 @@ void getMap(const emxArray_real_T *x, const emxArray_real_T *b_anchorFeatures,
       ii = idx;
     }
 
-    for (i0 = 0; i0 < ii; i0++) {
-      featureIdxVect_data[i0] = ii_data[i0];
+    for (i4 = 0; i4 < ii; i4++) {
+      featureIdxVect_data[i4] = ii_data[i4];
     }
 
     //  the transpose prevents going into the loop if find returns empty
@@ -138,8 +139,8 @@ void getMap(const emxArray_real_T *x, const emxArray_real_T *b_anchorFeatures,
         //  if this is not a lost feature
         b_stateSize = stateSize + ((1.0 + (double)anchorIdx) - 1.0) *
           numStatesPerAnchorxt;
-        for (i0 = 0; i0 < 3; i0++) {
-          anchorPos[i0] = x->data[(int)(b_stateSize + (1.0 + (double)i0)) - 1];
+        for (i4 = 0; i4 < 3; i4++) {
+          anchorPos[i4] = x->data[(int)(b_stateSize + (1.0 + (double)i4)) - 1];
         }
 
         //  if ~all(size(q) == [4, 1])
@@ -225,15 +226,15 @@ void getMap(const emxArray_real_T *x, const emxArray_real_T *b_anchorFeatures,
            + 7.0) - 1];
         b_stateSize = x->data[(int)(((stateSize + ((1.0 + (double)anchorIdx) -
           1.0) * numStatesPerAnchorxt) + 7.0) + (1.0 + (double)ii)) - 1];
-        for (i0 = 0; i0 < 3; i0++) {
+        for (i4 = 0; i4 < 3; i4++) {
           d0 = 0.0;
           for (idx = 0; idx < 3; idx++) {
-            d0 += b_x[i0 + 3 * idx] * b_m_vect->data[idx + b_m_vect->size[0] *
+            d0 += b_x[i4 + 3 * idx] * b_m_vect->data[idx + b_m_vect->size[0] *
               (featureIdxVect_data[ii] - 1)];
           }
 
-          map->data[i0 + map->size[0] * (featureIdxVect_data[ii] - 1)] =
-            anchorPos[i0] + d0 / b_stateSize;
+          map->data[i4 + map->size[0] * (featureIdxVect_data[ii] - 1)] =
+            anchorPos[i4] + d0 / b_stateSize;
         }
 
         anchorInd->data[featureIdxVect_data[ii] - 1] = 1.0 + (double)anchorIdx;

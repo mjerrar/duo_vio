@@ -5,7 +5,7 @@
 // File: SLAM_initialize.cpp
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 28-Aug-2015 15:47:41
+// C/C++ source code generated on  : 28-Aug-2015 19:03:55
 //
 
 // Include Files
@@ -15,6 +15,7 @@
 #include "eml_rand_mt19937ar_stateful.h"
 #include "SLAM_updIT.h"
 #include "SLAM_data.h"
+#include <ros/console.h>
 #include <stdio.h>
 
 // Named Constants

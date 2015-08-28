@@ -2,13 +2,13 @@
 // Academic License - for use in teaching, academic research, and meeting
 // course requirements at degree granting institutions only.  Not for
 // government, commercial, or other organizational use.
-// File: SLAM_initialize.h
+// File: blkdiag.h
 //
 // MATLAB Coder version            : 2.8
 // C/C++ source code generated on  : 28-Aug-2015 19:03:55
 //
-#ifndef __SLAM_INITIALIZE_H__
-#define __SLAM_INITIALIZE_H__
+#ifndef __BLKDIAG_H__
+#define __BLKDIAG_H__
 
 // Include Files
 #include <math.h>
@@ -21,12 +21,13 @@
 #include "SLAM_types.h"
 
 // Function Declarations
-extern void SLAM_initialize();
+extern void blkdiag(const emxArray_real_T *varargin_1, const emxArray_real_T
+                    *varargin_2, emxArray_real_T *y);
 
 #endif
 
 //
-// File trailer for SLAM_initialize.h
+// File trailer for blkdiag.h
 //
 // [EOF]
 //

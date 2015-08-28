@@ -5,7 +5,7 @@
 // File: predictMeasurement_left.cpp
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 28-Aug-2015 15:47:41
+// C/C++ source code generated on  : 28-Aug-2015 19:03:55
 //
 
 // Include Files
@@ -14,6 +14,7 @@
 #include "predictMeasurement_left.h"
 #include "predictMeasurement_stereo.h"
 #include "SLAM_rtwutil.h"
+#include <ros/console.h>
 #include <stdio.h>
 
 // Function Definitions

@@ -5,7 +5,7 @@
 // File: eye.cpp
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 28-Aug-2015 15:47:41
+// C/C++ source code generated on  : 28-Aug-2015 19:03:55
 //
 
 // Include Files
@@ -13,6 +13,7 @@
 #include "SLAM.h"
 #include "eye.h"
 #include "SLAM_emxutil.h"
+#include <ros/console.h>
 #include <stdio.h>
 
 // Function Definitions

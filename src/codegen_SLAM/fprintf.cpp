@@ -5,7 +5,7 @@
 // File: fprintf.cpp
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 28-Aug-2015 15:47:41
+// C/C++ source code generated on  : 28-Aug-2015 19:03:55
 //
 
 // Include Files
@@ -13,6 +13,7 @@
 #include "SLAM.h"
 #include "fprintf.h"
 #include "fileManager.h"
+#include <ros/console.h>
 #include <stdio.h>
 
 // Function Declarations
@@ -22,6 +23,7 @@ static double g_fprintf(signed char varargin_1);
 static double i_fprintf(signed char varargin_1);
 static double k_fprintf(int varargin_1, int varargin_2);
 static double m_fprintf();
+static double o_fprintf();
 
 // Function Definitions
 
@@ -196,6 +198,31 @@ static double m_fprintf()
 }
 
 //
+// Arguments    : void
+// Return Type  : double
+//
+static double o_fprintf()
+{
+  int nbytesint;
+  FILE * b_NULL;
+  boolean_T autoflush;
+  FILE * filestar;
+  static const char cfmt[17] = { 'S', 'L', 'A', 'M', ' ', 's', 'o', 'f', 't',
+    ' ', 'r', 'e', 's', 'e', 't', '\x00', '\x00' };
+
+  nbytesint = 0;
+  b_NULL = NULL;
+  fileManager(&filestar, &autoflush);
+  if (filestar == b_NULL) {
+  } else {
+    nbytesint = fprintf(filestar, cfmt);
+    fflush(filestar);
+  }
+
+  return nbytesint;
+}
+
+//
 // Arguments    : int formatSpec
 // Return Type  : void
 //
@@ -248,6 +275,15 @@ void j_fprintf(int formatSpec, int varargin_1)
 void l_fprintf()
 {
   m_fprintf();
+}
+
+//
+// Arguments    : void
+// Return Type  : void
+//
+void n_fprintf()
+{
+  o_fprintf();
 }
 
 //

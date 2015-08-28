@@ -5,7 +5,7 @@
 // File: Ch_dn_To_h_un.cpp
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 28-Aug-2015 15:47:41
+// C/C++ source code generated on  : 28-Aug-2015 19:03:55
 //
 
 // Include Files
@@ -14,6 +14,7 @@
 #include "Ch_dn_To_h_un.h"
 #include "predictMeasurement_stereo.h"
 #include "SLAM_rtwutil.h"
+#include <ros/console.h>
 #include <stdio.h>
 
 // Function Definitions

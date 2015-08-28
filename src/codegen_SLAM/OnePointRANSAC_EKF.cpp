@@ -5,7 +5,7 @@
 // File: OnePointRANSAC_EKF.cpp
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 28-Aug-2015 15:47:41
+// C/C++ source code generated on  : 28-Aug-2015 19:03:55
 //
 
 // Include Files
@@ -24,6 +24,7 @@
 #include "fprintf.h"
 #include "eye.h"
 #include "getMap.h"
+#include <ros/console.h>
 #include <stdio.h>
 
 // Function Definitions
@@ -68,7 +69,7 @@ void OnePointRANSAC_EKF(emxArray_real_T *b_xt, emxArray_real_T *b_P, const
   emxArray_boolean_T *c_anchorFeatures;
   double numPointsPerAnchor;
   int numAnchors;
-  int i12;
+  int i16;
   int loop_ub;
   boolean_T x[16];
   int idx;
@@ -93,12 +94,12 @@ void OnePointRANSAC_EKF(emxArray_real_T *b_xt, emxArray_real_T *b_P, const
   emxArray_real_T *x_apo_prev;
   emxArray_real_T *H_i;
   emxArray_real_T *C;
-  emxArray_int32_T *r11;
+  emxArray_int32_T *r17;
   emxArray_real_T *b;
   emxArray_real_T *y;
-  emxArray_real_T *r12;
-  emxArray_int32_T *r13;
-  emxArray_int32_T *r14;
+  emxArray_real_T *r18;
+  emxArray_int32_T *r19;
+  emxArray_int32_T *r20;
   emxArray_real_T *b_x_apo_prev;
   double d_numStatesxt;
   int R_size[2];
@@ -107,7 +108,7 @@ void OnePointRANSAC_EKF(emxArray_real_T *b_xt, emxArray_real_T *b_P, const
   int unusedU2_size[1];
   double r_data[12];
   int ib;
-  int i13;
+  int i17;
   int anchorIdx;
   int k;
   double a[2];
@@ -171,14 +172,14 @@ void OnePointRANSAC_EKF(emxArray_real_T *b_xt, emxArray_real_T *b_P, const
   //  threshold for minimum LI supporter
   numPointsPerAnchor = b_VIOParameters.num_points_per_anchor;
   numAnchors = b_anchorFeatures->size[1] - 1;
-  i12 = c_anchorFeatures->size[0] * c_anchorFeatures->size[1];
+  i16 = c_anchorFeatures->size[0] * c_anchorFeatures->size[1];
   c_anchorFeatures->size[0] = 16;
   c_anchorFeatures->size[1] = b_anchorFeatures->size[1];
-  emxEnsureCapacity((emxArray__common *)c_anchorFeatures, i12, (int)sizeof
+  emxEnsureCapacity((emxArray__common *)c_anchorFeatures, i16, (int)sizeof
                     (boolean_T));
   loop_ub = b_anchorFeatures->size[0] * b_anchorFeatures->size[1];
-  for (i12 = 0; i12 < loop_ub; i12++) {
-    c_anchorFeatures->data[i12] = (b_anchorFeatures->data[i12] == 1.0);
+  for (i16 = 0; i16 < loop_ub; i16++) {
+    c_anchorFeatures->data[i16] = (b_anchorFeatures->data[i16] == 1.0);
   }
 
   b_any(c_anchorFeatures, x);
@@ -217,32 +218,32 @@ void OnePointRANSAC_EKF(emxArray_real_T *b_xt, emxArray_real_T *b_P, const
     ar = idx;
   }
 
-  for (i12 = 0; i12 < loop_ub; i12++) {
-    indMeas_data[i12] = (signed char)ii_data[i12];
+  for (i16 = 0; i16 < loop_ub; i16++) {
+    indMeas_data[i16] = (signed char)ii_data[i16];
   }
 
   emxInit_real_T(&K, 2);
   emxInit_real_T(&H, 2);
   numMeas = ar;
-  i12 = K->size[0] * K->size[1];
+  i16 = K->size[0] * K->size[1];
   K->size[0] = 1;
   K->size[1] = 1;
-  emxEnsureCapacity((emxArray__common *)K, i12, (int)sizeof(double));
+  emxEnsureCapacity((emxArray__common *)K, i16, (int)sizeof(double));
   K->data[0] = 0.0;
 
   //  for coder
-  i12 = H->size[0] * H->size[1];
+  i16 = H->size[0] * H->size[1];
   H->size[0] = 1;
   H->size[1] = 1;
-  emxEnsureCapacity((emxArray__common *)H, i12, (int)sizeof(double));
+  emxEnsureCapacity((emxArray__common *)H, i16, (int)sizeof(double));
   H->data[0] = 0.0;
 
   //  for coder
   // % B 1-point hypotheses generation and evaluation
   n_hyp = 100.0;
   LI_inlierStatus_size_idx_0 = ar;
-  for (i12 = 0; i12 < ar; i12++) {
-    LI_inlierStatus_data[i12] = false;
+  for (i16 = 0; i16 < ar; i16++) {
+    LI_inlierStatus_data[i16] = false;
   }
 
   emxInit_real_T(&map, 2);
@@ -260,12 +261,12 @@ void OnePointRANSAC_EKF(emxArray_real_T *b_xt, emxArray_real_T *b_P, const
   b_emxInit_real_T(&x_apo_prev, 1);
   emxInit_real_T(&H_i, 2);
   emxInit_real_T(&C, 2);
-  b_emxInit_int32_T(&r11, 2);
+  b_emxInit_int32_T(&r17, 2);
   emxInit_real_T(&b, 2);
   emxInit_real_T(&y, 2);
-  emxInit_real_T(&r12, 2);
-  emxInit_int32_T(&r13, 1);
-  emxInit_int32_T(&r14, 1);
+  emxInit_real_T(&r18, 2);
+  emxInit_int32_T(&r19, 1);
+  emxInit_int32_T(&r20, 1);
   b_emxInit_real_T(&b_x_apo_prev, 1);
   while (i < n_hyp) {
     //  select a random measurement
@@ -282,19 +283,19 @@ void OnePointRANSAC_EKF(emxArray_real_T *b_xt, emxArray_real_T *b_P, const
                IMU_measurements, height_offset_pressure, b_VIOParameters, r_data,
                unusedU2_size, H_i, r, R_data, R_size);
     if ((H_i->size[1] == 1) || (b_P->size[0] == 1)) {
-      i12 = y->size[0] * y->size[1];
+      i16 = y->size[0] * y->size[1];
       y->size[0] = H_i->size[0];
       y->size[1] = b_P->size[1];
-      emxEnsureCapacity((emxArray__common *)y, i12, (int)sizeof(double));
+      emxEnsureCapacity((emxArray__common *)y, i16, (int)sizeof(double));
       ib = H_i->size[0];
-      for (i12 = 0; i12 < ib; i12++) {
+      for (i16 = 0; i16 < ib; i16++) {
         idx = b_P->size[1];
-        for (i13 = 0; i13 < idx; i13++) {
-          y->data[i12 + y->size[0] * i13] = 0.0;
+        for (i17 = 0; i17 < idx; i17++) {
+          y->data[i16 + y->size[0] * i17] = 0.0;
           ii = H_i->size[1];
           for (anchorIdx = 0; anchorIdx < ii; anchorIdx++) {
-            y->data[i12 + y->size[0] * i13] += H_i->data[i12 + H_i->size[0] *
-              anchorIdx] * b_P->data[anchorIdx + b_P->size[0] * i13];
+            y->data[i16 + y->size[0] * i17] += H_i->data[i16 + H_i->size[0] *
+              anchorIdx] * b_P->data[anchorIdx + b_P->size[0] * i17];
           }
         }
       }
@@ -303,15 +304,15 @@ void OnePointRANSAC_EKF(emxArray_real_T *b_xt, emxArray_real_T *b_P, const
       a[0] = H_i->size[0];
       a[1] = b_P->size[1];
       m = H_i->size[0];
-      i12 = y->size[0] * y->size[1];
+      i16 = y->size[0] * y->size[1];
       y->size[0] = (int)a[0];
-      emxEnsureCapacity((emxArray__common *)y, i12, (int)sizeof(double));
-      i12 = y->size[0] * y->size[1];
+      emxEnsureCapacity((emxArray__common *)y, i16, (int)sizeof(double));
+      i16 = y->size[0] * y->size[1];
       y->size[1] = (int)a[1];
-      emxEnsureCapacity((emxArray__common *)y, i12, (int)sizeof(double));
+      emxEnsureCapacity((emxArray__common *)y, i16, (int)sizeof(double));
       ib = (int)a[0] * (int)a[1];
-      for (i12 = 0; i12 < ib; i12++) {
-        y->data[i12] = 0.0;
+      for (i16 = 0; i16 < ib; i16++) {
+        y->data[i16] = 0.0;
       }
 
       if ((H_i->size[0] == 0) || (b_P->size[1] == 0)) {
@@ -319,8 +320,8 @@ void OnePointRANSAC_EKF(emxArray_real_T *b_xt, emxArray_real_T *b_P, const
         ii = H_i->size[0] * (b_P->size[1] - 1);
         idx = 0;
         while ((m > 0) && (idx <= ii)) {
-          i12 = idx + m;
-          for (ic = idx; ic + 1 <= i12; ic++) {
+          i16 = idx + m;
+          for (ic = idx; ic + 1 <= i16; ic++) {
             y->data[ic] = 0.0;
           }
 
@@ -331,12 +332,12 @@ void OnePointRANSAC_EKF(emxArray_real_T *b_xt, emxArray_real_T *b_P, const
         idx = 0;
         while ((m > 0) && (idx <= ii)) {
           ar = 0;
-          i12 = br + k;
-          for (ib = br; ib + 1 <= i12; ib++) {
+          i16 = br + k;
+          for (ib = br; ib + 1 <= i16; ib++) {
             if (b_P->data[ib] != 0.0) {
               ia = ar;
-              i13 = idx + m;
-              for (ic = idx; ic + 1 <= i13; ic++) {
+              i17 = idx + m;
+              for (ic = idx; ic + 1 <= i17; ic++) {
                 ia++;
                 y->data[ic] += b_P->data[ib] * H_i->data[ia - 1];
               }
@@ -351,32 +352,32 @@ void OnePointRANSAC_EKF(emxArray_real_T *b_xt, emxArray_real_T *b_P, const
       }
     }
 
-    i12 = b->size[0] * b->size[1];
+    i16 = b->size[0] * b->size[1];
     b->size[0] = H_i->size[1];
     b->size[1] = H_i->size[0];
-    emxEnsureCapacity((emxArray__common *)b, i12, (int)sizeof(double));
+    emxEnsureCapacity((emxArray__common *)b, i16, (int)sizeof(double));
     ib = H_i->size[0];
-    for (i12 = 0; i12 < ib; i12++) {
+    for (i16 = 0; i16 < ib; i16++) {
       idx = H_i->size[1];
-      for (i13 = 0; i13 < idx; i13++) {
-        b->data[i13 + b->size[0] * i12] = H_i->data[i12 + H_i->size[0] * i13];
+      for (i17 = 0; i17 < idx; i17++) {
+        b->data[i17 + b->size[0] * i16] = H_i->data[i16 + H_i->size[0] * i17];
       }
     }
 
     if ((y->size[1] == 1) || (b->size[0] == 1)) {
-      i12 = C->size[0] * C->size[1];
+      i16 = C->size[0] * C->size[1];
       C->size[0] = y->size[0];
       C->size[1] = b->size[1];
-      emxEnsureCapacity((emxArray__common *)C, i12, (int)sizeof(double));
+      emxEnsureCapacity((emxArray__common *)C, i16, (int)sizeof(double));
       ib = y->size[0];
-      for (i12 = 0; i12 < ib; i12++) {
+      for (i16 = 0; i16 < ib; i16++) {
         idx = b->size[1];
-        for (i13 = 0; i13 < idx; i13++) {
-          C->data[i12 + C->size[0] * i13] = 0.0;
+        for (i17 = 0; i17 < idx; i17++) {
+          C->data[i16 + C->size[0] * i17] = 0.0;
           ii = y->size[1];
           for (anchorIdx = 0; anchorIdx < ii; anchorIdx++) {
-            C->data[i12 + C->size[0] * i13] += y->data[i12 + y->size[0] *
-              anchorIdx] * b->data[anchorIdx + b->size[0] * i13];
+            C->data[i16 + C->size[0] * i17] += y->data[i16 + y->size[0] *
+              anchorIdx] * b->data[anchorIdx + b->size[0] * i17];
           }
         }
       }
@@ -385,15 +386,15 @@ void OnePointRANSAC_EKF(emxArray_real_T *b_xt, emxArray_real_T *b_P, const
       a[0] = (signed char)y->size[0];
       a[1] = (signed char)b->size[1];
       m = y->size[0];
-      i12 = C->size[0] * C->size[1];
+      i16 = C->size[0] * C->size[1];
       C->size[0] = (int)a[0];
-      emxEnsureCapacity((emxArray__common *)C, i12, (int)sizeof(double));
-      i12 = C->size[0] * C->size[1];
+      emxEnsureCapacity((emxArray__common *)C, i16, (int)sizeof(double));
+      i16 = C->size[0] * C->size[1];
       C->size[1] = (int)a[1];
-      emxEnsureCapacity((emxArray__common *)C, i12, (int)sizeof(double));
+      emxEnsureCapacity((emxArray__common *)C, i16, (int)sizeof(double));
       ib = (int)((float)a[0] * (float)a[1]);
-      for (i12 = 0; i12 < ib; i12++) {
-        C->data[i12] = 0.0;
+      for (i16 = 0; i16 < ib; i16++) {
+        C->data[i16] = 0.0;
       }
 
       if ((y->size[0] == 0) || (b->size[1] == 0)) {
@@ -401,8 +402,8 @@ void OnePointRANSAC_EKF(emxArray_real_T *b_xt, emxArray_real_T *b_P, const
         ii = y->size[0] * (b->size[1] - 1);
         idx = 0;
         while ((m > 0) && (idx <= ii)) {
-          i12 = idx + m;
-          for (ic = idx; ic + 1 <= i12; ic++) {
+          i16 = idx + m;
+          for (ic = idx; ic + 1 <= i16; ic++) {
             C->data[ic] = 0.0;
           }
 
@@ -413,12 +414,12 @@ void OnePointRANSAC_EKF(emxArray_real_T *b_xt, emxArray_real_T *b_P, const
         idx = 0;
         while ((m > 0) && (idx <= ii)) {
           ar = 0;
-          i12 = br + k;
-          for (ib = br; ib + 1 <= i12; ib++) {
+          i16 = br + k;
+          for (ib = br; ib + 1 <= i16; ib++) {
             if (b->data[ib] != 0.0) {
               ia = ar;
-              i13 = idx + m;
-              for (ic = idx; ic + 1 <= i13; ic++) {
+              i17 = idx + m;
+              for (ic = idx; ic + 1 <= i17; ic++) {
                 ia++;
                 C->data[ic] += b->data[ib] * y->data[ia - 1];
               }
@@ -433,32 +434,32 @@ void OnePointRANSAC_EKF(emxArray_real_T *b_xt, emxArray_real_T *b_P, const
       }
     }
 
-    i12 = b->size[0] * b->size[1];
+    i16 = b->size[0] * b->size[1];
     b->size[0] = H_i->size[1];
     b->size[1] = H_i->size[0];
-    emxEnsureCapacity((emxArray__common *)b, i12, (int)sizeof(double));
+    emxEnsureCapacity((emxArray__common *)b, i16, (int)sizeof(double));
     ib = H_i->size[0];
-    for (i12 = 0; i12 < ib; i12++) {
+    for (i16 = 0; i16 < ib; i16++) {
       idx = H_i->size[1];
-      for (i13 = 0; i13 < idx; i13++) {
-        b->data[i13 + b->size[0] * i12] = H_i->data[i12 + H_i->size[0] * i13];
+      for (i17 = 0; i17 < idx; i17++) {
+        b->data[i17 + b->size[0] * i16] = H_i->data[i16 + H_i->size[0] * i17];
       }
     }
 
     if ((b_P->size[1] == 1) || (b->size[0] == 1)) {
-      i12 = y->size[0] * y->size[1];
+      i16 = y->size[0] * y->size[1];
       y->size[0] = b_P->size[0];
       y->size[1] = b->size[1];
-      emxEnsureCapacity((emxArray__common *)y, i12, (int)sizeof(double));
+      emxEnsureCapacity((emxArray__common *)y, i16, (int)sizeof(double));
       ib = b_P->size[0];
-      for (i12 = 0; i12 < ib; i12++) {
+      for (i16 = 0; i16 < ib; i16++) {
         idx = b->size[1];
-        for (i13 = 0; i13 < idx; i13++) {
-          y->data[i12 + y->size[0] * i13] = 0.0;
+        for (i17 = 0; i17 < idx; i17++) {
+          y->data[i16 + y->size[0] * i17] = 0.0;
           ii = b_P->size[1];
           for (anchorIdx = 0; anchorIdx < ii; anchorIdx++) {
-            y->data[i12 + y->size[0] * i13] += b_P->data[i12 + b_P->size[0] *
-              anchorIdx] * b->data[anchorIdx + b->size[0] * i13];
+            y->data[i16 + y->size[0] * i17] += b_P->data[i16 + b_P->size[0] *
+              anchorIdx] * b->data[anchorIdx + b->size[0] * i17];
           }
         }
       }
@@ -467,15 +468,15 @@ void OnePointRANSAC_EKF(emxArray_real_T *b_xt, emxArray_real_T *b_P, const
       a[0] = b_P->size[0];
       a[1] = b->size[1];
       m = b_P->size[0];
-      i12 = y->size[0] * y->size[1];
+      i16 = y->size[0] * y->size[1];
       y->size[0] = (int)a[0];
-      emxEnsureCapacity((emxArray__common *)y, i12, (int)sizeof(double));
-      i12 = y->size[0] * y->size[1];
+      emxEnsureCapacity((emxArray__common *)y, i16, (int)sizeof(double));
+      i16 = y->size[0] * y->size[1];
       y->size[1] = (int)a[1];
-      emxEnsureCapacity((emxArray__common *)y, i12, (int)sizeof(double));
+      emxEnsureCapacity((emxArray__common *)y, i16, (int)sizeof(double));
       ib = (int)a[0] * (int)a[1];
-      for (i12 = 0; i12 < ib; i12++) {
-        y->data[i12] = 0.0;
+      for (i16 = 0; i16 < ib; i16++) {
+        y->data[i16] = 0.0;
       }
 
       if ((b_P->size[0] == 0) || (b->size[1] == 0)) {
@@ -483,8 +484,8 @@ void OnePointRANSAC_EKF(emxArray_real_T *b_xt, emxArray_real_T *b_P, const
         ii = b_P->size[0] * (b->size[1] - 1);
         idx = 0;
         while ((m > 0) && (idx <= ii)) {
-          i12 = idx + m;
-          for (ic = idx; ic + 1 <= i12; ic++) {
+          i16 = idx + m;
+          for (ic = idx; ic + 1 <= i16; ic++) {
             y->data[ic] = 0.0;
           }
 
@@ -495,12 +496,12 @@ void OnePointRANSAC_EKF(emxArray_real_T *b_xt, emxArray_real_T *b_P, const
         idx = 0;
         while ((m > 0) && (idx <= ii)) {
           ar = 0;
-          i12 = br + k;
-          for (ib = br; ib + 1 <= i12; ib++) {
+          i16 = br + k;
+          for (ib = br; ib + 1 <= i16; ib++) {
             if (b->data[ib] != 0.0) {
               ia = ar;
-              i13 = idx + m;
-              for (ic = idx; ic + 1 <= i13; ic++) {
+              i17 = idx + m;
+              for (ic = idx; ic + 1 <= i17; ic++) {
                 ia++;
                 y->data[ic] += b->data[ib] * b_P->data[ia - 1];
               }
@@ -518,42 +519,42 @@ void OnePointRANSAC_EKF(emxArray_real_T *b_xt, emxArray_real_T *b_P, const
     C_size[0] = C->size[0];
     C_size[1] = C->size[1];
     ib = C->size[0] * C->size[1];
-    for (i12 = 0; i12 < ib; i12++) {
-      C_data[i12] = C->data[i12] + R_data[i12];
+    for (i16 = 0; i16 < ib; i16++) {
+      C_data[i16] = C->data[i16] + R_data[i16];
     }
 
-    mrdivide(y, C_data, C_size, r12);
-    i12 = K_i->size[0] * K_i->size[1];
-    K_i->size[0] = r12->size[0];
-    K_i->size[1] = r12->size[1];
-    emxEnsureCapacity((emxArray__common *)K_i, i12, (int)sizeof(double));
-    ib = r12->size[0] * r12->size[1];
-    for (i12 = 0; i12 < ib; i12++) {
-      K_i->data[i12] = r12->data[i12];
+    mrdivide(y, C_data, C_size, r18);
+    i16 = K_i->size[0] * K_i->size[1];
+    K_i->size[0] = r18->size[0];
+    K_i->size[1] = r18->size[1];
+    emxEnsureCapacity((emxArray__common *)K_i, i16, (int)sizeof(double));
+    ib = r18->size[0] * r18->size[1];
+    for (i16 = 0; i16 < ib; i16++) {
+      K_i->data[i16] = r18->data[i16];
     }
 
     if ((K_i->size[1] == 1) || (unusedU2_size[0] == 1)) {
-      i12 = x_apo->size[0];
+      i16 = x_apo->size[0];
       x_apo->size[0] = K_i->size[0];
-      emxEnsureCapacity((emxArray__common *)x_apo, i12, (int)sizeof(double));
+      emxEnsureCapacity((emxArray__common *)x_apo, i16, (int)sizeof(double));
       ib = K_i->size[0];
-      for (i12 = 0; i12 < ib; i12++) {
-        x_apo->data[i12] = 0.0;
+      for (i16 = 0; i16 < ib; i16++) {
+        x_apo->data[i16] = 0.0;
         idx = K_i->size[1];
-        for (i13 = 0; i13 < idx; i13++) {
-          x_apo->data[i12] += K_i->data[i12 + K_i->size[0] * i13] * r_data[i13];
+        for (i17 = 0; i17 < idx; i17++) {
+          x_apo->data[i16] += K_i->data[i16 + K_i->size[0] * i17] * r_data[i17];
         }
       }
     } else {
       k = K_i->size[1];
       a[0] = K_i->size[0];
       m = K_i->size[0];
-      i12 = x_apo->size[0];
+      i16 = x_apo->size[0];
       x_apo->size[0] = (int)a[0];
-      emxEnsureCapacity((emxArray__common *)x_apo, i12, (int)sizeof(double));
+      emxEnsureCapacity((emxArray__common *)x_apo, i16, (int)sizeof(double));
       ib = (int)a[0];
-      for (i12 = 0; i12 < ib; i12++) {
-        x_apo->data[i12] = 0.0;
+      for (i16 = 0; i16 < ib; i16++) {
+        x_apo->data[i16] = 0.0;
       }
 
       if (K_i->size[0] == 0) {
@@ -571,8 +572,8 @@ void OnePointRANSAC_EKF(emxArray_real_T *b_xt, emxArray_real_T *b_P, const
         idx = 0;
         while ((m > 0) && (idx <= 0)) {
           ar = 0;
-          i12 = br + k;
-          for (ib = br; ib + 1 <= i12; ib++) {
+          i16 = br + k;
+          for (ib = br; ib + 1 <= i16; ib++) {
             if (r_data[ib] != 0.0) {
               ia = ar;
               for (ic = 0; ic + 1 <= m; ic++) {
@@ -590,34 +591,34 @@ void OnePointRANSAC_EKF(emxArray_real_T *b_xt, emxArray_real_T *b_P, const
       }
     }
 
-    i12 = x_apo_prev->size[0];
+    i16 = x_apo_prev->size[0];
     x_apo_prev->size[0] = b_xt->size[0];
-    emxEnsureCapacity((emxArray__common *)x_apo_prev, i12, (int)sizeof(double));
+    emxEnsureCapacity((emxArray__common *)x_apo_prev, i16, (int)sizeof(double));
     ib = b_xt->size[0];
-    for (i12 = 0; i12 < ib; i12++) {
-      x_apo_prev->data[i12] = b_xt->data[i12];
+    for (i16 = 0; i16 < ib; i16++) {
+      x_apo_prev->data[i16] = b_xt->data[i16];
     }
 
-    for (i12 = 0; i12 < 3; i12++) {
-      x_apo_prev->data[i12] = b_xt->data[i12] + x_apo->data[i12];
+    for (i16 = 0; i16 < 3; i16++) {
+      x_apo_prev->data[i16] = b_xt->data[i16] + x_apo->data[i16];
     }
 
-    for (i12 = 0; i12 < 3; i12++) {
-      c_xt[i12] = x_apo->data[3 + i12];
+    for (i16 = 0; i16 < 3; i16++) {
+      c_xt[i16] = x_apo->data[3 + i16];
     }
 
     quatPlusThetaJ(c_xt, dv26);
     quatmultJ(dv26, *(double (*)[4])&x_apo_prev->data[3], dv27);
-    for (i12 = 0; i12 < 4; i12++) {
-      x_apo_prev->data[3 + i12] = dv27[i12];
+    for (i16 = 0; i16 < 4; i16++) {
+      x_apo_prev->data[3 + i16] = dv27[i16];
     }
 
     if (8.0 > c_numStatesxt) {
-      i12 = 1;
-      i13 = 0;
+      i16 = 1;
+      i17 = 0;
     } else {
-      i12 = 8;
-      i13 = (int)c_numStatesxt;
+      i16 = 8;
+      i17 = (int)c_numStatesxt;
     }
 
     if (7.0 > c_numStates) {
@@ -636,48 +637,48 @@ void OnePointRANSAC_EKF(emxArray_real_T *b_xt, emxArray_real_T *b_P, const
       ar = (int)c_numStatesxt;
     }
 
-    ii = r11->size[0] * r11->size[1];
-    r11->size[0] = 1;
-    r11->size[1] = ar - br;
-    emxEnsureCapacity((emxArray__common *)r11, ii, (int)sizeof(int));
+    ii = r17->size[0] * r17->size[1];
+    r17->size[0] = 1;
+    r17->size[1] = ar - br;
+    emxEnsureCapacity((emxArray__common *)r17, ii, (int)sizeof(int));
     ib = ar - br;
     for (ar = 0; ar < ib; ar++) {
-      r11->data[r11->size[0] * ar] = br + ar;
+      r17->data[r17->size[0] * ar] = br + ar;
     }
 
-    br = r13->size[0];
-    r13->size[0] = (i13 - i12) + 1;
-    emxEnsureCapacity((emxArray__common *)r13, br, (int)sizeof(int));
-    ib = i13 - i12;
-    for (i13 = 0; i13 <= ib; i13++) {
-      r13->data[i13] = i12 + i13;
+    br = r19->size[0];
+    r19->size[0] = (i17 - i16) + 1;
+    emxEnsureCapacity((emxArray__common *)r19, br, (int)sizeof(int));
+    ib = i17 - i16;
+    for (i17 = 0; i17 <= ib; i17++) {
+      r19->data[i17] = i16 + i17;
     }
 
-    i12 = r14->size[0];
-    r14->size[0] = (idx - anchorIdx) + 1;
-    emxEnsureCapacity((emxArray__common *)r14, i12, (int)sizeof(int));
+    i16 = r20->size[0];
+    r20->size[0] = (idx - anchorIdx) + 1;
+    emxEnsureCapacity((emxArray__common *)r20, i16, (int)sizeof(int));
     ib = idx - anchorIdx;
-    for (i12 = 0; i12 <= ib; i12++) {
-      r14->data[i12] = anchorIdx + i12;
+    for (i16 = 0; i16 <= ib; i16++) {
+      r20->data[i16] = anchorIdx + i16;
     }
 
-    i12 = b_x_apo_prev->size[0];
-    b_x_apo_prev->size[0] = r11->size[0] * r11->size[1];
-    emxEnsureCapacity((emxArray__common *)b_x_apo_prev, i12, (int)sizeof(double));
-    ib = r11->size[0] * r11->size[1];
-    for (i12 = 0; i12 < ib; i12++) {
-      b_x_apo_prev->data[i12] = x_apo_prev->data[r13->data[i12] - 1] +
-        x_apo->data[r14->data[i12] - 1];
+    i16 = b_x_apo_prev->size[0];
+    b_x_apo_prev->size[0] = r17->size[0] * r17->size[1];
+    emxEnsureCapacity((emxArray__common *)b_x_apo_prev, i16, (int)sizeof(double));
+    ib = r17->size[0] * r17->size[1];
+    for (i16 = 0; i16 < ib; i16++) {
+      b_x_apo_prev->data[i16] = x_apo_prev->data[r19->data[i16] - 1] +
+        x_apo->data[r20->data[i16] - 1];
     }
 
     ib = b_x_apo_prev->size[0];
-    for (i12 = 0; i12 < ib; i12++) {
-      x_apo_prev->data[r11->data[i12]] = b_x_apo_prev->data[i12];
+    for (i16 = 0; i16 < ib; i16++) {
+      x_apo_prev->data[r17->data[i16]] = b_x_apo_prev->data[i16];
     }
 
     for (anchorIdx = 0; anchorIdx <= numAnchors; anchorIdx++) {
-      for (i12 = 0; i12 < 16; i12++) {
-        x[i12] = (b_anchorFeatures->data[i12 + b_anchorFeatures->size[0] *
+      for (i16 = 0; i16 < 16; i16++) {
+        x[i16] = (b_anchorFeatures->data[i16 + b_anchorFeatures->size[0] *
                   anchorIdx] == 1.0);
       }
 
@@ -688,26 +689,26 @@ void OnePointRANSAC_EKF(emxArray_real_T *b_xt, emxArray_real_T *b_P, const
           + numPointsPerAnchor);
         d_numStates = c_numStates + ((1.0 + (double)anchorIdx) - 1.0) * (6.0 +
           numPointsPerAnchor);
-        for (i12 = 0; i12 < 3; i12++) {
-          c_xt[i12] = x_apo_prev->data[(int)(d_numStatesxt + (1.0 + (double)i12))
-            - 1] + x_apo->data[(int)(d_numStates + (1.0 + (double)i12)) - 1];
+        for (i16 = 0; i16 < 3; i16++) {
+          c_xt[i16] = x_apo_prev->data[(int)(d_numStatesxt + (1.0 + (double)i16))
+            - 1] + x_apo->data[(int)(d_numStates + (1.0 + (double)i16)) - 1];
         }
 
-        for (i12 = 0; i12 < 3; i12++) {
-          x_apo_prev->data[(int)(e_numStatesxt + (1.0 + (double)i12)) - 1] =
-            c_xt[i12];
+        for (i16 = 0; i16 < 3; i16++) {
+          x_apo_prev->data[(int)(e_numStatesxt + (1.0 + (double)i16)) - 1] =
+            c_xt[i16];
         }
 
         d_numStates = c_numStates + ((1.0 + (double)anchorIdx) - 1.0) * (6.0 +
           numPointsPerAnchor);
-        for (i12 = 0; i12 < 3; i12++) {
-          c_xt[i12] = x_apo->data[(int)(d_numStates + (4.0 + (double)i12)) - 1];
+        for (i16 = 0; i16 < 3; i16++) {
+          c_xt[i16] = x_apo->data[(int)(d_numStates + (4.0 + (double)i16)) - 1];
         }
 
         e_numStatesxt = c_numStatesxt + ((1.0 + (double)anchorIdx) - 1.0) * (7.0
           + numPointsPerAnchor);
-        for (i12 = 0; i12 < 4; i12++) {
-          d_xt[i12] = x_apo_prev->data[(int)(e_numStatesxt + (4.0 + (double)i12))
+        for (i16 = 0; i16 < 4; i16++) {
+          d_xt[i16] = x_apo_prev->data[(int)(e_numStatesxt + (4.0 + (double)i16))
             - 1];
         }
 
@@ -715,9 +716,9 @@ void OnePointRANSAC_EKF(emxArray_real_T *b_xt, emxArray_real_T *b_P, const
         quatmultJ(dv28, d_xt, dv27);
         e_numStatesxt = c_numStatesxt + ((1.0 + (double)anchorIdx) - 1.0) * (7.0
           + numPointsPerAnchor);
-        for (i12 = 0; i12 < 4; i12++) {
-          x_apo_prev->data[(int)(e_numStatesxt + (4.0 + (double)i12)) - 1] =
-            dv27[i12];
+        for (i16 = 0; i16 < 4; i16++) {
+          x_apo_prev->data[(int)(e_numStatesxt + (4.0 + (double)i16)) - 1] =
+            dv27[i16];
         }
 
         for (idx = 0; idx < (int)numPointsPerAnchor; idx++) {
@@ -756,8 +757,8 @@ void OnePointRANSAC_EKF(emxArray_real_T *b_xt, emxArray_real_T *b_P, const
     R_cw[8] = ((-(x_apo_prev->data[3] * x_apo_prev->data[3]) - x_apo_prev->data
                 [4] * x_apo_prev->data[4]) + x_apo_prev->data[5] *
                x_apo_prev->data[5]) + x_apo_prev->data[6] * x_apo_prev->data[6];
-    for (i12 = 0; i12 < numMeas; i12++) {
-      HI_inlierStatus_data[i12] = false;
+    for (i16 = 0; i16 < numMeas; i16++) {
+      HI_inlierStatus_data[i16] = false;
     }
 
     //  inliers of this iteration
@@ -799,8 +800,8 @@ void OnePointRANSAC_EKF(emxArray_real_T *b_xt, emxArray_real_T *b_P, const
         ib = idx;
       }
 
-      for (i12 = 0; i12 < ib; i12++) {
-        featureIdxVect_data[i12] = (signed char)ii_data[i12];
+      for (i16 = 0; i16 < ib; i16++) {
+        featureIdxVect_data[i16] = (signed char)ii_data[i16];
       }
 
       for (idx = 0; idx < ar; idx++) {
@@ -809,9 +810,9 @@ void OnePointRANSAC_EKF(emxArray_real_T *b_xt, emxArray_real_T *b_P, const
           //  if this is not a lost feature
           e_numStatesxt = c_numStatesxt + ((1.0 + (double)anchorIdx) - 1.0) *
             (7.0 + numPointsPerAnchor);
-          for (i12 = 0; i12 < 3; i12++) {
-            anchorPos[i12] = x_apo_prev->data[(int)(e_numStatesxt + (1.0 +
-              (double)i12)) - 1];
+          for (i16 = 0; i16 < 3; i16++) {
+            anchorPos[i16] = x_apo_prev->data[(int)(e_numStatesxt + (1.0 +
+              (double)i16)) - 1];
           }
 
           //  if ~all(size(q) == [4, 1])
@@ -919,29 +920,29 @@ void OnePointRANSAC_EKF(emxArray_real_T *b_xt, emxArray_real_T *b_P, const
           d_numStates = x_apo_prev->data[(int)(((c_numStatesxt + ((1.0 + (double)
             anchorIdx) - 1.0) * (7.0 + b_VIOParameters.num_points_per_anchor)) +
             7.0) + featureAnchorIdx) - 1];
-          for (i12 = 0; i12 < 3; i12++) {
+          for (i16 = 0; i16 < 3; i16++) {
             d_numStatesxt = 0.0;
-            for (i13 = 0; i13 < 3; i13++) {
-              d_numStatesxt += c_x_apo_prev[i12 + 3 * i13] * b_m_vect->data[i13
+            for (i17 = 0; i17 < 3; i17++) {
+              d_numStatesxt += c_x_apo_prev[i16 + 3 * i17] * b_m_vect->data[i17
                 + b_m_vect->size[0] * (featureIdxVect_data[idx] - 1)];
             }
 
-            b_anchorPos[i12] = (anchorPos[i12] + d_numStatesxt / d_numStates) -
-              x_apo_prev->data[iv13[i12]];
+            b_anchorPos[i16] = (anchorPos[i16] + d_numStatesxt / d_numStates) -
+              x_apo_prev->data[iv13[i16]];
           }
 
-          for (i12 = 0; i12 < 3; i12++) {
-            c_xt[i12] = 0.0;
-            for (i13 = 0; i13 < 3; i13++) {
-              c_xt[i12] += R_cw[i12 + 3 * i13] * b_anchorPos[i13];
+          for (i16 = 0; i16 < 3; i16++) {
+            c_xt[i16] = 0.0;
+            for (i17 = 0; i17 < 3; i17++) {
+              c_xt[i16] += R_cw[i16 + 3 * i17] * b_anchorPos[i17];
             }
           }
 
           predictMeasurement_left(c_xt, c_cameraparams_CameraParameters,
             d_cameraparams_CameraParameters, e_cameraparams_CameraParameters, r);
           ii = (featureIdxVect_data[idx] - 1) * 2;
-          for (i12 = 0; i12 < 2; i12++) {
-            b_z_all_l[i12] = z_all_l[(ii + iv14[i12]) - 1] - r[i12];
+          for (i16 = 0; i16 < 2; i16++) {
+            b_z_all_l[i16] = z_all_l[(ii + iv14[i16]) - 1] - r[i16];
           }
 
           HI_inlierStatus_data[indMeasIdx] = (c_norm(b_z_all_l) < 4.0);
@@ -967,8 +968,8 @@ void OnePointRANSAC_EKF(emxArray_real_T *b_xt, emxArray_real_T *b_P, const
     }
 
     if (idx > ii) {
-      for (i12 = 0; i12 < numMeas; i12++) {
-        LI_inlierStatus_data[i12] = HI_inlierStatus_data[i12];
+      for (i16 = 0; i16 < numMeas; i16++) {
+        LI_inlierStatus_data[i16] = HI_inlierStatus_data[i16];
       }
 
       idx = 0;
@@ -985,9 +986,9 @@ void OnePointRANSAC_EKF(emxArray_real_T *b_xt, emxArray_real_T *b_P, const
   }
 
   emxFree_real_T(&b_x_apo_prev);
-  emxFree_int32_T(&r14);
-  emxFree_int32_T(&r13);
-  emxFree_real_T(&r12);
+  emxFree_int32_T(&r20);
+  emxFree_int32_T(&r19);
+  emxFree_real_T(&r18);
   emxFree_real_T(&H_i);
   emxFree_real_T(&K_i);
   idx = 0;
@@ -1021,8 +1022,8 @@ void OnePointRANSAC_EKF(emxArray_real_T *b_xt, emxArray_real_T *b_P, const
       }
 
       indMeas_size[0] = br;
-      for (i12 = 0; i12 < br; i12++) {
-        b_indMeas_data[i12] = indMeas_data[ii_data[i12] - 1];
+      for (i16 = 0; i16 < br; i16++) {
+        b_indMeas_data[i16] = indMeas_data[ii_data[i16] - 1];
       }
 
       b_getH_R_res(b_xt, c_numStates, c_numStatesxt, z_all_l, b_indMeas_data,
@@ -1036,19 +1037,19 @@ void OnePointRANSAC_EKF(emxArray_real_T *b_xt, emxArray_real_T *b_P, const
                    height_offset_pressure, b_VIOParameters, b_r_data, r_size, H,
                    unusedU2_data, unusedU2_size, b_R_data, b_R_size);
       if ((H->size[1] == 1) || (b_P->size[0] == 1)) {
-        i12 = y->size[0] * y->size[1];
+        i16 = y->size[0] * y->size[1];
         y->size[0] = H->size[0];
         y->size[1] = b_P->size[1];
-        emxEnsureCapacity((emxArray__common *)y, i12, (int)sizeof(double));
+        emxEnsureCapacity((emxArray__common *)y, i16, (int)sizeof(double));
         ib = H->size[0];
-        for (i12 = 0; i12 < ib; i12++) {
+        for (i16 = 0; i16 < ib; i16++) {
           idx = b_P->size[1];
-          for (i13 = 0; i13 < idx; i13++) {
-            y->data[i12 + y->size[0] * i13] = 0.0;
+          for (i17 = 0; i17 < idx; i17++) {
+            y->data[i16 + y->size[0] * i17] = 0.0;
             ii = H->size[1];
             for (anchorIdx = 0; anchorIdx < ii; anchorIdx++) {
-              y->data[i12 + y->size[0] * i13] += H->data[i12 + H->size[0] *
-                anchorIdx] * b_P->data[anchorIdx + b_P->size[0] * i13];
+              y->data[i16 + y->size[0] * i17] += H->data[i16 + H->size[0] *
+                anchorIdx] * b_P->data[anchorIdx + b_P->size[0] * i17];
             }
           }
         }
@@ -1057,15 +1058,15 @@ void OnePointRANSAC_EKF(emxArray_real_T *b_xt, emxArray_real_T *b_P, const
         a[0] = H->size[0];
         a[1] = b_P->size[1];
         m = H->size[0];
-        i12 = y->size[0] * y->size[1];
+        i16 = y->size[0] * y->size[1];
         y->size[0] = (int)a[0];
-        emxEnsureCapacity((emxArray__common *)y, i12, (int)sizeof(double));
-        i12 = y->size[0] * y->size[1];
+        emxEnsureCapacity((emxArray__common *)y, i16, (int)sizeof(double));
+        i16 = y->size[0] * y->size[1];
         y->size[1] = (int)a[1];
-        emxEnsureCapacity((emxArray__common *)y, i12, (int)sizeof(double));
+        emxEnsureCapacity((emxArray__common *)y, i16, (int)sizeof(double));
         ib = (int)a[0] * (int)a[1];
-        for (i12 = 0; i12 < ib; i12++) {
-          y->data[i12] = 0.0;
+        for (i16 = 0; i16 < ib; i16++) {
+          y->data[i16] = 0.0;
         }
 
         if ((H->size[0] == 0) || (b_P->size[1] == 0)) {
@@ -1073,8 +1074,8 @@ void OnePointRANSAC_EKF(emxArray_real_T *b_xt, emxArray_real_T *b_P, const
           ii = H->size[0] * (b_P->size[1] - 1);
           idx = 0;
           while ((m > 0) && (idx <= ii)) {
-            i12 = idx + m;
-            for (ic = idx; ic + 1 <= i12; ic++) {
+            i16 = idx + m;
+            for (ic = idx; ic + 1 <= i16; ic++) {
               y->data[ic] = 0.0;
             }
 
@@ -1085,12 +1086,12 @@ void OnePointRANSAC_EKF(emxArray_real_T *b_xt, emxArray_real_T *b_P, const
           idx = 0;
           while ((m > 0) && (idx <= ii)) {
             ar = 0;
-            i12 = br + k;
-            for (ib = br; ib + 1 <= i12; ib++) {
+            i16 = br + k;
+            for (ib = br; ib + 1 <= i16; ib++) {
               if (b_P->data[ib] != 0.0) {
                 ia = ar;
-                i13 = idx + m;
-                for (ic = idx; ic + 1 <= i13; ic++) {
+                i17 = idx + m;
+                for (ic = idx; ic + 1 <= i17; ic++) {
                   ia++;
                   y->data[ic] += b_P->data[ib] * H->data[ia - 1];
                 }
@@ -1105,32 +1106,32 @@ void OnePointRANSAC_EKF(emxArray_real_T *b_xt, emxArray_real_T *b_P, const
         }
       }
 
-      i12 = b->size[0] * b->size[1];
+      i16 = b->size[0] * b->size[1];
       b->size[0] = H->size[1];
       b->size[1] = H->size[0];
-      emxEnsureCapacity((emxArray__common *)b, i12, (int)sizeof(double));
+      emxEnsureCapacity((emxArray__common *)b, i16, (int)sizeof(double));
       ib = H->size[0];
-      for (i12 = 0; i12 < ib; i12++) {
+      for (i16 = 0; i16 < ib; i16++) {
         idx = H->size[1];
-        for (i13 = 0; i13 < idx; i13++) {
-          b->data[i13 + b->size[0] * i12] = H->data[i12 + H->size[0] * i13];
+        for (i17 = 0; i17 < idx; i17++) {
+          b->data[i17 + b->size[0] * i16] = H->data[i16 + H->size[0] * i17];
         }
       }
 
       if ((y->size[1] == 1) || (b->size[0] == 1)) {
-        i12 = C->size[0] * C->size[1];
+        i16 = C->size[0] * C->size[1];
         C->size[0] = y->size[0];
         C->size[1] = b->size[1];
-        emxEnsureCapacity((emxArray__common *)C, i12, (int)sizeof(double));
+        emxEnsureCapacity((emxArray__common *)C, i16, (int)sizeof(double));
         ib = y->size[0];
-        for (i12 = 0; i12 < ib; i12++) {
+        for (i16 = 0; i16 < ib; i16++) {
           idx = b->size[1];
-          for (i13 = 0; i13 < idx; i13++) {
-            C->data[i12 + C->size[0] * i13] = 0.0;
+          for (i17 = 0; i17 < idx; i17++) {
+            C->data[i16 + C->size[0] * i17] = 0.0;
             ii = y->size[1];
             for (anchorIdx = 0; anchorIdx < ii; anchorIdx++) {
-              C->data[i12 + C->size[0] * i13] += y->data[i12 + y->size[0] *
-                anchorIdx] * b->data[anchorIdx + b->size[0] * i13];
+              C->data[i16 + C->size[0] * i17] += y->data[i16 + y->size[0] *
+                anchorIdx] * b->data[anchorIdx + b->size[0] * i17];
             }
           }
         }
@@ -1139,15 +1140,15 @@ void OnePointRANSAC_EKF(emxArray_real_T *b_xt, emxArray_real_T *b_P, const
         a[0] = (signed char)y->size[0];
         a[1] = (signed char)b->size[1];
         m = y->size[0];
-        i12 = C->size[0] * C->size[1];
+        i16 = C->size[0] * C->size[1];
         C->size[0] = (int)a[0];
-        emxEnsureCapacity((emxArray__common *)C, i12, (int)sizeof(double));
-        i12 = C->size[0] * C->size[1];
+        emxEnsureCapacity((emxArray__common *)C, i16, (int)sizeof(double));
+        i16 = C->size[0] * C->size[1];
         C->size[1] = (int)a[1];
-        emxEnsureCapacity((emxArray__common *)C, i12, (int)sizeof(double));
+        emxEnsureCapacity((emxArray__common *)C, i16, (int)sizeof(double));
         ib = (int)((float)a[0] * (float)a[1]);
-        for (i12 = 0; i12 < ib; i12++) {
-          C->data[i12] = 0.0;
+        for (i16 = 0; i16 < ib; i16++) {
+          C->data[i16] = 0.0;
         }
 
         if ((y->size[0] == 0) || (b->size[1] == 0)) {
@@ -1155,8 +1156,8 @@ void OnePointRANSAC_EKF(emxArray_real_T *b_xt, emxArray_real_T *b_P, const
           ii = y->size[0] * (b->size[1] - 1);
           idx = 0;
           while ((m > 0) && (idx <= ii)) {
-            i12 = idx + m;
-            for (ic = idx; ic + 1 <= i12; ic++) {
+            i16 = idx + m;
+            for (ic = idx; ic + 1 <= i16; ic++) {
               C->data[ic] = 0.0;
             }
 
@@ -1167,12 +1168,12 @@ void OnePointRANSAC_EKF(emxArray_real_T *b_xt, emxArray_real_T *b_P, const
           idx = 0;
           while ((m > 0) && (idx <= ii)) {
             ar = 0;
-            i12 = br + k;
-            for (ib = br; ib + 1 <= i12; ib++) {
+            i16 = br + k;
+            for (ib = br; ib + 1 <= i16; ib++) {
               if (b->data[ib] != 0.0) {
                 ia = ar;
-                i13 = idx + m;
-                for (ic = idx; ic + 1 <= i13; ic++) {
+                i17 = idx + m;
+                for (ic = idx; ic + 1 <= i17; ic++) {
                   ia++;
                   C->data[ic] += b->data[ib] * y->data[ia - 1];
                 }
@@ -1187,32 +1188,32 @@ void OnePointRANSAC_EKF(emxArray_real_T *b_xt, emxArray_real_T *b_P, const
         }
       }
 
-      i12 = b->size[0] * b->size[1];
+      i16 = b->size[0] * b->size[1];
       b->size[0] = H->size[1];
       b->size[1] = H->size[0];
-      emxEnsureCapacity((emxArray__common *)b, i12, (int)sizeof(double));
+      emxEnsureCapacity((emxArray__common *)b, i16, (int)sizeof(double));
       ib = H->size[0];
-      for (i12 = 0; i12 < ib; i12++) {
+      for (i16 = 0; i16 < ib; i16++) {
         idx = H->size[1];
-        for (i13 = 0; i13 < idx; i13++) {
-          b->data[i13 + b->size[0] * i12] = H->data[i12 + H->size[0] * i13];
+        for (i17 = 0; i17 < idx; i17++) {
+          b->data[i17 + b->size[0] * i16] = H->data[i16 + H->size[0] * i17];
         }
       }
 
       if ((b_P->size[1] == 1) || (b->size[0] == 1)) {
-        i12 = y->size[0] * y->size[1];
+        i16 = y->size[0] * y->size[1];
         y->size[0] = b_P->size[0];
         y->size[1] = b->size[1];
-        emxEnsureCapacity((emxArray__common *)y, i12, (int)sizeof(double));
+        emxEnsureCapacity((emxArray__common *)y, i16, (int)sizeof(double));
         ib = b_P->size[0];
-        for (i12 = 0; i12 < ib; i12++) {
+        for (i16 = 0; i16 < ib; i16++) {
           idx = b->size[1];
-          for (i13 = 0; i13 < idx; i13++) {
-            y->data[i12 + y->size[0] * i13] = 0.0;
+          for (i17 = 0; i17 < idx; i17++) {
+            y->data[i16 + y->size[0] * i17] = 0.0;
             ii = b_P->size[1];
             for (anchorIdx = 0; anchorIdx < ii; anchorIdx++) {
-              y->data[i12 + y->size[0] * i13] += b_P->data[i12 + b_P->size[0] *
-                anchorIdx] * b->data[anchorIdx + b->size[0] * i13];
+              y->data[i16 + y->size[0] * i17] += b_P->data[i16 + b_P->size[0] *
+                anchorIdx] * b->data[anchorIdx + b->size[0] * i17];
             }
           }
         }
@@ -1221,15 +1222,15 @@ void OnePointRANSAC_EKF(emxArray_real_T *b_xt, emxArray_real_T *b_P, const
         a[0] = b_P->size[0];
         a[1] = b->size[1];
         m = b_P->size[0];
-        i12 = y->size[0] * y->size[1];
+        i16 = y->size[0] * y->size[1];
         y->size[0] = (int)a[0];
-        emxEnsureCapacity((emxArray__common *)y, i12, (int)sizeof(double));
-        i12 = y->size[0] * y->size[1];
+        emxEnsureCapacity((emxArray__common *)y, i16, (int)sizeof(double));
+        i16 = y->size[0] * y->size[1];
         y->size[1] = (int)a[1];
-        emxEnsureCapacity((emxArray__common *)y, i12, (int)sizeof(double));
+        emxEnsureCapacity((emxArray__common *)y, i16, (int)sizeof(double));
         ib = (int)a[0] * (int)a[1];
-        for (i12 = 0; i12 < ib; i12++) {
-          y->data[i12] = 0.0;
+        for (i16 = 0; i16 < ib; i16++) {
+          y->data[i16] = 0.0;
         }
 
         if ((b_P->size[0] == 0) || (b->size[1] == 0)) {
@@ -1237,8 +1238,8 @@ void OnePointRANSAC_EKF(emxArray_real_T *b_xt, emxArray_real_T *b_P, const
           ii = b_P->size[0] * (b->size[1] - 1);
           idx = 0;
           while ((m > 0) && (idx <= ii)) {
-            i12 = idx + m;
-            for (ic = idx; ic + 1 <= i12; ic++) {
+            i16 = idx + m;
+            for (ic = idx; ic + 1 <= i16; ic++) {
               y->data[ic] = 0.0;
             }
 
@@ -1249,12 +1250,12 @@ void OnePointRANSAC_EKF(emxArray_real_T *b_xt, emxArray_real_T *b_P, const
           idx = 0;
           while ((m > 0) && (idx <= ii)) {
             ar = 0;
-            i12 = br + k;
-            for (ib = br; ib + 1 <= i12; ib++) {
+            i16 = br + k;
+            for (ib = br; ib + 1 <= i16; ib++) {
               if (b->data[ib] != 0.0) {
                 ia = ar;
-                i13 = idx + m;
-                for (ic = idx; ic + 1 <= i13; ic++) {
+                i17 = idx + m;
+                for (ic = idx; ic + 1 <= i17; ic++) {
                   ia++;
                   y->data[ic] += b->data[ib] * b_P->data[ia - 1];
                 }
@@ -1272,33 +1273,33 @@ void OnePointRANSAC_EKF(emxArray_real_T *b_xt, emxArray_real_T *b_P, const
       b_C_size[0] = C->size[0];
       b_C_size[1] = C->size[1];
       ib = C->size[0] * C->size[1];
-      for (i12 = 0; i12 < ib; i12++) {
-        b_C_data[i12] = C->data[i12] + b_R_data[i12];
+      for (i16 = 0; i16 < ib; i16++) {
+        b_C_data[i16] = C->data[i16] + b_R_data[i16];
       }
 
       mrdivide(y, b_C_data, b_C_size, K);
       if ((K->size[1] == 1) || (r_size[0] == 1)) {
-        i12 = x_apo->size[0];
+        i16 = x_apo->size[0];
         x_apo->size[0] = K->size[0];
-        emxEnsureCapacity((emxArray__common *)x_apo, i12, (int)sizeof(double));
+        emxEnsureCapacity((emxArray__common *)x_apo, i16, (int)sizeof(double));
         ib = K->size[0];
-        for (i12 = 0; i12 < ib; i12++) {
-          x_apo->data[i12] = 0.0;
+        for (i16 = 0; i16 < ib; i16++) {
+          x_apo->data[i16] = 0.0;
           idx = K->size[1];
-          for (i13 = 0; i13 < idx; i13++) {
-            x_apo->data[i12] += K->data[i12 + K->size[0] * i13] * b_r_data[i13];
+          for (i17 = 0; i17 < idx; i17++) {
+            x_apo->data[i16] += K->data[i16 + K->size[0] * i17] * b_r_data[i17];
           }
         }
       } else {
         k = K->size[1];
         a[0] = K->size[0];
         m = K->size[0];
-        i12 = x_apo->size[0];
+        i16 = x_apo->size[0];
         x_apo->size[0] = (int)a[0];
-        emxEnsureCapacity((emxArray__common *)x_apo, i12, (int)sizeof(double));
+        emxEnsureCapacity((emxArray__common *)x_apo, i16, (int)sizeof(double));
         ib = (int)a[0];
-        for (i12 = 0; i12 < ib; i12++) {
-          x_apo->data[i12] = 0.0;
+        for (i16 = 0; i16 < ib; i16++) {
+          x_apo->data[i16] = 0.0;
         }
 
         if (K->size[0] == 0) {
@@ -1316,8 +1317,8 @@ void OnePointRANSAC_EKF(emxArray_real_T *b_xt, emxArray_real_T *b_P, const
           idx = 0;
           while ((m > 0) && (idx <= 0)) {
             ar = 0;
-            i12 = br + k;
-            for (ib = br; ib + 1 <= i12; ib++) {
+            i16 = br + k;
+            for (ib = br; ib + 1 <= i16; ib++) {
               if (b_r_data[ib] != 0.0) {
                 ia = ar;
                 for (ic = 0; ic + 1 <= m; ic++) {
@@ -1335,30 +1336,30 @@ void OnePointRANSAC_EKF(emxArray_real_T *b_xt, emxArray_real_T *b_P, const
         }
       }
 
-      for (i12 = 0; i12 < 3; i12++) {
-        c_xt[i12] = b_xt->data[i12] + x_apo->data[i12];
+      for (i16 = 0; i16 < 3; i16++) {
+        c_xt[i16] = b_xt->data[i16] + x_apo->data[i16];
       }
 
-      for (i12 = 0; i12 < 3; i12++) {
-        b_xt->data[i12] = c_xt[i12];
+      for (i16 = 0; i16 < 3; i16++) {
+        b_xt->data[i16] = c_xt[i16];
       }
 
-      for (i12 = 0; i12 < 3; i12++) {
-        c_xt[i12] = x_apo->data[3 + i12];
+      for (i16 = 0; i16 < 3; i16++) {
+        c_xt[i16] = x_apo->data[3 + i16];
       }
 
       quatPlusThetaJ(c_xt, dv29);
       quatmultJ(dv29, *(double (*)[4])&b_xt->data[3], dv27);
-      for (i12 = 0; i12 < 4; i12++) {
-        b_xt->data[3 + i12] = dv27[i12];
+      for (i16 = 0; i16 < 4; i16++) {
+        b_xt->data[3 + i16] = dv27[i16];
       }
 
       if (8.0 > c_numStatesxt) {
-        i12 = 0;
-        i13 = 0;
+        i16 = 0;
+        i17 = 0;
       } else {
-        i12 = 7;
-        i13 = (int)c_numStatesxt;
+        i16 = 7;
+        i17 = (int)c_numStatesxt;
       }
 
       if (7.0 > c_numStates) {
@@ -1375,32 +1376,32 @@ void OnePointRANSAC_EKF(emxArray_real_T *b_xt, emxArray_real_T *b_P, const
         br = (int)c_numStatesxt;
       }
 
-      ar = r11->size[0] * r11->size[1];
-      r11->size[0] = 1;
-      r11->size[1] = br - idx;
-      emxEnsureCapacity((emxArray__common *)r11, ar, (int)sizeof(int));
+      ar = r17->size[0] * r17->size[1];
+      r17->size[0] = 1;
+      r17->size[1] = br - idx;
+      emxEnsureCapacity((emxArray__common *)r17, ar, (int)sizeof(int));
       ib = br - idx;
       for (br = 0; br < ib; br++) {
-        r11->data[r11->size[0] * br] = idx + br;
+        r17->data[r17->size[0] * br] = idx + br;
       }
 
       idx = e_xt->size[0];
-      e_xt->size[0] = i13 - i12;
+      e_xt->size[0] = i17 - i16;
       emxEnsureCapacity((emxArray__common *)e_xt, idx, (int)sizeof(double));
-      ib = i13 - i12;
-      for (i13 = 0; i13 < ib; i13++) {
-        e_xt->data[i13] = b_xt->data[i12 + i13] + x_apo->data[anchorIdx + i13];
+      ib = i17 - i16;
+      for (i17 = 0; i17 < ib; i17++) {
+        e_xt->data[i17] = b_xt->data[i16 + i17] + x_apo->data[anchorIdx + i17];
       }
 
-      ib = r11->size[1];
-      for (i12 = 0; i12 < ib; i12++) {
-        b_xt->data[r11->data[r11->size[0] * i12]] = e_xt->data[(*(int (*)[2])
-          r11->size)[0] * i12];
+      ib = r17->size[1];
+      for (i16 = 0; i16 < ib; i16++) {
+        b_xt->data[r17->data[r17->size[0] * i16]] = e_xt->data[(*(int (*)[2])
+          r17->size)[0] * i16];
       }
 
       for (anchorIdx = 0; anchorIdx <= numAnchors; anchorIdx++) {
-        for (i12 = 0; i12 < 16; i12++) {
-          x[i12] = (b_anchorFeatures->data[i12 + b_anchorFeatures->size[0] *
+        for (i16 = 0; i16 < 16; i16++) {
+          x[i16] = (b_anchorFeatures->data[i16 + b_anchorFeatures->size[0] *
                     anchorIdx] == 1.0);
         }
 
@@ -1411,26 +1412,26 @@ void OnePointRANSAC_EKF(emxArray_real_T *b_xt, emxArray_real_T *b_P, const
             (7.0 + numPointsPerAnchor);
           d_numStates = c_numStates + ((1.0 + (double)anchorIdx) - 1.0) * (6.0 +
             numPointsPerAnchor);
-          for (i12 = 0; i12 < 3; i12++) {
-            c_xt[i12] = b_xt->data[(int)(d_numStatesxt + (1.0 + (double)i12)) -
-              1] + x_apo->data[(int)(d_numStates + (1.0 + (double)i12)) - 1];
+          for (i16 = 0; i16 < 3; i16++) {
+            c_xt[i16] = b_xt->data[(int)(d_numStatesxt + (1.0 + (double)i16)) -
+              1] + x_apo->data[(int)(d_numStates + (1.0 + (double)i16)) - 1];
           }
 
-          for (i12 = 0; i12 < 3; i12++) {
-            b_xt->data[(int)(e_numStatesxt + (1.0 + (double)i12)) - 1] =
-              c_xt[i12];
+          for (i16 = 0; i16 < 3; i16++) {
+            b_xt->data[(int)(e_numStatesxt + (1.0 + (double)i16)) - 1] =
+              c_xt[i16];
           }
 
           d_numStates = c_numStates + ((1.0 + (double)anchorIdx) - 1.0) * (6.0 +
             numPointsPerAnchor);
-          for (i12 = 0; i12 < 3; i12++) {
-            c_xt[i12] = x_apo->data[(int)(d_numStates + (4.0 + (double)i12)) - 1];
+          for (i16 = 0; i16 < 3; i16++) {
+            c_xt[i16] = x_apo->data[(int)(d_numStates + (4.0 + (double)i16)) - 1];
           }
 
           e_numStatesxt = c_numStatesxt + ((1.0 + (double)anchorIdx) - 1.0) *
             (7.0 + numPointsPerAnchor);
-          for (i12 = 0; i12 < 4; i12++) {
-            d_xt[i12] = b_xt->data[(int)(e_numStatesxt + (4.0 + (double)i12)) -
+          for (i16 = 0; i16 < 4; i16++) {
+            d_xt[i16] = b_xt->data[(int)(e_numStatesxt + (4.0 + (double)i16)) -
               1];
           }
 
@@ -1438,9 +1439,9 @@ void OnePointRANSAC_EKF(emxArray_real_T *b_xt, emxArray_real_T *b_P, const
           quatmultJ(dv30, d_xt, dv27);
           e_numStatesxt = c_numStatesxt + ((1.0 + (double)anchorIdx) - 1.0) *
             (7.0 + numPointsPerAnchor);
-          for (i12 = 0; i12 < 4; i12++) {
-            b_xt->data[(int)(e_numStatesxt + (4.0 + (double)i12)) - 1] =
-              dv27[i12];
+          for (i16 = 0; i16 < 4; i16++) {
+            b_xt->data[(int)(e_numStatesxt + (4.0 + (double)i16)) - 1] =
+              dv27[i16];
           }
 
           for (idx = 0; idx < (int)numPointsPerAnchor; idx++) {
@@ -1460,19 +1461,19 @@ void OnePointRANSAC_EKF(emxArray_real_T *b_xt, emxArray_real_T *b_P, const
     eye(c_numStates + (double)b_anchorFeatures->size[1] * (6.0 +
          b_VIOParameters.num_points_per_anchor), b_a);
     if ((K->size[1] == 1) || (H->size[0] == 1)) {
-      i12 = C->size[0] * C->size[1];
+      i16 = C->size[0] * C->size[1];
       C->size[0] = K->size[0];
       C->size[1] = H->size[1];
-      emxEnsureCapacity((emxArray__common *)C, i12, (int)sizeof(double));
+      emxEnsureCapacity((emxArray__common *)C, i16, (int)sizeof(double));
       ib = K->size[0];
-      for (i12 = 0; i12 < ib; i12++) {
+      for (i16 = 0; i16 < ib; i16++) {
         idx = H->size[1];
-        for (i13 = 0; i13 < idx; i13++) {
-          C->data[i12 + C->size[0] * i13] = 0.0;
+        for (i17 = 0; i17 < idx; i17++) {
+          C->data[i16 + C->size[0] * i17] = 0.0;
           ii = K->size[1];
           for (anchorIdx = 0; anchorIdx < ii; anchorIdx++) {
-            C->data[i12 + C->size[0] * i13] += K->data[i12 + K->size[0] *
-              anchorIdx] * H->data[anchorIdx + H->size[0] * i13];
+            C->data[i16 + C->size[0] * i17] += K->data[i16 + K->size[0] *
+              anchorIdx] * H->data[anchorIdx + H->size[0] * i17];
           }
         }
       }
@@ -1481,15 +1482,15 @@ void OnePointRANSAC_EKF(emxArray_real_T *b_xt, emxArray_real_T *b_P, const
       a[0] = (unsigned int)K->size[0];
       a[1] = (unsigned int)H->size[1];
       m = K->size[0];
-      i12 = C->size[0] * C->size[1];
+      i16 = C->size[0] * C->size[1];
       C->size[0] = (int)a[0];
-      emxEnsureCapacity((emxArray__common *)C, i12, (int)sizeof(double));
-      i12 = C->size[0] * C->size[1];
+      emxEnsureCapacity((emxArray__common *)C, i16, (int)sizeof(double));
+      i16 = C->size[0] * C->size[1];
       C->size[1] = (int)a[1];
-      emxEnsureCapacity((emxArray__common *)C, i12, (int)sizeof(double));
+      emxEnsureCapacity((emxArray__common *)C, i16, (int)sizeof(double));
       ib = (int)a[0] * (int)a[1];
-      for (i12 = 0; i12 < ib; i12++) {
-        C->data[i12] = 0.0;
+      for (i16 = 0; i16 < ib; i16++) {
+        C->data[i16] = 0.0;
       }
 
       if ((K->size[0] == 0) || (H->size[1] == 0)) {
@@ -1497,8 +1498,8 @@ void OnePointRANSAC_EKF(emxArray_real_T *b_xt, emxArray_real_T *b_P, const
         ii = K->size[0] * (H->size[1] - 1);
         idx = 0;
         while ((m > 0) && (idx <= ii)) {
-          i12 = idx + m;
-          for (ic = idx; ic + 1 <= i12; ic++) {
+          i16 = idx + m;
+          for (ic = idx; ic + 1 <= i16; ic++) {
             C->data[ic] = 0.0;
           }
 
@@ -1509,12 +1510,12 @@ void OnePointRANSAC_EKF(emxArray_real_T *b_xt, emxArray_real_T *b_P, const
         idx = 0;
         while ((m > 0) && (idx <= ii)) {
           ar = 0;
-          i12 = br + k;
-          for (ib = br; ib + 1 <= i12; ib++) {
+          i16 = br + k;
+          for (ib = br; ib + 1 <= i16; ib++) {
             if (H->data[ib] != 0.0) {
               ia = ar;
-              i13 = idx + m;
-              for (ic = idx; ic + 1 <= i13; ic++) {
+              i17 = idx + m;
+              for (ic = idx; ic + 1 <= i17; ic++) {
                 ia++;
                 C->data[ic] += H->data[ib] * K->data[ia - 1];
               }
@@ -1529,53 +1530,53 @@ void OnePointRANSAC_EKF(emxArray_real_T *b_xt, emxArray_real_T *b_P, const
       }
     }
 
-    i12 = b_a->size[0] * b_a->size[1];
-    emxEnsureCapacity((emxArray__common *)b_a, i12, (int)sizeof(double));
+    i16 = b_a->size[0] * b_a->size[1];
+    emxEnsureCapacity((emxArray__common *)b_a, i16, (int)sizeof(double));
     idx = b_a->size[0];
     ii = b_a->size[1];
     ib = idx * ii;
-    for (i12 = 0; i12 < ib; i12++) {
-      b_a->data[i12] -= C->data[i12];
+    for (i16 = 0; i16 < ib; i16++) {
+      b_a->data[i16] -= C->data[i16];
     }
 
-    i12 = b->size[0] * b->size[1];
+    i16 = b->size[0] * b->size[1];
     b->size[0] = b_P->size[0];
     b->size[1] = b_P->size[1];
-    emxEnsureCapacity((emxArray__common *)b, i12, (int)sizeof(double));
+    emxEnsureCapacity((emxArray__common *)b, i16, (int)sizeof(double));
     ib = b_P->size[0] * b_P->size[1];
-    for (i12 = 0; i12 < ib; i12++) {
-      b->data[i12] = b_P->data[i12];
+    for (i16 = 0; i16 < ib; i16++) {
+      b->data[i16] = b_P->data[i16];
     }
 
     emxInit_real_T(&c_a, 2);
     if ((b_a->size[1] == 1) || (b_P->size[0] == 1)) {
-      i12 = c_a->size[0] * c_a->size[1];
+      i16 = c_a->size[0] * c_a->size[1];
       c_a->size[0] = b_a->size[0];
       c_a->size[1] = b_P->size[1];
-      emxEnsureCapacity((emxArray__common *)c_a, i12, (int)sizeof(double));
+      emxEnsureCapacity((emxArray__common *)c_a, i16, (int)sizeof(double));
       ib = b_a->size[0];
-      for (i12 = 0; i12 < ib; i12++) {
+      for (i16 = 0; i16 < ib; i16++) {
         idx = b_P->size[1];
-        for (i13 = 0; i13 < idx; i13++) {
-          c_a->data[i12 + c_a->size[0] * i13] = 0.0;
+        for (i17 = 0; i17 < idx; i17++) {
+          c_a->data[i16 + c_a->size[0] * i17] = 0.0;
           ii = b_a->size[1];
           for (anchorIdx = 0; anchorIdx < ii; anchorIdx++) {
-            c_a->data[i12 + c_a->size[0] * i13] += b_a->data[i12 + b_a->size[0] *
-              anchorIdx] * b_P->data[anchorIdx + b_P->size[0] * i13];
+            c_a->data[i16 + c_a->size[0] * i17] += b_a->data[i16 + b_a->size[0] *
+              anchorIdx] * b_P->data[anchorIdx + b_P->size[0] * i17];
           }
         }
       }
 
-      i12 = b_P->size[0] * b_P->size[1];
+      i16 = b_P->size[0] * b_P->size[1];
       b_P->size[0] = c_a->size[0];
       b_P->size[1] = c_a->size[1];
-      emxEnsureCapacity((emxArray__common *)b_P, i12, (int)sizeof(double));
+      emxEnsureCapacity((emxArray__common *)b_P, i16, (int)sizeof(double));
       ib = c_a->size[1];
-      for (i12 = 0; i12 < ib; i12++) {
+      for (i16 = 0; i16 < ib; i16++) {
         idx = c_a->size[0];
-        for (i13 = 0; i13 < idx; i13++) {
-          b_P->data[i13 + b_P->size[0] * i12] = c_a->data[i13 + c_a->size[0] *
-            i12];
+        for (i17 = 0; i17 < idx; i17++) {
+          b_P->data[i17 + b_P->size[0] * i16] = c_a->data[i17 + c_a->size[0] *
+            i16];
         }
       }
     } else {
@@ -1583,15 +1584,15 @@ void OnePointRANSAC_EKF(emxArray_real_T *b_xt, emxArray_real_T *b_P, const
       a[0] = b_a->size[0];
       a[1] = b_P->size[1];
       m = b_a->size[0];
-      i12 = b_P->size[0] * b_P->size[1];
+      i16 = b_P->size[0] * b_P->size[1];
       b_P->size[0] = (int)a[0];
       b_P->size[1] = (int)a[1];
-      emxEnsureCapacity((emxArray__common *)b_P, i12, (int)sizeof(double));
+      emxEnsureCapacity((emxArray__common *)b_P, i16, (int)sizeof(double));
       ib = (int)a[1];
-      for (i12 = 0; i12 < ib; i12++) {
+      for (i16 = 0; i16 < ib; i16++) {
         idx = (int)a[0];
-        for (i13 = 0; i13 < idx; i13++) {
-          b_P->data[i13 + b_P->size[0] * i12] = 0.0;
+        for (i17 = 0; i17 < idx; i17++) {
+          b_P->data[i17 + b_P->size[0] * i16] = 0.0;
         }
       }
 
@@ -1600,8 +1601,8 @@ void OnePointRANSAC_EKF(emxArray_real_T *b_xt, emxArray_real_T *b_P, const
         ii = b_a->size[0] * (b->size[1] - 1);
         idx = 0;
         while ((m > 0) && (idx <= ii)) {
-          i12 = idx + m;
-          for (ic = idx; ic + 1 <= i12; ic++) {
+          i16 = idx + m;
+          for (ic = idx; ic + 1 <= i16; ic++) {
             b_P->data[ic] = 0.0;
           }
 
@@ -1612,12 +1613,12 @@ void OnePointRANSAC_EKF(emxArray_real_T *b_xt, emxArray_real_T *b_P, const
         idx = 0;
         while ((m > 0) && (idx <= ii)) {
           ar = 0;
-          i12 = br + k;
-          for (ib = br; ib + 1 <= i12; ib++) {
+          i16 = br + k;
+          for (ib = br; ib + 1 <= i16; ib++) {
             if (b->data[ib] != 0.0) {
               ia = ar;
-              i13 = idx + m;
-              for (ic = idx; ic + 1 <= i13; ic++) {
+              i17 = idx + m;
+              for (ic = idx; ic + 1 <= i17; ic++) {
                 ia++;
                 b_P->data[ic] += b->data[ib] * b_a->data[ia - 1];
               }
@@ -1649,17 +1650,17 @@ void OnePointRANSAC_EKF(emxArray_real_T *b_xt, emxArray_real_T *b_P, const
   }
 
   // % D Partial EKF update using high-innovation inliers
-  for (i12 = 0; i12 < loop_ub; i12++) {
-    HI_inlierStatus_data[i12] = true;
+  for (i16 = 0; i16 < loop_ub; i16++) {
+    HI_inlierStatus_data[i16] = true;
   }
 
   //  high innovation inliers
-  i12 = x_apo_prev->size[0];
+  i16 = x_apo_prev->size[0];
   x_apo_prev->size[0] = b_P->size[0];
-  emxEnsureCapacity((emxArray__common *)x_apo_prev, i12, (int)sizeof(double));
+  emxEnsureCapacity((emxArray__common *)x_apo_prev, i16, (int)sizeof(double));
   ib = b_P->size[0];
-  for (i12 = 0; i12 < ib; i12++) {
-    x_apo_prev->data[i12] = 0.0;
+  for (i16 = 0; i16 < ib; i16++) {
+    x_apo_prev->data[i16] = 0.0;
   }
 
   it = 0;
@@ -1684,8 +1685,8 @@ void OnePointRANSAC_EKF(emxArray_real_T *b_xt, emxArray_real_T *b_P, const
     }
 
     b_indMeas_size[0] = br;
-    for (i12 = 0; i12 < br; i12++) {
-      b_indMeas_data[i12] = indMeas_data[ii_data[i12] - 1];
+    for (i16 = 0; i16 < br; i16++) {
+      b_indMeas_data[i16] = indMeas_data[ii_data[i16] - 1];
     }
 
     b_getH_R_res(b_xt, c_numStates, c_numStatesxt, z_all_l, b_indMeas_data,
@@ -1701,19 +1702,19 @@ void OnePointRANSAC_EKF(emxArray_real_T *b_xt, emxArray_real_T *b_P, const
     if (1.0 + (double)it == 1.0) {
       //  only do outlier rejection in first iteration
       if ((H->size[1] == 1) || (b_P->size[0] == 1)) {
-        i12 = y->size[0] * y->size[1];
+        i16 = y->size[0] * y->size[1];
         y->size[0] = H->size[0];
         y->size[1] = b_P->size[1];
-        emxEnsureCapacity((emxArray__common *)y, i12, (int)sizeof(double));
+        emxEnsureCapacity((emxArray__common *)y, i16, (int)sizeof(double));
         ib = H->size[0];
-        for (i12 = 0; i12 < ib; i12++) {
+        for (i16 = 0; i16 < ib; i16++) {
           idx = b_P->size[1];
-          for (i13 = 0; i13 < idx; i13++) {
-            y->data[i12 + y->size[0] * i13] = 0.0;
+          for (i17 = 0; i17 < idx; i17++) {
+            y->data[i16 + y->size[0] * i17] = 0.0;
             ii = H->size[1];
             for (anchorIdx = 0; anchorIdx < ii; anchorIdx++) {
-              y->data[i12 + y->size[0] * i13] += H->data[i12 + H->size[0] *
-                anchorIdx] * b_P->data[anchorIdx + b_P->size[0] * i13];
+              y->data[i16 + y->size[0] * i17] += H->data[i16 + H->size[0] *
+                anchorIdx] * b_P->data[anchorIdx + b_P->size[0] * i17];
             }
           }
         }
@@ -1722,15 +1723,15 @@ void OnePointRANSAC_EKF(emxArray_real_T *b_xt, emxArray_real_T *b_P, const
         a[0] = H->size[0];
         a[1] = b_P->size[1];
         m = H->size[0];
-        i12 = y->size[0] * y->size[1];
+        i16 = y->size[0] * y->size[1];
         y->size[0] = (int)a[0];
-        emxEnsureCapacity((emxArray__common *)y, i12, (int)sizeof(double));
-        i12 = y->size[0] * y->size[1];
+        emxEnsureCapacity((emxArray__common *)y, i16, (int)sizeof(double));
+        i16 = y->size[0] * y->size[1];
         y->size[1] = (int)a[1];
-        emxEnsureCapacity((emxArray__common *)y, i12, (int)sizeof(double));
+        emxEnsureCapacity((emxArray__common *)y, i16, (int)sizeof(double));
         ib = (int)a[0] * (int)a[1];
-        for (i12 = 0; i12 < ib; i12++) {
-          y->data[i12] = 0.0;
+        for (i16 = 0; i16 < ib; i16++) {
+          y->data[i16] = 0.0;
         }
 
         if ((H->size[0] == 0) || (b_P->size[1] == 0)) {
@@ -1738,8 +1739,8 @@ void OnePointRANSAC_EKF(emxArray_real_T *b_xt, emxArray_real_T *b_P, const
           ii = H->size[0] * (b_P->size[1] - 1);
           idx = 0;
           while ((m > 0) && (idx <= ii)) {
-            i12 = idx + m;
-            for (ic = idx; ic + 1 <= i12; ic++) {
+            i16 = idx + m;
+            for (ic = idx; ic + 1 <= i16; ic++) {
               y->data[ic] = 0.0;
             }
 
@@ -1750,12 +1751,12 @@ void OnePointRANSAC_EKF(emxArray_real_T *b_xt, emxArray_real_T *b_P, const
           idx = 0;
           while ((m > 0) && (idx <= ii)) {
             ar = 0;
-            i12 = br + k;
-            for (ib = br; ib + 1 <= i12; ib++) {
+            i16 = br + k;
+            for (ib = br; ib + 1 <= i16; ib++) {
               if (b_P->data[ib] != 0.0) {
                 ia = ar;
-                i13 = idx + m;
-                for (ic = idx; ic + 1 <= i13; ic++) {
+                i17 = idx + m;
+                for (ic = idx; ic + 1 <= i17; ic++) {
                   ia++;
                   y->data[ic] += b_P->data[ib] * H->data[ia - 1];
                 }
@@ -1770,32 +1771,32 @@ void OnePointRANSAC_EKF(emxArray_real_T *b_xt, emxArray_real_T *b_P, const
         }
       }
 
-      i12 = b->size[0] * b->size[1];
+      i16 = b->size[0] * b->size[1];
       b->size[0] = H->size[1];
       b->size[1] = H->size[0];
-      emxEnsureCapacity((emxArray__common *)b, i12, (int)sizeof(double));
+      emxEnsureCapacity((emxArray__common *)b, i16, (int)sizeof(double));
       ib = H->size[0];
-      for (i12 = 0; i12 < ib; i12++) {
+      for (i16 = 0; i16 < ib; i16++) {
         idx = H->size[1];
-        for (i13 = 0; i13 < idx; i13++) {
-          b->data[i13 + b->size[0] * i12] = H->data[i12 + H->size[0] * i13];
+        for (i17 = 0; i17 < idx; i17++) {
+          b->data[i17 + b->size[0] * i16] = H->data[i16 + H->size[0] * i17];
         }
       }
 
       if ((y->size[1] == 1) || (b->size[0] == 1)) {
-        i12 = b_a->size[0] * b_a->size[1];
+        i16 = b_a->size[0] * b_a->size[1];
         b_a->size[0] = y->size[0];
         b_a->size[1] = b->size[1];
-        emxEnsureCapacity((emxArray__common *)b_a, i12, (int)sizeof(double));
+        emxEnsureCapacity((emxArray__common *)b_a, i16, (int)sizeof(double));
         ib = y->size[0];
-        for (i12 = 0; i12 < ib; i12++) {
+        for (i16 = 0; i16 < ib; i16++) {
           idx = b->size[1];
-          for (i13 = 0; i13 < idx; i13++) {
-            b_a->data[i12 + b_a->size[0] * i13] = 0.0;
+          for (i17 = 0; i17 < idx; i17++) {
+            b_a->data[i16 + b_a->size[0] * i17] = 0.0;
             ii = y->size[1];
             for (anchorIdx = 0; anchorIdx < ii; anchorIdx++) {
-              b_a->data[i12 + b_a->size[0] * i13] += y->data[i12 + y->size[0] *
-                anchorIdx] * b->data[anchorIdx + b->size[0] * i13];
+              b_a->data[i16 + b_a->size[0] * i17] += y->data[i16 + y->size[0] *
+                anchorIdx] * b->data[anchorIdx + b->size[0] * i17];
             }
           }
         }
@@ -1804,15 +1805,15 @@ void OnePointRANSAC_EKF(emxArray_real_T *b_xt, emxArray_real_T *b_P, const
         a[0] = (signed char)y->size[0];
         a[1] = (signed char)b->size[1];
         m = y->size[0];
-        i12 = b_a->size[0] * b_a->size[1];
+        i16 = b_a->size[0] * b_a->size[1];
         b_a->size[0] = (int)a[0];
-        emxEnsureCapacity((emxArray__common *)b_a, i12, (int)sizeof(double));
-        i12 = b_a->size[0] * b_a->size[1];
+        emxEnsureCapacity((emxArray__common *)b_a, i16, (int)sizeof(double));
+        i16 = b_a->size[0] * b_a->size[1];
         b_a->size[1] = (int)a[1];
-        emxEnsureCapacity((emxArray__common *)b_a, i12, (int)sizeof(double));
+        emxEnsureCapacity((emxArray__common *)b_a, i16, (int)sizeof(double));
         ib = (int)((float)a[0] * (float)a[1]);
-        for (i12 = 0; i12 < ib; i12++) {
-          b_a->data[i12] = 0.0;
+        for (i16 = 0; i16 < ib; i16++) {
+          b_a->data[i16] = 0.0;
         }
 
         if ((y->size[0] == 0) || (b->size[1] == 0)) {
@@ -1820,8 +1821,8 @@ void OnePointRANSAC_EKF(emxArray_real_T *b_xt, emxArray_real_T *b_P, const
           ii = y->size[0] * (b->size[1] - 1);
           idx = 0;
           while ((m > 0) && (idx <= ii)) {
-            i12 = idx + m;
-            for (ic = idx; ic + 1 <= i12; ic++) {
+            i16 = idx + m;
+            for (ic = idx; ic + 1 <= i16; ic++) {
               b_a->data[ic] = 0.0;
             }
 
@@ -1832,12 +1833,12 @@ void OnePointRANSAC_EKF(emxArray_real_T *b_xt, emxArray_real_T *b_P, const
           idx = 0;
           while ((m > 0) && (idx <= ii)) {
             ar = 0;
-            i12 = br + k;
-            for (ib = br; ib + 1 <= i12; ib++) {
+            i16 = br + k;
+            for (ib = br; ib + 1 <= i16; ib++) {
               if (b->data[ib] != 0.0) {
                 ia = ar;
-                i13 = idx + m;
-                for (ic = idx; ic + 1 <= i13; ic++) {
+                i17 = idx + m;
+                for (ic = idx; ic + 1 <= i17; ic++) {
                   ia++;
                   b_a->data[ic] += b->data[ib] * y->data[ia - 1];
                 }
@@ -1854,39 +1855,39 @@ void OnePointRANSAC_EKF(emxArray_real_T *b_xt, emxArray_real_T *b_P, const
 
       br = b_a->size[0];
       ib = b_a->size[0] * b_a->size[1];
-      for (i12 = 0; i12 < ib; i12++) {
-        S_data[i12] = b_a->data[i12] + b_R_data[i12];
+      for (i16 = 0; i16 < ib; i16++) {
+        S_data[i16] = b_a->data[i16] + b_R_data[i16];
       }
 
       for (k = 0; k < numMeas; k++) {
         ar = k << 1;
         ii = k << 1;
         idx = k << 1;
-        for (i12 = 0; i12 < 2; i12++) {
-          r[i12] = b_r_data[i12 + ar];
-          for (i13 = 0; i13 < 2; i13++) {
-            d_xt[i13 + (i12 << 1)] = S_data[(i13 + ii) + br * (i12 + idx)];
+        for (i16 = 0; i16 < 2; i16++) {
+          r[i16] = b_r_data[i16 + ar];
+          for (i17 = 0; i17 < 2; i17++) {
+            d_xt[i17 + (i16 << 1)] = S_data[(i17 + ii) + br * (i16 + idx)];
           }
         }
 
         b_mrdivide(r, d_xt, a);
         ar = k << 1;
-        for (i12 = 0; i12 < 2; i12++) {
-          r[i12] = b_r_data[i12 + ar];
+        for (i16 = 0; i16 < 2; i16++) {
+          r[i16] = b_r_data[i16 + ar];
         }
 
         if (LI_inlierStatus_data[k]) {
           //  if this feature is a LI inlier, don't also do HI update with this feature 
           ar = k << 1;
-          for (i12 = 0; i12 < 2; i12++) {
-            b_r_data[i12 + ar] = 0.0;
+          for (i16 = 0; i16 < 2; i16++) {
+            b_r_data[i16 + ar] = 0.0;
           }
 
           ib = H->size[1];
           ar = k << 1;
-          for (i12 = 0; i12 < ib; i12++) {
-            for (i13 = 0; i13 < 2; i13++) {
-              H->data[(i13 + ar) + H->size[0] * i12] = 0.0;
+          for (i16 = 0; i16 < ib; i16++) {
+            for (i17 = 0; i17 < 2; i17++) {
+              H->data[(i17 + ar) + H->size[0] * i16] = 0.0;
             }
           }
 
@@ -1894,21 +1895,21 @@ void OnePointRANSAC_EKF(emxArray_real_T *b_xt, emxArray_real_T *b_P, const
         } else {
           //  otherwise check if HI inlier for both cams
           d_numStatesxt = 0.0;
-          for (i12 = 0; i12 < 2; i12++) {
-            d_numStatesxt += a[i12] * r[i12];
+          for (i16 = 0; i16 < 2; i16++) {
+            d_numStatesxt += a[i16] * r[i16];
           }
 
           if (d_numStatesxt > 6.0) {
             ar = k << 1;
-            for (i12 = 0; i12 < 2; i12++) {
-              b_r_data[i12 + ar] = 0.0;
+            for (i16 = 0; i16 < 2; i16++) {
+              b_r_data[i16 + ar] = 0.0;
             }
 
             ib = H->size[1];
             ar = k << 1;
-            for (i12 = 0; i12 < ib; i12++) {
-              for (i13 = 0; i13 < 2; i13++) {
-                H->data[(i13 + ar) + H->size[0] * i12] = 0.0;
+            for (i16 = 0; i16 < ib; i16++) {
+              for (i17 = 0; i17 < 2; i17++) {
+                H->data[(i17 + ar) + H->size[0] * i16] = 0.0;
               }
             }
 
@@ -1919,19 +1920,19 @@ void OnePointRANSAC_EKF(emxArray_real_T *b_xt, emxArray_real_T *b_P, const
     }
 
     if ((H->size[1] == 1) || (b_P->size[0] == 1)) {
-      i12 = y->size[0] * y->size[1];
+      i16 = y->size[0] * y->size[1];
       y->size[0] = H->size[0];
       y->size[1] = b_P->size[1];
-      emxEnsureCapacity((emxArray__common *)y, i12, (int)sizeof(double));
+      emxEnsureCapacity((emxArray__common *)y, i16, (int)sizeof(double));
       ib = H->size[0];
-      for (i12 = 0; i12 < ib; i12++) {
+      for (i16 = 0; i16 < ib; i16++) {
         idx = b_P->size[1];
-        for (i13 = 0; i13 < idx; i13++) {
-          y->data[i12 + y->size[0] * i13] = 0.0;
+        for (i17 = 0; i17 < idx; i17++) {
+          y->data[i16 + y->size[0] * i17] = 0.0;
           ii = H->size[1];
           for (anchorIdx = 0; anchorIdx < ii; anchorIdx++) {
-            y->data[i12 + y->size[0] * i13] += H->data[i12 + H->size[0] *
-              anchorIdx] * b_P->data[anchorIdx + b_P->size[0] * i13];
+            y->data[i16 + y->size[0] * i17] += H->data[i16 + H->size[0] *
+              anchorIdx] * b_P->data[anchorIdx + b_P->size[0] * i17];
           }
         }
       }
@@ -1940,15 +1941,15 @@ void OnePointRANSAC_EKF(emxArray_real_T *b_xt, emxArray_real_T *b_P, const
       a[0] = H->size[0];
       a[1] = b_P->size[1];
       m = H->size[0];
-      i12 = y->size[0] * y->size[1];
+      i16 = y->size[0] * y->size[1];
       y->size[0] = (int)a[0];
-      emxEnsureCapacity((emxArray__common *)y, i12, (int)sizeof(double));
-      i12 = y->size[0] * y->size[1];
+      emxEnsureCapacity((emxArray__common *)y, i16, (int)sizeof(double));
+      i16 = y->size[0] * y->size[1];
       y->size[1] = (int)a[1];
-      emxEnsureCapacity((emxArray__common *)y, i12, (int)sizeof(double));
+      emxEnsureCapacity((emxArray__common *)y, i16, (int)sizeof(double));
       ib = (int)a[0] * (int)a[1];
-      for (i12 = 0; i12 < ib; i12++) {
-        y->data[i12] = 0.0;
+      for (i16 = 0; i16 < ib; i16++) {
+        y->data[i16] = 0.0;
       }
 
       if ((H->size[0] == 0) || (b_P->size[1] == 0)) {
@@ -1956,8 +1957,8 @@ void OnePointRANSAC_EKF(emxArray_real_T *b_xt, emxArray_real_T *b_P, const
         ii = H->size[0] * (b_P->size[1] - 1);
         idx = 0;
         while ((m > 0) && (idx <= ii)) {
-          i12 = idx + m;
-          for (ic = idx; ic + 1 <= i12; ic++) {
+          i16 = idx + m;
+          for (ic = idx; ic + 1 <= i16; ic++) {
             y->data[ic] = 0.0;
           }
 
@@ -1968,12 +1969,12 @@ void OnePointRANSAC_EKF(emxArray_real_T *b_xt, emxArray_real_T *b_P, const
         idx = 0;
         while ((m > 0) && (idx <= ii)) {
           ar = 0;
-          i12 = br + k;
-          for (ib = br; ib + 1 <= i12; ib++) {
+          i16 = br + k;
+          for (ib = br; ib + 1 <= i16; ib++) {
             if (b_P->data[ib] != 0.0) {
               ia = ar;
-              i13 = idx + m;
-              for (ic = idx; ic + 1 <= i13; ic++) {
+              i17 = idx + m;
+              for (ic = idx; ic + 1 <= i17; ic++) {
                 ia++;
                 y->data[ic] += b_P->data[ib] * H->data[ia - 1];
               }
@@ -1988,32 +1989,32 @@ void OnePointRANSAC_EKF(emxArray_real_T *b_xt, emxArray_real_T *b_P, const
       }
     }
 
-    i12 = b->size[0] * b->size[1];
+    i16 = b->size[0] * b->size[1];
     b->size[0] = H->size[1];
     b->size[1] = H->size[0];
-    emxEnsureCapacity((emxArray__common *)b, i12, (int)sizeof(double));
+    emxEnsureCapacity((emxArray__common *)b, i16, (int)sizeof(double));
     ib = H->size[0];
-    for (i12 = 0; i12 < ib; i12++) {
+    for (i16 = 0; i16 < ib; i16++) {
       idx = H->size[1];
-      for (i13 = 0; i13 < idx; i13++) {
-        b->data[i13 + b->size[0] * i12] = H->data[i12 + H->size[0] * i13];
+      for (i17 = 0; i17 < idx; i17++) {
+        b->data[i17 + b->size[0] * i16] = H->data[i16 + H->size[0] * i17];
       }
     }
 
     if ((y->size[1] == 1) || (b->size[0] == 1)) {
-      i12 = C->size[0] * C->size[1];
+      i16 = C->size[0] * C->size[1];
       C->size[0] = y->size[0];
       C->size[1] = b->size[1];
-      emxEnsureCapacity((emxArray__common *)C, i12, (int)sizeof(double));
+      emxEnsureCapacity((emxArray__common *)C, i16, (int)sizeof(double));
       ib = y->size[0];
-      for (i12 = 0; i12 < ib; i12++) {
+      for (i16 = 0; i16 < ib; i16++) {
         idx = b->size[1];
-        for (i13 = 0; i13 < idx; i13++) {
-          C->data[i12 + C->size[0] * i13] = 0.0;
+        for (i17 = 0; i17 < idx; i17++) {
+          C->data[i16 + C->size[0] * i17] = 0.0;
           ii = y->size[1];
           for (anchorIdx = 0; anchorIdx < ii; anchorIdx++) {
-            C->data[i12 + C->size[0] * i13] += y->data[i12 + y->size[0] *
-              anchorIdx] * b->data[anchorIdx + b->size[0] * i13];
+            C->data[i16 + C->size[0] * i17] += y->data[i16 + y->size[0] *
+              anchorIdx] * b->data[anchorIdx + b->size[0] * i17];
           }
         }
       }
@@ -2022,15 +2023,15 @@ void OnePointRANSAC_EKF(emxArray_real_T *b_xt, emxArray_real_T *b_P, const
       a[0] = (signed char)y->size[0];
       a[1] = (signed char)b->size[1];
       m = y->size[0];
-      i12 = C->size[0] * C->size[1];
+      i16 = C->size[0] * C->size[1];
       C->size[0] = (int)a[0];
-      emxEnsureCapacity((emxArray__common *)C, i12, (int)sizeof(double));
-      i12 = C->size[0] * C->size[1];
+      emxEnsureCapacity((emxArray__common *)C, i16, (int)sizeof(double));
+      i16 = C->size[0] * C->size[1];
       C->size[1] = (int)a[1];
-      emxEnsureCapacity((emxArray__common *)C, i12, (int)sizeof(double));
+      emxEnsureCapacity((emxArray__common *)C, i16, (int)sizeof(double));
       ib = (int)((float)a[0] * (float)a[1]);
-      for (i12 = 0; i12 < ib; i12++) {
-        C->data[i12] = 0.0;
+      for (i16 = 0; i16 < ib; i16++) {
+        C->data[i16] = 0.0;
       }
 
       if ((y->size[0] == 0) || (b->size[1] == 0)) {
@@ -2038,8 +2039,8 @@ void OnePointRANSAC_EKF(emxArray_real_T *b_xt, emxArray_real_T *b_P, const
         ii = y->size[0] * (b->size[1] - 1);
         idx = 0;
         while ((m > 0) && (idx <= ii)) {
-          i12 = idx + m;
-          for (ic = idx; ic + 1 <= i12; ic++) {
+          i16 = idx + m;
+          for (ic = idx; ic + 1 <= i16; ic++) {
             C->data[ic] = 0.0;
           }
 
@@ -2050,12 +2051,12 @@ void OnePointRANSAC_EKF(emxArray_real_T *b_xt, emxArray_real_T *b_P, const
         idx = 0;
         while ((m > 0) && (idx <= ii)) {
           ar = 0;
-          i12 = br + k;
-          for (ib = br; ib + 1 <= i12; ib++) {
+          i16 = br + k;
+          for (ib = br; ib + 1 <= i16; ib++) {
             if (b->data[ib] != 0.0) {
               ia = ar;
-              i13 = idx + m;
-              for (ic = idx; ic + 1 <= i13; ic++) {
+              i17 = idx + m;
+              for (ic = idx; ic + 1 <= i17; ic++) {
                 ia++;
                 C->data[ic] += b->data[ib] * y->data[ia - 1];
               }
@@ -2070,32 +2071,32 @@ void OnePointRANSAC_EKF(emxArray_real_T *b_xt, emxArray_real_T *b_P, const
       }
     }
 
-    i12 = b->size[0] * b->size[1];
+    i16 = b->size[0] * b->size[1];
     b->size[0] = H->size[1];
     b->size[1] = H->size[0];
-    emxEnsureCapacity((emxArray__common *)b, i12, (int)sizeof(double));
+    emxEnsureCapacity((emxArray__common *)b, i16, (int)sizeof(double));
     ib = H->size[0];
-    for (i12 = 0; i12 < ib; i12++) {
+    for (i16 = 0; i16 < ib; i16++) {
       idx = H->size[1];
-      for (i13 = 0; i13 < idx; i13++) {
-        b->data[i13 + b->size[0] * i12] = H->data[i12 + H->size[0] * i13];
+      for (i17 = 0; i17 < idx; i17++) {
+        b->data[i17 + b->size[0] * i16] = H->data[i16 + H->size[0] * i17];
       }
     }
 
     if ((b_P->size[1] == 1) || (b->size[0] == 1)) {
-      i12 = y->size[0] * y->size[1];
+      i16 = y->size[0] * y->size[1];
       y->size[0] = b_P->size[0];
       y->size[1] = b->size[1];
-      emxEnsureCapacity((emxArray__common *)y, i12, (int)sizeof(double));
+      emxEnsureCapacity((emxArray__common *)y, i16, (int)sizeof(double));
       ib = b_P->size[0];
-      for (i12 = 0; i12 < ib; i12++) {
+      for (i16 = 0; i16 < ib; i16++) {
         idx = b->size[1];
-        for (i13 = 0; i13 < idx; i13++) {
-          y->data[i12 + y->size[0] * i13] = 0.0;
+        for (i17 = 0; i17 < idx; i17++) {
+          y->data[i16 + y->size[0] * i17] = 0.0;
           ii = b_P->size[1];
           for (anchorIdx = 0; anchorIdx < ii; anchorIdx++) {
-            y->data[i12 + y->size[0] * i13] += b_P->data[i12 + b_P->size[0] *
-              anchorIdx] * b->data[anchorIdx + b->size[0] * i13];
+            y->data[i16 + y->size[0] * i17] += b_P->data[i16 + b_P->size[0] *
+              anchorIdx] * b->data[anchorIdx + b->size[0] * i17];
           }
         }
       }
@@ -2104,15 +2105,15 @@ void OnePointRANSAC_EKF(emxArray_real_T *b_xt, emxArray_real_T *b_P, const
       a[0] = b_P->size[0];
       a[1] = b->size[1];
       m = b_P->size[0];
-      i12 = y->size[0] * y->size[1];
+      i16 = y->size[0] * y->size[1];
       y->size[0] = (int)a[0];
-      emxEnsureCapacity((emxArray__common *)y, i12, (int)sizeof(double));
-      i12 = y->size[0] * y->size[1];
+      emxEnsureCapacity((emxArray__common *)y, i16, (int)sizeof(double));
+      i16 = y->size[0] * y->size[1];
       y->size[1] = (int)a[1];
-      emxEnsureCapacity((emxArray__common *)y, i12, (int)sizeof(double));
+      emxEnsureCapacity((emxArray__common *)y, i16, (int)sizeof(double));
       ib = (int)a[0] * (int)a[1];
-      for (i12 = 0; i12 < ib; i12++) {
-        y->data[i12] = 0.0;
+      for (i16 = 0; i16 < ib; i16++) {
+        y->data[i16] = 0.0;
       }
 
       if ((b_P->size[0] == 0) || (b->size[1] == 0)) {
@@ -2120,8 +2121,8 @@ void OnePointRANSAC_EKF(emxArray_real_T *b_xt, emxArray_real_T *b_P, const
         ii = b_P->size[0] * (b->size[1] - 1);
         idx = 0;
         while ((m > 0) && (idx <= ii)) {
-          i12 = idx + m;
-          for (ic = idx; ic + 1 <= i12; ic++) {
+          i16 = idx + m;
+          for (ic = idx; ic + 1 <= i16; ic++) {
             y->data[ic] = 0.0;
           }
 
@@ -2132,12 +2133,12 @@ void OnePointRANSAC_EKF(emxArray_real_T *b_xt, emxArray_real_T *b_P, const
         idx = 0;
         while ((m > 0) && (idx <= ii)) {
           ar = 0;
-          i12 = br + k;
-          for (ib = br; ib + 1 <= i12; ib++) {
+          i16 = br + k;
+          for (ib = br; ib + 1 <= i16; ib++) {
             if (b->data[ib] != 0.0) {
               ia = ar;
-              i13 = idx + m;
-              for (ic = idx; ic + 1 <= i13; ic++) {
+              i17 = idx + m;
+              for (ic = idx; ic + 1 <= i17; ic++) {
                 ia++;
                 y->data[ic] += b->data[ib] * b_P->data[ia - 1];
               }
@@ -2155,33 +2156,33 @@ void OnePointRANSAC_EKF(emxArray_real_T *b_xt, emxArray_real_T *b_P, const
     c_C_size[0] = C->size[0];
     c_C_size[1] = C->size[1];
     ib = C->size[0] * C->size[1];
-    for (i12 = 0; i12 < ib; i12++) {
-      b_C_data[i12] = C->data[i12] + b_R_data[i12];
+    for (i16 = 0; i16 < ib; i16++) {
+      b_C_data[i16] = C->data[i16] + b_R_data[i16];
     }
 
     mrdivide(y, b_C_data, c_C_size, K);
     if ((K->size[1] == 1) || (r_size[0] == 1)) {
-      i12 = x_apo->size[0];
+      i16 = x_apo->size[0];
       x_apo->size[0] = K->size[0];
-      emxEnsureCapacity((emxArray__common *)x_apo, i12, (int)sizeof(double));
+      emxEnsureCapacity((emxArray__common *)x_apo, i16, (int)sizeof(double));
       ib = K->size[0];
-      for (i12 = 0; i12 < ib; i12++) {
-        x_apo->data[i12] = 0.0;
+      for (i16 = 0; i16 < ib; i16++) {
+        x_apo->data[i16] = 0.0;
         idx = K->size[1];
-        for (i13 = 0; i13 < idx; i13++) {
-          x_apo->data[i12] += K->data[i12 + K->size[0] * i13] * b_r_data[i13];
+        for (i17 = 0; i17 < idx; i17++) {
+          x_apo->data[i16] += K->data[i16 + K->size[0] * i17] * b_r_data[i17];
         }
       }
     } else {
       k = K->size[1];
       a[0] = K->size[0];
       m = K->size[0];
-      i12 = x_apo->size[0];
+      i16 = x_apo->size[0];
       x_apo->size[0] = (int)a[0];
-      emxEnsureCapacity((emxArray__common *)x_apo, i12, (int)sizeof(double));
+      emxEnsureCapacity((emxArray__common *)x_apo, i16, (int)sizeof(double));
       ib = (int)a[0];
-      for (i12 = 0; i12 < ib; i12++) {
-        x_apo->data[i12] = 0.0;
+      for (i16 = 0; i16 < ib; i16++) {
+        x_apo->data[i16] = 0.0;
       }
 
       if (K->size[0] == 0) {
@@ -2199,8 +2200,8 @@ void OnePointRANSAC_EKF(emxArray_real_T *b_xt, emxArray_real_T *b_P, const
         idx = 0;
         while ((m > 0) && (idx <= 0)) {
           ar = 0;
-          i12 = br + k;
-          for (ib = br; ib + 1 <= i12; ib++) {
+          i16 = br + k;
+          for (ib = br; ib + 1 <= i16; ib++) {
             if (b_r_data[ib] != 0.0) {
               ia = ar;
               for (ic = 0; ic + 1 <= m; ic++) {
@@ -2218,30 +2219,30 @@ void OnePointRANSAC_EKF(emxArray_real_T *b_xt, emxArray_real_T *b_P, const
       }
     }
 
-    for (i12 = 0; i12 < 3; i12++) {
-      c_xt[i12] = b_xt->data[i12] + x_apo->data[i12];
+    for (i16 = 0; i16 < 3; i16++) {
+      c_xt[i16] = b_xt->data[i16] + x_apo->data[i16];
     }
 
-    for (i12 = 0; i12 < 3; i12++) {
-      b_xt->data[i12] = c_xt[i12];
+    for (i16 = 0; i16 < 3; i16++) {
+      b_xt->data[i16] = c_xt[i16];
     }
 
-    for (i12 = 0; i12 < 3; i12++) {
-      c_xt[i12] = x_apo->data[3 + i12];
+    for (i16 = 0; i16 < 3; i16++) {
+      c_xt[i16] = x_apo->data[3 + i16];
     }
 
     quatPlusThetaJ(c_xt, dv31);
     quatmultJ(dv31, *(double (*)[4])&b_xt->data[3], dv27);
-    for (i12 = 0; i12 < 4; i12++) {
-      b_xt->data[3 + i12] = dv27[i12];
+    for (i16 = 0; i16 < 4; i16++) {
+      b_xt->data[3 + i16] = dv27[i16];
     }
 
     if (8.0 > c_numStatesxt) {
-      i12 = 0;
-      i13 = 0;
+      i16 = 0;
+      i17 = 0;
     } else {
-      i12 = 7;
-      i13 = (int)c_numStatesxt;
+      i16 = 7;
+      i17 = (int)c_numStatesxt;
     }
 
     if (7.0 > c_numStates) {
@@ -2258,32 +2259,32 @@ void OnePointRANSAC_EKF(emxArray_real_T *b_xt, emxArray_real_T *b_P, const
       br = (int)c_numStatesxt;
     }
 
-    ar = r11->size[0] * r11->size[1];
-    r11->size[0] = 1;
-    r11->size[1] = br - idx;
-    emxEnsureCapacity((emxArray__common *)r11, ar, (int)sizeof(int));
+    ar = r17->size[0] * r17->size[1];
+    r17->size[0] = 1;
+    r17->size[1] = br - idx;
+    emxEnsureCapacity((emxArray__common *)r17, ar, (int)sizeof(int));
     ib = br - idx;
     for (br = 0; br < ib; br++) {
-      r11->data[r11->size[0] * br] = idx + br;
+      r17->data[r17->size[0] * br] = idx + br;
     }
 
     idx = f_xt->size[0];
-    f_xt->size[0] = i13 - i12;
+    f_xt->size[0] = i17 - i16;
     emxEnsureCapacity((emxArray__common *)f_xt, idx, (int)sizeof(double));
-    ib = i13 - i12;
-    for (i13 = 0; i13 < ib; i13++) {
-      f_xt->data[i13] = b_xt->data[i12 + i13] + x_apo->data[anchorIdx + i13];
+    ib = i17 - i16;
+    for (i17 = 0; i17 < ib; i17++) {
+      f_xt->data[i17] = b_xt->data[i16 + i17] + x_apo->data[anchorIdx + i17];
     }
 
-    ib = r11->size[1];
-    for (i12 = 0; i12 < ib; i12++) {
-      b_xt->data[r11->data[r11->size[0] * i12]] = f_xt->data[(*(int (*)[2])
-        r11->size)[0] * i12];
+    ib = r17->size[1];
+    for (i16 = 0; i16 < ib; i16++) {
+      b_xt->data[r17->data[r17->size[0] * i16]] = f_xt->data[(*(int (*)[2])
+        r17->size)[0] * i16];
     }
 
     for (anchorIdx = 0; anchorIdx <= numAnchors; anchorIdx++) {
-      for (i12 = 0; i12 < 16; i12++) {
-        x[i12] = (b_anchorFeatures->data[i12 + b_anchorFeatures->size[0] *
+      for (i16 = 0; i16 < 16; i16++) {
+        x[i16] = (b_anchorFeatures->data[i16 + b_anchorFeatures->size[0] *
                   anchorIdx] == 1.0);
       }
 
@@ -2294,33 +2295,33 @@ void OnePointRANSAC_EKF(emxArray_real_T *b_xt, emxArray_real_T *b_P, const
           + numPointsPerAnchor);
         d_numStates = c_numStates + ((1.0 + (double)anchorIdx) - 1.0) * (6.0 +
           numPointsPerAnchor);
-        for (i12 = 0; i12 < 3; i12++) {
-          c_xt[i12] = b_xt->data[(int)(d_numStatesxt + (1.0 + (double)i12)) - 1]
-            + x_apo->data[(int)(d_numStates + (1.0 + (double)i12)) - 1];
+        for (i16 = 0; i16 < 3; i16++) {
+          c_xt[i16] = b_xt->data[(int)(d_numStatesxt + (1.0 + (double)i16)) - 1]
+            + x_apo->data[(int)(d_numStates + (1.0 + (double)i16)) - 1];
         }
 
-        for (i12 = 0; i12 < 3; i12++) {
-          b_xt->data[(int)(e_numStatesxt + (1.0 + (double)i12)) - 1] = c_xt[i12];
+        for (i16 = 0; i16 < 3; i16++) {
+          b_xt->data[(int)(e_numStatesxt + (1.0 + (double)i16)) - 1] = c_xt[i16];
         }
 
         d_numStates = c_numStates + ((1.0 + (double)anchorIdx) - 1.0) * (6.0 +
           numPointsPerAnchor);
-        for (i12 = 0; i12 < 3; i12++) {
-          c_xt[i12] = x_apo->data[(int)(d_numStates + (4.0 + (double)i12)) - 1];
+        for (i16 = 0; i16 < 3; i16++) {
+          c_xt[i16] = x_apo->data[(int)(d_numStates + (4.0 + (double)i16)) - 1];
         }
 
         e_numStatesxt = c_numStatesxt + ((1.0 + (double)anchorIdx) - 1.0) * (7.0
           + numPointsPerAnchor);
-        for (i12 = 0; i12 < 4; i12++) {
-          d_xt[i12] = b_xt->data[(int)(e_numStatesxt + (4.0 + (double)i12)) - 1];
+        for (i16 = 0; i16 < 4; i16++) {
+          d_xt[i16] = b_xt->data[(int)(e_numStatesxt + (4.0 + (double)i16)) - 1];
         }
 
         quatPlusThetaJ(c_xt, dv32);
         quatmultJ(dv32, d_xt, dv27);
         e_numStatesxt = c_numStatesxt + ((1.0 + (double)anchorIdx) - 1.0) * (7.0
           + numPointsPerAnchor);
-        for (i12 = 0; i12 < 4; i12++) {
-          b_xt->data[(int)(e_numStatesxt + (4.0 + (double)i12)) - 1] = dv27[i12];
+        for (i16 = 0; i16 < 4; i16++) {
+          b_xt->data[(int)(e_numStatesxt + (4.0 + (double)i16)) - 1] = dv27[i16];
         }
 
         for (idx = 0; idx < (int)numPointsPerAnchor; idx++) {
@@ -2333,23 +2334,23 @@ void OnePointRANSAC_EKF(emxArray_real_T *b_xt, emxArray_real_T *b_P, const
       }
     }
 
-    i12 = b_x_apo->size[0];
+    i16 = b_x_apo->size[0];
     b_x_apo->size[0] = x_apo->size[0];
-    emxEnsureCapacity((emxArray__common *)b_x_apo, i12, (int)sizeof(double));
+    emxEnsureCapacity((emxArray__common *)b_x_apo, i16, (int)sizeof(double));
     ib = x_apo->size[0];
-    for (i12 = 0; i12 < ib; i12++) {
-      b_x_apo->data[i12] = x_apo->data[i12] - x_apo_prev->data[i12];
+    for (i16 = 0; i16 < ib; i16++) {
+      b_x_apo->data[i16] = x_apo->data[i16] - x_apo_prev->data[i16];
     }
 
     if (d_norm(b_x_apo) < 0.001) {
       exitg1 = true;
     } else {
-      i12 = x_apo_prev->size[0];
+      i16 = x_apo_prev->size[0];
       x_apo_prev->size[0] = x_apo->size[0];
-      emxEnsureCapacity((emxArray__common *)x_apo_prev, i12, (int)sizeof(double));
+      emxEnsureCapacity((emxArray__common *)x_apo_prev, i16, (int)sizeof(double));
       ib = x_apo->size[0];
-      for (i12 = 0; i12 < ib; i12++) {
-        x_apo_prev->data[i12] = x_apo->data[i12];
+      for (i16 = 0; i16 < ib; i16++) {
+        x_apo_prev->data[i16] = x_apo->data[i16];
       }
 
       it++;
@@ -2359,7 +2360,7 @@ void OnePointRANSAC_EKF(emxArray_real_T *b_xt, emxArray_real_T *b_P, const
   emxFree_real_T(&f_xt);
   emxFree_real_T(&b_x_apo);
   emxFree_real_T(&y);
-  emxFree_int32_T(&r11);
+  emxFree_int32_T(&r17);
   emxFree_real_T(&featureAnchorInd);
   emxFree_real_T(&anchorInd);
   emxFree_real_T(&map);
@@ -2368,19 +2369,19 @@ void OnePointRANSAC_EKF(emxArray_real_T *b_xt, emxArray_real_T *b_P, const
   eye(c_numStates + (double)b_anchorFeatures->size[1] * (6.0 +
        b_VIOParameters.num_points_per_anchor), b_a);
   if ((K->size[1] == 1) || (H->size[0] == 1)) {
-    i12 = C->size[0] * C->size[1];
+    i16 = C->size[0] * C->size[1];
     C->size[0] = K->size[0];
     C->size[1] = H->size[1];
-    emxEnsureCapacity((emxArray__common *)C, i12, (int)sizeof(double));
+    emxEnsureCapacity((emxArray__common *)C, i16, (int)sizeof(double));
     loop_ub = K->size[0];
-    for (i12 = 0; i12 < loop_ub; i12++) {
+    for (i16 = 0; i16 < loop_ub; i16++) {
       ib = H->size[1];
-      for (i13 = 0; i13 < ib; i13++) {
-        C->data[i12 + C->size[0] * i13] = 0.0;
+      for (i17 = 0; i17 < ib; i17++) {
+        C->data[i16 + C->size[0] * i17] = 0.0;
         idx = K->size[1];
         for (anchorIdx = 0; anchorIdx < idx; anchorIdx++) {
-          C->data[i12 + C->size[0] * i13] += K->data[i12 + K->size[0] *
-            anchorIdx] * H->data[anchorIdx + H->size[0] * i13];
+          C->data[i16 + C->size[0] * i17] += K->data[i16 + K->size[0] *
+            anchorIdx] * H->data[anchorIdx + H->size[0] * i17];
         }
       }
     }
@@ -2389,15 +2390,15 @@ void OnePointRANSAC_EKF(emxArray_real_T *b_xt, emxArray_real_T *b_P, const
     a[0] = (unsigned int)K->size[0];
     a[1] = (unsigned int)H->size[1];
     m = K->size[0];
-    i12 = C->size[0] * C->size[1];
+    i16 = C->size[0] * C->size[1];
     C->size[0] = (int)a[0];
-    emxEnsureCapacity((emxArray__common *)C, i12, (int)sizeof(double));
-    i12 = C->size[0] * C->size[1];
+    emxEnsureCapacity((emxArray__common *)C, i16, (int)sizeof(double));
+    i16 = C->size[0] * C->size[1];
     C->size[1] = (int)a[1];
-    emxEnsureCapacity((emxArray__common *)C, i12, (int)sizeof(double));
+    emxEnsureCapacity((emxArray__common *)C, i16, (int)sizeof(double));
     loop_ub = (int)a[0] * (int)a[1];
-    for (i12 = 0; i12 < loop_ub; i12++) {
-      C->data[i12] = 0.0;
+    for (i16 = 0; i16 < loop_ub; i16++) {
+      C->data[i16] = 0.0;
     }
 
     if ((K->size[0] == 0) || (H->size[1] == 0)) {
@@ -2405,8 +2406,8 @@ void OnePointRANSAC_EKF(emxArray_real_T *b_xt, emxArray_real_T *b_P, const
       ii = K->size[0] * (H->size[1] - 1);
       idx = 0;
       while ((m > 0) && (idx <= ii)) {
-        i12 = idx + m;
-        for (ic = idx; ic + 1 <= i12; ic++) {
+        i16 = idx + m;
+        for (ic = idx; ic + 1 <= i16; ic++) {
           C->data[ic] = 0.0;
         }
 
@@ -2417,12 +2418,12 @@ void OnePointRANSAC_EKF(emxArray_real_T *b_xt, emxArray_real_T *b_P, const
       idx = 0;
       while ((m > 0) && (idx <= ii)) {
         ar = 0;
-        i12 = br + k;
-        for (ib = br; ib + 1 <= i12; ib++) {
+        i16 = br + k;
+        for (ib = br; ib + 1 <= i16; ib++) {
           if (H->data[ib] != 0.0) {
             ia = ar;
-            i13 = idx + m;
-            for (ic = idx; ic + 1 <= i13; ic++) {
+            i17 = idx + m;
+            for (ic = idx; ic + 1 <= i17; ic++) {
               ia++;
               C->data[ic] += H->data[ib] * K->data[ia - 1];
             }
@@ -2439,53 +2440,53 @@ void OnePointRANSAC_EKF(emxArray_real_T *b_xt, emxArray_real_T *b_P, const
 
   emxFree_real_T(&H);
   emxFree_real_T(&K);
-  i12 = b_a->size[0] * b_a->size[1];
-  emxEnsureCapacity((emxArray__common *)b_a, i12, (int)sizeof(double));
+  i16 = b_a->size[0] * b_a->size[1];
+  emxEnsureCapacity((emxArray__common *)b_a, i16, (int)sizeof(double));
   idx = b_a->size[0];
   ii = b_a->size[1];
   loop_ub = idx * ii;
-  for (i12 = 0; i12 < loop_ub; i12++) {
-    b_a->data[i12] -= C->data[i12];
+  for (i16 = 0; i16 < loop_ub; i16++) {
+    b_a->data[i16] -= C->data[i16];
   }
 
   emxFree_real_T(&C);
-  i12 = b->size[0] * b->size[1];
+  i16 = b->size[0] * b->size[1];
   b->size[0] = b_P->size[0];
   b->size[1] = b_P->size[1];
-  emxEnsureCapacity((emxArray__common *)b, i12, (int)sizeof(double));
+  emxEnsureCapacity((emxArray__common *)b, i16, (int)sizeof(double));
   loop_ub = b_P->size[0] * b_P->size[1];
-  for (i12 = 0; i12 < loop_ub; i12++) {
-    b->data[i12] = b_P->data[i12];
+  for (i16 = 0; i16 < loop_ub; i16++) {
+    b->data[i16] = b_P->data[i16];
   }
 
   emxInit_real_T(&d_a, 2);
   if ((b_a->size[1] == 1) || (b_P->size[0] == 1)) {
-    i12 = d_a->size[0] * d_a->size[1];
+    i16 = d_a->size[0] * d_a->size[1];
     d_a->size[0] = b_a->size[0];
     d_a->size[1] = b_P->size[1];
-    emxEnsureCapacity((emxArray__common *)d_a, i12, (int)sizeof(double));
+    emxEnsureCapacity((emxArray__common *)d_a, i16, (int)sizeof(double));
     loop_ub = b_a->size[0];
-    for (i12 = 0; i12 < loop_ub; i12++) {
+    for (i16 = 0; i16 < loop_ub; i16++) {
       ib = b_P->size[1];
-      for (i13 = 0; i13 < ib; i13++) {
-        d_a->data[i12 + d_a->size[0] * i13] = 0.0;
+      for (i17 = 0; i17 < ib; i17++) {
+        d_a->data[i16 + d_a->size[0] * i17] = 0.0;
         idx = b_a->size[1];
         for (anchorIdx = 0; anchorIdx < idx; anchorIdx++) {
-          d_a->data[i12 + d_a->size[0] * i13] += b_a->data[i12 + b_a->size[0] *
-            anchorIdx] * b_P->data[anchorIdx + b_P->size[0] * i13];
+          d_a->data[i16 + d_a->size[0] * i17] += b_a->data[i16 + b_a->size[0] *
+            anchorIdx] * b_P->data[anchorIdx + b_P->size[0] * i17];
         }
       }
     }
 
-    i12 = b_P->size[0] * b_P->size[1];
+    i16 = b_P->size[0] * b_P->size[1];
     b_P->size[0] = d_a->size[0];
     b_P->size[1] = d_a->size[1];
-    emxEnsureCapacity((emxArray__common *)b_P, i12, (int)sizeof(double));
+    emxEnsureCapacity((emxArray__common *)b_P, i16, (int)sizeof(double));
     loop_ub = d_a->size[1];
-    for (i12 = 0; i12 < loop_ub; i12++) {
+    for (i16 = 0; i16 < loop_ub; i16++) {
       ib = d_a->size[0];
-      for (i13 = 0; i13 < ib; i13++) {
-        b_P->data[i13 + b_P->size[0] * i12] = d_a->data[i13 + d_a->size[0] * i12];
+      for (i17 = 0; i17 < ib; i17++) {
+        b_P->data[i17 + b_P->size[0] * i16] = d_a->data[i17 + d_a->size[0] * i16];
       }
     }
   } else {
@@ -2493,15 +2494,15 @@ void OnePointRANSAC_EKF(emxArray_real_T *b_xt, emxArray_real_T *b_P, const
     a[0] = b_a->size[0];
     a[1] = b_P->size[1];
     m = b_a->size[0];
-    i12 = b_P->size[0] * b_P->size[1];
+    i16 = b_P->size[0] * b_P->size[1];
     b_P->size[0] = (int)a[0];
     b_P->size[1] = (int)a[1];
-    emxEnsureCapacity((emxArray__common *)b_P, i12, (int)sizeof(double));
+    emxEnsureCapacity((emxArray__common *)b_P, i16, (int)sizeof(double));
     loop_ub = (int)a[1];
-    for (i12 = 0; i12 < loop_ub; i12++) {
+    for (i16 = 0; i16 < loop_ub; i16++) {
       ib = (int)a[0];
-      for (i13 = 0; i13 < ib; i13++) {
-        b_P->data[i13 + b_P->size[0] * i12] = 0.0;
+      for (i17 = 0; i17 < ib; i17++) {
+        b_P->data[i17 + b_P->size[0] * i16] = 0.0;
       }
     }
 
@@ -2510,8 +2511,8 @@ void OnePointRANSAC_EKF(emxArray_real_T *b_xt, emxArray_real_T *b_P, const
       ii = b_a->size[0] * (b->size[1] - 1);
       idx = 0;
       while ((m > 0) && (idx <= ii)) {
-        i12 = idx + m;
-        for (ic = idx; ic + 1 <= i12; ic++) {
+        i16 = idx + m;
+        for (ic = idx; ic + 1 <= i16; ic++) {
           b_P->data[ic] = 0.0;
         }
 
@@ -2522,12 +2523,12 @@ void OnePointRANSAC_EKF(emxArray_real_T *b_xt, emxArray_real_T *b_P, const
       idx = 0;
       while ((m > 0) && (idx <= ii)) {
         ar = 0;
-        i12 = br + k;
-        for (ib = br; ib + 1 <= i12; ib++) {
+        i16 = br + k;
+        for (ib = br; ib + 1 <= i16; ib++) {
           if (b->data[ib] != 0.0) {
             ia = ar;
-            i13 = idx + m;
-            for (ic = idx; ic + 1 <= i13; ic++) {
+            i17 = idx + m;
+            for (ic = idx; ic + 1 <= i17; ic++) {
               ia++;
               b_P->data[ic] += b->data[ib] * b_a->data[ia - 1];
             }
