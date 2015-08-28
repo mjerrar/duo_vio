@@ -5,7 +5,7 @@
 // File: mrdivide.cpp
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 28-Aug-2015 21:19:22
+// C/C++ source code generated on  : 28-Aug-2015 21:34:41
 //
 
 // Include Files
@@ -297,7 +297,7 @@ static void eml_matlab_zlarf(int m, int n, int iv0, double tau, double C_data[],
   boolean_T exitg2;
   int ia;
   int32_T exitg1;
-  int i21;
+  int i22;
   int jy;
   int ix;
   double c;
@@ -346,9 +346,9 @@ static void eml_matlab_zlarf(int m, int n, int iv0, double tau, double C_data[],
       }
 
       i = 0;
-      i21 = ic0 + ldc * (lastc - 1);
+      i22 = ic0 + ldc * (lastc - 1);
       jy = ic0;
-      while ((ldc > 0) && (jy <= i21)) {
+      while ((ldc > 0) && (jy <= i22)) {
         ix = iv0;
         c = 0.0;
         j = (jy + lastv) - 1;
@@ -371,8 +371,8 @@ static void eml_matlab_zlarf(int m, int n, int iv0, double tau, double C_data[],
         if (work_data[jy] != 0.0) {
           c = work_data[jy] * -tau;
           ix = iv0;
-          i21 = lastv + i;
-          for (ia = i; ia + 1 <= i21; ia++) {
+          i22 = lastv + i;
+          for (ia = i; ia + 1 <= i22; ia++) {
             C_data[ia] += C_data[ix - 1] * c;
             ix++;
           }
@@ -397,7 +397,7 @@ static double eml_matlab_zlarfg(int n, double *alpha1, double x_data[], int ix0)
   double tau;
   double xnorm;
   int knt;
-  int i20;
+  int i21;
   int k;
   tau = 0.0;
   if (n <= 0) {
@@ -413,8 +413,8 @@ static double eml_matlab_zlarfg(int n, double *alpha1, double x_data[], int ix0)
         knt = 0;
         do {
           knt++;
-          i20 = (ix0 + n) - 2;
-          for (k = ix0; k <= i20; k++) {
+          i21 = (ix0 + n) - 2;
+          for (k = ix0; k <= i21; k++) {
             x_data[k - 1] *= 9.9792015476736E+291;
           }
 
@@ -430,8 +430,8 @@ static double eml_matlab_zlarfg(int n, double *alpha1, double x_data[], int ix0)
 
         tau = (xnorm - *alpha1) / xnorm;
         *alpha1 = 1.0 / (*alpha1 - xnorm);
-        i20 = (ix0 + n) - 2;
-        for (k = ix0; k <= i20; k++) {
+        i21 = (ix0 + n) - 2;
+        for (k = ix0; k <= i21; k++) {
           x_data[k - 1] *= *alpha1;
         }
 
@@ -443,8 +443,8 @@ static double eml_matlab_zlarfg(int n, double *alpha1, double x_data[], int ix0)
       } else {
         tau = (xnorm - *alpha1) / xnorm;
         *alpha1 = 1.0 / (*alpha1 - xnorm);
-        i20 = (ix0 + n) - 2;
-        for (k = ix0; k <= i20; k++) {
+        i21 = (ix0 + n) - 2;
+        for (k = ix0; k <= i21; k++) {
           x_data[k - 1] *= *alpha1;
         }
 
@@ -683,7 +683,7 @@ static void eml_xgetrf(int m, int n, double A_data[], int A_size[2], int lda,
   int ipiv_data[], int ipiv_size[2], int *info)
 {
   int b_m;
-  int i18;
+  int i19;
   int j;
   int mmj;
   int c;
@@ -692,7 +692,7 @@ static void eml_xgetrf(int m, int n, double A_data[], int A_size[2], int lda,
   double smax;
   int jA;
   double s;
-  int i19;
+  int i20;
   int jy;
   int b_j;
   int ijA;
@@ -707,12 +707,12 @@ static void eml_xgetrf(int m, int n, double A_data[], int A_size[2], int lda,
   if ((m < 1) || (n < 1)) {
   } else {
     if (m - 1 <= n) {
-      i18 = m - 1;
+      i19 = m - 1;
     } else {
-      i18 = n;
+      i19 = n;
     }
 
-    for (j = 1; j <= i18; j++) {
+    for (j = 1; j <= i19; j++) {
       mmj = (m - j) + 1;
       c = (j - 1) * (lda + 1);
       if (mmj < 1) {
@@ -739,8 +739,8 @@ static void eml_xgetrf(int m, int n, double A_data[], int A_size[2], int lda,
           eml_xswap(n, A_data, j, lda, j + i, lda);
         }
 
-        i19 = c + mmj;
-        for (i = c + 1; i + 1 <= i19; i++) {
+        i20 = c + mmj;
+        for (i = c + 1; i + 1 <= i20; i++) {
           A_data[i] /= A_data[c];
         }
       } else {
@@ -754,8 +754,8 @@ static void eml_xgetrf(int m, int n, double A_data[], int A_size[2], int lda,
         smax = A_data[jy];
         if (A_data[jy] != 0.0) {
           ix = c + 1;
-          i19 = mmj + jA;
-          for (ijA = 1 + jA; ijA + 1 <= i19; ijA++) {
+          i20 = mmj + jA;
+          for (ijA = 1 + jA; ijA + 1 <= i20; ijA++) {
             A_data[ijA] += A_data[ix] * -smax;
             ix++;
           }

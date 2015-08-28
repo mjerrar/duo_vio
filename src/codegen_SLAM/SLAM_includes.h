@@ -23,6 +23,7 @@
 #include <rand.h>
 #include <repmat.h>
 #include <ros_error.h>
+#include <ros_warn.h>
 #include <rt_defines.h>
 #include <rtGetInf.h>
 #include <rtGetNaN.h>
