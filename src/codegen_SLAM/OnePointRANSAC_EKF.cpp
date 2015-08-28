@@ -5,7 +5,7 @@
 // File: OnePointRANSAC_EKF.cpp
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 28-Aug-2015 19:03:55
+// C/C++ source code generated on  : 28-Aug-2015 20:07:15
 //
 
 // Include Files
@@ -48,7 +48,7 @@
 //                double noiseParameters_ext_pos_noise
 //                double noiseParameters_ext_att_noise
 //                const VIOMeasurements *IMU_measurements
-//                double height_offset_pressure
+//                double b_height_offset_pressure
 //                const VIOParameters b_VIOParameters
 //                double validFeatures_data[]
 //                int validFeatures_size[1]
@@ -62,8 +62,8 @@ void OnePointRANSAC_EKF(emxArray_real_T *b_xt, emxArray_real_T *b_P, const
   const emxArray_real_T *b_m_vect, const double noiseParameters_image_noise[2],
   double c_noiseParameters_orientation_n, double noiseParameters_pressure_noise,
   double noiseParameters_ext_pos_noise, double noiseParameters_ext_att_noise,
-  const VIOMeasurements *IMU_measurements, double height_offset_pressure, const
-  VIOParameters b_VIOParameters, double validFeatures_data[], int
+  const VIOMeasurements *IMU_measurements, double b_height_offset_pressure,
+  const VIOParameters b_VIOParameters, double validFeatures_data[], int
   validFeatures_size[1])
 {
   emxArray_boolean_T *c_anchorFeatures;
@@ -280,8 +280,8 @@ void OnePointRANSAC_EKF(emxArray_real_T *b_xt, emxArray_real_T *b_P, const
                b_m_vect, noiseParameters_image_noise,
                c_noiseParameters_orientation_n, noiseParameters_pressure_noise,
                noiseParameters_ext_pos_noise, noiseParameters_ext_att_noise,
-               IMU_measurements, height_offset_pressure, b_VIOParameters, r_data,
-               unusedU2_size, H_i, r, R_data, R_size);
+               IMU_measurements, b_height_offset_pressure, b_VIOParameters,
+               r_data, unusedU2_size, H_i, r, R_data, R_size);
     if ((H_i->size[1] == 1) || (b_P->size[0] == 1)) {
       i16 = y->size[0] * y->size[1];
       y->size[0] = H_i->size[0];
@@ -1034,8 +1034,8 @@ void OnePointRANSAC_EKF(emxArray_real_T *b_xt, emxArray_real_T *b_P, const
                    c_noiseParameters_orientation_n,
                    noiseParameters_pressure_noise, noiseParameters_ext_pos_noise,
                    noiseParameters_ext_att_noise, IMU_measurements,
-                   height_offset_pressure, b_VIOParameters, b_r_data, r_size, H,
-                   unusedU2_data, unusedU2_size, b_R_data, b_R_size);
+                   b_height_offset_pressure, b_VIOParameters, b_r_data, r_size,
+                   H, unusedU2_data, unusedU2_size, b_R_data, b_R_size);
       if ((H->size[1] == 1) || (b_P->size[0] == 1)) {
         i16 = y->size[0] * y->size[1];
         y->size[0] = H->size[0];
@@ -1696,7 +1696,7 @@ void OnePointRANSAC_EKF(emxArray_real_T *b_xt, emxArray_real_T *b_P, const
                  b_m_vect, noiseParameters_image_noise,
                  c_noiseParameters_orientation_n, noiseParameters_pressure_noise,
                  noiseParameters_ext_pos_noise, noiseParameters_ext_att_noise,
-                 IMU_measurements, height_offset_pressure, b_VIOParameters,
+                 IMU_measurements, b_height_offset_pressure, b_VIOParameters,
                  b_r_data, r_size, H, unusedU2_data, unusedU2_size, b_R_data,
                  b_R_size);
     if (1.0 + (double)it == 1.0) {

@@ -5,7 +5,7 @@
 // File: SLAM.cpp
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 28-Aug-2015 19:03:55
+// C/C++ source code generated on  : 28-Aug-2015 20:07:15
 //
 
 // Include Files
@@ -28,6 +28,7 @@
 static boolean_T initialized_not_empty;
 static emxArray_real_T *xt;
 static emxArray_real_T *P;
+static double height_offset_pressure;
 static double last_u[4];
 static boolean_T ext_pose_offset_initialized;
 static double ext_pos_offset[3];
@@ -134,8 +135,6 @@ void SLAM(double updateVect[16], const double z_all_l[32], const double z_all_r
   double b_u_out_x[3];
   double updateVect_apo[16];
   double d_measurements[9];
-
-  //  for coder
   for (i = 0; i < 4; i++) {
     u_out[i] = 0.0;
   }
@@ -299,6 +298,8 @@ void SLAM(double updateVect[16], const double z_all_l[32], const double z_all_r
     }
 
     //  gyro bias
+    height_offset_pressure = (1.0 - rt_powd_snf(measurements->bar_fmu / 101325.0,
+      0.190284)) * 145366.45;
     for (i = 0; i < 16; i++) {
       updateVect[i] = 0.0;
     }
@@ -314,9 +315,8 @@ void SLAM(double updateVect[16], const double z_all_l[32], const double z_all_r
                noiseParameters->image_noise, noiseParameters->sigmaInit,
                noiseParameters->orientation_noise,
                noiseParameters->pressure_noise, noiseParameters->ext_pos_noise,
-               noiseParameters->ext_att_noise, measurements, (1.0 - rt_powd_snf
-                (measurements->bar_fmu / 101325.0, 0.190284)) * 145366.45,
-               *b_VIOParameters, h_u_apo_out, map_out);
+               noiseParameters->ext_att_noise, measurements,
+               height_offset_pressure, *b_VIOParameters, h_u_apo_out, map_out);
     i11 = xt_out->size[0];
     xt_out->size[0] = xt->size[0];
     emxEnsureCapacity((emxArray__common *)xt_out, i11, (int)sizeof(double));
@@ -593,8 +593,8 @@ void SLAM(double updateVect[16], const double z_all_l[32], const double z_all_r
                noiseParameters->image_noise, noiseParameters->sigmaInit,
                noiseParameters->orientation_noise,
                noiseParameters->pressure_noise, noiseParameters->ext_pos_noise,
-               noiseParameters->ext_att_noise, measurements, 0.0,
-               *b_VIOParameters, h_u_apo_out, map_out);
+               noiseParameters->ext_att_noise, measurements,
+               height_offset_pressure, *b_VIOParameters, h_u_apo_out, map_out);
 
     //  if almost all features were lost, do a soft reset
     i = 0;
@@ -604,7 +604,7 @@ void SLAM(double updateVect[16], const double z_all_l[32], const double z_all_r
       }
     }
 
-    if (i < 3) {
+    if (i < b_VIOParameters->num_points_per_anchor / 2.0) {
       // #coder
       // ROS_WARN Print to ROS_WARN in ROS or to console in Matlab
       //      coder.cinclude('<ros/console.h>')

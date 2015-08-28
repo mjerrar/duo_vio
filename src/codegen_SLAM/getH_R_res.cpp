@@ -5,7 +5,7 @@
 // File: getH_R_res.cpp
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 28-Aug-2015 19:03:55
+// C/C++ source code generated on  : 28-Aug-2015 20:07:15
 //
 
 // Include Files
@@ -71,7 +71,7 @@
 //                double noiseParameters_ext_pos_noise
 //                double noiseParameters_ext_att_noise
 //                const VIOMeasurements *measurements
-//                double height_offset_pressure
+//                double b_height_offset_pressure
 //                const VIOParameters b_VIOParameters
 //                double r_data[]
 //                int r_size[1]
@@ -96,7 +96,7 @@ void b_getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
                   noiseParameters_pressure_noise, double
                   noiseParameters_ext_pos_noise, double
                   noiseParameters_ext_att_noise, const VIOMeasurements
-                  *measurements, double height_offset_pressure, const
+                  *measurements, double b_height_offset_pressure, const
                   VIOParameters b_VIOParameters, double r_data[], int r_size[1],
                   emxArray_real_T *H, double h_u_data[], int h_u_size[1], double
                   R_data[], int R_size[2])
@@ -922,7 +922,7 @@ void b_getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
 
   if (b_VIOParameters.use_pressure) {
     r_pressure = (1.0 - rt_powd_snf(measurements->bar_fmu / 101325.0, 0.190284))
-      * 145366.45 - height_offset_pressure;
+      * 145366.45 - b_height_offset_pressure;
     H_pressure->data[2] = 1.0;
     pressure_idx = residual_size;
     residual_size++;
@@ -1215,7 +1215,7 @@ void b_getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
 //                double noiseParameters_ext_pos_noise
 //                double noiseParameters_ext_att_noise
 //                const VIOMeasurements *measurements
-//                double height_offset_pressure
+//                double b_height_offset_pressure
 //                const VIOParameters b_VIOParameters
 //                double r_data[]
 //                int r_size[1]
@@ -1238,7 +1238,7 @@ void getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
                 noiseParameters_pressure_noise, double
                 noiseParameters_ext_pos_noise, double
                 noiseParameters_ext_att_noise, const VIOMeasurements
-                *measurements, double height_offset_pressure, const
+                *measurements, double b_height_offset_pressure, const
                 VIOParameters b_VIOParameters, double r_data[], int r_size[1],
                 emxArray_real_T *H, double h_u[2], double R_data[], int R_size[2])
 {
@@ -1991,7 +1991,7 @@ void getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
 
   if (b_VIOParameters.use_pressure) {
     r_pressure = (1.0 - rt_powd_snf(measurements->bar_fmu / 101325.0, 0.190284))
-      * 145366.45 - height_offset_pressure;
+      * 145366.45 - b_height_offset_pressure;
     H_pressure->data[2] = 1.0;
     pressure_idx = residual_size;
     residual_size++;

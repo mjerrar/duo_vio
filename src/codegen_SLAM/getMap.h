@@ -5,7 +5,7 @@
 // File: getMap.h
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 28-Aug-2015 19:03:55
+// C/C++ source code generated on  : 28-Aug-2015 20:07:15
 //
 #ifndef __GETMAP_H__
 #define __GETMAP_H__

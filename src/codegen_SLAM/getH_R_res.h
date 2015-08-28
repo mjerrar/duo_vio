@@ -5,7 +5,7 @@
 // File: getH_R_res.h
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 28-Aug-2015 19:03:55
+// C/C++ source code generated on  : 28-Aug-2015 20:07:15
 //
 #ifndef __GETH_R_RES_H__
 #define __GETH_R_RES_H__
@@ -31,7 +31,7 @@ extern void b_getH_R_res(const emxArray_real_T *b_xt, double errorStateSize,
   double noiseParameters_image_noise[2], double c_noiseParameters_orientation_n,
   double noiseParameters_pressure_noise, double noiseParameters_ext_pos_noise,
   double noiseParameters_ext_att_noise, const VIOMeasurements *measurements,
-  double height_offset_pressure, const VIOParameters b_VIOParameters, double
+  double b_height_offset_pressure, const VIOParameters b_VIOParameters, double
   r_data[], int r_size[1], emxArray_real_T *H, double h_u_data[], int h_u_size[1],
   double R_data[], int R_size[2]);
 extern void getH_R_res(const emxArray_real_T *b_xt, double errorStateSize,
@@ -43,7 +43,7 @@ extern void getH_R_res(const emxArray_real_T *b_xt, double errorStateSize,
   double noiseParameters_image_noise[2], double c_noiseParameters_orientation_n,
   double noiseParameters_pressure_noise, double noiseParameters_ext_pos_noise,
   double noiseParameters_ext_att_noise, const VIOMeasurements *measurements,
-  double height_offset_pressure, const VIOParameters b_VIOParameters, double
+  double b_height_offset_pressure, const VIOParameters b_VIOParameters, double
   r_data[], int r_size[1], emxArray_real_T *H, double h_u[2], double R_data[],
   int R_size[2]);
 

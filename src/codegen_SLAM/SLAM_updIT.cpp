@@ -5,7 +5,7 @@
 // File: SLAM_updIT.cpp
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 28-Aug-2015 19:03:55
+// C/C++ source code generated on  : 28-Aug-2015 20:07:15
 //
 
 // Include Files
@@ -86,7 +86,7 @@ static double rt_roundd_snf(double u)
 //                double noiseParameters_ext_pos_noise
 //                double noiseParameters_ext_att_noise
 //                const VIOMeasurements *measurements
-//                double height_offset_pressure
+//                double b_height_offset_pressure
 //                const VIOParameters b_VIOParameters
 //                emxArray_real_T *h_u_apo
 //                emxArray_real_T *map
@@ -107,7 +107,7 @@ void SLAM_updIT(emxArray_real_T *P_apr, emxArray_real_T *b_xt, const double
                 noiseParameters_pressure_noise, double
                 noiseParameters_ext_pos_noise, double
                 noiseParameters_ext_att_noise, const VIOMeasurements
-                *measurements, double height_offset_pressure, const
+                *measurements, double b_height_offset_pressure, const
                 VIOParameters b_VIOParameters, emxArray_real_T *h_u_apo,
                 emxArray_real_T *map)
 {
@@ -595,7 +595,7 @@ void SLAM_updIT(emxArray_real_T *P_apr, emxArray_real_T *b_xt, const double
                        noiseParameters_pressure_noise,
                        noiseParameters_ext_pos_noise,
                        noiseParameters_ext_att_noise, measurements,
-                       height_offset_pressure, b_VIOParameters,
+                       b_height_offset_pressure, b_VIOParameters,
                        validFeatures_data, validFeatures_size);
     for (i12 = 0; i12 < loop_ub; i12++) {
       ii_data[i12] = indMeas_data[i12];
