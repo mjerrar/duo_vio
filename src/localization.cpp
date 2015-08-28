@@ -473,7 +473,7 @@ void Localization::update(double dt, const cv::Mat& left_image, const cv::Mat& r
 	double dx = abs(xt_out->data[0] - pose.position.x);
 	double dy = abs(xt_out->data[1] - pose.position.y);
 	double dz = abs(xt_out->data[2] - pose.position.z);
-	double failure_threshold = 10;
+	double failure_threshold = 2/60;
 
 
 	if (dx > failure_threshold || dy > failure_threshold || dz > failure_threshold)
