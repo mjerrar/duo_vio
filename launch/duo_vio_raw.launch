@@ -22,6 +22,8 @@
   <arg name="use_orientation" default="1" />
   <arg name="use_pressure" default="0" />
   <arg name="use_magnetometer" default="0" />
+  <arg name="use_ext_pose" default="0" />
+  <arg name="fixed_anchor" default="0" />
   <arg name="use_controller_to_predict" default="0" />
   <arg name="max_ekf_iterations" default="1" />
 
@@ -56,6 +58,8 @@
     <param name="use_pressure" type="bool" value="$(arg use_pressure)" />
     <param name="use_magnetometer" type="bool" value="$(arg use_magnetometer)" />
     <param name="use_controller_to_predict" type="bool" value="$(arg use_controller_to_predict)" />
+    <param name="use_ext_pose" type="bool" value="$(arg use_ext_pose)" />
+    <param name="fixed_anchor" type="bool" value="$(arg fixed_anchor)" />
     <param name="max_ekf_iterations" type="int" value="$(arg max_ekf_iterations)" />
 
     <param name="orientation_noise" type="double" value="$(arg orientation_noise)" />
