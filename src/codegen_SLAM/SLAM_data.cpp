@@ -5,7 +5,7 @@
 // File: SLAM_data.cpp
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 27-Aug-2015 21:45:03
+// C/C++ source code generated on  : 28-Aug-2015 11:22:17
 //
 
 // Include Files
@@ -18,7 +18,6 @@
 double R_bc[9];
 double numStates;
 double numStatesxt;
-boolean_T fixFeatures;
 double minFeatureThreshold;
 unsigned int state[625];
 

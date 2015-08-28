@@ -21,8 +21,9 @@ struct VIOParameters
 	bool use_orientation;
 	bool use_pressure;
 	bool use_magnetometer;
-	bool use_position;
+	bool use_ext_pose;
 	bool use_controller_to_predict;
+	bool fixed_anchor;
 };
 
 // ControllerGains
@@ -44,8 +45,9 @@ struct NoiseParameters
 	double image_noise[2];
 	double orientation_noise;
 	double pressure_noise;
-	double position_noise;
 	double sigmaInit;
+	double ext_pos_noise;
+	double ext_att_noise;
 };
 
 // VIOMeasurements
@@ -61,6 +63,7 @@ struct VIOMeasurements
 	double acc_fmu[3];
 	double att_fmu[4];
 	double pos_ext[3];
+	double att_ext[3];
 };
 
 // cameraParameters

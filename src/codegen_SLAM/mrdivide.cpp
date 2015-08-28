@@ -5,7 +5,7 @@
 // File: mrdivide.cpp
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 27-Aug-2015 21:45:03
+// C/C++ source code generated on  : 28-Aug-2015 11:22:17
 //
 
 // Include Files
@@ -239,9 +239,9 @@ static void eml_lusolve(const double A_data[], const int A_size[2], const
   int b_A_size[2];
   int info;
   int jp;
-  double b_A_data[1521];
+  double b_A_data[1764];
   int ipiv_size[2];
-  int ipiv_data[39];
+  int ipiv_data[42];
   int xi;
   double temp;
   b_A_size[0] = A_size[0];
@@ -468,12 +468,12 @@ static void eml_qrsolve(const double A_data[], const int A_size[2], const
   int b_A_size[2];
   int j;
   int k;
-  double b_A_data[1521];
+  double b_A_data[1764];
   emxArray_real_T *b_B;
   int jpvt_size[2];
-  int jpvt_data[39];
+  int jpvt_data[42];
   int tau_size[1];
-  double tau_data[39];
+  double tau_data[42];
   int rankR;
   int m;
   int nb;
@@ -575,9 +575,9 @@ static void eml_xgeqp3(double A_data[], int A_size[2], double tau_data[], int
   int mn;
   int k;
   int itemp;
-  double work_data[39];
-  double vn1_data[39];
-  double vn2_data[39];
+  double work_data[42];
+  double vn1_data[42];
+  double vn2_data[42];
   int i;
   int i_i;
   int nmi;
@@ -948,27 +948,27 @@ void mrdivide(const emxArray_real_T *A, const double B_data[], const int B_size
   emxArray_real_T *b_A;
   emxArray_real_T *c_A;
   unsigned int unnamed_idx_0;
-  int i2;
+  int i1;
   int loop_ub;
-  double b_B_data[1521];
+  double b_B_data[1764];
   int b_B_size[2];
   int A_idx_1;
-  int i3;
+  int i2;
   emxInit_real_T(&r1, 2);
   emxInit_real_T(&b_A, 2);
   emxInit_real_T(&c_A, 2);
   if ((A->size[0] == 0) || (A->size[1] == 0) || ((B_size[0] == 0) || (B_size[1] ==
         0))) {
     unnamed_idx_0 = (unsigned int)A->size[0];
-    i2 = y->size[0] * y->size[1];
+    i1 = y->size[0] * y->size[1];
     y->size[0] = (int)unnamed_idx_0;
-    emxEnsureCapacity((emxArray__common *)y, i2, (int)sizeof(double));
-    i2 = y->size[0] * y->size[1];
+    emxEnsureCapacity((emxArray__common *)y, i1, (int)sizeof(double));
+    i1 = y->size[0] * y->size[1];
     y->size[1] = B_size[0];
-    emxEnsureCapacity((emxArray__common *)y, i2, (int)sizeof(double));
+    emxEnsureCapacity((emxArray__common *)y, i1, (int)sizeof(double));
     loop_ub = (int)unnamed_idx_0 * B_size[0];
-    for (i2 = 0; i2 < loop_ub; i2++) {
-      y->data[i2] = 0.0;
+    for (i1 = 0; i1 < loop_ub; i1++) {
+      y->data[i1] = 0.0;
     }
   } else if (B_size[0] == B_size[1]) {
     eml_lusolve(B_data, B_size, A, y);
@@ -976,47 +976,47 @@ void mrdivide(const emxArray_real_T *A, const double B_data[], const int B_size
     b_B_size[0] = B_size[1];
     b_B_size[1] = B_size[0];
     loop_ub = B_size[0];
-    for (i2 = 0; i2 < loop_ub; i2++) {
+    for (i1 = 0; i1 < loop_ub; i1++) {
       A_idx_1 = B_size[1];
-      for (i3 = 0; i3 < A_idx_1; i3++) {
-        b_B_data[i3 + b_B_size[0] * i2] = B_data[i2 + B_size[0] * i3];
+      for (i2 = 0; i2 < A_idx_1; i2++) {
+        b_B_data[i2 + b_B_size[0] * i1] = B_data[i1 + B_size[0] * i2];
       }
     }
 
-    i2 = c_A->size[0] * c_A->size[1];
+    i1 = c_A->size[0] * c_A->size[1];
     c_A->size[0] = A->size[1];
     c_A->size[1] = A->size[0];
-    emxEnsureCapacity((emxArray__common *)c_A, i2, (int)sizeof(double));
+    emxEnsureCapacity((emxArray__common *)c_A, i1, (int)sizeof(double));
     loop_ub = A->size[0];
-    for (i2 = 0; i2 < loop_ub; i2++) {
+    for (i1 = 0; i1 < loop_ub; i1++) {
       A_idx_1 = A->size[1];
-      for (i3 = 0; i3 < A_idx_1; i3++) {
-        c_A->data[i3 + c_A->size[0] * i2] = A->data[i2 + A->size[0] * i3];
+      for (i2 = 0; i2 < A_idx_1; i2++) {
+        c_A->data[i2 + c_A->size[0] * i1] = A->data[i1 + A->size[0] * i2];
       }
     }
 
     loop_ub = A->size[1];
     A_idx_1 = A->size[0];
-    i2 = b_A->size[0] * b_A->size[1];
+    i1 = b_A->size[0] * b_A->size[1];
     b_A->size[0] = loop_ub;
     b_A->size[1] = A_idx_1;
-    emxEnsureCapacity((emxArray__common *)b_A, i2, (int)sizeof(double));
-    for (i2 = 0; i2 < A_idx_1; i2++) {
-      for (i3 = 0; i3 < loop_ub; i3++) {
-        b_A->data[i3 + b_A->size[0] * i2] = c_A->data[i3 + loop_ub * i2];
+    emxEnsureCapacity((emxArray__common *)b_A, i1, (int)sizeof(double));
+    for (i1 = 0; i1 < A_idx_1; i1++) {
+      for (i2 = 0; i2 < loop_ub; i2++) {
+        b_A->data[i2 + b_A->size[0] * i1] = c_A->data[i2 + loop_ub * i1];
       }
     }
 
     eml_qrsolve(b_B_data, b_B_size, b_A, r1);
-    i2 = y->size[0] * y->size[1];
+    i1 = y->size[0] * y->size[1];
     y->size[0] = r1->size[1];
     y->size[1] = r1->size[0];
-    emxEnsureCapacity((emxArray__common *)y, i2, (int)sizeof(double));
+    emxEnsureCapacity((emxArray__common *)y, i1, (int)sizeof(double));
     loop_ub = r1->size[0];
-    for (i2 = 0; i2 < loop_ub; i2++) {
+    for (i1 = 0; i1 < loop_ub; i1++) {
       A_idx_1 = r1->size[1];
-      for (i3 = 0; i3 < A_idx_1; i3++) {
-        y->data[i3 + y->size[0] * i2] = r1->data[i2 + r1->size[0] * i3];
+      for (i2 = 0; i2 < A_idx_1; i2++) {
+        y->data[i2 + y->size[0] * i1] = r1->data[i1 + r1->size[0] * i2];
       }
     }
   }
