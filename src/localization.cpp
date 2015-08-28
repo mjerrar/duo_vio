@@ -468,20 +468,55 @@ void Localization::update(double dt, const cv::Mat& left_image, const cv::Mat& r
 			map,
 			u_out);
 
-    onboard_localization::ControllerOut controller_out_msg;
-    controller_out_msg.x = u_out[0];
-    controller_out_msg.y = u_out[1];
-    controller_out_msg.z = u_out[2];
-    controller_out_msg.yaw = u_out[3];
+	// failure check
+	double dx = abs(xt_out->data[0] - pose.position.x);
+	double dy = abs(xt_out->data[1] - pose.position.y);
+	double dz = abs(xt_out->data[2] - pose.position.z);
+	double failure_threshold = 10;
 
-    controller_pub.publish(controller_out_msg);
 
-	SLAM_reset_flag = false;
-
-	for(int i = 0; i < update_vec_.size(); i++)
+	if (dx > failure_threshold || dy > failure_threshold || dz > failure_threshold)
 	{
-		update_vec_[i] = update_vec_array[i];
+		ROS_ERROR("VIO FAILING. Resetting");
+
+		SLAM_reset_flag = true;
+	} else {
+		SLAM_reset_flag = false;
+
+		onboard_localization::ControllerOut controller_out_msg;
+		controller_out_msg.x = u_out[0];
+		controller_out_msg.y = u_out[1];
+		controller_out_msg.z = u_out[2];
+		controller_out_msg.yaw = u_out[3];
+
+		controller_pub.publish(controller_out_msg);
+
+
+		for(int i = 0; i < update_vec_.size(); i++)
+		{
+			update_vec_[i] = update_vec_array[i];
+		}
+
+		// Set the pose
+		pose.position.x = xt_out->data[0];
+		pose.position.y = xt_out->data[1];
+		pose.position.z = xt_out->data[2];
+
+		pose.orientation.x = xt_out->data[3];
+		pose.orientation.y = xt_out->data[4];
+		pose.orientation.z = xt_out->data[5];
+		pose.orientation.w = xt_out->data[6];
+
+		velocity.linear.x = xt_out->data[7];
+		velocity.linear.y = xt_out->data[8];
+		velocity.linear.z = xt_out->data[9];
+
+		velocity.angular.x = xt_out->data[10];
+		velocity.angular.y = xt_out->data[11];
+		velocity.angular.z = xt_out->data[12];
 	}
+
+
 
 	if (debug_publish)
 	{
@@ -495,23 +530,7 @@ void Localization::update(double dt, const cv::Mat& left_image, const cv::Mat& r
 
 	//ROS_INFO("Time SLAM         : %6.2f ms", (ros::Time::now() - tic).toSec()*1000);
 
-	// Set the pose
-	pose.position.x = xt_out->data[0];
-	pose.position.y = xt_out->data[1];
-	pose.position.z = xt_out->data[2];
 
-	pose.orientation.x = xt_out->data[3];
-	pose.orientation.y = xt_out->data[4];
-	pose.orientation.z = xt_out->data[5];
-	pose.orientation.w = xt_out->data[6];
-
-	velocity.linear.x = xt_out->data[7];
-	velocity.linear.y = xt_out->data[8];
-	velocity.linear.z = xt_out->data[9];
-
-	velocity.angular.x = xt_out->data[10];
-	velocity.angular.y = xt_out->data[11];
-	velocity.angular.z = xt_out->data[12];
 
 	emxDestroyArray_real_T(xt_out);
 	emxDestroyArray_real_T(P_apo_out);
