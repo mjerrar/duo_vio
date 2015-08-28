@@ -295,8 +295,7 @@ void Localization::joystickCb(const sensor_msgs::Joy::ConstPtr& msg)
 	    if (!SLAM_reset_flag)
 	    	ROS_INFO("resetting SLAM");
 
-	} else if (msg->buttons[2]) { // arming signal
-		ROS_INFO("SLAM: ARMING");
+	} else if (msg->buttons[2]) { // auto mode signal
 		change_reference = true;
 		// set the reference to the current pose
 
@@ -304,7 +303,7 @@ void Localization::joystickCb(const sensor_msgs::Joy::ConstPtr& msg)
 		referenceCommand.position[1] = pose.position.y;
 		referenceCommand.position[2] = pose.position.z;
 
-		double yaw = tf::getYaw(pose.orientation);
+		double yaw = tf::getYaw(pose.orientation) + 1.57;
 		referenceCommand.position[3] = yaw;
 
 		referenceCommand.velocity[0] = 0;
@@ -312,9 +311,24 @@ void Localization::joystickCb(const sensor_msgs::Joy::ConstPtr& msg)
 		referenceCommand.velocity[2] = 0;
 		referenceCommand.velocity[3] = 0;
 
-	} else if (msg->buttons[3]) { // disarming signal
+		geometry_msgs::PoseStamped ref_viz;
+		ref_viz.header.stamp = ros::Time::now();
+		ref_viz.header.frame_id = "world";
+		ref_viz.pose.position.x = referenceCommand.position[0];
+		ref_viz.pose.position.y = referenceCommand.position[1];
+		ref_viz.pose.position.z = referenceCommand.position[2];
+
+		tf::Quaternion quaternion;
+		quaternion.setRPY(0.0, 0.0, referenceCommand.position[3]);
+		ref_viz.pose.orientation.w = quaternion.getW();
+		ref_viz.pose.orientation.x = quaternion.getX();
+		ref_viz.pose.orientation.y = quaternion.getY();
+		ref_viz.pose.orientation.z = quaternion.getZ();
+
+		reference_viz_pub.publish(ref_viz);
+
+	} else if (msg->buttons[3]) { // leaving auto mode signal
 		change_reference = true;
-		ROS_INFO("SLAM: DISARMING");
 	}
 }
 
