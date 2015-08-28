@@ -18,6 +18,7 @@
   <arg name="Kp_z" default="1" />
   <arg name="Kd_z" default="1.4" />
   <arg name="Kp_yaw" default="1" />
+  <arg name="Kd_yaw" default="1" />
   
   <arg name="use_orientation" default="1" />
   <arg name="use_pressure" default="0" />
@@ -71,6 +72,7 @@
     <param name="Kp_z" type="double" value="$(arg Kp_z)" />
     <param name="Kd_z" type="double" value="$(arg Kd_z)" />
     <param name="Kp_yaw" type="double" value="$(arg Kp_yaw)" />
+    <param name="Kd_yaw" type="double" value="$(arg Kd_yaw)" />
 
     <!-- note that these parameters are not free. The total number of points num_anchors*num_points_per_anchor must equal the total number of points with wich SLAM was codered in Matlab. -->
     <param name="num_points_per_anchor" type="int" value="4" />
