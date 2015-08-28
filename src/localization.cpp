@@ -474,9 +474,16 @@ void Localization::update(double dt, const cv::Mat& left_image, const cv::Mat& r
 	double dy = abs(xt_out->data[1] - pose.position.y);
 	double dz = abs(xt_out->data[2] - pose.position.z);
 	double failure_threshold = 2/60;
+	double bounds = 20; // maximum distance from center
 
 
-	if (!SLAM_reset_flag && (dx > failure_threshold || dy > failure_threshold || dz > failure_threshold))
+	if (!SLAM_reset_flag && (
+			dx > failure_threshold ||
+			dy > failure_threshold ||
+			dz > failure_threshold ||
+			abs(xt_out->data[0]) > bounds ||
+			abs(xt_out->data[1]) > bounds ||
+			abs(xt_out->data[2]) > bounds))
 	{
 		ROS_ERROR("VIO FAILING. Resetting");
 
