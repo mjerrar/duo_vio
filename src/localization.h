@@ -122,6 +122,7 @@ private:
 	sensor_msgs::FluidPressure mavros_pressure_data_;
 	duo3d_ros::Duo3d last_duo_msg_;
 	std::vector<double> pos_reference;
+	std::vector<double> vel_reference;
 	tf::Quaternion camera2world; // the rotation that transforms a vector in the camera frame to one in the world frame
 
 	bool use_vicon_for_control_;

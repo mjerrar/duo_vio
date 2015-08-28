@@ -16,7 +16,8 @@ Localization::Localization()
   t_avg(0.0),
   SLAM_reset_flag(0),
   received_IMU_data(false),
-  pos_reference(4, 0.0)
+  pos_reference(4, 0.0),
+  vel_reference(4, 0.0)
 {
 	SLAM_initialize();
 	emxInitArray_real_T(&h_u_apo_,1);
@@ -191,10 +192,10 @@ void Localization::duo3dCb(const duo3d_ros::Duo3d& msg)
 	pose_stamped.pose = pose;
 	pose_pub_.publish(pose_stamped);
 
-//	if(use_vicon_for_control_)
-//	{
-	velocity_pub_.publish(velocity);
-//	}
+	if(!use_vicon_for_control_)
+	{
+	  velocity_pub_.publish(velocity);
+	}
 
 
 	// Generate and publish pose as transform
@@ -249,6 +250,38 @@ void Localization::joystickCb(const sensor_msgs::Joy::ConstPtr& msg)
 	if (msg->buttons[0] && !SLAM_reset_flag)
 	{
 		SLAM_reset_flag = true;
+		pos_reference[0] = 0.0;
+		pos_reference[1] = 0.0;
+		pos_reference[2] = 0.0;
+
+		tf::Quaternion quaternion_yaw;
+		tf::Transform tf_yaw;
+		quaternion_yaw.setX(mavros_imu_data_.orientation.x);
+		quaternion_yaw.setY(mavros_imu_data_.orientation.y);
+		quaternion_yaw.setZ(mavros_imu_data_.orientation.z);
+		quaternion_yaw.setW(mavros_imu_data_.orientation.w);
+		tf_yaw.setRotation(quaternion_yaw);
+		tf::Matrix3x3 rotation_yaw = tf_yaw.getBasis();
+		double roll, pitch, yaw;
+		rotation_yaw.getRPY(roll, pitch, yaw);
+		pos_reference[3] = yaw;
+
+	    geometry_msgs::PoseStamped ref_viz;
+	    ref_viz.header.stamp = ros::Time::now();
+	    ref_viz.header.frame_id = "world";
+	    ref_viz.pose.position.x = pos_reference[0];
+	    ref_viz.pose.position.y = pos_reference[1];
+	    ref_viz.pose.position.z = pos_reference[2];
+
+	    tf::Quaternion quaternion;
+	    quaternion.setRPY(0.0, 0.0, pos_reference[3]);
+	    ref_viz.pose.orientation.w = quaternion.getW();
+	    ref_viz.pose.orientation.x = quaternion.getX();
+	    ref_viz.pose.orientation.y = quaternion.getY();
+	    ref_viz.pose.orientation.z = quaternion.getZ();
+
+	    reference_viz_pub.publish(ref_viz);
+
 		ROS_INFO("resetting SLAM");
 	}
 }
@@ -375,16 +408,13 @@ void Localization::update(double dt, const cv::Mat& left_image, const cv::Mat& r
 			map,
 			u_out);
 
-	if(!use_vicon_for_control_)
-	{
-	  onboard_localization::ControllerOut controller_out_msg;
-	  controller_out_msg.x = u_out[0];
-	  controller_out_msg.y = u_out[1];
-	  controller_out_msg.z = u_out[2];
-	  controller_out_msg.yaw = u_out[3];
+    onboard_localization::ControllerOut controller_out_msg;
+    controller_out_msg.x = u_out[0];
+    controller_out_msg.y = u_out[1];
+    controller_out_msg.z = u_out[2];
+    controller_out_msg.yaw = u_out[3];
 
-	  controller_pub.publish(controller_out_msg);
-	}
+    controller_pub.publish(controller_out_msg);
 
 	SLAM_reset_flag = false;
 
@@ -612,7 +642,7 @@ void Localization::updateDronePose(bool debug_publish)
 	q_d2c.setEuler(-M_PI/2, -M_PI/2, 0.0);
 	camera2drone.setRotation(q_d2c);
 
-	if(use_vicon_for_control_)
+	if(!use_vicon_for_control_)
 	{
 	  tf_broadcaster_.sendTransform(tf::StampedTransform(camera2drone, ros::Time::now(), "camera", "drone_base"));
 	}
