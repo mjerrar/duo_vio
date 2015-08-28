@@ -5,7 +5,7 @@
 // File: SLAM.cpp
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 28-Aug-2015 14:45:19
+// C/C++ source code generated on  : 28-Aug-2015 15:47:41
 //
 
 // Include Files
@@ -83,7 +83,7 @@ static double rt_atan2d_snf(double u0, double u1)
 //                const double z_all_r[32]
 //                double dt
 //                VIOMeasurements *measurements
-//                const double ref[4]
+//                const ReferenceCommand *ref
 //                const VIOParameters *b_VIOParameters
 //                const StereoParameters *cameraParameters
 //                const NoiseParameters *noiseParameters
@@ -97,8 +97,8 @@ static double rt_atan2d_snf(double u0, double u1)
 // Return Type  : void
 //
 void SLAM(double updateVect[16], const double z_all_l[32], const double z_all_r
-          [32], double dt, VIOMeasurements *measurements, const double ref[4],
-          const VIOParameters *b_VIOParameters, const StereoParameters
+          [32], double dt, VIOMeasurements *measurements, const ReferenceCommand
+          *ref, const VIOParameters *b_VIOParameters, const StereoParameters
           *cameraParameters, const NoiseParameters *noiseParameters, const
           ControllerGains *b_ControllerGains, boolean_T resetFlag,
           emxArray_real_T *h_u_apo_out, emxArray_real_T *xt_out, emxArray_real_T
@@ -212,7 +212,7 @@ void SLAM(double updateVect[16], const double z_all_l[32], const double z_all_r
     xt->size[0] = 13 + r4->size[0];
     emxEnsureCapacity((emxArray__common *)xt, i6, (int)sizeof(double));
     for (i6 = 0; i6 < 3; i6++) {
-      xt->data[i6] = ref[i6];
+      xt->data[i6] = ref->position[i6];
     }
 
     for (i6 = 0; i6 < 4; i6++) {
@@ -506,16 +506,16 @@ void SLAM(double updateVect[16], const double z_all_l[32], const double z_all_r
       }
     }
 
-    u_out_x = -(b_ControllerGains->Kp_xy * (xt->data[0] - ref[0]) +
-                b_ControllerGains->Kd_xy * xt->data[7]);
+    u_out_x = -(b_ControllerGains->Kp_xy * (xt->data[0] - ref->position[0]) +
+                b_ControllerGains->Kd_xy * (xt->data[7] - ref->velocity[0]));
 
     //  control commands in world frame
-    u_out_y = -(b_ControllerGains->Kp_xy * (xt->data[1] - ref[1]) +
-                b_ControllerGains->Kd_xy * xt->data[8]);
+    u_out_y = -(b_ControllerGains->Kp_xy * (xt->data[1] - ref->position[1]) +
+                b_ControllerGains->Kd_xy * (xt->data[8] - ref->velocity[1]));
 
     //  control commands in world frame
-    u_out_z = -(b_ControllerGains->Kp_z * (xt->data[2] - ref[2]) +
-                b_ControllerGains->Kd_z * xt->data[9]);
+    u_out_z = -(b_ControllerGains->Kp_z * (xt->data[2] - ref->position[2]) +
+                b_ControllerGains->Kd_z * (xt->data[9] - ref->velocity[2]));
 
     //  control commands in world frame
     //  if ~all(size(q) == [4, 1])
@@ -545,8 +545,9 @@ void SLAM(double updateVect[16], const double z_all_l[32], const double z_all_r
       }
     }
 
-    u_out_yaw = -b_ControllerGains->Kp_yaw * (rt_atan2d_snf(R_bw[3], R_bw[0]) -
-      ref[3]);
+    u_out_yaw = b_ControllerGains->Kd_yaw * ref->velocity[3] -
+      b_ControllerGains->Kp_yaw * (rt_atan2d_snf(R_bw[3], R_bw[0]) -
+      ref->position[3]);
     b_u_out_x[0] = u_out_x;
     b_u_out_x[1] = u_out_y;
     b_u_out_x[2] = u_out_z;

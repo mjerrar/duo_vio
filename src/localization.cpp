@@ -16,8 +16,6 @@ Localization::Localization()
   t_avg(0.0),
   SLAM_reset_flag(0),
   received_IMU_data(false),
-  pos_reference(4, 0.0),
-  vel_reference(4, 0.0),
   vicon_pos(3, 0.0),
   vicon_quaternion(4, 0.0)
 {
@@ -257,9 +255,14 @@ void Localization::joystickCb(const sensor_msgs::Joy::ConstPtr& msg)
 	if (msg->buttons[0] && !SLAM_reset_flag)
 	{
 		SLAM_reset_flag = true;
-		pos_reference[0] = 0.0;
-		pos_reference[1] = 0.0;
-		pos_reference[2] = 0.0;
+		referenceCommand.position[0] = 0;
+		referenceCommand.position[1] = 0;
+		referenceCommand.position[2] = 0;
+		referenceCommand.position[3] = 0;
+		referenceCommand.velocity[0] = 0;
+		referenceCommand.velocity[1] = 0;
+		referenceCommand.velocity[2] = 0;
+		referenceCommand.velocity[3] = 0;
 
 		tf::Quaternion quaternion_yaw;
 		tf::Transform tf_yaw;
@@ -271,17 +274,17 @@ void Localization::joystickCb(const sensor_msgs::Joy::ConstPtr& msg)
 		tf::Matrix3x3 rotation_yaw = tf_yaw.getBasis();
 		double roll, pitch, yaw;
 		rotation_yaw.getRPY(roll, pitch, yaw);
-		pos_reference[3] = yaw;
+		referenceCommand.position[3] = yaw;
 
 	    geometry_msgs::PoseStamped ref_viz;
 	    ref_viz.header.stamp = ros::Time::now();
 	    ref_viz.header.frame_id = "world";
-	    ref_viz.pose.position.x = pos_reference[0];
-	    ref_viz.pose.position.y = pos_reference[1];
-	    ref_viz.pose.position.z = pos_reference[2];
+	    ref_viz.pose.position.x = referenceCommand.position[0];
+	    ref_viz.pose.position.y = referenceCommand.position[1];
+	    ref_viz.pose.position.z = referenceCommand.position[2];
 
 	    tf::Quaternion quaternion;
-	    quaternion.setRPY(0.0, 0.0, pos_reference[3]);
+	    quaternion.setRPY(0.0, 0.0, referenceCommand.position[3]);
 	    ref_viz.pose.orientation.w = quaternion.getW();
 	    ref_viz.pose.orientation.x = quaternion.getX();
 	    ref_viz.pose.orientation.y = quaternion.getY();
@@ -322,27 +325,28 @@ void Localization::positionReferenceCb(const onboard_localization::PositionRefer
 	double roll, pitch, yaw;
 	tf::Matrix3x3(camera2world).getRPY(roll, pitch, yaw);
 	tf::Quaternion q;
-	q.setRPY(0, 0, yaw+1.57);
+	q.setRPY(0, 0, yaw + 1.57);
 	tf::Vector3 positionChange_world = tf::Transform(q) * tf::Vector3(msg.x, msg.y, msg.z);
-	pos_reference[0] += positionChange_world.x();
-	pos_reference[1] += positionChange_world.y();
-	pos_reference[2] += positionChange_world.z();
-	pos_reference[3] += msg.yaw;
+	double dt = 0.1; // the loop rate of the joy reference node
+	referenceCommand.position[0] += dt * positionChange_world.x();
+	referenceCommand.position[1] += dt * positionChange_world.y();
+	referenceCommand.position[2] += dt * positionChange_world.z();
+	referenceCommand.position[3] += dt * msg.yaw;
 
-	vel_reference[0] = 0.1 * msg.x;
-	vel_reference[1] = 0.1 * msg.y;
-	vel_reference[2] = 0.0;
-	vel_reference[3] = 0.1 * msg.yaw;
+	referenceCommand.velocity[0] = positionChange_world.x();
+	referenceCommand.velocity[1] = positionChange_world.y();
+	referenceCommand.velocity[2] = positionChange_world.z();
+	referenceCommand.velocity[3] = msg.yaw;
 
 	geometry_msgs::PoseStamped ref_viz;
 	ref_viz.header.stamp = ros::Time::now();
 	ref_viz.header.frame_id = "world";
-	ref_viz.pose.position.x = pos_reference[0];
-	ref_viz.pose.position.y = pos_reference[1];
-	ref_viz.pose.position.z = pos_reference[2];
+	ref_viz.pose.position.x = referenceCommand.position[0];
+	ref_viz.pose.position.y = referenceCommand.position[1];
+	ref_viz.pose.position.z = referenceCommand.position[2];
 
 	tf::Quaternion quaternion;
-	quaternion.setRPY(0.0, 0.0, pos_reference[3]);
+	quaternion.setRPY(0.0, 0.0, referenceCommand.position[3]);
 	ref_viz.pose.orientation.w = quaternion.getW();
 	ref_viz.pose.orientation.x = quaternion.getX();
 	ref_viz.pose.orientation.y = quaternion.getY();
@@ -414,7 +418,7 @@ void Localization::update(double dt, const cv::Mat& left_image, const cv::Mat& r
 			&z_all_r[0],
 			dt,
 			&meas,
-			&pos_reference[0],
+			&referenceCommand,
 			&vioParams,
 			&cameraParams,
 			&noiseParams,

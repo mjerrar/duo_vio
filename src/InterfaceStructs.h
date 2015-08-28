@@ -35,6 +35,7 @@ struct ControllerGains
 	double Kp_z;
 	double Kd_z;
 	double Kp_yaw;
+	double Kd_yaw;
 };
 
 // NoiseParamters
@@ -64,6 +65,14 @@ struct VIOMeasurements
 	double att_fmu[4];
 	double pos_ext[3];
 	double att_ext[3];
+};
+
+// ReferenceCommand
+// =========================================================
+struct ReferenceCommand
+{
+	double position[4]; // x, y, z, yaw
+	double velocity[4];
 };
 
 // cameraParameters
