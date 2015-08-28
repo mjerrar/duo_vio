@@ -55,6 +55,8 @@ Localization::Localization()
 	nh_.param<double>("sigma_init", noiseParams.sigmaInit, 0.0001);
 	nh_.param<double>("im_noise", noiseParams.image_noise[0], 1.0);
 	nh_.param<double>("im_noise", noiseParams.image_noise[1], 1.0);
+	nh_.param<double>("ext_pos_noise", noiseParams.ext_pos_noise, 0.1);
+	nh_.param<double>("ext_att_noise", noiseParams.ext_att_noise, 0.1);
 
 	nh_.param<int>("num_points_per_anchor", vioParams.num_points_per_anchor, 1);
 	nh_.param<int>("num_anchors", vioParams.num_anchors, 1);
@@ -64,6 +66,9 @@ Localization::Localization()
 	nh_.param<bool>("use_pressure", vioParams.use_pressure, false);
 	nh_.param<bool>("use_magnetometer", vioParams.use_magnetometer, false);
 	nh_.param<bool>("use_controller_to_predict", vioParams.use_controller_to_predict, 1);
+	nh_.param<bool>("use_ext_pose", vioParams.use_ext_pose, 1);
+	nh_.param<bool>("fixed_anchor", vioParams.fixed_anchor, 1);
+
 
 	nh_.param<double>("Kp_xy", controllerGains.Kp_xy, 1);
 	nh_.param<double>("Kd_xy", controllerGains.Kd_xy, 1);
@@ -283,6 +288,7 @@ void Localization::joystickCb(const sensor_msgs::Joy::ConstPtr& msg)
 	    reference_viz_pub.publish(ref_viz);
 
 		ROS_INFO("resetting SLAM");
+		printf("yaw is %f\n", yaw);
 	}
 }
 
