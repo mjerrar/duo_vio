@@ -135,7 +135,7 @@ Localization::~Localization()
 
 void Localization::duo3dCb(const duo3d_ros::Duo3d& msg)
 {
-	if (!received_IMU_data)
+	if (!received_IMU_data && vioParams.use_orientation)
 	{
 		ROS_INFO("No IMU data yet!");
 		return;
