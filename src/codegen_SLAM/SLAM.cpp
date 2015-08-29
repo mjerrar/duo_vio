@@ -5,7 +5,7 @@
 // File: SLAM.cpp
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 28-Aug-2015 21:34:41
+// C/C++ source code generated on  : 29-Aug-2015 15:19:17
 //
 
 // Include Files
@@ -137,6 +137,7 @@ void SLAM(double updateVect[16], const double z_all_l[32], const double z_all_r
   static const char cv7[16] = { 'S', 'L', 'A', 'M', ' ', 's', 'o', 'f', 't', ' ',
     'r', 'e', 's', 'e', 't', '\x00' };
 
+  int tmp_data[16];
   double d_measurements[9];
   for (i = 0; i < 4; i++) {
     u_out[i] = 0.0;
@@ -617,6 +618,20 @@ void SLAM(double updateVect[16], const double z_all_l[32], const double z_all_r
       ROS_WARN(cv6);
       for (i = 0; i < 16; i++) {
         updateVect[i] = 0.0;
+      }
+
+      if (1.0 > b_VIOParameters->num_points_per_anchor) {
+        i = 0;
+      } else {
+        i = (int)b_VIOParameters->num_points_per_anchor;
+      }
+
+      for (i12 = 0; i12 < i; i12++) {
+        tmp_data[i12] = i12;
+      }
+
+      for (i12 = 0; i12 < i; i12++) {
+        updateVect[tmp_data[i12]] = 2.0;
       }
 
       //  if ~all(size(q) == [4, 1])
