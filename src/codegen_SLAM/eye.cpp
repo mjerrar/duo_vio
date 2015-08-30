@@ -5,7 +5,7 @@
 // File: eye.cpp
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 30-Aug-2015 14:58:54
+// C/C++ source code generated on  : 30-Aug-2015 15:50:40
 //
 
 // Include Files
@@ -19,11 +19,36 @@
 // Function Definitions
 
 //
+// Arguments    : double varargin_1
+//                emxArray_real_T *I
+// Return Type  : void
+//
+void b_eye(double varargin_1, emxArray_real_T *I)
+{
+  int k;
+  int loop_ub;
+  k = I->size[0] * I->size[1];
+  I->size[0] = (int)varargin_1;
+  I->size[1] = (int)varargin_1;
+  emxEnsureCapacity((emxArray__common *)I, k, (int)sizeof(double));
+  loop_ub = (int)varargin_1 * (int)varargin_1;
+  for (k = 0; k < loop_ub; k++) {
+    I->data[k] = 0.0;
+  }
+
+  if ((int)varargin_1 > 0) {
+    for (k = 0; k + 1 <= (int)varargin_1; k++) {
+      I->data[k + I->size[0] * k] = 1.0;
+    }
+  }
+}
+
+//
 // Arguments    : const double varargin_1[2]
 //                emxArray_real_T *I
 // Return Type  : void
 //
-void b_eye(const double varargin_1[2], emxArray_real_T *I)
+void c_eye(const double varargin_1[2], emxArray_real_T *I)
 {
   double minval;
   int k;
@@ -53,27 +78,15 @@ void b_eye(const double varargin_1[2], emxArray_real_T *I)
 }
 
 //
-// Arguments    : double varargin_1
-//                emxArray_real_T *I
+// Arguments    : double I[9]
 // Return Type  : void
 //
-void eye(double varargin_1, emxArray_real_T *I)
+void eye(double I[9])
 {
   int k;
-  int loop_ub;
-  k = I->size[0] * I->size[1];
-  I->size[0] = (int)varargin_1;
-  I->size[1] = (int)varargin_1;
-  emxEnsureCapacity((emxArray__common *)I, k, (int)sizeof(double));
-  loop_ub = (int)varargin_1 * (int)varargin_1;
-  for (k = 0; k < loop_ub; k++) {
-    I->data[k] = 0.0;
-  }
-
-  if ((int)varargin_1 > 0) {
-    for (k = 0; k + 1 <= (int)varargin_1; k++) {
-      I->data[k + I->size[0] * k] = 1.0;
-    }
+  memset(&I[0], 0, 9U * sizeof(double));
+  for (k = 0; k < 3; k++) {
+    I[k + 3 * k] = 1.0;
   }
 }
 

@@ -1,9 +1,12 @@
 #ifndef __SLAM_INCLUDES__
 #define __SLAM_INCLUDES__
 #include <any.h>
+#include <Att_pred.h>
+#include <Att_upd.h>
 #include <blkdiag.h>
 #include <Ch_dn_To_h_un.h>
 #include <colon.h>
+#include <cross.h>
 #include <diag.h>
 #include <eml_rand_mt19937ar_stateful.h>
 #include <eye.h>
@@ -21,6 +24,7 @@
 #include <quatmultJ.h>
 #include <quatPlusThetaJ.h>
 #include <rand.h>
+#include <rdivide.h>
 #include <repmat.h>
 #include <ros_error.h>
 #include <ros_warn.h>

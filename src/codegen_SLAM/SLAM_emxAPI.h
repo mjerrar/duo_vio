@@ -5,7 +5,7 @@
 // File: SLAM_emxAPI.h
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 30-Aug-2015 14:58:54
+// C/C++ source code generated on  : 30-Aug-2015 15:50:40
 //
 #ifndef __SLAM_EMXAPI_H__
 #define __SLAM_EMXAPI_H__

@@ -5,7 +5,7 @@
 // File: getH_R_res.cpp
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 30-Aug-2015 14:58:54
+// C/C++ source code generated on  : 30-Aug-2015 15:50:40
 //
 
 // Include Files
@@ -821,7 +821,7 @@ void b_getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
   }
 
   emxInit_real_T(&r3, 2);
-  eye((double)indMeas_size[0], r3);
+  b_eye((double)indMeas_size[0], r3);
   ia = r3->size[0];
   ic = r3->size[1];
   b_j1 = r3->size[0] * r3->size[1];

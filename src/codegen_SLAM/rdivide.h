@@ -2,13 +2,13 @@
 // Academic License - for use in teaching, academic research, and meeting
 // course requirements at degree granting institutions only.  Not for
 // government, commercial, or other organizational use.
-// File: blkdiag.h
+// File: rdivide.h
 //
 // MATLAB Coder version            : 2.8
 // C/C++ source code generated on  : 30-Aug-2015 15:50:40
 //
-#ifndef __BLKDIAG_H__
-#define __BLKDIAG_H__
+#ifndef __RDIVIDE_H__
+#define __RDIVIDE_H__
 
 // Include Files
 #include <math.h>
@@ -21,13 +21,12 @@
 #include "SLAM_types.h"
 
 // Function Declarations
-extern void blkdiag(const emxArray_real_T *varargin_1, const emxArray_real_T
-                    *varargin_2, emxArray_real_T *y);
+extern void rdivide(const double x[3], double y, double z[3]);
 
 #endif
 
 //
-// File trailer for blkdiag.h
+// File trailer for rdivide.h
 //
 // [EOF]
 //

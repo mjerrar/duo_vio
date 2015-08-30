@@ -2,13 +2,13 @@
 // Academic License - for use in teaching, academic research, and meeting
 // course requirements at degree granting institutions only.  Not for
 // government, commercial, or other organizational use.
-// File: blkdiag.h
+// File: Att_pred.h
 //
 // MATLAB Coder version            : 2.8
 // C/C++ source code generated on  : 30-Aug-2015 15:50:40
 //
-#ifndef __BLKDIAG_H__
-#define __BLKDIAG_H__
+#ifndef __ATT_PRED_H__
+#define __ATT_PRED_H__
 
 // Include Files
 #include <math.h>
@@ -21,13 +21,14 @@
 #include "SLAM_types.h"
 
 // Function Declarations
-extern void blkdiag(const emxArray_real_T *varargin_1, const emxArray_real_T
-                    *varargin_2, emxArray_real_T *y);
+extern void Att_pred(const double x_data[], const double P_data[], const int
+                     P_size[2], const double w[3], double q, double dt, double
+                     x[4], double b_P[9]);
 
 #endif
 
 //
-// File trailer for blkdiag.h
+// File trailer for Att_pred.h
 //
 // [EOF]
 //

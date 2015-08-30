@@ -2,7 +2,7 @@
 // Academic License - for use in teaching, academic research, and meeting
 // course requirements at degree granting institutions only.  Not for
 // government, commercial, or other organizational use.
-// File: diag.cpp
+// File: rdivide.cpp
 //
 // MATLAB Coder version            : 2.8
 // C/C++ source code generated on  : 30-Aug-2015 15:50:40
@@ -11,28 +11,28 @@
 // Include Files
 #include "rt_nonfinite.h"
 #include "SLAM.h"
-#include "diag.h"
+#include "rdivide.h"
 #include <ros/console.h>
 #include <stdio.h>
 
 // Function Definitions
 
 //
-// Arguments    : const double v[9]
-//                double d[81]
+// Arguments    : const double x[3]
+//                double y
+//                double z[3]
 // Return Type  : void
 //
-void diag(const double v[9], double d[81])
+void rdivide(const double x[3], double y, double z[3])
 {
-  int j;
-  memset(&d[0], 0, 81U * sizeof(double));
-  for (j = 0; j < 9; j++) {
-    d[j + 9 * j] = v[j];
+  int i;
+  for (i = 0; i < 3; i++) {
+    z[i] = x[i] / y;
   }
 }
 
 //
-// File trailer for diag.cpp
+// File trailer for rdivide.cpp
 //
 // [EOF]
 //
