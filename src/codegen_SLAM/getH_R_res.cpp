@@ -5,7 +5,7 @@
 // File: getH_R_res.cpp
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 30-Aug-2015 15:50:40
+// C/C++ source code generated on  : 30-Aug-2015 16:19:29
 //
 
 // Include Files
@@ -30,8 +30,6 @@
 //
 // GETJACOBIANANDRESIDUAL Get Jacobian H and residual r
 //    Uses the standard camera model
-//    Does not take into account the derivative with respect to anchor states
-//    (static map)
 //
 //  INPUT ARGUMENTS:
 //  - xt:                   The current state
@@ -175,7 +173,7 @@ void b_getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
   double y_stateSize;
   double anchorRot[9];
   double c_xt;
-  double d2;
+  double d1;
   double y[3];
   double c;
   double dv5[9];
@@ -528,13 +526,13 @@ void b_getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
       - 1] - 1.0) * numStatesPerAnchor) + 7.0) + featureAnchorIdx->data[(int)
       indMeas_data[k] - 1]) - 1];
     for (ar = 0; ar < 3; ar++) {
-      d2 = 0.0;
+      d1 = 0.0;
       for (i2 = 0; i2 < 3; i2++) {
-        d2 += anchorRot[i2 + 3 * ar] * b_m_vect->data[i2 + b_m_vect->size[0] *
+        d1 += anchorRot[i2 + 3 * ar] * b_m_vect->data[i2 + b_m_vect->size[0] *
           ((int)indMeas_data[k] - 1)];
       }
 
-      y[ar] = d2 / c_xt;
+      y[ar] = d1 / c_xt;
     }
 
     c = b_xt->data[(int)(((stateSize + (anchorIdx->data[(int)indMeas_data[k] - 1]
@@ -560,13 +558,13 @@ void b_getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
     }
 
     for (ar = 0; ar < 3; ar++) {
-      d2 = 0.0;
+      d1 = 0.0;
       for (i2 = 0; i2 < 3; i2++) {
-        d2 += b_anchorRot[ar + 3 * i2] * b_m_vect->data[i2 + b_m_vect->size[0] *
+        d1 += b_anchorRot[ar + 3 * i2] * b_m_vect->data[i2 + b_m_vect->size[0] *
           ((int)indMeas_data[k] - 1)];
       }
 
-      b_map[ar] = d2 / c;
+      b_map[ar] = d1 / c;
     }
 
     b_j1 = (int)(numPointsPerAnchor - featureAnchorIdx->data[(int)indMeas_data[k]
@@ -1175,8 +1173,6 @@ void b_getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
 //
 // GETJACOBIANANDRESIDUAL Get Jacobian H and residual r
 //    Uses the standard camera model
-//    Does not take into account the derivative with respect to anchor states
-//    (static map)
 //
 //  INPUT ARGUMENTS:
 //  - xt:                   The current state
@@ -1299,7 +1295,7 @@ void getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
   double x_stateSize;
   double y_stateSize;
   double anchorRot[9];
-  double d1;
+  double d0;
   double y[3];
   double dv1[9];
   double b_anchorRot[9];
@@ -1616,13 +1612,13 @@ void getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
     * (7.0 + b_VIOParameters.num_points_per_anchor)) + 7.0) +
     featureAnchorIdx->data[(int)indMeas - 1]) - 1];
   for (ar = 0; ar < 3; ar++) {
-    d1 = 0.0;
+    d0 = 0.0;
     for (br = 0; br < 3; br++) {
-      d1 += anchorRot[br + 3 * ar] * b_m_vect->data[br + b_m_vect->size[0] *
+      d0 += anchorRot[br + 3 * ar] * b_m_vect->data[br + b_m_vect->size[0] *
         ((int)indMeas - 1)];
     }
 
-    y[ar] = d1 / anew;
+    y[ar] = d0 / anew;
   }
 
   anew = b_xt->data[(int)(((stateSize + (anchorIdx->data[(int)indMeas - 1] - 1.0)
@@ -1648,13 +1644,13 @@ void getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
   }
 
   for (ar = 0; ar < 3; ar++) {
-    d1 = 0.0;
+    d0 = 0.0;
     for (br = 0; br < 3; br++) {
-      d1 += b_anchorRot[ar + 3 * br] * b_m_vect->data[br + b_m_vect->size[0] *
+      d0 += b_anchorRot[ar + 3 * br] * b_m_vect->data[br + b_m_vect->size[0] *
         ((int)indMeas - 1)];
     }
 
-    b_map[ar] = d1 / anew;
+    b_map[ar] = d0 / anew;
   }
 
   emxInit_real_T(&H_iy, 2);

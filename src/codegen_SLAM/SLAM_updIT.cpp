@@ -5,7 +5,7 @@
 // File: SLAM_updIT.cpp
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 30-Aug-2015 15:50:40
+// C/C++ source code generated on  : 30-Aug-2015 16:19:29
 //
 
 // Include Files
@@ -155,7 +155,7 @@ void SLAM_updIT(emxArray_real_T *P_apr, emxArray_real_T *b_xt, const double
   boolean_T guard4 = false;
   double R_cw[9];
   double r_wc[3];
-  double d5;
+  double d4;
   double c_xt[7];
   emxArray_boolean_T *r14;
   boolean_T exitg5;
@@ -877,14 +877,14 @@ void SLAM_updIT(emxArray_real_T *P_apr, emxArray_real_T *b_xt, const double
           initializeNewAnchor - 1)] = 0.0;
       }
 
-      d5 = numStatesxt + (initializeNewAnchor - 1.0) * (7.0 +
+      d4 = numStatesxt + (initializeNewAnchor - 1.0) * (7.0 +
         b_VIOParameters.num_points_per_anchor);
       for (i14 = 0; i14 < 7; i14++) {
         c_xt[i14] = b_xt->data[i14];
       }
 
       for (i14 = 0; i14 < 7; i14++) {
-        b_xt->data[(int)(d5 + (1.0 + (double)i14)) - 1] = c_xt[i14];
+        b_xt->data[(int)(d4 + (1.0 + (double)i14)) - 1] = c_xt[i14];
       }
 
       i14 = depthUncertainties->size[0];
@@ -1049,9 +1049,9 @@ void SLAM_updIT(emxArray_real_T *P_apr, emxArray_real_T *b_xt, const double
         unusedFeatureIdx++;
       }
 
-      d5 = rt_roundd_snf((double)featureAnchorIdx - 1.0);
-      if (d5 < 2.147483648E+9) {
-        i14 = (int)d5;
+      d4 = rt_roundd_snf((double)featureAnchorIdx - 1.0);
+      if (d4 < 2.147483648E+9) {
+        i14 = (int)d4;
       } else {
         i14 = MAX_int32_T;
       }
@@ -1118,14 +1118,14 @@ void SLAM_updIT(emxArray_real_T *P_apr, emxArray_real_T *b_xt, const double
         }
       }
 
-      d5 = numStates + (initializeNewAnchor - 1.0) * (6.0 +
+      d4 = numStates + (initializeNewAnchor - 1.0) * (6.0 +
         b_VIOParameters.num_points_per_anchor);
       i14 = r12->size[0];
       r12->size[0] = anchorIdx->size[1];
       emxEnsureCapacity((emxArray__common *)r12, i14, (int)sizeof(int));
       loop_ub = anchorIdx->size[1];
       for (i14 = 0; i14 < loop_ub; i14++) {
-        r12->data[i14] = (int)(d5 + anchorIdx->data[anchorIdx->size[0] * i14]);
+        r12->data[i14] = (int)(d4 + anchorIdx->data[anchorIdx->size[0] * i14]);
       }
 
       loop_ub = P_apr->size[1];
@@ -1197,14 +1197,14 @@ void SLAM_updIT(emxArray_real_T *P_apr, emxArray_real_T *b_xt, const double
         }
       }
 
-      d5 = numStates + (initializeNewAnchor - 1.0) * (6.0 +
+      d4 = numStates + (initializeNewAnchor - 1.0) * (6.0 +
         b_VIOParameters.num_points_per_anchor);
       i14 = r12->size[0];
       r12->size[0] = anchorIdx->size[1];
       emxEnsureCapacity((emxArray__common *)r12, i14, (int)sizeof(int));
       loop_ub = anchorIdx->size[1];
       for (i14 = 0; i14 < loop_ub; i14++) {
-        r12->data[i14] = (int)(d5 + anchorIdx->data[anchorIdx->size[0] * i14]);
+        r12->data[i14] = (int)(d4 + anchorIdx->data[anchorIdx->size[0] * i14]);
       }
 
       loop_ub = P_apr->size[0];
@@ -1282,14 +1282,14 @@ void SLAM_updIT(emxArray_real_T *P_apr, emxArray_real_T *b_xt, const double
         }
       }
 
-      d5 = numStates + (initializeNewAnchor - 1.0) * (6.0 +
+      d4 = numStates + (initializeNewAnchor - 1.0) * (6.0 +
         b_VIOParameters.num_points_per_anchor);
       i14 = r12->size[0];
       r12->size[0] = anchorIdx->size[1];
       emxEnsureCapacity((emxArray__common *)r12, i14, (int)sizeof(int));
       loop_ub = anchorIdx->size[1];
       for (i14 = 0; i14 < loop_ub; i14++) {
-        r12->data[i14] = (int)(d5 + anchorIdx->data[anchorIdx->size[0] * i14]);
+        r12->data[i14] = (int)(d4 + anchorIdx->data[anchorIdx->size[0] * i14]);
       }
 
       loop_ub = J->size[1];
@@ -1361,14 +1361,14 @@ void SLAM_updIT(emxArray_real_T *P_apr, emxArray_real_T *b_xt, const double
         }
       }
 
-      d5 = numStates + (initializeNewAnchor - 1.0) * (6.0 +
+      d4 = numStates + (initializeNewAnchor - 1.0) * (6.0 +
         b_VIOParameters.num_points_per_anchor);
       i14 = r12->size[0];
       r12->size[0] = anchorIdx->size[1];
       emxEnsureCapacity((emxArray__common *)r12, i14, (int)sizeof(int));
       loop_ub = anchorIdx->size[1];
       for (i14 = 0; i14 < loop_ub; i14++) {
-        r12->data[i14] = (int)(d5 + anchorIdx->data[anchorIdx->size[0] * i14]) -
+        r12->data[i14] = (int)(d4 + anchorIdx->data[anchorIdx->size[0] * i14]) -
           1;
       }
 
@@ -1624,21 +1624,21 @@ void SLAM_updIT(emxArray_real_T *P_apr, emxArray_real_T *b_xt, const double
         if (oldestAnchorIdx != nx) {
           oldestAnchorIdx = nx;
           loop_ub = P_apr->size[1];
-          d5 = numStates + (oldestAnchorIdx - 1.0) * (6.0 +
+          d4 = numStates + (oldestAnchorIdx - 1.0) * (6.0 +
             b_VIOParameters.num_points_per_anchor);
           for (i14 = 0; i14 < loop_ub; i14++) {
             for (i15 = 0; i15 < 3; i15++) {
-              P_apr->data[((int)(d5 + (1.0 + (double)i15)) + P_apr->size[0] *
+              P_apr->data[((int)(d4 + (1.0 + (double)i15)) + P_apr->size[0] *
                            i14) - 1] = 0.0;
             }
           }
 
           loop_ub = P_apr->size[0];
-          d5 = numStates + (oldestAnchorIdx - 1.0) * (6.0 +
+          d4 = numStates + (oldestAnchorIdx - 1.0) * (6.0 +
             b_VIOParameters.num_points_per_anchor);
           for (i14 = 0; i14 < 3; i14++) {
             for (i15 = 0; i15 < loop_ub; i15++) {
-              P_apr->data[i15 + P_apr->size[0] * ((int)(d5 + (1.0 + (double)i14))
+              P_apr->data[i15 + P_apr->size[0] * ((int)(d4 + (1.0 + (double)i14))
                 - 1)] = 0.0;
             }
           }
