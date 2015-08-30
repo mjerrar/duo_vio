@@ -5,7 +5,7 @@
 // File: colon.h
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 29-Aug-2015 15:19:17
+// C/C++ source code generated on  : 30-Aug-2015 13:44:47
 //
 #ifndef __COLON_H__
 #define __COLON_H__

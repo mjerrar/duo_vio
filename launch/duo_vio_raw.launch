@@ -14,11 +14,14 @@
   <arg name="sigma_init" default="0.0001" />
   
   <arg name="Kp_xy" default="1" />
+  <arg name="Ki_xy" default="0" />
   <arg name="Kd_xy" default="1.4" />
   <arg name="Kp_z" default="1" />
+  <arg name="Ki_z" default="0" />
   <arg name="Kd_z" default="1.4" />
   <arg name="Kp_yaw" default="1" />
   <arg name="Kd_yaw" default="1" />
+  <arg name="i_lim" default="10" />
   
   <arg name="use_orientation" default="1" />
   <arg name="use_pressure" default="0" />
@@ -68,11 +71,14 @@
     <param name="sigma_init" type="double" value="$(arg sigma_init)" />
 
     <param name="Kp_xy" type="double" value="$(arg Kp_xy)" />
+    <param name="Ki_xy" type="double" value="$(arg Ki_xy)" />
     <param name="Kd_xy" type="double" value="$(arg Kd_xy)" />
     <param name="Kp_z" type="double" value="$(arg Kp_z)" />
+    <param name="Ki_z" type="double" value="$(arg Ki_z)" />
     <param name="Kd_z" type="double" value="$(arg Kd_z)" />
     <param name="Kp_yaw" type="double" value="$(arg Kp_yaw)" />
     <param name="Kd_yaw" type="double" value="$(arg Kd_yaw)" />
+    <param name="i_lim" type="double" value="$(arg i_lim)" />
 
     <!-- note that these parameters are not free. The total number of points num_anchors*num_points_per_anchor must equal the total number of points with wich SLAM was codered in Matlab. -->
     <param name="num_points_per_anchor" type="int" value="4" />

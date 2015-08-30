@@ -5,7 +5,7 @@
 // File: getH_R_res.h
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 29-Aug-2015 15:19:17
+// C/C++ source code generated on  : 30-Aug-2015 13:44:47
 //
 #ifndef __GETH_R_RES_H__
 #define __GETH_R_RES_H__

@@ -5,7 +5,7 @@
 // File: OnePointRANSAC_EKF.cpp
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 29-Aug-2015 15:19:17
+// C/C++ source code generated on  : 30-Aug-2015 13:44:47
 //
 
 // Include Files
@@ -119,12 +119,12 @@ void OnePointRANSAC_EKF(emxArray_real_T *b_xt, emxArray_real_T *b_P, const
   double C_data[144];
   int C_size[2];
   double c_xt[3];
-  double dv26[4];
   double dv27[4];
+  double dv28[4];
   double e_numStatesxt;
   double d_numStates;
   double d_xt[4];
-  double dv28[4];
+  double dv29[4];
   double R_cw[9];
   boolean_T HI_inlierStatus_data[16];
   int indMeasIdx;
@@ -152,8 +152,8 @@ void OnePointRANSAC_EKF(emxArray_real_T *b_xt, emxArray_real_T *b_P, const
   double b_r_data[42];
   double b_C_data[1764];
   int b_C_size[2];
-  double dv29[4];
   double dv30[4];
+  double dv31[4];
   emxArray_real_T *c_a;
   char cv8[104];
   static const char cv9[104] = { 'E', 'n', 'd', 'e', 'd', ' ', 'h', 'y', 'p',
@@ -172,8 +172,8 @@ void OnePointRANSAC_EKF(emxArray_real_T *b_xt, emxArray_real_T *b_P, const
   int b_indMeas_size[1];
   double S_data[1764];
   int c_C_size[2];
-  double dv31[4];
   double dv32[4];
+  double dv33[4];
   emxArray_real_T *d_a;
   emxInit_boolean_T(&c_anchorFeatures, 2);
 
@@ -617,10 +617,10 @@ void OnePointRANSAC_EKF(emxArray_real_T *b_xt, emxArray_real_T *b_P, const
       c_xt[i17] = x_apo->data[3 + i17];
     }
 
-    quatPlusThetaJ(c_xt, dv26);
-    quatmultJ(dv26, *(double (*)[4])&x_apo_prev->data[3], dv27);
+    quatPlusThetaJ(c_xt, dv27);
+    quatmultJ(dv27, *(double (*)[4])&x_apo_prev->data[3], dv28);
     for (i17 = 0; i17 < 4; i17++) {
-      x_apo_prev->data[3 + i17] = dv27[i17];
+      x_apo_prev->data[3 + i17] = dv28[i17];
     }
 
     if (8.0 > c_numStatesxt) {
@@ -722,13 +722,13 @@ void OnePointRANSAC_EKF(emxArray_real_T *b_xt, emxArray_real_T *b_P, const
             - 1];
         }
 
-        quatPlusThetaJ(c_xt, dv28);
-        quatmultJ(dv28, d_xt, dv27);
+        quatPlusThetaJ(c_xt, dv29);
+        quatmultJ(dv29, d_xt, dv28);
         e_numStatesxt = c_numStatesxt + ((1.0 + (double)anchorIdx) - 1.0) * (7.0
           + numPointsPerAnchor);
         for (i17 = 0; i17 < 4; i17++) {
           x_apo_prev->data[(int)(e_numStatesxt + (4.0 + (double)i17)) - 1] =
-            dv27[i17];
+            dv28[i17];
         }
 
         for (idx = 0; idx < (int)numPointsPerAnchor; idx++) {
@@ -1358,10 +1358,10 @@ void OnePointRANSAC_EKF(emxArray_real_T *b_xt, emxArray_real_T *b_P, const
         c_xt[i17] = x_apo->data[3 + i17];
       }
 
-      quatPlusThetaJ(c_xt, dv29);
-      quatmultJ(dv29, *(double (*)[4])&b_xt->data[3], dv27);
+      quatPlusThetaJ(c_xt, dv30);
+      quatmultJ(dv30, *(double (*)[4])&b_xt->data[3], dv28);
       for (i17 = 0; i17 < 4; i17++) {
-        b_xt->data[3 + i17] = dv27[i17];
+        b_xt->data[3 + i17] = dv28[i17];
       }
 
       if (8.0 > c_numStatesxt) {
@@ -1445,13 +1445,13 @@ void OnePointRANSAC_EKF(emxArray_real_T *b_xt, emxArray_real_T *b_P, const
               1];
           }
 
-          quatPlusThetaJ(c_xt, dv30);
-          quatmultJ(dv30, d_xt, dv27);
+          quatPlusThetaJ(c_xt, dv31);
+          quatmultJ(dv31, d_xt, dv28);
           e_numStatesxt = c_numStatesxt + ((1.0 + (double)anchorIdx) - 1.0) *
             (7.0 + numPointsPerAnchor);
           for (i17 = 0; i17 < 4; i17++) {
             b_xt->data[(int)(e_numStatesxt + (4.0 + (double)i17)) - 1] =
-              dv27[i17];
+              dv28[i17];
           }
 
           for (idx = 0; idx < (int)numPointsPerAnchor; idx++) {
@@ -2240,10 +2240,10 @@ void OnePointRANSAC_EKF(emxArray_real_T *b_xt, emxArray_real_T *b_P, const
       c_xt[i17] = x_apo->data[3 + i17];
     }
 
-    quatPlusThetaJ(c_xt, dv31);
-    quatmultJ(dv31, *(double (*)[4])&b_xt->data[3], dv27);
+    quatPlusThetaJ(c_xt, dv32);
+    quatmultJ(dv32, *(double (*)[4])&b_xt->data[3], dv28);
     for (i17 = 0; i17 < 4; i17++) {
-      b_xt->data[3 + i17] = dv27[i17];
+      b_xt->data[3 + i17] = dv28[i17];
     }
 
     if (8.0 > c_numStatesxt) {
@@ -2325,12 +2325,12 @@ void OnePointRANSAC_EKF(emxArray_real_T *b_xt, emxArray_real_T *b_P, const
           d_xt[i17] = b_xt->data[(int)(e_numStatesxt + (4.0 + (double)i17)) - 1];
         }
 
-        quatPlusThetaJ(c_xt, dv32);
-        quatmultJ(dv32, d_xt, dv27);
+        quatPlusThetaJ(c_xt, dv33);
+        quatmultJ(dv33, d_xt, dv28);
         e_numStatesxt = c_numStatesxt + ((1.0 + (double)anchorIdx) - 1.0) * (7.0
           + numPointsPerAnchor);
         for (i17 = 0; i17 < 4; i17++) {
-          b_xt->data[(int)(e_numStatesxt + (4.0 + (double)i17)) - 1] = dv27[i17];
+          b_xt->data[(int)(e_numStatesxt + (4.0 + (double)i17)) - 1] = dv28[i17];
         }
 
         for (idx = 0; idx < (int)numPointsPerAnchor; idx++) {

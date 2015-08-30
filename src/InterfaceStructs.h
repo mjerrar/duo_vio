@@ -31,11 +31,14 @@ struct VIOParameters
 struct ControllerGains
 {
 	double Kp_xy;
+	double Ki_xy;
 	double Kd_xy;
 	double Kp_z;
+	double Ki_z;
 	double Kd_z;
 	double Kp_yaw;
 	double Kd_yaw;
+	double i_lim;
 };
 
 // NoiseParamters

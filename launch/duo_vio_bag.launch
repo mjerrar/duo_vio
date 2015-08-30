@@ -14,21 +14,31 @@
   <arg name="sigma_init" default="0.0001" />
   
   <arg name="Kp_xy" default="1" />
+  <arg name="Ki_xy" default="0" />
   <arg name="Kd_xy" default="1.4" />
   <arg name="Kp_z" default="1" />
+  <arg name="Ki_z" default="0" />
   <arg name="Kd_z" default="1.4" />
   <arg name="Kp_yaw" default="1" />
+  <arg name="Kd_yaw" default="1" />
+  <arg name="i_lim" default="10" />
   
   <arg name="use_orientation" default="1" />
   <arg name="use_pressure" default="0" />
   <arg name="use_magnetometer" default="0" />
+  <arg name="use_ext_pose" default="0" />
+  <arg name="fixed_anchor" default="0" />
   <arg name="use_controller_to_predict" default="0" />
+  <arg name="max_ekf_iterations" default="1" />
 
   <arg name="camera_name" default="101" /> <!-- the camera name is equal to the last 3 digits of the odroid's IP -->
   <arg name="lense_type" default="FS3028B13M8" />
 
   <arg name="show_tracker_images" default="1" />
   <arg name="debug_publish_freq" default="10" />
+  <arg name="publish_on_debug_topics" default="1" />
+
+  <arg name="use_vicon_for_control_arg" default="0" />
 
   <node name="vio_ros_node" pkg="vio_ros" type="vio_ros_node" output="screen" >
     <remap from="/imu" to="/duo3d_camera/cam_imu"/>
@@ -44,16 +54,23 @@
     <param name="use_pressure" type="bool" value="$(arg use_pressure)" />
     <param name="use_magnetometer" type="bool" value="$(arg use_magnetometer)" />
     <param name="use_controller_to_predict" type="bool" value="$(arg use_controller_to_predict)" />
+    <param name="use_ext_pose" type="bool" value="$(arg use_ext_pose)" />
+    <param name="fixed_anchor" type="bool" value="$(arg fixed_anchor)" />
+    <param name="max_ekf_iterations" type="int" value="$(arg max_ekf_iterations)" />
 
     <param name="orientation_noise" type="double" value="$(arg orientation_noise)" />
     <param name="pressure_noise" type="double" value="$(arg pressure_noise)" />
     <param name="sigma_init" type="double" value="$(arg sigma_init)" />
 
     <param name="Kp_xy" type="double" value="$(arg Kp_xy)" />
+    <param name="Ki_xy" type="double" value="$(arg Ki_xy)" />
     <param name="Kd_xy" type="double" value="$(arg Kd_xy)" />
     <param name="Kp_z" type="double" value="$(arg Kp_z)" />
+    <param name="Ki_z" type="double" value="$(arg Ki_z)" />
     <param name="Kd_z" type="double" value="$(arg Kd_z)" />
     <param name="Kp_yaw" type="double" value="$(arg Kp_yaw)" />
+    <param name="Kd_yaw" type="double" value="$(arg Kd_yaw)" />
+    <param name="i_lim" type="double" value="$(arg i_lim)" />
 
     <!-- note that these parameters are not free. The total number of points num_anchors*num_points_per_anchor must equal the total number of points with wich SLAM was codered in Matlab. -->
     <param name="num_points_per_anchor" type="int" value="4" />
@@ -67,6 +84,8 @@
     <param name="resolution_height" type="int" value="$(arg resolution_height_duo)" />
 
     <param name="debug_publish_freq" type="double" value="$(arg debug_publish_freq)" />
+    <param name="publish_on_debug_topics" type="bool" value="$(arg publish_on_debug_topics)" />
+    <param name="use_vicon_for_control" type="bool" value="$(arg use_vicon_for_control_arg)" />
   </node>
 
 </launch>

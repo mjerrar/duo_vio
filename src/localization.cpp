@@ -72,11 +72,14 @@ Localization::Localization()
 
 
 	nh_.param<double>("Kp_xy", controllerGains.Kp_xy, 1);
+	nh_.param<double>("Ki_xy", controllerGains.Ki_xy, 0);
 	nh_.param<double>("Kd_xy", controllerGains.Kd_xy, 1);
 	nh_.param<double>("Kp_z", controllerGains.Kp_xy, 1);
+	nh_.param<double>("Ki_z", controllerGains.Ki_z, 0);
 	nh_.param<double>("Kd_z", controllerGains.Kd_z, 1);
 	nh_.param<double>("Kp_yaw", controllerGains.Kp_yaw, 1);
 	nh_.param<double>("Kd_yaw", controllerGains.Kd_yaw, 1);
+	nh_.param<double>("i_lim", controllerGains.i_lim, 1);
 
 	nh_.param<bool>("use_vicon_for_control", use_vicon_for_control_, false);
 
