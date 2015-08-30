@@ -5,7 +5,7 @@
 // File: SLAM_updIT.cpp
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 30-Aug-2015 14:06:09
+// C/C++ source code generated on  : 30-Aug-2015 14:58:54
 //
 
 // Include Files
@@ -175,6 +175,8 @@ void SLAM_updIT(emxArray_real_T *P_apr, emxArray_real_T *b_xt, const double
   double h_u_l[2];
   double b_h_u_l[2];
   boolean_T guard1 = false;
+  double rhoInit;
+  double sigmaInit;
   double anew;
   double apnd;
   double ndbl;
@@ -1017,11 +1019,17 @@ void SLAM_updIT(emxArray_real_T *P_apr, emxArray_real_T *b_xt, const double
                 b_fp[i13] = b_xt->data[i13] - fp[i13];
               }
 
+              rhoInit = 1.0 / norm(b_fp);
+              if (b_VIOParameters.fixed_anchor) {
+                sigmaInit = noiseParameters_sigmaInit / rhoInit;
+              } else {
+                sigmaInit = noiseParameters_sigmaInit;
+              }
+
               b_xt->data[(int)(((numStatesxt + (initializeNewAnchor - 1.0) *
                                  (7.0 + numPointsPerAnchor)) + 7.0) + (double)
-                               featureAnchorIdx) - 1] = 1.0 / norm(b_fp);
-              depthUncertainties->data[(int)featureAnchorIdx - 1] =
-                noiseParameters_sigmaInit;
+                               featureAnchorIdx) - 1] = rhoInit;
+              depthUncertainties->data[(int)featureAnchorIdx - 1] = sigmaInit;
               anchorFeatures->data[(indMeas_data[unusedFeatureIdx] +
                                     anchorFeatures->size[0] * ((int)
                 initializeNewAnchor - 1)) - 1] = 1.0;

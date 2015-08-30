@@ -5,7 +5,7 @@
 // File: OnePointRANSAC_EKF.cpp
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 30-Aug-2015 14:06:09
+// C/C++ source code generated on  : 30-Aug-2015 14:58:54
 //
 
 // Include Files
@@ -155,15 +155,16 @@ void OnePointRANSAC_EKF(emxArray_real_T *b_xt, emxArray_real_T *b_P, const
   double dv30[4];
   double dv31[4];
   emxArray_real_T *c_a;
-  char cv8[104];
-  static const char cv9[104] = { 'E', 'n', 'd', 'e', 'd', ' ', 'h', 'y', 'p',
-    'o', 't', 'h', 'e', 's', 'i', 's', ' ', 't', 'e', 's', 't', '.', ' ', 'F',
-    'o', 'u', 'n', 'd', ' ', '%', 'i', ' ', 'L', 'I', ' ', 'i', 'n', 'l', 'i',
-    'e', 'r', 's', ',', ' ', 'w', 'h', 'i', 'c', 'h', ' ', 'i', 's', ' ', 'b',
-    'e', 'l', 'o', 'w', ' ', 't', 'h', 'e', ' ', 't', 'h', 'r', 'e', 's', 'h',
-    'o', 'l', 'd', ' ', '%', 'i', '.', ' ', 'N', 'o', 't', ' ', 'd', 'o', 'i',
-    'n', 'g', ' ', 'L', 'I', ' ', 'E', 'K', 'F', ' ', 'u', 'p', 'd', 'a', 't',
-    'e', '.', '\\', 'n', '\x00' };
+  char cv8[118];
+  static const char cv9[118] = { '1', '-', 'P', 'o', 'i', 'n', 't', ' ', 'R',
+    'A', 'N', 'S', 'A', 'C', ':', ' ', 'E', 'n', 'd', 'e', 'd', ' ', 'h', 'y',
+    'p', 'o', 't', 'h', 'e', 's', 'i', 's', ' ', 't', 'e', 's', 't', '.', ' ',
+    'F', 'o', 'u', 'n', 'd', ' ', '%', 'i', ' ', 'L', 'I', ' ', 'i', 'n', 'l',
+    'i', 'e', 'r', 's', ',', ' ', 'w', 'h', 'i', 'c', 'h', ' ', 'i', 's', ' ',
+    'b', 'e', 'l', 'o', 'w', ' ', 't', 'h', 'e', ' ', 't', 'h', 'r', 'e', 's',
+    'h', 'o', 'l', 'd', ' ', '%', 'i', '.', ' ', 'N', 'o', 't', ' ', 'd', 'o',
+    'i', 'n', 'g', ' ', 'L', 'I', ' ', 'E', 'K', 'F', ' ', 'u', 'p', 'd', 'a',
+    't', 'e', '.', '\x00' };
 
   int it;
   emxArray_real_T *b_x_apo;
@@ -1654,7 +1655,7 @@ void OnePointRANSAC_EKF(emxArray_real_T *b_xt, emxArray_real_T *b_P, const
 
     // #coder
     // ROS_WARN Print to ROS_WARN in ROS or to console in Matlab
-    memcpy(&cv8[0], &cv9[0], 104U * sizeof(char));
+    memcpy(&cv8[0], &cv9[0], 118U * sizeof(char));
     ROS_WARN(cv8, idx, 3);
   }
 
