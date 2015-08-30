@@ -5,7 +5,7 @@
 // File: SLAM.cpp
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 30-Aug-2015 13:44:47
+// C/C++ source code generated on  : 30-Aug-2015 14:06:09
 //
 
 // Include Files
@@ -18,6 +18,7 @@
 #include "repmat.h"
 #include "QuatFromRotJ.h"
 #include "SLAM_pred.h"
+#include "fprintf.h"
 #include "SLAM_rtwutil.h"
 #include "SLAM_data.h"
 #include <ros/console.h>
@@ -595,6 +596,7 @@ void SLAM(double updateVect[16], const double z_all_l[32], const double z_all_r
       i_control[2] = minval;
     }
 
+    j_fprintf(i_control[0], i_control[1], i_control[2]);
     u_out_pos[0] = -((b_ControllerGains->Kp_xy * err_p_b[0] + i_control[0]) +
                      b_ControllerGains->Kd_xy * err_v_b[0]);
     u_out_pos[1] = -((b_ControllerGains->Kp_xy * err_p_b[1] + i_control[1]) +
