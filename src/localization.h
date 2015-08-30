@@ -95,6 +95,10 @@ private:
 	unsigned int num_points_;
 	bool show_tracker_images_;
 	emxArray_real_T *h_u_apo_;
+	emxArray_real_T *xt_out;
+	emxArray_real_T *P_apo_out;
+	emxArray_real_T *h_u_apo;
+	emxArray_real_T *map;
 
 	void duo3dCb(const duo3d_ros::Duo3d& msg);
 	void mavrosImuCb(const sensor_msgs::Imu msg);

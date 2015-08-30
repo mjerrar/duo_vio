@@ -20,6 +20,11 @@ Localization::Localization()
   vicon_pos(3, 0.0),
   vicon_quaternion(4, 0.0)
 {
+
+	emxInitArray_real_T(&xt_out,1);
+	emxInitArray_real_T(&P_apo_out,2);
+	emxInitArray_real_T(&h_u_apo,1);
+	emxInitArray_real_T(&map,2);
 	SLAM_initialize();
 	emxInitArray_real_T(&h_u_apo_,1);
 
@@ -133,6 +138,10 @@ Localization::Localization()
 Localization::~Localization()
 {
 	emxDestroyArray_real_T(h_u_apo_);
+	emxDestroyArray_real_T(xt_out);
+	emxDestroyArray_real_T(P_apo_out);
+	emxDestroyArray_real_T(h_u_apo);
+	emxDestroyArray_real_T(map);
 	SLAM_terminate();
 }
 
@@ -439,16 +448,6 @@ void Localization::update(double dt, const cv::Mat& left_image, const cv::Mat& r
 		debug_img_pub_.publish(last_duo_msg_);
 	}
 
-	emxArray_real_T *xt_out; // result
-	emxArray_real_T *P_apo_out;
-	emxArray_real_T *h_u_apo;
-	emxArray_real_T *map;
-
-	emxInitArray_real_T(&xt_out,1);
-	emxInitArray_real_T(&P_apo_out,2);
-	emxInitArray_real_T(&h_u_apo,1);
-	emxInitArray_real_T(&map,2);
-
 	double u_out[4];
 
 	if(use_vicon_for_control_)
@@ -543,13 +542,6 @@ void Localization::update(double dt, const cv::Mat& left_image, const cv::Mat& r
 	}
 
 	//ROS_INFO("Time SLAM         : %6.2f ms", (ros::Time::now() - tic).toSec()*1000);
-
-
-
-	emxDestroyArray_real_T(xt_out);
-	emxDestroyArray_real_T(P_apo_out);
-	emxDestroyArray_real_T(h_u_apo);
-	emxDestroyArray_real_T(map);
 }
 
 void Localization::getIMUData(const sensor_msgs::Imu& imu, const sensor_msgs::MagneticField& mag, VIOMeasurements& meas)
