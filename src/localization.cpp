@@ -339,10 +339,14 @@ void Localization::joystickCb(const sensor_msgs::Joy::ConstPtr& msg)
 void Localization::dynamicReconfigureCb(vio_ros::vio_rosConfig &config, uint32_t level)
 {
 	controllerGains.Kp_xy = config.Kp_xy;
+	controllerGains.Ki_xy = config.Ki_xy;
 	controllerGains.Kd_xy = config.Kd_xy;
 	controllerGains.Kp_z = config.Kp_z;
+	controllerGains.Ki_z = config.Ki_z;
 	controllerGains.Kd_z = config.Kd_z;
 	controllerGains.Kp_yaw = config.Kp_yaw;
+	controllerGains.Kd_yaw = config.Kd_yaw;
+	controllerGains.i_lim = config.i_lim;
 
 	noiseParams.image_noise[0] = config.im_noise;
 	noiseParams.image_noise[1] = config.im_noise;
