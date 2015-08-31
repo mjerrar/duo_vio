@@ -105,10 +105,10 @@ Localization::Localization()
 	YAML::Node YamlNode = YAML::LoadFile(path);
 	if (YamlNode.IsNull())
 	{
-		ROS_ERROR("Failed to open camera calibration at %s", path.c_str());
-	}else {
-		cameraParams = parseYaml(YamlNode);
+		throw std::string("Failed to open camera calibration %s", path.c_str());
 	}
+
+	cameraParams = parseYaml(YamlNode);
 
 	double debug_publish_freq;
 	nh_.param<double>("debug_publish_freq", debug_publish_freq, 1);
