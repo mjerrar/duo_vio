@@ -5,7 +5,7 @@
 // File: OnePointRANSAC_EKF.cpp
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 31-Aug-2015 09:51:22
+// C/C++ source code generated on  : 31-Aug-2015 20:50:24
 //
 
 // Include Files
@@ -35,7 +35,7 @@
 // the state
 // Arguments    : emxArray_real_T *b_xt
 //                emxArray_real_T *b_P
-//                double z_all_l[32]
+//                double z_all_l[48]
 //                double c_numStatesxt
 //                double c_numStates
 //                const double c_cameraparams_CameraParameters[3]
@@ -56,7 +56,7 @@
 // Return Type  : void
 //
 void OnePointRANSAC_EKF(emxArray_real_T *b_xt, emxArray_real_T *b_P, double
-  z_all_l[32], double c_numStatesxt, double c_numStates, const double
+  z_all_l[48], double c_numStatesxt, double c_numStates, const double
   c_cameraparams_CameraParameters[3], const double
   d_cameraparams_CameraParameters[2], const double
   e_cameraparams_CameraParameters[2], const emxArray_real_T *b_anchorFeatures,
@@ -72,28 +72,28 @@ void OnePointRANSAC_EKF(emxArray_real_T *b_xt, emxArray_real_T *b_P, double
   int numAnchors;
   int i19;
   int loop_ub;
-  boolean_T x[16];
+  boolean_T x[24];
   int idx;
-  int ii_data[16];
+  int ii_data[24];
   int nx;
   boolean_T exitg3;
   boolean_T guard2 = false;
   int ii_size_idx_0;
-  signed char indMeas_data[16];
+  signed char indMeas_data[24];
   emxArray_real_T *K;
   emxArray_real_T *H;
   int numMeas;
-  signed char x_data[32];
-  double indMeas_z_data[32];
+  signed char x_data[48];
+  double indMeas_z_data[48];
   int k;
-  double z_all_l_data[32];
+  double z_all_l_data[48];
   int z_all_l_size[1];
   int indMeas_z_size[1];
-  double tmp_data[32];
+  double tmp_data[48];
   int ar;
   double n_hyp;
   int LI_inlierStatus_size_idx_0;
-  boolean_T LI_inlierStatus_data[16];
+  boolean_T LI_inlierStatus_data[24];
   emxArray_real_T *map;
   emxArray_real_T *anchorInd;
   emxArray_real_T *featureAnchorInd;
@@ -134,12 +134,12 @@ void OnePointRANSAC_EKF(emxArray_real_T *b_xt, emxArray_real_T *b_P, double
   double d_xt[4];
   double dv25[4];
   double R_cw[9];
-  boolean_T HI_inlierStatus_data[16];
+  boolean_T HI_inlierStatus_data[24];
   int indMeasIdx;
   double featureAnchorIdx;
   boolean_T exitg2;
   boolean_T guard1 = false;
-  signed char featureIdxVect_data[16];
+  signed char featureIdxVect_data[24];
   double anchorPos[3];
   double c_x_apo_prev[9];
   double b_anchorPos[3];
@@ -151,13 +151,13 @@ void OnePointRANSAC_EKF(emxArray_real_T *b_xt, emxArray_real_T *b_P, double
   emxArray_real_T *b_a;
   int iter;
   emxArray_real_T *e_xt;
-  double b_indMeas_data[16];
+  double b_indMeas_data[24];
   int indMeas_size[1];
   int b_R_size[2];
-  double b_R_data[1764];
+  double b_R_data[3364];
   int b_r_size[1];
-  double b_r_data[42];
-  double b_C_data[1764];
+  double b_r_data[58];
+  double b_C_data[3364];
   int b_C_size[2];
   double dv26[4];
   double dv27[4];
@@ -178,7 +178,7 @@ void OnePointRANSAC_EKF(emxArray_real_T *b_xt, emxArray_real_T *b_P, double
   emxArray_real_T *f_xt;
   boolean_T exitg1;
   int b_indMeas_size[1];
-  double S_data[1764];
+  double S_data[3364];
   int c_C_size[2];
   double dv28[4];
   double dv29[4];
@@ -191,7 +191,7 @@ void OnePointRANSAC_EKF(emxArray_real_T *b_xt, emxArray_real_T *b_P, double
   numPointsPerAnchor = b_VIOParameters.num_points_per_anchor;
   numAnchors = b_anchorFeatures->size[1] - 1;
   i19 = c_anchorFeatures->size[0] * c_anchorFeatures->size[1];
-  c_anchorFeatures->size[0] = 16;
+  c_anchorFeatures->size[0] = 24;
   c_anchorFeatures->size[1] = b_anchorFeatures->size[1];
   emxEnsureCapacity((emxArray__common *)c_anchorFeatures, i19, (int)sizeof
                     (boolean_T));
@@ -205,12 +205,12 @@ void OnePointRANSAC_EKF(emxArray_real_T *b_xt, emxArray_real_T *b_P, double
   nx = 1;
   emxFree_boolean_T(&c_anchorFeatures);
   exitg3 = false;
-  while ((!exitg3) && (nx < 17)) {
+  while ((!exitg3) && (nx < 25)) {
     guard2 = false;
     if (x[nx - 1]) {
       idx++;
       ii_data[idx - 1] = nx;
-      if (idx >= 16) {
+      if (idx >= 24) {
         exitg3 = true;
       } else {
         guard2 = true;
@@ -720,7 +720,7 @@ void OnePointRANSAC_EKF(emxArray_real_T *b_xt, emxArray_real_T *b_P, double
     }
 
     for (anchorIdx = 0; anchorIdx <= numAnchors; anchorIdx++) {
-      for (i19 = 0; i19 < 16; i19++) {
+      for (i19 = 0; i19 < 24; i19++) {
         x[i19] = (b_anchorFeatures->data[i19 + b_anchorFeatures->size[0] *
                   anchorIdx] == 1.0);
       }
@@ -811,13 +811,13 @@ void OnePointRANSAC_EKF(emxArray_real_T *b_xt, emxArray_real_T *b_P, double
       idx = 0;
       nx = 1;
       exitg2 = false;
-      while ((!exitg2) && (nx < 17)) {
+      while ((!exitg2) && (nx < 25)) {
         guard1 = false;
         if (b_anchorFeatures->data[(nx + b_anchorFeatures->size[0] * anchorIdx)
             - 1] != 0.0) {
           idx++;
           ii_data[idx - 1] = nx;
-          if (idx >= 16) {
+          if (idx >= 24) {
             exitg2 = true;
           } else {
             guard1 = true;
@@ -1439,7 +1439,7 @@ void OnePointRANSAC_EKF(emxArray_real_T *b_xt, emxArray_real_T *b_P, double
       }
 
       for (anchorIdx = 0; anchorIdx <= numAnchors; anchorIdx++) {
-        for (i19 = 0; i19 < 16; i19++) {
+        for (i19 = 0; i19 < 24; i19++) {
           x[i19] = (b_anchorFeatures->data[i19 + b_anchorFeatures->size[0] *
                     anchorIdx] == 1.0);
         }
@@ -2319,7 +2319,7 @@ void OnePointRANSAC_EKF(emxArray_real_T *b_xt, emxArray_real_T *b_P, double
     }
 
     for (anchorIdx = 0; anchorIdx <= numAnchors; anchorIdx++) {
-      for (i19 = 0; i19 < 16; i19++) {
+      for (i19 = 0; i19 < 24; i19++) {
         x[i19] = (b_anchorFeatures->data[i19 + b_anchorFeatures->size[0] *
                   anchorIdx] == 1.0);
       }

@@ -5,7 +5,7 @@
 // File: SLAM.cpp
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 31-Aug-2015 09:51:22
+// C/C++ source code generated on  : 31-Aug-2015 20:50:24
 //
 
 // Include Files
@@ -116,9 +116,9 @@ static double rt_atan2d_snf(double u0, double u1)
 
 //
 // NOTE: Comment this out for MEXing
-// Arguments    : double updateVect[16]
-//                const double z_all_l[32]
-//                const double z_all_r[32]
+// Arguments    : double updateVect[24]
+//                const double z_all_l[48]
+//                const double z_all_r[48]
 //                double dt
 //                const VIOMeasurements *measurements
 //                const ReferenceCommand *ref
@@ -134,8 +134,8 @@ static double rt_atan2d_snf(double u0, double u1)
 //                double u_out[4]
 // Return Type  : void
 //
-void SLAM(double updateVect[16], const double z_all_l[32], const double z_all_r
-          [32], double dt, const VIOMeasurements *measurements, const
+void SLAM(double updateVect[24], const double z_all_l[48], const double z_all_r
+          [48], double dt, const VIOMeasurements *measurements, const
           ReferenceCommand *ref, const VIOParameters *b_VIOParameters, const
           StereoParameters *cameraParameters, const NoiseParameters
           *noiseParameters, const ControllerGains *b_ControllerGains, boolean_T
@@ -177,8 +177,8 @@ void SLAM(double updateVect[16], const double z_all_l[32], const double z_all_r
   double dv21[9];
   double c_ControllerGains[3];
   double u_out_yaw;
-  double updateVect_apo[16];
-  int tmp_data[16];
+  double updateVect_apo[24];
+  int tmp_data[24];
   double d_measurements_[9];
   for (i = 0; i < 4; i++) {
     u_out[i] = 0.0;
@@ -196,7 +196,7 @@ void SLAM(double updateVect[16], const double z_all_l[32], const double z_all_r
     cameraParameters->CameraParameters1.FocalLength[1];
   measurements_ = *measurements;
 
-  //  for coder
+  //  copy for coder
   b_emxInit_real_T(&xt_apo, 1);
   emxInit_real_T(&unusedU1, 2);
   emxInit_real_T(&r4, 2);
@@ -214,7 +214,7 @@ void SLAM(double updateVect[16], const double z_all_l[32], const double z_all_r
     }
 
     eye(ext_att_offset);
-    for (i = 0; i < 16; i++) {
+    for (i = 0; i < 24; i++) {
       updateVect[i] = 0.0;
     }
 
@@ -409,7 +409,7 @@ void SLAM(double updateVect[16], const double z_all_l[32], const double z_all_r
     height_offset_pressure = (1.0 - rt_powd_snf(measurements_.bar_fmu / 101325.0,
       0.190284)) * 145366.45;
     if (b_VIOParameters->use_orientation) {
-      for (i = 0; i < 16; i++) {
+      for (i = 0; i < 24; i++) {
         updateVect[i] = 0.0;
       }
 
@@ -859,7 +859,7 @@ void SLAM(double updateVect[16], const double z_all_l[32], const double z_all_r
       xt_apo->data[i14] = xt->data[i14];
     }
 
-    for (i = 0; i < 16; i++) {
+    for (i = 0; i < 24; i++) {
       updateVect_apo[i] = updateVect[i];
     }
 
@@ -879,7 +879,7 @@ void SLAM(double updateVect[16], const double z_all_l[32], const double z_all_r
 
     //  if almost all features were lost, do a soft reset
     i = 0;
-    for (k = 0; k < 16; k++) {
+    for (k = 0; k < 24; k++) {
       if ((updateVect[k] != 0.0) && (updateVect_apo[k] == 1.0)) {
         i++;
       }
@@ -887,7 +887,7 @@ void SLAM(double updateVect[16], const double z_all_l[32], const double z_all_r
 
     if (i < 0.0 * b_VIOParameters->num_points_per_anchor / 2.0) {
       b_ros_warn();
-      for (i = 0; i < 16; i++) {
+      for (i = 0; i < 24; i++) {
         updateVect[i] = 0.0;
       }
 
@@ -1068,7 +1068,7 @@ void SLAM(double updateVect[16], const double z_all_l[32], const double z_all_r
         xt->data[i14] = xt_apo->data[i14];
       }
 
-      memcpy(&updateVect[0], &updateVect_apo[0], sizeof(double) << 4);
+      memcpy(&updateVect[0], &updateVect_apo[0], 24U * sizeof(double));
     }
 
     i14 = xt_out->size[0];

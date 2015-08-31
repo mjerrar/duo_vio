@@ -5,7 +5,7 @@
 // File: SLAM_updIT.cpp
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 31-Aug-2015 09:51:22
+// C/C++ source code generated on  : 31-Aug-2015 20:50:24
 //
 
 // Include Files
@@ -76,9 +76,9 @@ static double rt_roundd_snf(double u)
 //                const double cameraParams_r_lr[3]
 //                const double cameraParams_R_lr[9]
 //                const double cameraParams_R_rl[9]
-//                double updateVect[16]
-//                const double z_all_l[32]
-//                const double z_all_r[32]
+//                double updateVect[24]
+//                const double z_all_l[48]
+//                const double z_all_r[48]
 //                const double noiseParameters_image_noise[2]
 //                double noiseParameters_sigmaInit
 //                double c_noiseParameters_orientation_n
@@ -100,8 +100,8 @@ void SLAM_updIT(emxArray_real_T *P_apr, emxArray_real_T *b_xt, const double
                 g_cameraParams_CameraParameters[2], const double
                 h_cameraParams_CameraParameters[2], const double
                 cameraParams_r_lr[3], const double cameraParams_R_lr[9], const
-                double cameraParams_R_rl[9], double updateVect[16], const double
-                z_all_l[32], const double z_all_r[32], const double
+                double cameraParams_R_rl[9], double updateVect[24], const double
+                z_all_l[48], const double z_all_r[48], const double
                 noiseParameters_image_noise[2], double noiseParameters_sigmaInit,
                 double c_noiseParameters_orientation_n, double
                 noiseParameters_pressure_noise, double
@@ -119,8 +119,8 @@ void SLAM_updIT(emxArray_real_T *P_apr, emxArray_real_T *b_xt, const double
   int loop_ub;
   int i;
   emxArray_boolean_T *r11;
-  double dv22[16];
-  boolean_T x[16];
+  double dv22[24];
+  boolean_T x[24];
   emxArray_real_T *anchorIdx;
   emxArray_int32_T *r12;
   emxArray_boolean_T *b_x;
@@ -135,18 +135,18 @@ void SLAM_updIT(emxArray_real_T *P_apr, emxArray_real_T *b_xt, const double
   int i16;
   int unnamed_idx_0;
   emxArray_real_T *depthUncertainties;
-  int ii_data[16];
+  int ii_data[24];
   double uncertainty;
   double mtmp;
   boolean_T exitg9;
   emxArray_boolean_T *r13;
   boolean_T exitg8;
   boolean_T guard6 = false;
-  signed char indMeas_data[16];
+  signed char indMeas_data[24];
   int i17;
-  double b_z_all_l[32];
+  double b_z_all_l[48];
   int validFeatures_size[1];
-  double validFeatures_data[16];
+  double validFeatures_data[24];
   emxArray_real_T *c_anchorIdx;
   boolean_T exitg7;
   boolean_T guard5 = false;
@@ -226,11 +226,11 @@ void SLAM_updIT(emxArray_real_T *P_apr, emxArray_real_T *b_xt, const double
 
     //  a matrix containing the m vectors for each feature
     i15 = anchorFeatures->size[0] * anchorFeatures->size[1];
-    anchorFeatures->size[0] = 16;
+    anchorFeatures->size[0] = 24;
     anchorFeatures->size[1] = (int)b_VIOParameters.num_anchors;
     emxEnsureCapacity((emxArray__common *)anchorFeatures, i15, (int)sizeof
                       (double));
-    loop_ub = (int)b_VIOParameters.num_anchors << 4;
+    loop_ub = 24 * (int)b_VIOParameters.num_anchors;
     for (i15 = 0; i15 < loop_ub; i15++) {
       anchorFeatures->data[i15] = 0.0;
     }
@@ -248,7 +248,7 @@ void SLAM_updIT(emxArray_real_T *P_apr, emxArray_real_T *b_xt, const double
 
   //  debug check
   i15 = r11->size[0] * r11->size[1];
-  r11->size[0] = 16;
+  r11->size[0] = 24;
   r11->size[1] = anchorFeatures->size[1];
   emxEnsureCapacity((emxArray__common *)r11, i15, (int)sizeof(boolean_T));
   loop_ub = anchorFeatures->size[0] * anchorFeatures->size[1];
@@ -258,7 +258,7 @@ void SLAM_updIT(emxArray_real_T *P_apr, emxArray_real_T *b_xt, const double
 
   sum(r11, dv22);
   emxFree_boolean_T(&r11);
-  for (i = 0; i < 16; i++) {
+  for (i = 0; i < 24; i++) {
     x[i] = (dv22[i] > 1.0);
   }
 
@@ -425,13 +425,13 @@ void SLAM_updIT(emxArray_real_T *P_apr, emxArray_real_T *b_xt, const double
   b_emxInit_real_T(&depthUncertainties, 1);
   if (b_VIOParameters.fixed_anchor && (fixedFeatureIdx != 0.0)) {
     //  only do if features have already been initialized
-    for (i15 = 0; i15 < 16; i15++) {
+    for (i15 = 0; i15 < 24; i15++) {
       x[i15] = (anchorFeatures->data[i15 + anchorFeatures->size[0] * ((int)
                  oldestAnchorIdx - 1)] != 0.0);
     }
 
     nx = 0;
-    for (i = 0; i < 16; i++) {
+    for (i = 0; i < 24; i++) {
       if (x[i]) {
         nx++;
       }
@@ -439,13 +439,13 @@ void SLAM_updIT(emxArray_real_T *P_apr, emxArray_real_T *b_xt, const double
 
     if (!(nx == 0)) {
       //  otherwise the anchor hasnt been initialized (only happens at the very beginning) 
-      for (i15 = 0; i15 < 16; i15++) {
+      for (i15 = 0; i15 < 24; i15++) {
         x[i15] = (anchorFeatures->data[i15 + anchorFeatures->size[0] * ((int)
                    oldestAnchorIdx - 1)] != 0.0);
       }
 
       ixstart = 0;
-      for (i = 0; i < 16; i++) {
+      for (i = 0; i < 24; i++) {
         if (x[i]) {
           ii_data[ixstart] = i + 1;
           ixstart++;
@@ -540,7 +540,7 @@ void SLAM_updIT(emxArray_real_T *P_apr, emxArray_real_T *b_xt, const double
 
   // % do the update
   i15 = r13->size[0] * r13->size[1];
-  r13->size[0] = 16;
+  r13->size[0] = 24;
   r13->size[1] = anchorFeatures->size[1];
   emxEnsureCapacity((emxArray__common *)r13, i15, (int)sizeof(boolean_T));
   loop_ub = anchorFeatures->size[0] * anchorFeatures->size[1];
@@ -553,12 +553,12 @@ void SLAM_updIT(emxArray_real_T *P_apr, emxArray_real_T *b_xt, const double
   ixstart = 1;
   emxFree_boolean_T(&r13);
   exitg8 = false;
-  while ((!exitg8) && (ixstart < 17)) {
+  while ((!exitg8) && (ixstart < 25)) {
     guard6 = false;
     if (x[ixstart - 1]) {
       idx++;
       ii_data[idx - 1] = ixstart;
-      if (idx >= 16) {
+      if (idx >= 24) {
         exitg8 = true;
       } else {
         guard6 = true;
@@ -589,7 +589,7 @@ void SLAM_updIT(emxArray_real_T *P_apr, emxArray_real_T *b_xt, const double
   }
 
   if (!(i17 == 0)) {
-    memcpy(&b_z_all_l[0], &z_all_l[0], sizeof(double) << 5);
+    memcpy(&b_z_all_l[0], &z_all_l[0], 48U * sizeof(double));
     OnePointRANSAC_EKF(b_xt, P_apr, b_z_all_l, numStatesxt, numStates,
                        c_cameraParams_CameraParameters,
                        d_cameraParams_CameraParameters,
@@ -776,7 +776,7 @@ void SLAM_updIT(emxArray_real_T *P_apr, emxArray_real_T *b_xt, const double
   emxFree_boolean_T(&b_x);
 
   // % Initialize new anchors
-  for (i = 0; i < 16; i++) {
+  for (i = 0; i < 24; i++) {
     x[i] = (updateVect[i] == 2.0);
   }
 
@@ -787,13 +787,13 @@ void SLAM_updIT(emxArray_real_T *P_apr, emxArray_real_T *b_xt, const double
     ixstart = 0;
     exitg6 = false;
     while ((!exitg6) && (ixstart <= (int)numAnchors - 1)) {
-      for (i15 = 0; i15 < 16; i15++) {
+      for (i15 = 0; i15 < 24; i15++) {
         x[i15] = ((anchorFeatures->data[i15 + anchorFeatures->size[0] * ixstart]
                    == 1.0) && (updateVect[i15] == 1.0));
       }
 
       n = 0;
-      for (nx = 0; nx < 16; nx++) {
+      for (nx = 0; nx < 24; nx++) {
         if (x[nx]) {
           n++;
         }
@@ -848,20 +848,20 @@ void SLAM_updIT(emxArray_real_T *P_apr, emxArray_real_T *b_xt, const double
         r_wc[i15] = b_xt->data[i15];
       }
 
-      for (i15 = 0; i15 < 16; i15++) {
+      for (i15 = 0; i15 < 24; i15++) {
         x[i15] = (anchorFeatures->data[i15 + anchorFeatures->size[0] * ((int)
                    initializeNewAnchor - 1)] == 1.0);
       }
 
       nx = 0;
-      for (i = 0; i < 16; i++) {
+      for (i = 0; i < 24; i++) {
         if (x[i]) {
           nx++;
         }
       }
 
       ixstart = 0;
-      for (i = 0; i < 16; i++) {
+      for (i = 0; i < 24; i++) {
         if (x[i]) {
           ii_data[ixstart] = i + 1;
           ixstart++;
@@ -874,7 +874,7 @@ void SLAM_updIT(emxArray_real_T *P_apr, emxArray_real_T *b_xt, const double
         }
       }
 
-      for (i15 = 0; i15 < 16; i15++) {
+      for (i15 = 0; i15 < 24; i15++) {
         anchorFeatures->data[i15 + anchorFeatures->size[0] * ((int)
           initializeNewAnchor - 1)] = 0.0;
       }
@@ -900,7 +900,7 @@ void SLAM_updIT(emxArray_real_T *P_apr, emxArray_real_T *b_xt, const double
 
       emxInit_boolean_T(&r14, 2);
       i15 = r14->size[0] * r14->size[1];
-      r14->size[0] = 16;
+      r14->size[0] = 24;
       r14->size[1] = anchorFeatures->size[1];
       emxEnsureCapacity((emxArray__common *)r14, i15, (int)sizeof(boolean_T));
       loop_ub = anchorFeatures->size[0] * anchorFeatures->size[1];
@@ -910,19 +910,19 @@ void SLAM_updIT(emxArray_real_T *P_apr, emxArray_real_T *b_xt, const double
 
       b_any(r14, x);
       emxFree_boolean_T(&r14);
-      for (i15 = 0; i15 < 16; i15++) {
+      for (i15 = 0; i15 < 24; i15++) {
         x[i15] = !x[i15];
       }
 
       idx = 0;
       ixstart = 1;
       exitg5 = false;
-      while ((!exitg5) && (ixstart < 17)) {
+      while ((!exitg5) && (ixstart < 25)) {
         guard3 = false;
         if (x[ixstart - 1] && (updateVect[ixstart - 1] == 2.0)) {
           idx++;
           ii_data[idx - 1] = ixstart;
-          if (idx >= 16) {
+          if (idx >= 24) {
             exitg5 = true;
           } else {
             guard3 = true;
@@ -1740,13 +1740,13 @@ void SLAM_updIT(emxArray_real_T *P_apr, emxArray_real_T *b_xt, const double
   ixstart = 0;
   exitg2 = false;
   while ((!exitg2) && (ixstart <= (int)numAnchors - 1)) {
-    for (i15 = 0; i15 < 16; i15++) {
+    for (i15 = 0; i15 < 24; i15++) {
       x[i15] = ((anchorFeatures->data[i15 + anchorFeatures->size[0] * ixstart] ==
                  1.0) && (updateVect[i15] == 1.0));
     }
 
     n = 0;
-    for (nx = 0; nx < 16; nx++) {
+    for (nx = 0; nx < 24; nx++) {
       if (x[nx]) {
         n++;
       }
@@ -1775,7 +1775,7 @@ void SLAM_updIT(emxArray_real_T *P_apr, emxArray_real_T *b_xt, const double
     i = 0;
     emxInit_boolean_T(&r15, 2);
     exitg1 = false;
-    while ((!exitg1) && (i < 16)) {
+    while ((!exitg1) && (i < 24)) {
       loop_ub = anchorFeatures->size[1];
       i15 = r15->size[0] * r15->size[1];
       r15->size[0] = 1;
@@ -1845,7 +1845,7 @@ void SLAM_updIT(emxArray_real_T *P_apr, emxArray_real_T *b_xt, const double
   R_cw[8] = ((-(b_xt->data[3] * b_xt->data[3]) - b_xt->data[4] * b_xt->data[4])
              + b_xt->data[5] * b_xt->data[5]) + b_xt->data[6] * b_xt->data[6];
   emxInit_boolean_T(&r16, 2);
-  for (i = 0; i < 16; i++) {
+  for (i = 0; i < 24; i++) {
     loop_ub = anchorFeatures->size[1];
     i15 = r16->size[0] * r16->size[1];
     r16->size[0] = 1;

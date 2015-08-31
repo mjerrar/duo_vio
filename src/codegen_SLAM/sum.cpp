@@ -5,7 +5,7 @@
 // File: sum.cpp
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 31-Aug-2015 09:51:22
+// C/C++ source code generated on  : 31-Aug-2015 20:50:24
 //
 
 // Include Files
@@ -19,10 +19,10 @@
 
 //
 // Arguments    : const emxArray_boolean_T *x
-//                double y[16]
+//                double y[24]
 // Return Type  : void
 //
-void sum(const emxArray_boolean_T *x, double y[16])
+void sum(const emxArray_boolean_T *x, double y[24])
 {
   int iy;
   int ixstart;
@@ -31,16 +31,16 @@ void sum(const emxArray_boolean_T *x, double y[16])
   double s;
   int k;
   if (x->size[1] == 0) {
-    memset(&y[0], 0, sizeof(double) << 4);
+    memset(&y[0], 0, 24U * sizeof(double));
   } else {
     iy = -1;
     ixstart = -1;
-    for (j = 0; j < 16; j++) {
+    for (j = 0; j < 24; j++) {
       ixstart++;
       ix = ixstart;
       s = x->data[ixstart];
       for (k = 2; k <= x->size[1]; k++) {
-        ix += 16;
+        ix += 24;
         s += (double)x->data[ix];
       }
 

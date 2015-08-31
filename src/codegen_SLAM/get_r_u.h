@@ -5,7 +5,7 @@
 // File: get_r_u.h
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 31-Aug-2015 09:51:22
+// C/C++ source code generated on  : 31-Aug-2015 20:50:24
 //
 #ifndef __GET_R_U_H__
 #define __GET_R_U_H__

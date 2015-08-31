@@ -5,7 +5,7 @@
 // File: sum.h
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 31-Aug-2015 09:51:22
+// C/C++ source code generated on  : 31-Aug-2015 20:50:24
 //
 #ifndef __SUM_H__
 #define __SUM_H__
@@ -21,7 +21,7 @@
 #include "SLAM_types.h"
 
 // Function Declarations
-extern void sum(const emxArray_boolean_T *x, double y[16]);
+extern void sum(const emxArray_boolean_T *x, double y[24]);
 
 #endif
 
