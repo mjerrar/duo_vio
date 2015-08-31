@@ -5,16 +5,17 @@
 // File: initializePoint.cpp
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 30-Aug-2015 16:19:29
+// C/C++ source code generated on  : 31-Aug-2015 09:51:22
 //
 
 // Include Files
 #include "rt_nonfinite.h"
 #include "SLAM.h"
 #include "initializePoint.h"
-#include "predictMeasurement_stereo.h"
 #include "norm.h"
 #include "svd.h"
+#include "predictMeasurement_stereo.h"
+#include "get_r_u.h"
 #include "QuatFromRotJ.h"
 #include "SLAM_rtwutil.h"
 #include <ros/console.h>
@@ -35,7 +36,7 @@ static double f_eml_xnrm2(int n, const double x[30], int ix0);
 static void b_eml_xgeqp3(double A[30], double tau[5], int jpvt[5])
 {
   double work[5];
-  int i24;
+  int i25;
   double vn1[5];
   double vn2[5];
   int k;
@@ -54,9 +55,9 @@ static void b_eml_xgeqp3(double A[30], double tau[5], int jpvt[5])
   int lastc;
   boolean_T exitg2;
   int32_T exitg1;
-  for (i24 = 0; i24 < 5; i24++) {
-    jpvt[i24] = 1 + i24;
-    work[i24] = 0.0;
+  for (i25 = 0; i25 < 5; i25++) {
+    jpvt[i25] = 1 + i25;
+    work[i25] = 0.0;
   }
 
   k = 1;
@@ -129,8 +130,8 @@ static void b_eml_xgeqp3(double A[30], double tau[5], int jpvt[5])
         itemp = 0;
         do {
           itemp++;
-          i24 = i_i - i;
-          for (k = i_i + 1; k + 1 <= i24 + 6; k++) {
+          i25 = i_i - i;
+          for (k = i_i + 1; k + 1 <= i25 + 6; k++) {
             A[k] *= 9.9792015476736E+291;
           }
 
@@ -145,8 +146,8 @@ static void b_eml_xgeqp3(double A[30], double tau[5], int jpvt[5])
 
         temp2 = (smax - absxk) / smax;
         absxk = 1.0 / (absxk - smax);
-        i24 = i_i - i;
-        for (k = i_i + 1; k + 1 <= i24 + 6; k++) {
+        i25 = i_i - i;
+        for (k = i_i + 1; k + 1 <= i25 + 6; k++) {
           A[k] *= absxk;
         }
 
@@ -158,8 +159,8 @@ static void b_eml_xgeqp3(double A[30], double tau[5], int jpvt[5])
       } else {
         temp2 = (smax - A[i_i]) / smax;
         absxk = 1.0 / (A[i_i] - smax);
-        i24 = i_i - i;
-        for (k = i_i + 1; k + 1 <= i24 + 6; k++) {
+        i25 = i_i - i;
+        for (k = i_i + 1; k + 1 <= i25 + 6; k++) {
           A[k] *= absxk;
         }
 
@@ -217,8 +218,8 @@ static void b_eml_xgeqp3(double A[30], double tau[5], int jpvt[5])
           }
 
           iy = 0;
-          i24 = i_ip1 + 6 * (lastc - 1);
-          for (itemp = i_ip1; itemp <= i24; itemp += 6) {
+          i25 = i_ip1 + 6 * (lastc - 1);
+          for (itemp = i_ip1; itemp <= i25; itemp += 6) {
             ix = i_i;
             smax = 0.0;
             pvt = (itemp + lastv) - 1;
@@ -240,8 +241,8 @@ static void b_eml_xgeqp3(double A[30], double tau[5], int jpvt[5])
             if (work[pvt] != 0.0) {
               smax = work[pvt] * -tau[i];
               ix = i_i;
-              i24 = lastv + itemp;
-              for (k = itemp; k + 1 <= i24; k++) {
+              i25 = lastv + itemp;
+              for (k = itemp; k + 1 <= i25; k++) {
                 A[k] += A[ix] * smax;
                 ix++;
               }
@@ -391,24 +392,16 @@ void initializePoint(const emxArray_real_T *b_xt, const double
                      const double z_l[2], const double z_r[2], double fp[3],
                      double m_out[3])
 {
-  double k1_l;
-  double k2_l;
-  double k3_l;
-  double k1_r;
-  double k2_r;
-  double k3_r;
   double b_cameraparams_R_lr[9];
   double pos[6];
   int rankR;
   int i;
-  double dv7[4];
+  double dv3[4];
   double rot[8];
   static const signed char iv5[4] = { 0, 0, 0, 1 };
 
   double zn_d_l[2];
   double zn_d_r[2];
-  double rad_d_l;
-  double rad_d_r;
   double r_u_l;
   double r_u_r;
   double b_r_u_l[2];
@@ -435,13 +428,6 @@ void initializePoint(const emxArray_real_T *b_xt, const double
   double c_xt[9];
 
   //  camera parameters for the left and right camera
-  k1_l = c_cameraparams_CameraParameters[0];
-  k2_l = c_cameraparams_CameraParameters[1];
-  k3_l = c_cameraparams_CameraParameters[2];
-  k1_r = f_cameraparams_CameraParameters[0];
-  k2_r = f_cameraparams_CameraParameters[1];
-  k3_r = f_cameraparams_CameraParameters[2];
-
   //  if ~all(size(q) == [4, 1])
   //      error('q does not have the size of a quaternion')
   //  end
@@ -460,10 +446,10 @@ void initializePoint(const emxArray_real_T *b_xt, const double
     }
   }
 
-  QuatFromRotJ(b_cameraparams_R_lr, dv7);
+  QuatFromRotJ(b_cameraparams_R_lr, dv3);
   for (rankR = 0; rankR < 4; rankR++) {
     rot[rankR] = iv5[rankR];
-    rot[4 + rankR] = dv7[rankR];
+    rot[4 + rankR] = dv3[rankR];
   }
 
   zn_d_l[0] = (z_l[0] - e_cameraparams_CameraParameters[0]) /
@@ -474,32 +460,16 @@ void initializePoint(const emxArray_real_T *b_xt, const double
     g_cameraparams_CameraParameters[0];
   zn_d_r[1] = (z_r[1] - h_cameraparams_CameraParameters[1]) /
     g_cameraparams_CameraParameters[1];
-  rad_d_l = sqrt(zn_d_l[0] * zn_d_l[0] + zn_d_l[1] * zn_d_l[1]);
 
   //  the radius for the undistortion
-  rad_d_r = sqrt(zn_d_r[0] * zn_d_r[0] + zn_d_r[1] * zn_d_r[1]);
-
-  // R_U Summary of this function goes here
-  //    Detailed explanation goes here
-  r_u_l = 1.0;
-
-  // R_U Summary of this function goes here
-  //    Detailed explanation goes here
-  r_u_r = 1.0;
-  for (i = 0; i < 10; i++) {
-    // ru=ru-(ru+k1*ru^3+k2*ru^5-rd)/(1+3*k1*ru^2+5*k2*ru^4);
-    r_u_l -= ((((r_u_l + k1_l * rt_powd_snf(r_u_l, 3.0)) + k2_l * rt_powd_snf
-                (r_u_l, 5.0)) + k3_l * rt_powd_snf(r_u_l, 7.0)) - rad_d_l) /
-      (((1.0 + 3.0 * k1_l * (r_u_l * r_u_l)) + 5.0 * k2_l * rt_powd_snf(r_u_l,
-         4.0)) + 7.0 * k3_l * rt_powd_snf(r_u_l, 6.0));
-
-    // ru=ru-(ru+k1*ru^3+k2*ru^5-rd)/(1+3*k1*ru^2+5*k2*ru^4);
-    r_u_r -= ((((r_u_r + k1_r * rt_powd_snf(r_u_r, 3.0)) + k2_r * rt_powd_snf
-                (r_u_r, 5.0)) + k3_r * rt_powd_snf(r_u_r, 7.0)) - rad_d_r) /
-      (((1.0 + 3.0 * k1_r * (r_u_r * r_u_r)) + 5.0 * k2_r * rt_powd_snf(r_u_r,
-         4.0)) + 7.0 * k3_r * rt_powd_snf(r_u_r, 6.0));
-  }
-
+  r_u_l = get_r_u(c_cameraparams_CameraParameters[0],
+                  c_cameraparams_CameraParameters[1],
+                  c_cameraparams_CameraParameters[2], sqrt(zn_d_l[0] * zn_d_l[0]
+    + zn_d_l[1] * zn_d_l[1]));
+  r_u_r = get_r_u(f_cameraparams_CameraParameters[0],
+                  f_cameraparams_CameraParameters[1],
+                  f_cameraparams_CameraParameters[2], sqrt(zn_d_r[0] * zn_d_r[0]
+    + zn_d_r[1] * zn_d_r[1]));
   b_r_u_l[0] = r_u_l;
   b_r_u_l[1] = r_u_r;
   for (rankR = 0; rankR < 2; rankR++) {

@@ -5,7 +5,7 @@
 // File: getH_R_res.cpp
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 30-Aug-2015 16:19:29
+// C/C++ source code generated on  : 31-Aug-2015 09:51:22
 //
 
 // Include Files
@@ -15,7 +15,6 @@
 #include "SLAM_emxutil.h"
 #include "QuatFromRotJ.h"
 #include "predictMeasurement_stereo.h"
-#include "Ch_dn_To_h_un.h"
 #include "predictMeasurement_left.h"
 #include "ros_error.h"
 #include "any.h"
@@ -57,9 +56,6 @@
 //                const double indMeas_data[]
 //                const int indMeas_size[1]
 //                const emxArray_real_T *map
-//                const double c_cameraparams_CameraParameters[3]
-//                const double d_cameraparams_CameraParameters[2]
-//                const double e_cameraparams_CameraParameters[2]
 //                const emxArray_real_T *anchorIdx
 //                const emxArray_real_T *featureAnchorIdx
 //                const emxArray_real_T *b_m_vect
@@ -83,13 +79,9 @@
 void b_getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
                   stateSize, const double z_all_l[32], const double
                   indMeas_data[], const int indMeas_size[1], const
-                  emxArray_real_T *map, const double
-                  c_cameraparams_CameraParameters[3], const double
-                  d_cameraparams_CameraParameters[2], const double
-                  e_cameraparams_CameraParameters[2], const emxArray_real_T
-                  *anchorIdx, const emxArray_real_T *featureAnchorIdx, const
-                  emxArray_real_T *b_m_vect, const double
-                  noiseParameters_image_noise[2], double
+                  emxArray_real_T *map, const emxArray_real_T *anchorIdx, const
+                  emxArray_real_T *featureAnchorIdx, const emxArray_real_T
+                  *b_m_vect, const double noiseParameters_image_noise[2], double
                   c_noiseParameters_orientation_n, double
                   noiseParameters_pressure_noise, double
                   noiseParameters_ext_pos_noise, double
@@ -104,11 +96,6 @@ void b_getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
   double numStatesPerAnchor;
   double numErrorStatesPerAnchor;
   double R_cw[9];
-  double fx_l;
-  double fy_l;
-  double k1_l;
-  double k2_l;
-  double k3_l;
   int ar;
   int b_j1;
   emxArray_real_T *H_xc;
@@ -119,35 +106,20 @@ void b_getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
   emxArray_int32_T *r2;
   emxArray_real_T *C;
   boolean_T bv1[3];
+  double c_xt;
   double b_map[3];
   double r_orientation[3];
-  int i2;
-  double h_cin_l[3];
-  int kidx;
-  double dv3[2];
+  int br;
+  double dv1[2];
   double indMeas;
+  double h_u_To_h_ci_l[6];
   signed char b_k;
   signed char iv2[2];
-  double d[4];
-  double b_fx_l[4];
-  double c_fx_l[4];
-  double dv4[6];
-  double d_fx_l[6];
-  double b_R_cw[36];
-  double e_fx_l[24];
+  double d_xt[36];
+  double b_h_u_To_h_ci_l[24];
+  int i2;
+  int kidx;
   double b_stateSize;
-  double a;
-  double b_a;
-  double c_a;
-  double d_a;
-  double e_a;
-  double f_a;
-  double g_a;
-  double h_a;
-  double i_a;
-  double j_a;
-  double k_a;
-  double l_a;
   double c_stateSize;
   double d_stateSize;
   double e_stateSize;
@@ -171,31 +143,50 @@ void b_getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
   double w_stateSize;
   double x_stateSize;
   double y_stateSize;
-  double anchorRot[9];
-  double c_xt;
-  double d1;
+  double ab_stateSize;
+  double bb_stateSize;
+  double cb_stateSize;
+  double db_stateSize;
+  double eb_stateSize;
+  double fb_stateSize;
+  double gb_stateSize;
+  double hb_stateSize;
+  double ib_stateSize;
+  double jb_stateSize;
+  double kb_stateSize;
+  double lb_stateSize;
+  double mb_stateSize;
+  double nb_stateSize;
+  double ob_stateSize;
+  double pb_stateSize;
+  double qb_stateSize;
+  double rb_stateSize;
+  double sb_stateSize;
+  double tb_stateSize;
+  double ub_stateSize;
+  double vb_stateSize;
+  double wb_stateSize;
+  double xb_stateSize;
+  double e_xt[9];
   double y[3];
-  double c;
-  double dv5[9];
-  double b_anchorRot[9];
-  static const signed char b[9] = { 1, 0, 0, 0, 1, 0, 0, 0, 1 };
-
-  int br;
+  double b_y;
+  double f_xt;
+  double dv2[9];
+  double b_R_cw[3];
+  double g_xt[9];
   double anew;
   double apnd;
   double ndbl;
   double cdiff;
   double absb;
   double b_anchorIdx;
-  double f_fx_l[4];
-  double dv6[6];
-  double b_y[6];
   double v[2];
   int ic;
   int ia;
   double r_pressure;
   double r_ext_pose[6];
   emxArray_real_T *H_ext_pose;
+  double d[4];
   emxArray_real_T *r3;
   double A_data[256];
   double R_vision_data[1024];
@@ -209,6 +200,8 @@ void b_getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
   double c_measurements[9];
   int tmp_data[32];
   signed char iv3[3];
+  static const signed char b[9] = { 1, 0, 0, 0, 1, 0, 0, 0, 1 };
+
   signed char iv4[6];
   emxInit_real_T(&H_xm, 2);
   numPointsPerAnchor = b_VIOParameters.num_points_per_anchor;
@@ -235,14 +228,8 @@ void b_getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
              + b_xt->data[5] * b_xt->data[5]) + b_xt->data[6] * b_xt->data[6];
 
   //  camera parameters for the left and right camera
-  fx_l = d_cameraparams_CameraParameters[0];
-  fy_l = d_cameraparams_CameraParameters[1];
-
   //  Cx_l = cameraparams.CameraParameters1.PrincipalPoint(1);
   //  Cy_l = cameraparams.CameraParameters1.PrincipalPoint(2);
-  k1_l = c_cameraparams_CameraParameters[0];
-  k2_l = c_cameraparams_CameraParameters[1];
-  k3_l = c_cameraparams_CameraParameters[2];
   ar = H_xm->size[0] * H_xm->size[1];
   H_xm->size[0] = indMeas_size[0] << 1;
   emxEnsureCapacity((emxArray__common *)H_xm, ar, (int)sizeof(double));
@@ -293,6 +280,9 @@ void b_getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
       b_ros_error();
     }
 
+    c_xt = b_xt->data[(int)(((stateSize + (anchorIdx->data[(int)indMeas_data[k]
+      - 1] - 1.0) * numStatesPerAnchor) + 7.0) + featureAnchorIdx->data[(int)
+      indMeas_data[k] - 1]) - 1];
     for (ar = 0; ar < 3; ar++) {
       b_map[ar] = map->data[ar + map->size[0] * ((int)indMeas_data[k] - 1)] -
         b_xt->data[ar];
@@ -300,20 +290,16 @@ void b_getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
 
     for (ar = 0; ar < 3; ar++) {
       r_orientation[ar] = 0.0;
-      for (i2 = 0; i2 < 3; i2++) {
-        r_orientation[ar] += R_cw[ar + 3 * i2] * b_map[i2];
+      for (br = 0; br < 3; br++) {
+        r_orientation[ar] += c_xt * R_cw[ar + 3 * br] * b_map[br];
       }
     }
 
-    for (kidx = 0; kidx < 3; kidx++) {
-      h_cin_l[kidx] = r_orientation[kidx] / r_orientation[2];
-    }
-
-    predictMeasurement_left(r_orientation, c_cameraparams_CameraParameters,
-      d_cameraparams_CameraParameters, e_cameraparams_CameraParameters, dv3);
+    //  = R_cw*(rho*anchorPos + anchorRot'*m - rho*r_wc_pred)
+    predictMeasurement_left(r_orientation, dv1);
     b_j1 = k << 1;
     for (ar = 0; ar < 2; ar++) {
-      h_u_data[ar + b_j1] = dv3[ar];
+      h_u_data[ar + b_j1] = dv1[ar];
     }
 
     b_j1 = k << 1;
@@ -323,6 +309,12 @@ void b_getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
     }
 
     //     %% computation of H(x)
+    h_u_To_h_ci_l[0] = 1.0 / r_orientation[2];
+    h_u_To_h_ci_l[2] = 0.0;
+    h_u_To_h_ci_l[4] = -r_orientation[0] / (r_orientation[2] * r_orientation[2]);
+    h_u_To_h_ci_l[1] = 0.0;
+    h_u_To_h_ci_l[3] = 1.0 / r_orientation[2];
+    h_u_To_h_ci_l[5] = -r_orientation[1] / (r_orientation[2] * r_orientation[2]);
     b_k = (signed char)((signed char)k << 1);
     for (ar = 0; ar < 2; ar++) {
       iv2[ar] = (signed char)(ar + b_k);
@@ -336,70 +328,45 @@ void b_getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
       r2->data[ar] = ar;
     }
 
-    Ch_dn_To_h_un(k1_l, k2_l, k3_l, h_cin_l[0], h_cin_l[1], d);
-    b_fx_l[0] = fx_l;
-    b_fx_l[2] = 0.0;
-    b_fx_l[1] = 0.0;
-    b_fx_l[3] = fy_l;
-    dv4[0] = 1.0 / r_orientation[2];
-    dv4[2] = 0.0;
-    dv4[4] = -r_orientation[0] / (r_orientation[2] * r_orientation[2]);
-    dv4[1] = 0.0;
-    dv4[3] = 1.0 / r_orientation[2];
-    dv4[5] = -r_orientation[1] / (r_orientation[2] * r_orientation[2]);
-    for (ar = 0; ar < 2; ar++) {
-      for (i2 = 0; i2 < 2; i2++) {
-        c_fx_l[ar + (i2 << 1)] = 0.0;
-        for (kidx = 0; kidx < 2; kidx++) {
-          c_fx_l[ar + (i2 << 1)] += b_fx_l[ar + (kidx << 1)] * d[kidx + (i2 << 1)];
-        }
-      }
-
-      for (i2 = 0; i2 < 3; i2++) {
-        d_fx_l[ar + (i2 << 1)] = 0.0;
-        for (kidx = 0; kidx < 2; kidx++) {
-          d_fx_l[ar + (i2 << 1)] += c_fx_l[ar + (kidx << 1)] * dv4[kidx + (i2 <<
-            1)];
-        }
-      }
-    }
-
+    c_xt = -b_xt->data[(int)(((stateSize + (anchorIdx->data[(int)indMeas_data[k]
+      - 1] - 1.0) * numStatesPerAnchor) + 7.0) + featureAnchorIdx->data[(int)
+      indMeas_data[k] - 1]) - 1];
     for (ar = 0; ar < 3; ar++) {
-      for (i2 = 0; i2 < 3; i2++) {
-        b_R_cw[i2 + 3 * ar] = -R_cw[i2 + 3 * ar];
+      for (br = 0; br < 3; br++) {
+        d_xt[br + 3 * ar] = c_xt * R_cw[br + 3 * ar];
       }
     }
 
-    b_R_cw[9] = 0.0;
-    b_R_cw[12] = -r_orientation[2];
-    b_R_cw[15] = r_orientation[1];
-    b_R_cw[10] = r_orientation[2];
-    b_R_cw[13] = 0.0;
-    b_R_cw[16] = -r_orientation[0];
-    b_R_cw[11] = -r_orientation[1];
-    b_R_cw[14] = r_orientation[0];
-    b_R_cw[17] = 0.0;
+    d_xt[9] = 0.0;
+    d_xt[12] = -r_orientation[2];
+    d_xt[15] = r_orientation[1];
+    d_xt[10] = r_orientation[2];
+    d_xt[13] = 0.0;
+    d_xt[16] = -r_orientation[0];
+    d_xt[11] = -r_orientation[1];
+    d_xt[14] = r_orientation[0];
+    d_xt[17] = 0.0;
     for (ar = 0; ar < 6; ar++) {
-      for (i2 = 0; i2 < 3; i2++) {
-        b_R_cw[i2 + 3 * (ar + 6)] = 0.0;
+      for (br = 0; br < 3; br++) {
+        d_xt[br + 3 * (ar + 6)] = 0.0;
       }
     }
 
     for (ar = 0; ar < 2; ar++) {
-      for (i2 = 0; i2 < 12; i2++) {
-        e_fx_l[ar + (i2 << 1)] = 0.0;
-        for (kidx = 0; kidx < 3; kidx++) {
-          e_fx_l[ar + (i2 << 1)] += d_fx_l[ar + (kidx << 1)] * b_R_cw[kidx + 3 *
-            i2];
+      for (br = 0; br < 12; br++) {
+        b_h_u_To_h_ci_l[ar + (br << 1)] = 0.0;
+        for (i2 = 0; i2 < 3; i2++) {
+          b_h_u_To_h_ci_l[ar + (br << 1)] += h_u_To_h_ci_l[ar + (i2 << 1)] *
+            d_xt[i2 + 3 * br];
         }
       }
     }
 
     kidx = r2->size[0];
     for (ar = 0; ar < kidx; ar++) {
-      for (i2 = 0; i2 < 2; i2++) {
-        H_xc->data[iv2[i2] + H_xc->size[0] * r2->data[ar]] = e_fx_l[i2 + (ar <<
-          1)];
+      for (br = 0; br < 2; br++) {
+        H_xc->data[iv2[br] + H_xc->size[0] * r2->data[ar]] = b_h_u_To_h_ci_l[br
+          + (ar << 1)];
       }
     }
 
@@ -412,193 +379,221 @@ void b_getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
     //      error('The provided quaternion is not a valid rotation quaternion because it does not have norm 1') 
     //  end
     b_stateSize = stateSize + (anchorIdx->data[(int)indMeas_data[k] - 1] - 1.0) *
-      numStatesPerAnchor;
-    a = b_xt->data[(int)(b_stateSize + 4.0) - 1];
-    b_stateSize = stateSize + (anchorIdx->data[(int)indMeas_data[k] - 1] - 1.0) *
-      numStatesPerAnchor;
-    b_a = b_xt->data[(int)(b_stateSize + 5.0) - 1];
-    b_stateSize = stateSize + (anchorIdx->data[(int)indMeas_data[k] - 1] - 1.0) *
-      numStatesPerAnchor;
-    c_a = b_xt->data[(int)(b_stateSize + 6.0) - 1];
-    b_stateSize = stateSize + (anchorIdx->data[(int)indMeas_data[k] - 1] - 1.0) *
-      numStatesPerAnchor;
-    d_a = b_xt->data[(int)(b_stateSize + 7.0) - 1];
-    b_stateSize = stateSize + (anchorIdx->data[(int)indMeas_data[k] - 1] - 1.0) *
-      numStatesPerAnchor;
-    e_a = b_xt->data[(int)(b_stateSize + 4.0) - 1];
-    b_stateSize = stateSize + (anchorIdx->data[(int)indMeas_data[k] - 1] - 1.0) *
-      numStatesPerAnchor;
-    f_a = b_xt->data[(int)(b_stateSize + 5.0) - 1];
-    b_stateSize = stateSize + (anchorIdx->data[(int)indMeas_data[k] - 1] - 1.0) *
-      numStatesPerAnchor;
-    g_a = b_xt->data[(int)(b_stateSize + 6.0) - 1];
-    b_stateSize = stateSize + (anchorIdx->data[(int)indMeas_data[k] - 1] - 1.0) *
-      numStatesPerAnchor;
-    h_a = b_xt->data[(int)(b_stateSize + 7.0) - 1];
-    b_stateSize = stateSize + (anchorIdx->data[(int)indMeas_data[k] - 1] - 1.0) *
-      numStatesPerAnchor;
-    i_a = b_xt->data[(int)(b_stateSize + 4.0) - 1];
-    b_stateSize = stateSize + (anchorIdx->data[(int)indMeas_data[k] - 1] - 1.0) *
-      numStatesPerAnchor;
-    j_a = b_xt->data[(int)(b_stateSize + 5.0) - 1];
-    b_stateSize = stateSize + (anchorIdx->data[(int)indMeas_data[k] - 1] - 1.0) *
-      numStatesPerAnchor;
-    k_a = b_xt->data[(int)(b_stateSize + 6.0) - 1];
-    b_stateSize = stateSize + (anchorIdx->data[(int)indMeas_data[k] - 1] - 1.0) *
-      numStatesPerAnchor;
-    l_a = b_xt->data[(int)(b_stateSize + 7.0) - 1];
-    b_stateSize = stateSize + (anchorIdx->data[(int)indMeas_data[k] - 1] - 1.0) *
-      numStatesPerAnchor;
-    c_stateSize = stateSize + (anchorIdx->data[(int)indMeas_data[k] - 1] - 1.0) *
-      numStatesPerAnchor;
-    d_stateSize = stateSize + (anchorIdx->data[(int)indMeas_data[k] - 1] - 1.0) *
-      numStatesPerAnchor;
-    e_stateSize = stateSize + (anchorIdx->data[(int)indMeas_data[k] - 1] - 1.0) *
-      numStatesPerAnchor;
-    f_stateSize = stateSize + (anchorIdx->data[(int)indMeas_data[k] - 1] - 1.0) *
-      numStatesPerAnchor;
-    g_stateSize = stateSize + (anchorIdx->data[(int)indMeas_data[k] - 1] - 1.0) *
-      numStatesPerAnchor;
-    h_stateSize = stateSize + (anchorIdx->data[(int)indMeas_data[k] - 1] - 1.0) *
-      numStatesPerAnchor;
-    i_stateSize = stateSize + (anchorIdx->data[(int)indMeas_data[k] - 1] - 1.0) *
-      numStatesPerAnchor;
-    j_stateSize = stateSize + (anchorIdx->data[(int)indMeas_data[k] - 1] - 1.0) *
-      numStatesPerAnchor;
-    k_stateSize = stateSize + (anchorIdx->data[(int)indMeas_data[k] - 1] - 1.0) *
-      numStatesPerAnchor;
-    l_stateSize = stateSize + (anchorIdx->data[(int)indMeas_data[k] - 1] - 1.0) *
-      numStatesPerAnchor;
-    m_stateSize = stateSize + (anchorIdx->data[(int)indMeas_data[k] - 1] - 1.0) *
-      numStatesPerAnchor;
-    n_stateSize = stateSize + (anchorIdx->data[(int)indMeas_data[k] - 1] - 1.0) *
-      numStatesPerAnchor;
-    o_stateSize = stateSize + (anchorIdx->data[(int)indMeas_data[k] - 1] - 1.0) *
-      numStatesPerAnchor;
-    p_stateSize = stateSize + (anchorIdx->data[(int)indMeas_data[k] - 1] - 1.0) *
-      numStatesPerAnchor;
-    q_stateSize = stateSize + (anchorIdx->data[(int)indMeas_data[k] - 1] - 1.0) *
-      numStatesPerAnchor;
-    r_stateSize = stateSize + (anchorIdx->data[(int)indMeas_data[k] - 1] - 1.0) *
-      numStatesPerAnchor;
-    s_stateSize = stateSize + (anchorIdx->data[(int)indMeas_data[k] - 1] - 1.0) *
-      numStatesPerAnchor;
-    t_stateSize = stateSize + (anchorIdx->data[(int)indMeas_data[k] - 1] - 1.0) *
-      numStatesPerAnchor;
-    u_stateSize = stateSize + (anchorIdx->data[(int)indMeas_data[k] - 1] - 1.0) *
-      numStatesPerAnchor;
-    v_stateSize = stateSize + (anchorIdx->data[(int)indMeas_data[k] - 1] - 1.0) *
-      numStatesPerAnchor;
-    w_stateSize = stateSize + (anchorIdx->data[(int)indMeas_data[k] - 1] - 1.0) *
-      numStatesPerAnchor;
-    x_stateSize = stateSize + (anchorIdx->data[(int)indMeas_data[k] - 1] - 1.0) *
-      numStatesPerAnchor;
-    y_stateSize = stateSize + (anchorIdx->data[(int)indMeas_data[k] - 1] - 1.0) *
-      numStatesPerAnchor;
-    anchorRot[0] = ((a * a - b_a * b_a) - c_a * c_a) + d_a * d_a;
-    anchorRot[3] = 2.0 * (b_xt->data[(int)(b_stateSize + 4.0) - 1] * b_xt->data
-                          [(int)(c_stateSize + 5.0) - 1] + b_xt->data[(int)
-                          (d_stateSize + 6.0) - 1] * b_xt->data[(int)
-                          (e_stateSize + 7.0) - 1]);
-    anchorRot[6] = 2.0 * (b_xt->data[(int)(f_stateSize + 4.0) - 1] * b_xt->data
-                          [(int)(g_stateSize + 6.0) - 1] - b_xt->data[(int)
-                          (h_stateSize + 5.0) - 1] * b_xt->data[(int)
-                          (i_stateSize + 7.0) - 1]);
-    anchorRot[1] = 2.0 * (b_xt->data[(int)(j_stateSize + 4.0) - 1] * b_xt->data
-                          [(int)(k_stateSize + 5.0) - 1] - b_xt->data[(int)
-                          (l_stateSize + 6.0) - 1] * b_xt->data[(int)
-                          (m_stateSize + 7.0) - 1]);
-    anchorRot[4] = ((-(e_a * e_a) + f_a * f_a) - g_a * g_a) + h_a * h_a;
-    anchorRot[7] = 2.0 * (b_xt->data[(int)(n_stateSize + 5.0) - 1] * b_xt->data
-                          [(int)(o_stateSize + 6.0) - 1] + b_xt->data[(int)
-                          (p_stateSize + 4.0) - 1] * b_xt->data[(int)
-                          (q_stateSize + 7.0) - 1]);
-    anchorRot[2] = 2.0 * (b_xt->data[(int)(r_stateSize + 4.0) - 1] * b_xt->data
-                          [(int)(s_stateSize + 6.0) - 1] + b_xt->data[(int)
-                          (t_stateSize + 5.0) - 1] * b_xt->data[(int)
-                          (u_stateSize + 7.0) - 1]);
-    anchorRot[5] = 2.0 * (b_xt->data[(int)(v_stateSize + 5.0) - 1] * b_xt->data
-                          [(int)(w_stateSize + 6.0) - 1] - b_xt->data[(int)
-                          (x_stateSize + 4.0) - 1] * b_xt->data[(int)
-                          (y_stateSize + 7.0) - 1]);
-    anchorRot[8] = ((-(i_a * i_a) - j_a * j_a) + k_a * k_a) + l_a * l_a;
-    c_xt = b_xt->data[(int)(((stateSize + (anchorIdx->data[(int)indMeas_data[k]
-      - 1] - 1.0) * numStatesPerAnchor) + 7.0) + featureAnchorIdx->data[(int)
-      indMeas_data[k] - 1]) - 1];
+      (7.0 + numPointsPerAnchor);
     for (ar = 0; ar < 3; ar++) {
-      d1 = 0.0;
-      for (i2 = 0; i2 < 3; i2++) {
-        d1 += anchorRot[i2 + 3 * ar] * b_m_vect->data[i2 + b_m_vect->size[0] *
-          ((int)indMeas_data[k] - 1)];
-      }
-
-      y[ar] = d1 / c_xt;
+      r_orientation[ar] = b_xt->data[(int)(b_stateSize + (1.0 + (double)ar)) - 1];
     }
 
-    c = b_xt->data[(int)(((stateSize + (anchorIdx->data[(int)indMeas_data[k] - 1]
-      - 1.0) * numStatesPerAnchor) + 7.0) + featureAnchorIdx->data[(int)
-                         indMeas_data[k] - 1]) - 1] * b_xt->data[(int)
-      (((stateSize + (anchorIdx->data[(int)indMeas_data[k] - 1] - 1.0) *
-         numStatesPerAnchor) + 7.0) + featureAnchorIdx->data[(int)indMeas_data[k]
-       - 1]) - 1];
-    dv5[0] = 0.0;
-    dv5[3] = -y[2];
-    dv5[6] = y[1];
-    dv5[1] = y[2];
-    dv5[4] = 0.0;
-    dv5[7] = -y[0];
-    dv5[2] = -y[1];
-    dv5[5] = y[0];
-    dv5[8] = 0.0;
+    b_stateSize = stateSize + (anchorIdx->data[(int)indMeas_data[k] - 1] - 1.0) *
+      (7.0 + numPointsPerAnchor);
+    c_stateSize = stateSize + (anchorIdx->data[(int)indMeas_data[k] - 1] - 1.0) *
+      (7.0 + numPointsPerAnchor);
+    d_stateSize = stateSize + (anchorIdx->data[(int)indMeas_data[k] - 1] - 1.0) *
+      (7.0 + numPointsPerAnchor);
+    e_stateSize = stateSize + (anchorIdx->data[(int)indMeas_data[k] - 1] - 1.0) *
+      (7.0 + numPointsPerAnchor);
+    f_stateSize = stateSize + (anchorIdx->data[(int)indMeas_data[k] - 1] - 1.0) *
+      (7.0 + numPointsPerAnchor);
+    g_stateSize = stateSize + (anchorIdx->data[(int)indMeas_data[k] - 1] - 1.0) *
+      (7.0 + numPointsPerAnchor);
+    h_stateSize = stateSize + (anchorIdx->data[(int)indMeas_data[k] - 1] - 1.0) *
+      (7.0 + numPointsPerAnchor);
+    i_stateSize = stateSize + (anchorIdx->data[(int)indMeas_data[k] - 1] - 1.0) *
+      (7.0 + numPointsPerAnchor);
+    j_stateSize = stateSize + (anchorIdx->data[(int)indMeas_data[k] - 1] - 1.0) *
+      (7.0 + numPointsPerAnchor);
+    k_stateSize = stateSize + (anchorIdx->data[(int)indMeas_data[k] - 1] - 1.0) *
+      (7.0 + numPointsPerAnchor);
+    l_stateSize = stateSize + (anchorIdx->data[(int)indMeas_data[k] - 1] - 1.0) *
+      (7.0 + numPointsPerAnchor);
+    m_stateSize = stateSize + (anchorIdx->data[(int)indMeas_data[k] - 1] - 1.0) *
+      (7.0 + numPointsPerAnchor);
+    n_stateSize = stateSize + (anchorIdx->data[(int)indMeas_data[k] - 1] - 1.0) *
+      (7.0 + numPointsPerAnchor);
+    o_stateSize = stateSize + (anchorIdx->data[(int)indMeas_data[k] - 1] - 1.0) *
+      (7.0 + numPointsPerAnchor);
+    p_stateSize = stateSize + (anchorIdx->data[(int)indMeas_data[k] - 1] - 1.0) *
+      (7.0 + numPointsPerAnchor);
+    q_stateSize = stateSize + (anchorIdx->data[(int)indMeas_data[k] - 1] - 1.0) *
+      (7.0 + numPointsPerAnchor);
+    r_stateSize = stateSize + (anchorIdx->data[(int)indMeas_data[k] - 1] - 1.0) *
+      (7.0 + numPointsPerAnchor);
+    s_stateSize = stateSize + (anchorIdx->data[(int)indMeas_data[k] - 1] - 1.0) *
+      (7.0 + numPointsPerAnchor);
+    t_stateSize = stateSize + (anchorIdx->data[(int)indMeas_data[k] - 1] - 1.0) *
+      (7.0 + numPointsPerAnchor);
+    u_stateSize = stateSize + (anchorIdx->data[(int)indMeas_data[k] - 1] - 1.0) *
+      (7.0 + numPointsPerAnchor);
+    v_stateSize = stateSize + (anchorIdx->data[(int)indMeas_data[k] - 1] - 1.0) *
+      (7.0 + numPointsPerAnchor);
+    w_stateSize = stateSize + (anchorIdx->data[(int)indMeas_data[k] - 1] - 1.0) *
+      (7.0 + numPointsPerAnchor);
+    x_stateSize = stateSize + (anchorIdx->data[(int)indMeas_data[k] - 1] - 1.0) *
+      (7.0 + numPointsPerAnchor);
+    y_stateSize = stateSize + (anchorIdx->data[(int)indMeas_data[k] - 1] - 1.0) *
+      (7.0 + numPointsPerAnchor);
+    ab_stateSize = stateSize + (anchorIdx->data[(int)indMeas_data[k] - 1] - 1.0)
+      * (7.0 + numPointsPerAnchor);
+    bb_stateSize = stateSize + (anchorIdx->data[(int)indMeas_data[k] - 1] - 1.0)
+      * (7.0 + numPointsPerAnchor);
+    cb_stateSize = stateSize + (anchorIdx->data[(int)indMeas_data[k] - 1] - 1.0)
+      * (7.0 + numPointsPerAnchor);
+    db_stateSize = stateSize + (anchorIdx->data[(int)indMeas_data[k] - 1] - 1.0)
+      * (7.0 + numPointsPerAnchor);
+    eb_stateSize = stateSize + (anchorIdx->data[(int)indMeas_data[k] - 1] - 1.0)
+      * (7.0 + numPointsPerAnchor);
+    fb_stateSize = stateSize + (anchorIdx->data[(int)indMeas_data[k] - 1] - 1.0)
+      * (7.0 + numPointsPerAnchor);
+    gb_stateSize = stateSize + (anchorIdx->data[(int)indMeas_data[k] - 1] - 1.0)
+      * (7.0 + numPointsPerAnchor);
+    hb_stateSize = stateSize + (anchorIdx->data[(int)indMeas_data[k] - 1] - 1.0)
+      * (7.0 + numPointsPerAnchor);
+    ib_stateSize = stateSize + (anchorIdx->data[(int)indMeas_data[k] - 1] - 1.0)
+      * (7.0 + numPointsPerAnchor);
+    jb_stateSize = stateSize + (anchorIdx->data[(int)indMeas_data[k] - 1] - 1.0)
+      * (7.0 + numPointsPerAnchor);
+    kb_stateSize = stateSize + (anchorIdx->data[(int)indMeas_data[k] - 1] - 1.0)
+      * (7.0 + numPointsPerAnchor);
+    lb_stateSize = stateSize + (anchorIdx->data[(int)indMeas_data[k] - 1] - 1.0)
+      * (7.0 + numPointsPerAnchor);
+    mb_stateSize = stateSize + (anchorIdx->data[(int)indMeas_data[k] - 1] - 1.0)
+      * (7.0 + numPointsPerAnchor);
+    nb_stateSize = stateSize + (anchorIdx->data[(int)indMeas_data[k] - 1] - 1.0)
+      * (7.0 + numPointsPerAnchor);
+    ob_stateSize = stateSize + (anchorIdx->data[(int)indMeas_data[k] - 1] - 1.0)
+      * (7.0 + numPointsPerAnchor);
+    pb_stateSize = stateSize + (anchorIdx->data[(int)indMeas_data[k] - 1] - 1.0)
+      * (7.0 + numPointsPerAnchor);
+    qb_stateSize = stateSize + (anchorIdx->data[(int)indMeas_data[k] - 1] - 1.0)
+      * (7.0 + numPointsPerAnchor);
+    rb_stateSize = stateSize + (anchorIdx->data[(int)indMeas_data[k] - 1] - 1.0)
+      * (7.0 + numPointsPerAnchor);
+    sb_stateSize = stateSize + (anchorIdx->data[(int)indMeas_data[k] - 1] - 1.0)
+      * (7.0 + numPointsPerAnchor);
+    tb_stateSize = stateSize + (anchorIdx->data[(int)indMeas_data[k] - 1] - 1.0)
+      * (7.0 + numPointsPerAnchor);
+    ub_stateSize = stateSize + (anchorIdx->data[(int)indMeas_data[k] - 1] - 1.0)
+      * (7.0 + numPointsPerAnchor);
+    vb_stateSize = stateSize + (anchorIdx->data[(int)indMeas_data[k] - 1] - 1.0)
+      * (7.0 + numPointsPerAnchor);
+    wb_stateSize = stateSize + (anchorIdx->data[(int)indMeas_data[k] - 1] - 1.0)
+      * (7.0 + numPointsPerAnchor);
+    xb_stateSize = stateSize + (anchorIdx->data[(int)indMeas_data[k] - 1] - 1.0)
+      * (7.0 + numPointsPerAnchor);
+    e_xt[0] = ((b_xt->data[(int)(b_stateSize + 4.0) - 1] * b_xt->data[(int)
+                (c_stateSize + 4.0) - 1] - b_xt->data[(int)(d_stateSize + 5.0) -
+                1] * b_xt->data[(int)(e_stateSize + 5.0) - 1]) - b_xt->data[(int)
+               (f_stateSize + 6.0) - 1] * b_xt->data[(int)(g_stateSize + 6.0) -
+               1]) + b_xt->data[(int)(h_stateSize + 7.0) - 1] * b_xt->data[(int)
+      (i_stateSize + 7.0) - 1];
+    e_xt[1] = 2.0 * (b_xt->data[(int)(j_stateSize + 4.0) - 1] * b_xt->data[(int)
+                     (k_stateSize + 5.0) - 1] + b_xt->data[(int)(l_stateSize +
+      6.0) - 1] * b_xt->data[(int)(m_stateSize + 7.0) - 1]);
+    e_xt[2] = 2.0 * (b_xt->data[(int)(n_stateSize + 4.0) - 1] * b_xt->data[(int)
+                     (o_stateSize + 6.0) - 1] - b_xt->data[(int)(p_stateSize +
+      5.0) - 1] * b_xt->data[(int)(q_stateSize + 7.0) - 1]);
+    e_xt[3] = 2.0 * (b_xt->data[(int)(r_stateSize + 4.0) - 1] * b_xt->data[(int)
+                     (s_stateSize + 5.0) - 1] - b_xt->data[(int)(t_stateSize +
+      6.0) - 1] * b_xt->data[(int)(u_stateSize + 7.0) - 1]);
+    e_xt[4] = ((-(b_xt->data[(int)(v_stateSize + 4.0) - 1] * b_xt->data[(int)
+                  (w_stateSize + 4.0) - 1]) + b_xt->data[(int)(x_stateSize + 5.0)
+                - 1] * b_xt->data[(int)(y_stateSize + 5.0) - 1]) - b_xt->data
+               [(int)(ab_stateSize + 6.0) - 1] * b_xt->data[(int)(bb_stateSize +
+                6.0) - 1]) + b_xt->data[(int)(cb_stateSize + 7.0) - 1] *
+      b_xt->data[(int)(db_stateSize + 7.0) - 1];
+    e_xt[5] = 2.0 * (b_xt->data[(int)(eb_stateSize + 5.0) - 1] * b_xt->data[(int)
+                     (fb_stateSize + 6.0) - 1] + b_xt->data[(int)(gb_stateSize +
+      4.0) - 1] * b_xt->data[(int)(hb_stateSize + 7.0) - 1]);
+    e_xt[6] = 2.0 * (b_xt->data[(int)(ib_stateSize + 4.0) - 1] * b_xt->data[(int)
+                     (jb_stateSize + 6.0) - 1] + b_xt->data[(int)(kb_stateSize +
+      5.0) - 1] * b_xt->data[(int)(lb_stateSize + 7.0) - 1]);
+    e_xt[7] = 2.0 * (b_xt->data[(int)(mb_stateSize + 5.0) - 1] * b_xt->data[(int)
+                     (nb_stateSize + 6.0) - 1] - b_xt->data[(int)(ob_stateSize +
+      4.0) - 1] * b_xt->data[(int)(pb_stateSize + 7.0) - 1]);
+    e_xt[8] = ((-(b_xt->data[(int)(qb_stateSize + 4.0) - 1] * b_xt->data[(int)
+                  (rb_stateSize + 4.0) - 1]) - b_xt->data[(int)(sb_stateSize +
+      5.0) - 1] * b_xt->data[(int)(tb_stateSize + 5.0) - 1]) + b_xt->data[(int)
+               (ub_stateSize + 6.0) - 1] * b_xt->data[(int)(vb_stateSize + 6.0)
+               - 1]) + b_xt->data[(int)(wb_stateSize + 7.0) - 1] * b_xt->data
+      [(int)(xb_stateSize + 7.0) - 1];
+    for (ar = 0; ar < 3; ar++) {
+      y[ar] = 0.0;
+      for (br = 0; br < 3; br++) {
+        b_y = y[ar] + e_xt[ar + 3 * br] * b_m_vect->data[br + b_m_vect->size[0] *
+          ((int)indMeas_data[k] - 1)];
+        y[ar] = b_y;
+      }
+    }
+
+    c_xt = b_xt->data[(int)(((stateSize + (anchorIdx->data[(int)indMeas_data[k]
+      - 1] - 1.0) * (7.0 + numPointsPerAnchor)) + 7.0) + featureAnchorIdx->data
+      [(int)indMeas_data[k] - 1]) - 1];
+    f_xt = -b_xt->data[(int)(((stateSize + (anchorIdx->data[(int)indMeas_data[k]
+      - 1] - 1.0) * (7.0 + numPointsPerAnchor)) + 7.0) + featureAnchorIdx->data
+      [(int)indMeas_data[k] - 1]) - 1];
+    dv2[0] = 0.0;
+    dv2[3] = -y[2];
+    dv2[6] = y[1];
+    dv2[1] = y[2];
+    dv2[4] = 0.0;
+    dv2[7] = -y[0];
+    dv2[2] = -y[1];
+    dv2[5] = y[0];
+    dv2[8] = 0.0;
     kidx = (int)(featureAnchorIdx->data[(int)indMeas_data[k] - 1] - 1.0);
     for (ar = 0; ar < 3; ar++) {
-      for (i2 = 0; i2 < 3; i2++) {
-        b_anchorRot[i2 + 3 * ar] = -anchorRot[ar + 3 * i2];
-      }
+      b_map[ar] = r_orientation[ar] - b_xt->data[ar];
     }
 
     for (ar = 0; ar < 3; ar++) {
-      d1 = 0.0;
-      for (i2 = 0; i2 < 3; i2++) {
-        d1 += b_anchorRot[ar + 3 * i2] * b_m_vect->data[i2 + b_m_vect->size[0] *
-          ((int)indMeas_data[k] - 1)];
+      b_R_cw[ar] = 0.0;
+      for (br = 0; br < 3; br++) {
+        b_R_cw[ar] += R_cw[ar + 3 * br] * b_map[br];
       }
-
-      b_map[ar] = d1 / c;
     }
 
     b_j1 = (int)(numPointsPerAnchor - featureAnchorIdx->data[(int)indMeas_data[k]
                  - 1]);
+    for (ar = 0; ar < 3; ar++) {
+      for (br = 0; br < 3; br++) {
+        g_xt[ar + 3 * br] = 0.0;
+        for (i2 = 0; i2 < 3; i2++) {
+          g_xt[ar + 3 * br] += f_xt * R_cw[ar + 3 * i2] * dv2[i2 + 3 * br];
+        }
+      }
+    }
+
     ar = H_orientation->size[0] * H_orientation->size[1];
     H_orientation->size[0] = 3;
     H_orientation->size[1] = (kidx + b_j1) + 7;
     emxEnsureCapacity((emxArray__common *)H_orientation, ar, (int)sizeof(double));
     for (ar = 0; ar < 3; ar++) {
-      for (i2 = 0; i2 < 3; i2++) {
-        H_orientation->data[i2 + H_orientation->size[0] * ar] = b[i2 + 3 * ar];
+      for (br = 0; br < 3; br++) {
+        H_orientation->data[br + H_orientation->size[0] * ar] = c_xt * R_cw[br +
+          3 * ar];
       }
     }
 
     for (ar = 0; ar < 3; ar++) {
-      for (i2 = 0; i2 < 3; i2++) {
-        H_orientation->data[i2 + H_orientation->size[0] * (ar + 3)] = -dv5[i2 +
+      for (br = 0; br < 3; br++) {
+        H_orientation->data[br + H_orientation->size[0] * (ar + 3)] = g_xt[br +
           3 * ar];
       }
     }
 
     for (ar = 0; ar < kidx; ar++) {
-      for (i2 = 0; i2 < 3; i2++) {
-        H_orientation->data[i2 + H_orientation->size[0] * (ar + 6)] = 0.0;
+      for (br = 0; br < 3; br++) {
+        H_orientation->data[br + H_orientation->size[0] * (ar + 6)] = 0.0;
       }
     }
 
     for (ar = 0; ar < 3; ar++) {
-      H_orientation->data[ar + H_orientation->size[0] * (6 + kidx)] = b_map[ar];
+      H_orientation->data[ar + H_orientation->size[0] * (6 + kidx)] = b_R_cw[ar];
     }
 
     for (ar = 0; ar < b_j1; ar++) {
-      for (i2 = 0; i2 < 3; i2++) {
-        H_orientation->data[i2 + H_orientation->size[0] * ((ar + kidx) + 7)] =
+      for (br = 0; br < 3; br++) {
+        H_orientation->data[br + H_orientation->size[0] * ((ar + kidx) + 7)] =
           0.0;
       }
     }
@@ -680,41 +675,6 @@ void b_getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
                            ar]) - 1;
     }
 
-    Ch_dn_To_h_un(k1_l, k2_l, k3_l, h_cin_l[0], h_cin_l[1], d);
-    f_fx_l[0] = fx_l;
-    f_fx_l[2] = 0.0;
-    f_fx_l[1] = 0.0;
-    f_fx_l[3] = fy_l;
-    dv6[0] = 1.0 / r_orientation[2];
-    dv6[2] = 0.0;
-    dv6[4] = -r_orientation[0] / (r_orientation[2] * r_orientation[2]);
-    dv6[1] = 0.0;
-    dv6[3] = 1.0 / r_orientation[2];
-    dv6[5] = -r_orientation[1] / (r_orientation[2] * r_orientation[2]);
-    for (ar = 0; ar < 2; ar++) {
-      for (i2 = 0; i2 < 2; i2++) {
-        c_fx_l[ar + (i2 << 1)] = 0.0;
-        for (kidx = 0; kidx < 2; kidx++) {
-          c_fx_l[ar + (i2 << 1)] += f_fx_l[ar + (kidx << 1)] * d[kidx + (i2 << 1)];
-        }
-      }
-
-      for (i2 = 0; i2 < 3; i2++) {
-        d_fx_l[ar + (i2 << 1)] = 0.0;
-        for (kidx = 0; kidx < 2; kidx++) {
-          d_fx_l[ar + (i2 << 1)] += c_fx_l[ar + (kidx << 1)] * dv6[kidx + (i2 <<
-            1)];
-        }
-      }
-
-      for (i2 = 0; i2 < 3; i2++) {
-        b_y[ar + (i2 << 1)] = 0.0;
-        for (kidx = 0; kidx < 3; kidx++) {
-          b_y[ar + (i2 << 1)] += d_fx_l[ar + (kidx << 1)] * R_cw[kidx + 3 * i2];
-        }
-      }
-    }
-
     v[1] = H_orientation->size[1];
     ar = C->size[0] * C->size[1];
     C->size[0] = 2;
@@ -742,7 +702,7 @@ void b_getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
           ia = ar;
           for (ic = b_j1; ic + 1 <= b_j1 + 2; ic++) {
             ia++;
-            C->data[ic] += H_orientation->data[i2] * b_y[ia - 1];
+            C->data[ic] += H_orientation->data[i2] * h_u_To_h_ci_l[ia - 1];
           }
         }
 
@@ -754,8 +714,8 @@ void b_getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
 
     b_j1 = C->size[1];
     for (ar = 0; ar < b_j1; ar++) {
-      for (i2 = 0; i2 < 2; i2++) {
-        H_xm->data[iv2[i2] + H_xm->size[0] * r2->data[ar]] = C->data[i2 +
+      for (br = 0; br < 2; br++) {
+        H_xm->data[iv2[br] + H_xm->size[0] * r2->data[ar]] = C->data[br +
           C->size[0] * ar];
       }
     }
@@ -878,23 +838,22 @@ void b_getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
                          + measurements->att_fmu[2] * measurements->att_fmu[2])
       + measurements->att_fmu[3] * measurements->att_fmu[3];
     for (ar = 0; ar < 3; ar++) {
-      for (i2 = 0; i2 < 3; i2++) {
-        b_anchorRot[ar + 3 * i2] = 0.0;
-        for (kidx = 0; kidx < 3; kidx++) {
-          b_anchorRot[ar + 3 * i2] += R_bc[kidx + 3 * ar] * b_measurements[kidx
-            + 3 * i2];
+      for (br = 0; br < 3; br++) {
+        e_xt[ar + 3 * br] = 0.0;
+        for (i2 = 0; i2 < 3; i2++) {
+          e_xt[ar + 3 * br] += R_bc[i2 + 3 * ar] * b_measurements[i2 + 3 * br];
         }
       }
 
-      for (i2 = 0; i2 < 3; i2++) {
-        dv5[ar + 3 * i2] = 0.0;
-        for (kidx = 0; kidx < 3; kidx++) {
-          dv5[ar + 3 * i2] += b_anchorRot[ar + 3 * kidx] * R_cw[i2 + 3 * kidx];
+      for (br = 0; br < 3; br++) {
+        dv2[ar + 3 * br] = 0.0;
+        for (i2 = 0; i2 < 3; i2++) {
+          dv2[ar + 3 * br] += e_xt[ar + 3 * i2] * R_cw[br + 3 * i2];
         }
       }
     }
 
-    QuatFromRotJ(dv5, d);
+    QuatFromRotJ(dv2, d);
     for (kidx = 0; kidx < 3; kidx++) {
       r_orientation[kidx] = d[kidx];
     }
@@ -908,8 +867,8 @@ void b_getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
     }
 
     for (ar = 0; ar < 3; ar++) {
-      for (i2 = 0; i2 < 3; i2++) {
-        H_orientation->data[i2 + H_orientation->size[0] * (3 + ar)] = I[i2 + 3 *
+      for (br = 0; br < 3; br++) {
+        H_orientation->data[br + H_orientation->size[0] * (3 + ar)] = I[br + 3 *
           ar];
       }
     }
@@ -958,11 +917,11 @@ void b_getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
                          + measurements->att_ext[2] * measurements->att_ext[2])
       + measurements->att_ext[3] * measurements->att_ext[3];
     for (ar = 0; ar < 3; ar++) {
-      for (i2 = 0; i2 < 3; i2++) {
-        b_measurements[ar + 3 * i2] = 0.0;
-        for (kidx = 0; kidx < 3; kidx++) {
-          b_measurements[ar + 3 * i2] += c_measurements[ar + 3 * kidx] * R_cw[i2
-            + 3 * kidx];
+      for (br = 0; br < 3; br++) {
+        b_measurements[ar + 3 * br] = 0.0;
+        for (i2 = 0; i2 < 3; i2++) {
+          b_measurements[ar + 3 * br] += c_measurements[ar + 3 * i2] * R_cw[br +
+            3 * i2];
         }
       }
     }
@@ -984,33 +943,33 @@ void b_getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
       I[k + 3 * k] = 1;
     }
 
-    memset(&anchorRot[0], 0, 9U * sizeof(double));
+    memset(&R_cw[0], 0, 9U * sizeof(double));
     for (k = 0; k < 3; k++) {
-      anchorRot[k + 3 * k] = 1.0;
+      R_cw[k + 3 * k] = 1.0;
     }
 
     for (ar = 0; ar < 3; ar++) {
-      for (i2 = 0; i2 < 3; i2++) {
-        H_ext_pose->data[i2 + H_ext_pose->size[0] * ar] = I[i2 + 3 * ar];
+      for (br = 0; br < 3; br++) {
+        H_ext_pose->data[br + H_ext_pose->size[0] * ar] = I[br + 3 * ar];
       }
     }
 
     for (ar = 0; ar < 3; ar++) {
-      for (i2 = 0; i2 < 3; i2++) {
-        H_ext_pose->data[i2 + H_ext_pose->size[0] * (ar + 3)] = 0.0;
+      for (br = 0; br < 3; br++) {
+        H_ext_pose->data[br + H_ext_pose->size[0] * (ar + 3)] = 0.0;
       }
     }
 
     for (ar = 0; ar < 3; ar++) {
-      for (i2 = 0; i2 < 3; i2++) {
-        H_ext_pose->data[(i2 + H_ext_pose->size[0] * ar) + 3] = 0.0;
+      for (br = 0; br < 3; br++) {
+        H_ext_pose->data[(br + H_ext_pose->size[0] * ar) + 3] = 0.0;
       }
     }
 
     for (ar = 0; ar < 3; ar++) {
-      for (i2 = 0; i2 < 3; i2++) {
-        H_ext_pose->data[(i2 + H_ext_pose->size[0] * (ar + 3)) + 3] =
-          anchorRot[i2 + 3 * ar];
+      for (br = 0; br < 3; br++) {
+        H_ext_pose->data[(br + H_ext_pose->size[0] * (ar + 3)) + 3] = R_cw[br +
+          3 * ar];
       }
     }
 
@@ -1059,16 +1018,16 @@ void b_getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
   b_j1 = H_xc->size[1];
   for (ar = 0; ar < b_j1; ar++) {
     kidx = H_xc->size[0];
-    for (i2 = 0; i2 < kidx; i2++) {
-      H->data[i2 + H->size[0] * ar] = H_xc->data[i2 + H_xc->size[0] * ar];
+    for (br = 0; br < kidx; br++) {
+      H->data[br + H->size[0] * ar] = H_xc->data[br + H_xc->size[0] * ar];
     }
   }
 
   b_j1 = H_xm->size[1];
   for (ar = 0; ar < b_j1; ar++) {
     kidx = H_xm->size[0];
-    for (i2 = 0; i2 < kidx; i2++) {
-      H->data[i2 + H->size[0] * (ar + H_xc->size[1])] = H_xm->data[i2 +
+    for (br = 0; br < kidx; br++) {
+      H->data[br + H->size[0] * (ar + H_xc->size[1])] = H_xm->data[br +
         H_xm->size[0] * ar];
     }
   }
@@ -1077,8 +1036,8 @@ void b_getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
   emxFree_real_T(&H_xm);
   b_j1 = (signed char)(ic << 1);
   for (ar = 0; ar < b_j1; ar++) {
-    for (i2 = 0; i2 < R_vision_size_idx_0; i2++) {
-      R_data[i2 + R_size[0] * ar] = R_vision_data[i2 + R_vision_size_idx_0 * ar];
+    for (br = 0; br < R_vision_size_idx_0; br++) {
+      R_data[br + R_size[0] * ar] = R_vision_data[br + R_vision_size_idx_0 * ar];
     }
   }
 
@@ -1093,16 +1052,16 @@ void b_getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
 
     b_j1 = H_orientation->size[1];
     for (ar = 0; ar < b_j1; ar++) {
-      for (i2 = 0; i2 < 3; i2++) {
-        H->data[iv3[i2] + H->size[0] * ar] = H_orientation->data[i2 +
+      for (br = 0; br < 3; br++) {
+        H->data[iv3[br] + H->size[0] * ar] = H_orientation->data[br +
           H_orientation->size[0] * ar];
       }
     }
 
     for (ar = 0; ar < 3; ar++) {
-      for (i2 = 0; i2 < 3; i2++) {
-        R_data[(i2 + orientation_idx) + R_size[0] * (ar + orientation_idx)] =
-          c_noiseParameters_orientation_n * (double)b[i2 + 3 * ar];
+      for (br = 0; br < 3; br++) {
+        R_data[(br + orientation_idx) + R_size[0] * (ar + orientation_idx)] =
+          c_noiseParameters_orientation_n * (double)b[br + 3 * ar];
       }
     }
   }
@@ -1132,37 +1091,37 @@ void b_getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
 
     b_j1 = H_ext_pose->size[1];
     for (ar = 0; ar < b_j1; ar++) {
-      for (i2 = 0; i2 < 6; i2++) {
-        H->data[iv4[i2] + H->size[0] * ar] = H_ext_pose->data[i2 +
+      for (br = 0; br < 6; br++) {
+        H->data[iv4[br] + H->size[0] * ar] = H_ext_pose->data[br +
           H_ext_pose->size[0] * ar];
       }
     }
 
     for (ar = 0; ar < 3; ar++) {
-      for (i2 = 0; i2 < 3; i2++) {
-        R_data[(i2 + ext_pose_idx) + R_size[0] * (ar + ext_pose_idx)] =
-          noiseParameters_ext_pos_noise * (double)b[i2 + 3 * ar];
+      for (br = 0; br < 3; br++) {
+        R_data[(br + ext_pose_idx) + R_size[0] * (ar + ext_pose_idx)] =
+          noiseParameters_ext_pos_noise * (double)b[br + 3 * ar];
       }
     }
 
     for (ar = 0; ar < 3; ar++) {
-      for (i2 = 0; i2 < 3; i2++) {
-        R_data[(i2 + ext_pose_idx) + R_size[0] * ((ar + ext_pose_idx) + 3)] =
+      for (br = 0; br < 3; br++) {
+        R_data[(br + ext_pose_idx) + R_size[0] * ((ar + ext_pose_idx) + 3)] =
           0.0;
       }
     }
 
     for (ar = 0; ar < 3; ar++) {
-      for (i2 = 0; i2 < 3; i2++) {
-        R_data[((i2 + ext_pose_idx) + R_size[0] * (ar + ext_pose_idx)) + 3] =
+      for (br = 0; br < 3; br++) {
+        R_data[((br + ext_pose_idx) + R_size[0] * (ar + ext_pose_idx)) + 3] =
           0.0;
       }
     }
 
     for (ar = 0; ar < 3; ar++) {
-      for (i2 = 0; i2 < 3; i2++) {
-        R_data[((i2 + ext_pose_idx) + R_size[0] * ((ar + ext_pose_idx) + 3)) + 3]
-          = noiseParameters_ext_att_noise * (double)b[i2 + 3 * ar];
+      for (br = 0; br < 3; br++) {
+        R_data[((br + ext_pose_idx) + R_size[0] * ((ar + ext_pose_idx) + 3)) + 3]
+          = noiseParameters_ext_att_noise * (double)b[br + 3 * ar];
       }
     }
   }
@@ -1199,9 +1158,6 @@ void b_getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
 //                const double z_all_l[32]
 //                double indMeas
 //                const emxArray_real_T *map
-//                const double c_cameraparams_CameraParameters[3]
-//                const double d_cameraparams_CameraParameters[2]
-//                const double e_cameraparams_CameraParameters[2]
 //                const emxArray_real_T *anchorIdx
 //                const emxArray_real_T *featureAnchorIdx
 //                const emxArray_real_T *b_m_vect
@@ -1223,13 +1179,9 @@ void b_getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
 //
 void getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
                 stateSize, const double z_all_l[32], double indMeas, const
-                emxArray_real_T *map, const double
-                c_cameraparams_CameraParameters[3], const double
-                d_cameraparams_CameraParameters[2], const double
-                e_cameraparams_CameraParameters[2], const emxArray_real_T
-                *anchorIdx, const emxArray_real_T *featureAnchorIdx, const
-                emxArray_real_T *b_m_vect, const double
-                noiseParameters_image_noise[2], double
+                emxArray_real_T *map, const emxArray_real_T *anchorIdx, const
+                emxArray_real_T *featureAnchorIdx, const emxArray_real_T
+                *b_m_vect, const double noiseParameters_image_noise[2], double
                 c_noiseParameters_orientation_n, double
                 noiseParameters_pressure_noise, double
                 noiseParameters_ext_pos_noise, double
@@ -1240,37 +1192,21 @@ void getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
 {
   emxArray_real_T *H_xm;
   double R_cw[9];
-  int ar;
+  int ib;
   int nm1d2;
   emxArray_real_T *H_xc;
   boolean_T bv0[3];
+  double c_xt;
   double b_map[3];
   double h_ci_l[3];
-  int br;
-  double h_cin_l[3];
-  double anew;
+  int ar;
   double z[2];
   emxArray_int32_T *r0;
-  double d[4];
-  double f_cameraparams_CameraParameters[4];
-  double g_cameraparams_CameraParameters[4];
-  double dv0[6];
-  double h_cameraparams_CameraParameters[6];
-  double b_R_cw[36];
-  double i_cameraparams_CameraParameters[24];
+  double h_u_To_h_ci_l[6];
+  double d_xt[36];
+  double b_h_u_To_h_ci_l[24];
+  int n;
   double b_stateSize;
-  double a;
-  double b_a;
-  double c_a;
-  double d_a;
-  double e_a;
-  double f_a;
-  double g_a;
-  double h_a;
-  double i_a;
-  double j_a;
-  double k_a;
-  double l_a;
   double c_stateSize;
   double d_stateSize;
   double e_stateSize;
@@ -1294,31 +1230,50 @@ void getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
   double w_stateSize;
   double x_stateSize;
   double y_stateSize;
-  double anchorRot[9];
-  double d0;
+  double ab_stateSize;
+  double bb_stateSize;
+  double cb_stateSize;
+  double db_stateSize;
+  double eb_stateSize;
+  double fb_stateSize;
+  double gb_stateSize;
+  double hb_stateSize;
+  double ib_stateSize;
+  double jb_stateSize;
+  double kb_stateSize;
+  double lb_stateSize;
+  double mb_stateSize;
+  double nb_stateSize;
+  double ob_stateSize;
+  double pb_stateSize;
+  double qb_stateSize;
+  double rb_stateSize;
+  double sb_stateSize;
+  double tb_stateSize;
+  double ub_stateSize;
+  double vb_stateSize;
+  double wb_stateSize;
+  double xb_stateSize;
+  double e_xt[9];
   double y[3];
-  double dv1[9];
-  double b_anchorRot[9];
+  double f_xt;
+  double dv0[9];
+  int br;
   emxArray_real_T *H_iy;
-  int n;
-  static const signed char b[9] = { 1, 0, 0, 0, 1, 0, 0, 0, 1 };
-
+  double anew;
   double apnd;
   double ndbl;
   double cdiff;
   double absb;
   emxArray_real_T *H_pressure;
-  double j_cameraparams_CameraParameters[4];
-  double dv2[6];
-  double b_y[6];
   emxArray_real_T *C;
   double v[2];
   int ic;
-  int ib;
   int ia;
   double r_pressure;
   double r_ext_pose[6];
   emxArray_real_T *H_ext_pose;
+  double d[4];
   double R_vision[4];
   int residual_size;
   int orientation_idx;
@@ -1328,6 +1283,8 @@ void getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
   signed char I[9];
   double c_measurements[9];
   signed char iv0[3];
+  static const signed char b[9] = { 1, 0, 0, 0, 1, 0, 0, 0, 1 };
+
   signed char iv1[6];
   emxInit_real_T(&H_xm, 2);
 
@@ -1353,139 +1310,113 @@ void getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
   //  camera parameters for the left and right camera
   //  Cx_l = cameraparams.CameraParameters1.PrincipalPoint(1);
   //  Cy_l = cameraparams.CameraParameters1.PrincipalPoint(2);
-  ar = H_xm->size[0] * H_xm->size[1];
+  ib = H_xm->size[0] * H_xm->size[1];
   H_xm->size[0] = 2;
   H_xm->size[1] = (int)(b_VIOParameters.num_anchors * (6.0 +
     b_VIOParameters.num_points_per_anchor));
-  emxEnsureCapacity((emxArray__common *)H_xm, ar, (int)sizeof(double));
+  emxEnsureCapacity((emxArray__common *)H_xm, ib, (int)sizeof(double));
   nm1d2 = (int)(b_VIOParameters.num_anchors * (6.0 +
     b_VIOParameters.num_points_per_anchor)) << 1;
-  for (ar = 0; ar < nm1d2; ar++) {
-    H_xm->data[ar] = 0.0;
+  for (ib = 0; ib < nm1d2; ib++) {
+    H_xm->data[ib] = 0.0;
   }
 
   emxInit_real_T(&H_xc, 2);
-  ar = H_xc->size[0] * H_xc->size[1];
+  ib = H_xc->size[0] * H_xc->size[1];
   H_xc->size[0] = 2;
   H_xc->size[1] = (int)errorStateSize;
-  emxEnsureCapacity((emxArray__common *)H_xc, ar, (int)sizeof(double));
+  emxEnsureCapacity((emxArray__common *)H_xc, ib, (int)sizeof(double));
   nm1d2 = (int)errorStateSize << 1;
-  for (ar = 0; ar < nm1d2; ar++) {
-    H_xc->data[ar] = 0.0;
+  for (ib = 0; ib < nm1d2; ib++) {
+    H_xc->data[ib] = 0.0;
   }
 
-  for (ar = 0; ar < 3; ar++) {
-    bv0[ar] = rtIsNaN(map->data[ar + map->size[0] * ((int)indMeas - 1)]);
+  for (ib = 0; ib < 3; ib++) {
+    bv0[ib] = rtIsNaN(map->data[ib + map->size[0] * ((int)indMeas - 1)]);
   }
 
   if (c_any(bv0)) {
     b_ros_error();
   }
 
-  for (ar = 0; ar < 3; ar++) {
-    b_map[ar] = map->data[ar + map->size[0] * ((int)indMeas - 1)] - b_xt->
-      data[ar];
+  c_xt = b_xt->data[(int)(((stateSize + (anchorIdx->data[(int)indMeas - 1] - 1.0)
+    * (7.0 + b_VIOParameters.num_points_per_anchor)) + 7.0) +
+    featureAnchorIdx->data[(int)indMeas - 1]) - 1];
+  for (ib = 0; ib < 3; ib++) {
+    b_map[ib] = map->data[ib + map->size[0] * ((int)indMeas - 1)] - b_xt->
+      data[ib];
   }
 
-  for (ar = 0; ar < 3; ar++) {
-    h_ci_l[ar] = 0.0;
-    for (br = 0; br < 3; br++) {
-      h_ci_l[ar] += R_cw[ar + 3 * br] * b_map[br];
+  for (ib = 0; ib < 3; ib++) {
+    h_ci_l[ib] = 0.0;
+    for (ar = 0; ar < 3; ar++) {
+      h_ci_l[ib] += c_xt * R_cw[ib + 3 * ar] * b_map[ar];
     }
   }
 
-  for (nm1d2 = 0; nm1d2 < 3; nm1d2++) {
-    h_cin_l[nm1d2] = h_ci_l[nm1d2] / h_ci_l[2];
-  }
-
-  predictMeasurement_left(h_ci_l, c_cameraparams_CameraParameters,
-    d_cameraparams_CameraParameters, e_cameraparams_CameraParameters, h_u);
-  anew = (indMeas - 1.0) * 2.0;
-  for (ar = 0; ar < 2; ar++) {
-    z[ar] = z_all_l[(int)(anew + (1.0 + (double)ar)) - 1];
+  //  = R_cw*(rho*anchorPos + anchorRot'*m - rho*r_wc_pred)
+  predictMeasurement_left(h_ci_l, h_u);
+  c_xt = (indMeas - 1.0) * 2.0;
+  for (ib = 0; ib < 2; ib++) {
+    z[ib] = z_all_l[(int)(c_xt + (1.0 + (double)ib)) - 1];
   }
 
   emxInit_int32_T(&r0, 1);
 
   //     %% computation of H(x)
+  h_u_To_h_ci_l[0] = 1.0 / h_ci_l[2];
+  h_u_To_h_ci_l[2] = 0.0;
+  h_u_To_h_ci_l[4] = -h_ci_l[0] / (h_ci_l[2] * h_ci_l[2]);
+  h_u_To_h_ci_l[1] = 0.0;
+  h_u_To_h_ci_l[3] = 1.0 / h_ci_l[2];
+  h_u_To_h_ci_l[5] = -h_ci_l[1] / (h_ci_l[2] * h_ci_l[2]);
   nm1d2 = (int)errorStateSize;
-  ar = r0->size[0];
+  ib = r0->size[0];
   r0->size[0] = (int)errorStateSize;
-  emxEnsureCapacity((emxArray__common *)r0, ar, (int)sizeof(int));
-  for (ar = 0; ar < nm1d2; ar++) {
-    r0->data[ar] = ar;
+  emxEnsureCapacity((emxArray__common *)r0, ib, (int)sizeof(int));
+  for (ib = 0; ib < nm1d2; ib++) {
+    r0->data[ib] = ib;
   }
 
-  Ch_dn_To_h_un(c_cameraparams_CameraParameters[0],
-                c_cameraparams_CameraParameters[1],
-                c_cameraparams_CameraParameters[2], h_cin_l[0], h_cin_l[1], d);
-  f_cameraparams_CameraParameters[0] = d_cameraparams_CameraParameters[0];
-  f_cameraparams_CameraParameters[2] = 0.0;
-  f_cameraparams_CameraParameters[1] = 0.0;
-  f_cameraparams_CameraParameters[3] = d_cameraparams_CameraParameters[1];
-  dv0[0] = 1.0 / h_ci_l[2];
-  dv0[2] = 0.0;
-  dv0[4] = -h_ci_l[0] / (h_ci_l[2] * h_ci_l[2]);
-  dv0[1] = 0.0;
-  dv0[3] = 1.0 / h_ci_l[2];
-  dv0[5] = -h_ci_l[1] / (h_ci_l[2] * h_ci_l[2]);
-  for (ar = 0; ar < 2; ar++) {
-    for (br = 0; br < 2; br++) {
-      g_cameraparams_CameraParameters[ar + (br << 1)] = 0.0;
-      for (nm1d2 = 0; nm1d2 < 2; nm1d2++) {
-        g_cameraparams_CameraParameters[ar + (br << 1)] +=
-          f_cameraparams_CameraParameters[ar + (nm1d2 << 1)] * d[nm1d2 + (br <<
-          1)];
-      }
-    }
-
-    for (br = 0; br < 3; br++) {
-      h_cameraparams_CameraParameters[ar + (br << 1)] = 0.0;
-      for (nm1d2 = 0; nm1d2 < 2; nm1d2++) {
-        h_cameraparams_CameraParameters[ar + (br << 1)] +=
-          g_cameraparams_CameraParameters[ar + (nm1d2 << 1)] * dv0[nm1d2 + (br <<
-          1)];
-      }
+  c_xt = -b_xt->data[(int)(((stateSize + (anchorIdx->data[(int)indMeas - 1] -
+    1.0) * (7.0 + b_VIOParameters.num_points_per_anchor)) + 7.0) +
+    featureAnchorIdx->data[(int)indMeas - 1]) - 1];
+  for (ib = 0; ib < 3; ib++) {
+    for (ar = 0; ar < 3; ar++) {
+      d_xt[ar + 3 * ib] = c_xt * R_cw[ar + 3 * ib];
     }
   }
 
-  for (ar = 0; ar < 3; ar++) {
-    for (br = 0; br < 3; br++) {
-      b_R_cw[br + 3 * ar] = -R_cw[br + 3 * ar];
+  d_xt[9] = 0.0;
+  d_xt[12] = -h_ci_l[2];
+  d_xt[15] = h_ci_l[1];
+  d_xt[10] = h_ci_l[2];
+  d_xt[13] = 0.0;
+  d_xt[16] = -h_ci_l[0];
+  d_xt[11] = -h_ci_l[1];
+  d_xt[14] = h_ci_l[0];
+  d_xt[17] = 0.0;
+  for (ib = 0; ib < 6; ib++) {
+    for (ar = 0; ar < 3; ar++) {
+      d_xt[ar + 3 * (ib + 6)] = 0.0;
     }
   }
 
-  b_R_cw[9] = 0.0;
-  b_R_cw[12] = -h_ci_l[2];
-  b_R_cw[15] = h_ci_l[1];
-  b_R_cw[10] = h_ci_l[2];
-  b_R_cw[13] = 0.0;
-  b_R_cw[16] = -h_ci_l[0];
-  b_R_cw[11] = -h_ci_l[1];
-  b_R_cw[14] = h_ci_l[0];
-  b_R_cw[17] = 0.0;
-  for (ar = 0; ar < 6; ar++) {
-    for (br = 0; br < 3; br++) {
-      b_R_cw[br + 3 * (ar + 6)] = 0.0;
-    }
-  }
-
-  for (ar = 0; ar < 2; ar++) {
-    for (br = 0; br < 12; br++) {
-      i_cameraparams_CameraParameters[ar + (br << 1)] = 0.0;
-      for (nm1d2 = 0; nm1d2 < 3; nm1d2++) {
-        i_cameraparams_CameraParameters[ar + (br << 1)] +=
-          h_cameraparams_CameraParameters[ar + (nm1d2 << 1)] * b_R_cw[nm1d2 + 3 *
-          br];
+  for (ib = 0; ib < 2; ib++) {
+    for (ar = 0; ar < 12; ar++) {
+      b_h_u_To_h_ci_l[ib + (ar << 1)] = 0.0;
+      for (n = 0; n < 3; n++) {
+        b_h_u_To_h_ci_l[ib + (ar << 1)] += h_u_To_h_ci_l[ib + (n << 1)] * d_xt[n
+          + 3 * ar];
       }
     }
   }
 
   nm1d2 = r0->size[0];
-  for (ar = 0; ar < nm1d2; ar++) {
-    for (br = 0; br < 2; br++) {
-      H_xc->data[br + H_xc->size[0] * r0->data[ar]] =
-        i_cameraparams_CameraParameters[br + (ar << 1)];
+  for (ib = 0; ib < nm1d2; ib++) {
+    for (ar = 0; ar < 2; ar++) {
+      H_xc->data[ar + H_xc->size[0] * r0->data[ib]] = b_h_u_To_h_ci_l[ar + (ib <<
+        1)];
     }
   }
 
@@ -1499,40 +1430,10 @@ void getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
   //  end
   b_stateSize = stateSize + (anchorIdx->data[(int)indMeas - 1] - 1.0) * (7.0 +
     b_VIOParameters.num_points_per_anchor);
-  a = b_xt->data[(int)(b_stateSize + 4.0) - 1];
-  b_stateSize = stateSize + (anchorIdx->data[(int)indMeas - 1] - 1.0) * (7.0 +
-    b_VIOParameters.num_points_per_anchor);
-  b_a = b_xt->data[(int)(b_stateSize + 5.0) - 1];
-  b_stateSize = stateSize + (anchorIdx->data[(int)indMeas - 1] - 1.0) * (7.0 +
-    b_VIOParameters.num_points_per_anchor);
-  c_a = b_xt->data[(int)(b_stateSize + 6.0) - 1];
-  b_stateSize = stateSize + (anchorIdx->data[(int)indMeas - 1] - 1.0) * (7.0 +
-    b_VIOParameters.num_points_per_anchor);
-  d_a = b_xt->data[(int)(b_stateSize + 7.0) - 1];
-  b_stateSize = stateSize + (anchorIdx->data[(int)indMeas - 1] - 1.0) * (7.0 +
-    b_VIOParameters.num_points_per_anchor);
-  e_a = b_xt->data[(int)(b_stateSize + 4.0) - 1];
-  b_stateSize = stateSize + (anchorIdx->data[(int)indMeas - 1] - 1.0) * (7.0 +
-    b_VIOParameters.num_points_per_anchor);
-  f_a = b_xt->data[(int)(b_stateSize + 5.0) - 1];
-  b_stateSize = stateSize + (anchorIdx->data[(int)indMeas - 1] - 1.0) * (7.0 +
-    b_VIOParameters.num_points_per_anchor);
-  g_a = b_xt->data[(int)(b_stateSize + 6.0) - 1];
-  b_stateSize = stateSize + (anchorIdx->data[(int)indMeas - 1] - 1.0) * (7.0 +
-    b_VIOParameters.num_points_per_anchor);
-  h_a = b_xt->data[(int)(b_stateSize + 7.0) - 1];
-  b_stateSize = stateSize + (anchorIdx->data[(int)indMeas - 1] - 1.0) * (7.0 +
-    b_VIOParameters.num_points_per_anchor);
-  i_a = b_xt->data[(int)(b_stateSize + 4.0) - 1];
-  b_stateSize = stateSize + (anchorIdx->data[(int)indMeas - 1] - 1.0) * (7.0 +
-    b_VIOParameters.num_points_per_anchor);
-  j_a = b_xt->data[(int)(b_stateSize + 5.0) - 1];
-  b_stateSize = stateSize + (anchorIdx->data[(int)indMeas - 1] - 1.0) * (7.0 +
-    b_VIOParameters.num_points_per_anchor);
-  k_a = b_xt->data[(int)(b_stateSize + 6.0) - 1];
-  b_stateSize = stateSize + (anchorIdx->data[(int)indMeas - 1] - 1.0) * (7.0 +
-    b_VIOParameters.num_points_per_anchor);
-  l_a = b_xt->data[(int)(b_stateSize + 7.0) - 1];
+  for (ib = 0; ib < 3; ib++) {
+    h_ci_l[ib] = b_xt->data[(int)(b_stateSize + (1.0 + (double)ib)) - 1];
+  }
+
   b_stateSize = stateSize + (anchorIdx->data[(int)indMeas - 1] - 1.0) * (7.0 +
     b_VIOParameters.num_points_per_anchor);
   c_stateSize = stateSize + (anchorIdx->data[(int)indMeas - 1] - 1.0) * (7.0 +
@@ -1581,110 +1482,167 @@ void getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
     b_VIOParameters.num_points_per_anchor);
   y_stateSize = stateSize + (anchorIdx->data[(int)indMeas - 1] - 1.0) * (7.0 +
     b_VIOParameters.num_points_per_anchor);
-  anchorRot[0] = ((a * a - b_a * b_a) - c_a * c_a) + d_a * d_a;
-  anchorRot[3] = 2.0 * (b_xt->data[(int)(b_stateSize + 4.0) - 1] * b_xt->data
-                        [(int)(c_stateSize + 5.0) - 1] + b_xt->data[(int)
-                        (d_stateSize + 6.0) - 1] * b_xt->data[(int)(e_stateSize
-    + 7.0) - 1]);
-  anchorRot[6] = 2.0 * (b_xt->data[(int)(f_stateSize + 4.0) - 1] * b_xt->data
-                        [(int)(g_stateSize + 6.0) - 1] - b_xt->data[(int)
-                        (h_stateSize + 5.0) - 1] * b_xt->data[(int)(i_stateSize
-    + 7.0) - 1]);
-  anchorRot[1] = 2.0 * (b_xt->data[(int)(j_stateSize + 4.0) - 1] * b_xt->data
-                        [(int)(k_stateSize + 5.0) - 1] - b_xt->data[(int)
-                        (l_stateSize + 6.0) - 1] * b_xt->data[(int)(m_stateSize
-    + 7.0) - 1]);
-  anchorRot[4] = ((-(e_a * e_a) + f_a * f_a) - g_a * g_a) + h_a * h_a;
-  anchorRot[7] = 2.0 * (b_xt->data[(int)(n_stateSize + 5.0) - 1] * b_xt->data
-                        [(int)(o_stateSize + 6.0) - 1] + b_xt->data[(int)
-                        (p_stateSize + 4.0) - 1] * b_xt->data[(int)(q_stateSize
-    + 7.0) - 1]);
-  anchorRot[2] = 2.0 * (b_xt->data[(int)(r_stateSize + 4.0) - 1] * b_xt->data
-                        [(int)(s_stateSize + 6.0) - 1] + b_xt->data[(int)
-                        (t_stateSize + 5.0) - 1] * b_xt->data[(int)(u_stateSize
-    + 7.0) - 1]);
-  anchorRot[5] = 2.0 * (b_xt->data[(int)(v_stateSize + 5.0) - 1] * b_xt->data
-                        [(int)(w_stateSize + 6.0) - 1] - b_xt->data[(int)
-                        (x_stateSize + 4.0) - 1] * b_xt->data[(int)(y_stateSize
-    + 7.0) - 1]);
-  anchorRot[8] = ((-(i_a * i_a) - j_a * j_a) + k_a * k_a) + l_a * l_a;
-  anew = b_xt->data[(int)(((stateSize + (anchorIdx->data[(int)indMeas - 1] - 1.0)
+  ab_stateSize = stateSize + (anchorIdx->data[(int)indMeas - 1] - 1.0) * (7.0 +
+    b_VIOParameters.num_points_per_anchor);
+  bb_stateSize = stateSize + (anchorIdx->data[(int)indMeas - 1] - 1.0) * (7.0 +
+    b_VIOParameters.num_points_per_anchor);
+  cb_stateSize = stateSize + (anchorIdx->data[(int)indMeas - 1] - 1.0) * (7.0 +
+    b_VIOParameters.num_points_per_anchor);
+  db_stateSize = stateSize + (anchorIdx->data[(int)indMeas - 1] - 1.0) * (7.0 +
+    b_VIOParameters.num_points_per_anchor);
+  eb_stateSize = stateSize + (anchorIdx->data[(int)indMeas - 1] - 1.0) * (7.0 +
+    b_VIOParameters.num_points_per_anchor);
+  fb_stateSize = stateSize + (anchorIdx->data[(int)indMeas - 1] - 1.0) * (7.0 +
+    b_VIOParameters.num_points_per_anchor);
+  gb_stateSize = stateSize + (anchorIdx->data[(int)indMeas - 1] - 1.0) * (7.0 +
+    b_VIOParameters.num_points_per_anchor);
+  hb_stateSize = stateSize + (anchorIdx->data[(int)indMeas - 1] - 1.0) * (7.0 +
+    b_VIOParameters.num_points_per_anchor);
+  ib_stateSize = stateSize + (anchorIdx->data[(int)indMeas - 1] - 1.0) * (7.0 +
+    b_VIOParameters.num_points_per_anchor);
+  jb_stateSize = stateSize + (anchorIdx->data[(int)indMeas - 1] - 1.0) * (7.0 +
+    b_VIOParameters.num_points_per_anchor);
+  kb_stateSize = stateSize + (anchorIdx->data[(int)indMeas - 1] - 1.0) * (7.0 +
+    b_VIOParameters.num_points_per_anchor);
+  lb_stateSize = stateSize + (anchorIdx->data[(int)indMeas - 1] - 1.0) * (7.0 +
+    b_VIOParameters.num_points_per_anchor);
+  mb_stateSize = stateSize + (anchorIdx->data[(int)indMeas - 1] - 1.0) * (7.0 +
+    b_VIOParameters.num_points_per_anchor);
+  nb_stateSize = stateSize + (anchorIdx->data[(int)indMeas - 1] - 1.0) * (7.0 +
+    b_VIOParameters.num_points_per_anchor);
+  ob_stateSize = stateSize + (anchorIdx->data[(int)indMeas - 1] - 1.0) * (7.0 +
+    b_VIOParameters.num_points_per_anchor);
+  pb_stateSize = stateSize + (anchorIdx->data[(int)indMeas - 1] - 1.0) * (7.0 +
+    b_VIOParameters.num_points_per_anchor);
+  qb_stateSize = stateSize + (anchorIdx->data[(int)indMeas - 1] - 1.0) * (7.0 +
+    b_VIOParameters.num_points_per_anchor);
+  rb_stateSize = stateSize + (anchorIdx->data[(int)indMeas - 1] - 1.0) * (7.0 +
+    b_VIOParameters.num_points_per_anchor);
+  sb_stateSize = stateSize + (anchorIdx->data[(int)indMeas - 1] - 1.0) * (7.0 +
+    b_VIOParameters.num_points_per_anchor);
+  tb_stateSize = stateSize + (anchorIdx->data[(int)indMeas - 1] - 1.0) * (7.0 +
+    b_VIOParameters.num_points_per_anchor);
+  ub_stateSize = stateSize + (anchorIdx->data[(int)indMeas - 1] - 1.0) * (7.0 +
+    b_VIOParameters.num_points_per_anchor);
+  vb_stateSize = stateSize + (anchorIdx->data[(int)indMeas - 1] - 1.0) * (7.0 +
+    b_VIOParameters.num_points_per_anchor);
+  wb_stateSize = stateSize + (anchorIdx->data[(int)indMeas - 1] - 1.0) * (7.0 +
+    b_VIOParameters.num_points_per_anchor);
+  xb_stateSize = stateSize + (anchorIdx->data[(int)indMeas - 1] - 1.0) * (7.0 +
+    b_VIOParameters.num_points_per_anchor);
+  e_xt[0] = ((b_xt->data[(int)(b_stateSize + 4.0) - 1] * b_xt->data[(int)
+              (c_stateSize + 4.0) - 1] - b_xt->data[(int)(d_stateSize + 5.0) - 1]
+              * b_xt->data[(int)(e_stateSize + 5.0) - 1]) - b_xt->data[(int)
+             (f_stateSize + 6.0) - 1] * b_xt->data[(int)(g_stateSize + 6.0) - 1])
+    + b_xt->data[(int)(h_stateSize + 7.0) - 1] * b_xt->data[(int)(i_stateSize +
+    7.0) - 1];
+  e_xt[1] = 2.0 * (b_xt->data[(int)(j_stateSize + 4.0) - 1] * b_xt->data[(int)
+                   (k_stateSize + 5.0) - 1] + b_xt->data[(int)(l_stateSize + 6.0)
+                   - 1] * b_xt->data[(int)(m_stateSize + 7.0) - 1]);
+  e_xt[2] = 2.0 * (b_xt->data[(int)(n_stateSize + 4.0) - 1] * b_xt->data[(int)
+                   (o_stateSize + 6.0) - 1] - b_xt->data[(int)(p_stateSize + 5.0)
+                   - 1] * b_xt->data[(int)(q_stateSize + 7.0) - 1]);
+  e_xt[3] = 2.0 * (b_xt->data[(int)(r_stateSize + 4.0) - 1] * b_xt->data[(int)
+                   (s_stateSize + 5.0) - 1] - b_xt->data[(int)(t_stateSize + 6.0)
+                   - 1] * b_xt->data[(int)(u_stateSize + 7.0) - 1]);
+  e_xt[4] = ((-(b_xt->data[(int)(v_stateSize + 4.0) - 1] * b_xt->data[(int)
+                (w_stateSize + 4.0) - 1]) + b_xt->data[(int)(x_stateSize + 5.0)
+              - 1] * b_xt->data[(int)(y_stateSize + 5.0) - 1]) - b_xt->data[(int)
+             (ab_stateSize + 6.0) - 1] * b_xt->data[(int)(bb_stateSize + 6.0) -
+             1]) + b_xt->data[(int)(cb_stateSize + 7.0) - 1] * b_xt->data[(int)
+    (db_stateSize + 7.0) - 1];
+  e_xt[5] = 2.0 * (b_xt->data[(int)(eb_stateSize + 5.0) - 1] * b_xt->data[(int)
+                   (fb_stateSize + 6.0) - 1] + b_xt->data[(int)(gb_stateSize +
+    4.0) - 1] * b_xt->data[(int)(hb_stateSize + 7.0) - 1]);
+  e_xt[6] = 2.0 * (b_xt->data[(int)(ib_stateSize + 4.0) - 1] * b_xt->data[(int)
+                   (jb_stateSize + 6.0) - 1] + b_xt->data[(int)(kb_stateSize +
+    5.0) - 1] * b_xt->data[(int)(lb_stateSize + 7.0) - 1]);
+  e_xt[7] = 2.0 * (b_xt->data[(int)(mb_stateSize + 5.0) - 1] * b_xt->data[(int)
+                   (nb_stateSize + 6.0) - 1] - b_xt->data[(int)(ob_stateSize +
+    4.0) - 1] * b_xt->data[(int)(pb_stateSize + 7.0) - 1]);
+  e_xt[8] = ((-(b_xt->data[(int)(qb_stateSize + 4.0) - 1] * b_xt->data[(int)
+                (rb_stateSize + 4.0) - 1]) - b_xt->data[(int)(sb_stateSize + 5.0)
+              - 1] * b_xt->data[(int)(tb_stateSize + 5.0) - 1]) + b_xt->data
+             [(int)(ub_stateSize + 6.0) - 1] * b_xt->data[(int)(vb_stateSize +
+              6.0) - 1]) + b_xt->data[(int)(wb_stateSize + 7.0) - 1] *
+    b_xt->data[(int)(xb_stateSize + 7.0) - 1];
+  for (ib = 0; ib < 3; ib++) {
+    y[ib] = 0.0;
+    for (ar = 0; ar < 3; ar++) {
+      c_xt = y[ib] + e_xt[ib + 3 * ar] * b_m_vect->data[ar + b_m_vect->size[0] *
+        ((int)indMeas - 1)];
+      y[ib] = c_xt;
+    }
+  }
+
+  c_xt = b_xt->data[(int)(((stateSize + (anchorIdx->data[(int)indMeas - 1] - 1.0)
     * (7.0 + b_VIOParameters.num_points_per_anchor)) + 7.0) +
     featureAnchorIdx->data[(int)indMeas - 1]) - 1];
-  for (ar = 0; ar < 3; ar++) {
-    d0 = 0.0;
-    for (br = 0; br < 3; br++) {
-      d0 += anchorRot[br + 3 * ar] * b_m_vect->data[br + b_m_vect->size[0] *
-        ((int)indMeas - 1)];
-    }
-
-    y[ar] = d0 / anew;
-  }
-
-  anew = b_xt->data[(int)(((stateSize + (anchorIdx->data[(int)indMeas - 1] - 1.0)
-    * (7.0 + b_VIOParameters.num_points_per_anchor)) + 7.0) +
-    featureAnchorIdx->data[(int)indMeas - 1]) - 1] * b_xt->data[(int)
-    (((stateSize + (anchorIdx->data[(int)indMeas - 1] - 1.0) * (7.0 +
-        b_VIOParameters.num_points_per_anchor)) + 7.0) + featureAnchorIdx->data
-     [(int)indMeas - 1]) - 1];
-  dv1[0] = 0.0;
-  dv1[3] = -y[2];
-  dv1[6] = y[1];
-  dv1[1] = y[2];
-  dv1[4] = 0.0;
-  dv1[7] = -y[0];
-  dv1[2] = -y[1];
-  dv1[5] = y[0];
-  dv1[8] = 0.0;
+  f_xt = -b_xt->data[(int)(((stateSize + (anchorIdx->data[(int)indMeas - 1] -
+    1.0) * (7.0 + b_VIOParameters.num_points_per_anchor)) + 7.0) +
+    featureAnchorIdx->data[(int)indMeas - 1]) - 1];
+  dv0[0] = 0.0;
+  dv0[3] = -y[2];
+  dv0[6] = y[1];
+  dv0[1] = y[2];
+  dv0[4] = 0.0;
+  dv0[7] = -y[0];
+  dv0[2] = -y[1];
+  dv0[5] = y[0];
+  dv0[8] = 0.0;
   nm1d2 = (int)(featureAnchorIdx->data[(int)indMeas - 1] - 1.0);
-  for (ar = 0; ar < 3; ar++) {
-    for (br = 0; br < 3; br++) {
-      b_anchorRot[br + 3 * ar] = -anchorRot[ar + 3 * br];
+  for (ib = 0; ib < 3; ib++) {
+    y[ib] = h_ci_l[ib] - b_xt->data[ib];
+  }
+
+  for (ib = 0; ib < 3; ib++) {
+    b_map[ib] = 0.0;
+    for (ar = 0; ar < 3; ar++) {
+      b_map[ib] += R_cw[ib + 3 * ar] * y[ar];
     }
   }
 
-  for (ar = 0; ar < 3; ar++) {
-    d0 = 0.0;
-    for (br = 0; br < 3; br++) {
-      d0 += b_anchorRot[ar + 3 * br] * b_m_vect->data[br + b_m_vect->size[0] *
-        ((int)indMeas - 1)];
+  br = (int)(b_VIOParameters.num_points_per_anchor - featureAnchorIdx->data[(int)
+             indMeas - 1]);
+  for (ib = 0; ib < 3; ib++) {
+    for (ar = 0; ar < 3; ar++) {
+      e_xt[ib + 3 * ar] = 0.0;
+      for (n = 0; n < 3; n++) {
+        e_xt[ib + 3 * ar] += f_xt * R_cw[ib + 3 * n] * dv0[n + 3 * ar];
+      }
     }
-
-    b_map[ar] = d0 / anew;
   }
 
   emxInit_real_T(&H_iy, 2);
-  n = (int)(b_VIOParameters.num_points_per_anchor - featureAnchorIdx->data[(int)
-            indMeas - 1]);
-  ar = H_iy->size[0] * H_iy->size[1];
+  ib = H_iy->size[0] * H_iy->size[1];
   H_iy->size[0] = 3;
-  H_iy->size[1] = (nm1d2 + n) + 7;
-  emxEnsureCapacity((emxArray__common *)H_iy, ar, (int)sizeof(double));
-  for (ar = 0; ar < 3; ar++) {
-    for (br = 0; br < 3; br++) {
-      H_iy->data[br + H_iy->size[0] * ar] = b[br + 3 * ar];
+  H_iy->size[1] = (nm1d2 + br) + 7;
+  emxEnsureCapacity((emxArray__common *)H_iy, ib, (int)sizeof(double));
+  for (ib = 0; ib < 3; ib++) {
+    for (ar = 0; ar < 3; ar++) {
+      H_iy->data[ar + H_iy->size[0] * ib] = c_xt * R_cw[ar + 3 * ib];
     }
   }
 
-  for (ar = 0; ar < 3; ar++) {
-    for (br = 0; br < 3; br++) {
-      H_iy->data[br + H_iy->size[0] * (ar + 3)] = -dv1[br + 3 * ar];
+  for (ib = 0; ib < 3; ib++) {
+    for (ar = 0; ar < 3; ar++) {
+      H_iy->data[ar + H_iy->size[0] * (ib + 3)] = e_xt[ar + 3 * ib];
     }
   }
 
-  for (ar = 0; ar < nm1d2; ar++) {
-    for (br = 0; br < 3; br++) {
-      H_iy->data[br + H_iy->size[0] * (ar + 6)] = 0.0;
+  for (ib = 0; ib < nm1d2; ib++) {
+    for (ar = 0; ar < 3; ar++) {
+      H_iy->data[ar + H_iy->size[0] * (ib + 6)] = 0.0;
     }
   }
 
-  for (ar = 0; ar < 3; ar++) {
-    H_iy->data[ar + H_iy->size[0] * (6 + nm1d2)] = b_map[ar];
+  for (ib = 0; ib < 3; ib++) {
+    H_iy->data[ib + H_iy->size[0] * (6 + nm1d2)] = b_map[ib];
   }
 
-  for (ar = 0; ar < n; ar++) {
-    for (br = 0; br < 3; br++) {
-      H_iy->data[br + H_iy->size[0] * ((ar + nm1d2) + 7)] = 0.0;
+  for (ib = 0; ib < br; ib++) {
+    for (ar = 0; ar < 3; ar++) {
+      H_iy->data[ar + H_iy->size[0] * ((ib + nm1d2) + 7)] = 0.0;
     }
   }
 
@@ -1727,10 +1685,10 @@ void getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
   }
 
   emxInit_real_T(&H_pressure, 2);
-  ar = H_pressure->size[0] * H_pressure->size[1];
+  ib = H_pressure->size[0] * H_pressure->size[1];
   H_pressure->size[0] = 1;
   H_pressure->size[1] = n + 1;
-  emxEnsureCapacity((emxArray__common *)H_pressure, ar, (int)sizeof(double));
+  emxEnsureCapacity((emxArray__common *)H_pressure, ib, (int)sizeof(double));
   if (n + 1 > 0) {
     H_pressure->data[0] = anew;
     if (n + 1 > 1) {
@@ -1750,68 +1708,27 @@ void getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
     }
   }
 
-  anew = (anchorIdx->data[(int)indMeas - 1] - 1.0) * (6.0 +
+  c_xt = (anchorIdx->data[(int)indMeas - 1] - 1.0) * (6.0 +
     b_VIOParameters.num_points_per_anchor);
-  ar = r0->size[0];
+  ib = r0->size[0];
   r0->size[0] = H_pressure->size[1];
-  emxEnsureCapacity((emxArray__common *)r0, ar, (int)sizeof(int));
+  emxEnsureCapacity((emxArray__common *)r0, ib, (int)sizeof(int));
   nm1d2 = H_pressure->size[1];
-  for (ar = 0; ar < nm1d2; ar++) {
-    r0->data[ar] = (int)(anew + H_pressure->data[H_pressure->size[0] * ar]) - 1;
-  }
-
-  Ch_dn_To_h_un(c_cameraparams_CameraParameters[0],
-                c_cameraparams_CameraParameters[1],
-                c_cameraparams_CameraParameters[2], h_cin_l[0], h_cin_l[1], d);
-  j_cameraparams_CameraParameters[0] = d_cameraparams_CameraParameters[0];
-  j_cameraparams_CameraParameters[2] = 0.0;
-  j_cameraparams_CameraParameters[1] = 0.0;
-  j_cameraparams_CameraParameters[3] = d_cameraparams_CameraParameters[1];
-  dv2[0] = 1.0 / h_ci_l[2];
-  dv2[2] = 0.0;
-  dv2[4] = -h_ci_l[0] / (h_ci_l[2] * h_ci_l[2]);
-  dv2[1] = 0.0;
-  dv2[3] = 1.0 / h_ci_l[2];
-  dv2[5] = -h_ci_l[1] / (h_ci_l[2] * h_ci_l[2]);
-  for (ar = 0; ar < 2; ar++) {
-    for (br = 0; br < 2; br++) {
-      f_cameraparams_CameraParameters[ar + (br << 1)] = 0.0;
-      for (nm1d2 = 0; nm1d2 < 2; nm1d2++) {
-        f_cameraparams_CameraParameters[ar + (br << 1)] +=
-          j_cameraparams_CameraParameters[ar + (nm1d2 << 1)] * d[nm1d2 + (br <<
-          1)];
-      }
-    }
-
-    for (br = 0; br < 3; br++) {
-      h_cameraparams_CameraParameters[ar + (br << 1)] = 0.0;
-      for (nm1d2 = 0; nm1d2 < 2; nm1d2++) {
-        h_cameraparams_CameraParameters[ar + (br << 1)] +=
-          f_cameraparams_CameraParameters[ar + (nm1d2 << 1)] * dv2[nm1d2 + (br <<
-          1)];
-      }
-    }
-
-    for (br = 0; br < 3; br++) {
-      b_y[ar + (br << 1)] = 0.0;
-      for (nm1d2 = 0; nm1d2 < 3; nm1d2++) {
-        b_y[ar + (br << 1)] += h_cameraparams_CameraParameters[ar + (nm1d2 << 1)]
-          * R_cw[nm1d2 + 3 * br];
-      }
-    }
+  for (ib = 0; ib < nm1d2; ib++) {
+    r0->data[ib] = (int)(c_xt + H_pressure->data[H_pressure->size[0] * ib]) - 1;
   }
 
   emxInit_real_T(&C, 2);
   v[1] = H_iy->size[1];
-  ar = C->size[0] * C->size[1];
+  ib = C->size[0] * C->size[1];
   C->size[0] = 2;
-  emxEnsureCapacity((emxArray__common *)C, ar, (int)sizeof(double));
-  ar = C->size[0] * C->size[1];
+  emxEnsureCapacity((emxArray__common *)C, ib, (int)sizeof(double));
+  ib = C->size[0] * C->size[1];
   C->size[1] = (int)v[1];
-  emxEnsureCapacity((emxArray__common *)C, ar, (int)sizeof(double));
+  emxEnsureCapacity((emxArray__common *)C, ib, (int)sizeof(double));
   nm1d2 = (int)v[1] << 1;
-  for (ar = 0; ar < nm1d2; ar++) {
-    C->data[ar] = 0.0;
+  for (ib = 0; ib < nm1d2; ib++) {
+    C->data[ib] = 0.0;
   }
 
   nm1d2 = (H_iy->size[1] - 1) << 1;
@@ -1829,7 +1746,7 @@ void getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
         ia = ar;
         for (ic = n; ic + 1 <= n + 2; ic++) {
           ia++;
-          C->data[ic] += H_iy->data[ib] * b_y[ia - 1];
+          C->data[ic] += H_iy->data[ib] * h_u_To_h_ci_l[ia - 1];
         }
       }
 
@@ -1840,10 +1757,10 @@ void getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
   }
 
   nm1d2 = C->size[1];
-  for (ar = 0; ar < nm1d2; ar++) {
-    for (br = 0; br < 2; br++) {
-      H_xm->data[br + H_xm->size[0] * r0->data[ar]] = C->data[br + C->size[0] *
-        ar];
+  for (ib = 0; ib < nm1d2; ib++) {
+    for (ar = 0; ar < 2; ar++) {
+      H_xm->data[ar + H_xm->size[0] * r0->data[ib]] = C->data[ar + C->size[0] *
+        ib];
     }
   }
 
@@ -1858,44 +1775,44 @@ void getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
     r_ext_pose[nm1d2] = 0.0;
   }
 
-  ar = H_iy->size[0] * H_iy->size[1];
+  ib = H_iy->size[0] * H_iy->size[1];
   H_iy->size[0] = 3;
   H_iy->size[1] = (int)(errorStateSize + b_VIOParameters.num_anchors * (6.0 +
     b_VIOParameters.num_points_per_anchor));
-  emxEnsureCapacity((emxArray__common *)H_iy, ar, (int)sizeof(double));
+  emxEnsureCapacity((emxArray__common *)H_iy, ib, (int)sizeof(double));
   nm1d2 = 3 * (int)(errorStateSize + b_VIOParameters.num_anchors * (6.0 +
     b_VIOParameters.num_points_per_anchor));
-  for (ar = 0; ar < nm1d2; ar++) {
-    H_iy->data[ar] = 0.0;
+  for (ib = 0; ib < nm1d2; ib++) {
+    H_iy->data[ib] = 0.0;
   }
 
-  ar = H_pressure->size[0] * H_pressure->size[1];
+  ib = H_pressure->size[0] * H_pressure->size[1];
   H_pressure->size[0] = 1;
   H_pressure->size[1] = (int)(errorStateSize + b_VIOParameters.num_anchors *
     (6.0 + b_VIOParameters.num_points_per_anchor));
-  emxEnsureCapacity((emxArray__common *)H_pressure, ar, (int)sizeof(double));
+  emxEnsureCapacity((emxArray__common *)H_pressure, ib, (int)sizeof(double));
   nm1d2 = (int)(errorStateSize + b_VIOParameters.num_anchors * (6.0 +
     b_VIOParameters.num_points_per_anchor));
-  for (ar = 0; ar < nm1d2; ar++) {
-    H_pressure->data[ar] = 0.0;
+  for (ib = 0; ib < nm1d2; ib++) {
+    H_pressure->data[ib] = 0.0;
   }
 
   emxInit_real_T(&H_ext_pose, 2);
-  ar = H_ext_pose->size[0] * H_ext_pose->size[1];
+  ib = H_ext_pose->size[0] * H_ext_pose->size[1];
   H_ext_pose->size[0] = 6;
   H_ext_pose->size[1] = (int)(errorStateSize + b_VIOParameters.num_anchors *
     (6.0 + b_VIOParameters.num_points_per_anchor));
-  emxEnsureCapacity((emxArray__common *)H_ext_pose, ar, (int)sizeof(double));
+  emxEnsureCapacity((emxArray__common *)H_ext_pose, ib, (int)sizeof(double));
   nm1d2 = 6 * (int)(errorStateSize + b_VIOParameters.num_anchors * (6.0 +
     b_VIOParameters.num_points_per_anchor));
-  for (ar = 0; ar < nm1d2; ar++) {
-    H_ext_pose->data[ar] = 0.0;
+  for (ib = 0; ib < nm1d2; ib++) {
+    H_ext_pose->data[ib] = 0.0;
   }
 
   v[0] = noiseParameters_image_noise[0] * noiseParameters_image_noise[0];
   v[1] = noiseParameters_image_noise[1] * noiseParameters_image_noise[1];
-  for (ar = 0; ar < 4; ar++) {
-    d[ar] = 0.0;
+  for (ib = 0; ib < 4; ib++) {
+    d[ib] = 0.0;
   }
 
   for (nm1d2 = 0; nm1d2 < 2; nm1d2++) {
@@ -1945,39 +1862,38 @@ void getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
                           - measurements->att_fmu[1] * measurements->att_fmu[1])
                          + measurements->att_fmu[2] * measurements->att_fmu[2])
       + measurements->att_fmu[3] * measurements->att_fmu[3];
-    for (ar = 0; ar < 3; ar++) {
-      for (br = 0; br < 3; br++) {
-        b_anchorRot[ar + 3 * br] = 0.0;
-        for (nm1d2 = 0; nm1d2 < 3; nm1d2++) {
-          b_anchorRot[ar + 3 * br] += R_bc[nm1d2 + 3 * ar] *
-            b_measurements[nm1d2 + 3 * br];
+    for (ib = 0; ib < 3; ib++) {
+      for (ar = 0; ar < 3; ar++) {
+        e_xt[ib + 3 * ar] = 0.0;
+        for (n = 0; n < 3; n++) {
+          e_xt[ib + 3 * ar] += R_bc[n + 3 * ib] * b_measurements[n + 3 * ar];
         }
       }
 
-      for (br = 0; br < 3; br++) {
-        dv1[ar + 3 * br] = 0.0;
-        for (nm1d2 = 0; nm1d2 < 3; nm1d2++) {
-          dv1[ar + 3 * br] += b_anchorRot[ar + 3 * nm1d2] * R_cw[br + 3 * nm1d2];
+      for (ar = 0; ar < 3; ar++) {
+        dv0[ib + 3 * ar] = 0.0;
+        for (n = 0; n < 3; n++) {
+          dv0[ib + 3 * ar] += e_xt[ib + 3 * n] * R_cw[ar + 3 * n];
         }
       }
     }
 
-    QuatFromRotJ(dv1, f_cameraparams_CameraParameters);
+    QuatFromRotJ(dv0, d);
     for (nm1d2 = 0; nm1d2 < 3; nm1d2++) {
-      h_ci_l[nm1d2] = f_cameraparams_CameraParameters[nm1d2];
+      h_ci_l[nm1d2] = d[nm1d2];
     }
 
-    for (ar = 0; ar < 9; ar++) {
-      I[ar] = 0;
+    for (ib = 0; ib < 9; ib++) {
+      I[ib] = 0;
     }
 
     for (br = 0; br < 3; br++) {
       I[br + 3 * br] = 1;
     }
 
-    for (ar = 0; ar < 3; ar++) {
-      for (br = 0; br < 3; br++) {
-        H_iy->data[br + H_iy->size[0] * (3 + ar)] = I[br + 3 * ar];
+    for (ib = 0; ib < 3; ib++) {
+      for (ar = 0; ar < 3; ar++) {
+        H_iy->data[ar + H_iy->size[0] * (3 + ib)] = I[ar + 3 * ib];
       }
     }
 
@@ -2024,60 +1940,60 @@ void getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
                           - measurements->att_ext[1] * measurements->att_ext[1])
                          + measurements->att_ext[2] * measurements->att_ext[2])
       + measurements->att_ext[3] * measurements->att_ext[3];
-    for (ar = 0; ar < 3; ar++) {
-      for (br = 0; br < 3; br++) {
-        b_measurements[ar + 3 * br] = 0.0;
-        for (nm1d2 = 0; nm1d2 < 3; nm1d2++) {
-          b_measurements[ar + 3 * br] += c_measurements[ar + 3 * nm1d2] *
-            R_cw[br + 3 * nm1d2];
+    for (ib = 0; ib < 3; ib++) {
+      for (ar = 0; ar < 3; ar++) {
+        b_measurements[ib + 3 * ar] = 0.0;
+        for (n = 0; n < 3; n++) {
+          b_measurements[ib + 3 * ar] += c_measurements[ib + 3 * n] * R_cw[ar +
+            3 * n];
         }
       }
     }
 
-    QuatFromRotJ(b_measurements, f_cameraparams_CameraParameters);
-    for (ar = 0; ar < 3; ar++) {
-      r_ext_pose[ar] = measurements->pos_ext[ar] - b_xt->data[ar];
+    QuatFromRotJ(b_measurements, d);
+    for (ib = 0; ib < 3; ib++) {
+      r_ext_pose[ib] = measurements->pos_ext[ib] - b_xt->data[ib];
     }
 
-    for (ar = 0; ar < 3; ar++) {
-      r_ext_pose[ar + 3] = f_cameraparams_CameraParameters[ar];
+    for (ib = 0; ib < 3; ib++) {
+      r_ext_pose[ib + 3] = d[ib];
     }
 
-    for (ar = 0; ar < 9; ar++) {
-      I[ar] = 0;
+    for (ib = 0; ib < 9; ib++) {
+      I[ib] = 0;
     }
 
     for (br = 0; br < 3; br++) {
       I[br + 3 * br] = 1;
     }
 
-    memset(&anchorRot[0], 0, 9U * sizeof(double));
+    memset(&R_cw[0], 0, 9U * sizeof(double));
     for (br = 0; br < 3; br++) {
-      anchorRot[br + 3 * br] = 1.0;
+      R_cw[br + 3 * br] = 1.0;
     }
 
-    for (ar = 0; ar < 3; ar++) {
-      for (br = 0; br < 3; br++) {
-        H_ext_pose->data[br + H_ext_pose->size[0] * ar] = I[br + 3 * ar];
+    for (ib = 0; ib < 3; ib++) {
+      for (ar = 0; ar < 3; ar++) {
+        H_ext_pose->data[ar + H_ext_pose->size[0] * ib] = I[ar + 3 * ib];
       }
     }
 
-    for (ar = 0; ar < 3; ar++) {
-      for (br = 0; br < 3; br++) {
-        H_ext_pose->data[br + H_ext_pose->size[0] * (ar + 3)] = 0.0;
+    for (ib = 0; ib < 3; ib++) {
+      for (ar = 0; ar < 3; ar++) {
+        H_ext_pose->data[ar + H_ext_pose->size[0] * (ib + 3)] = 0.0;
       }
     }
 
-    for (ar = 0; ar < 3; ar++) {
-      for (br = 0; br < 3; br++) {
-        H_ext_pose->data[(br + H_ext_pose->size[0] * ar) + 3] = 0.0;
+    for (ib = 0; ib < 3; ib++) {
+      for (ar = 0; ar < 3; ar++) {
+        H_ext_pose->data[(ar + H_ext_pose->size[0] * ib) + 3] = 0.0;
       }
     }
 
-    for (ar = 0; ar < 3; ar++) {
-      for (br = 0; br < 3; br++) {
-        H_ext_pose->data[(br + H_ext_pose->size[0] * (ar + 3)) + 3] =
-          anchorRot[br + 3 * ar];
+    for (ib = 0; ib < 3; ib++) {
+      for (ar = 0; ar < 3; ar++) {
+        H_ext_pose->data[(ar + H_ext_pose->size[0] * (ib + 3)) + 3] = R_cw[ar +
+          3 * ib];
       }
     }
 
@@ -2086,75 +2002,75 @@ void getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
   }
 
   r_size[0] = residual_size;
-  for (ar = 0; ar < residual_size; ar++) {
-    r_data[ar] = 0.0;
+  for (ib = 0; ib < residual_size; ib++) {
+    r_data[ib] = 0.0;
   }
 
-  ar = H->size[0] * H->size[1];
+  ib = H->size[0] * H->size[1];
   H->size[0] = residual_size;
   H->size[1] = (int)(errorStateSize + b_VIOParameters.num_anchors * (6.0 +
     b_VIOParameters.num_points_per_anchor));
-  emxEnsureCapacity((emxArray__common *)H, ar, (int)sizeof(double));
+  emxEnsureCapacity((emxArray__common *)H, ib, (int)sizeof(double));
   nm1d2 = residual_size * (int)(errorStateSize + b_VIOParameters.num_anchors *
     (6.0 + b_VIOParameters.num_points_per_anchor));
-  for (ar = 0; ar < nm1d2; ar++) {
-    H->data[ar] = 0.0;
+  for (ib = 0; ib < nm1d2; ib++) {
+    H->data[ib] = 0.0;
   }
 
   R_size[0] = residual_size;
   R_size[1] = residual_size;
   nm1d2 = residual_size * residual_size;
-  for (ar = 0; ar < nm1d2; ar++) {
-    R_data[ar] = 0.0;
+  for (ib = 0; ib < nm1d2; ib++) {
+    R_data[ib] = 0.0;
   }
 
-  for (ar = 0; ar < 2; ar++) {
-    r_data[ar] = z[ar] - h_u[ar];
+  for (ib = 0; ib < 2; ib++) {
+    r_data[ib] = z[ib] - h_u[ib];
   }
 
   nm1d2 = H_xc->size[1];
-  for (ar = 0; ar < nm1d2; ar++) {
-    for (br = 0; br < 2; br++) {
-      H->data[br + H->size[0] * ar] = H_xc->data[br + H_xc->size[0] * ar];
+  for (ib = 0; ib < nm1d2; ib++) {
+    for (ar = 0; ar < 2; ar++) {
+      H->data[ar + H->size[0] * ib] = H_xc->data[ar + H_xc->size[0] * ib];
     }
   }
 
   nm1d2 = H_xm->size[1];
-  for (ar = 0; ar < nm1d2; ar++) {
-    for (br = 0; br < 2; br++) {
-      H->data[br + H->size[0] * (ar + H_xc->size[1])] = H_xm->data[br +
-        H_xm->size[0] * ar];
+  for (ib = 0; ib < nm1d2; ib++) {
+    for (ar = 0; ar < 2; ar++) {
+      H->data[ar + H->size[0] * (ib + H_xc->size[1])] = H_xm->data[ar +
+        H_xm->size[0] * ib];
     }
   }
 
   emxFree_real_T(&H_xc);
   emxFree_real_T(&H_xm);
-  for (ar = 0; ar < 2; ar++) {
-    for (br = 0; br < 2; br++) {
-      R_data[br + R_size[0] * ar] = R_vision[br + (ar << 1)];
+  for (ib = 0; ib < 2; ib++) {
+    for (ar = 0; ar < 2; ar++) {
+      R_data[ar + R_size[0] * ib] = R_vision[ar + (ib << 1)];
     }
   }
 
   if (b_VIOParameters.use_orientation) {
-    for (ar = 0; ar < 3; ar++) {
-      r_data[ar + orientation_idx] = h_ci_l[ar];
+    for (ib = 0; ib < 3; ib++) {
+      r_data[ib + orientation_idx] = h_ci_l[ib];
     }
 
-    for (ar = 0; ar < 3; ar++) {
-      iv0[ar] = (signed char)(ar + orientation_idx);
+    for (ib = 0; ib < 3; ib++) {
+      iv0[ib] = (signed char)(ib + orientation_idx);
     }
 
     nm1d2 = H_iy->size[1];
-    for (ar = 0; ar < nm1d2; ar++) {
-      for (br = 0; br < 3; br++) {
-        H->data[iv0[br] + H->size[0] * ar] = H_iy->data[br + H_iy->size[0] * ar];
+    for (ib = 0; ib < nm1d2; ib++) {
+      for (ar = 0; ar < 3; ar++) {
+        H->data[iv0[ar] + H->size[0] * ib] = H_iy->data[ar + H_iy->size[0] * ib];
       }
     }
 
-    for (ar = 0; ar < 3; ar++) {
-      for (br = 0; br < 3; br++) {
-        R_data[(br + orientation_idx) + R_size[0] * (ar + orientation_idx)] =
-          c_noiseParameters_orientation_n * (double)b[br + 3 * ar];
+    for (ib = 0; ib < 3; ib++) {
+      for (ar = 0; ar < 3; ar++) {
+        R_data[(ar + orientation_idx) + R_size[0] * (ib + orientation_idx)] =
+          c_noiseParameters_orientation_n * (double)b[ar + 3 * ib];
       }
     }
   }
@@ -2163,9 +2079,9 @@ void getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
   if (b_VIOParameters.use_pressure) {
     r_data[pressure_idx] = r_pressure;
     nm1d2 = H_pressure->size[1];
-    for (ar = 0; ar < nm1d2; ar++) {
-      H->data[pressure_idx + H->size[0] * ar] = H_pressure->data
-        [H_pressure->size[0] * ar];
+    for (ib = 0; ib < nm1d2; ib++) {
+      H->data[pressure_idx + H->size[0] * ib] = H_pressure->data
+        [H_pressure->size[0] * ib];
     }
 
     R_data[pressure_idx + R_size[0] * pressure_idx] =
@@ -2174,47 +2090,47 @@ void getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
 
   emxFree_real_T(&H_pressure);
   if (b_VIOParameters.use_ext_pose) {
-    for (ar = 0; ar < 6; ar++) {
-      r_data[ar + ext_pose_idx] = r_ext_pose[ar];
+    for (ib = 0; ib < 6; ib++) {
+      r_data[ib + ext_pose_idx] = r_ext_pose[ib];
     }
 
-    for (ar = 0; ar < 6; ar++) {
-      iv1[ar] = (signed char)(ar + ext_pose_idx);
+    for (ib = 0; ib < 6; ib++) {
+      iv1[ib] = (signed char)(ib + ext_pose_idx);
     }
 
     nm1d2 = H_ext_pose->size[1];
-    for (ar = 0; ar < nm1d2; ar++) {
-      for (br = 0; br < 6; br++) {
-        H->data[iv1[br] + H->size[0] * ar] = H_ext_pose->data[br +
-          H_ext_pose->size[0] * ar];
+    for (ib = 0; ib < nm1d2; ib++) {
+      for (ar = 0; ar < 6; ar++) {
+        H->data[iv1[ar] + H->size[0] * ib] = H_ext_pose->data[ar +
+          H_ext_pose->size[0] * ib];
       }
     }
 
-    for (ar = 0; ar < 3; ar++) {
-      for (br = 0; br < 3; br++) {
-        R_data[(br + ext_pose_idx) + R_size[0] * (ar + ext_pose_idx)] =
-          noiseParameters_ext_pos_noise * (double)b[br + 3 * ar];
+    for (ib = 0; ib < 3; ib++) {
+      for (ar = 0; ar < 3; ar++) {
+        R_data[(ar + ext_pose_idx) + R_size[0] * (ib + ext_pose_idx)] =
+          noiseParameters_ext_pos_noise * (double)b[ar + 3 * ib];
       }
     }
 
-    for (ar = 0; ar < 3; ar++) {
-      for (br = 0; br < 3; br++) {
-        R_data[(br + ext_pose_idx) + R_size[0] * ((ar + ext_pose_idx) + 3)] =
+    for (ib = 0; ib < 3; ib++) {
+      for (ar = 0; ar < 3; ar++) {
+        R_data[(ar + ext_pose_idx) + R_size[0] * ((ib + ext_pose_idx) + 3)] =
           0.0;
       }
     }
 
-    for (ar = 0; ar < 3; ar++) {
-      for (br = 0; br < 3; br++) {
-        R_data[((br + ext_pose_idx) + R_size[0] * (ar + ext_pose_idx)) + 3] =
+    for (ib = 0; ib < 3; ib++) {
+      for (ar = 0; ar < 3; ar++) {
+        R_data[((ar + ext_pose_idx) + R_size[0] * (ib + ext_pose_idx)) + 3] =
           0.0;
       }
     }
 
-    for (ar = 0; ar < 3; ar++) {
-      for (br = 0; br < 3; br++) {
-        R_data[((br + ext_pose_idx) + R_size[0] * ((ar + ext_pose_idx) + 3)) + 3]
-          = noiseParameters_ext_att_noise * (double)b[br + 3 * ar];
+    for (ib = 0; ib < 3; ib++) {
+      for (ar = 0; ar < 3; ar++) {
+        R_data[((ar + ext_pose_idx) + R_size[0] * ((ib + ext_pose_idx) + 3)) + 3]
+          = noiseParameters_ext_att_noise * (double)b[ar + 3 * ib];
       }
     }
   }

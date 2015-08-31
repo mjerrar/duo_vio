@@ -4,7 +4,6 @@
 #include <Att_pred.h>
 #include <Att_upd.h>
 #include <blkdiag.h>
-#include <Ch_dn_To_h_un.h>
 #include <colon.h>
 #include <cross.h>
 #include <diag.h>
@@ -14,6 +13,7 @@
 #include <fprintf.h>
 #include <getH_R_res.h>
 #include <getMap.h>
+#include <get_r_u.h>
 #include <initializePoint.h>
 #include <mrdivide.h>
 #include <norm.h>
@@ -46,4 +46,5 @@
 #include <SLAM_updIT.h>
 #include <sum.h>
 #include <svd.h>
+#include <undistortPoint.h>
 #endif

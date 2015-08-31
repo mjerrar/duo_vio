@@ -2,13 +2,13 @@
 // Academic License - for use in teaching, academic research, and meeting
 // course requirements at degree granting institutions only.  Not for
 // government, commercial, or other organizational use.
-// File: Ch_dn_To_h_un.h
+// File: undistortPoint.h
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 30-Aug-2015 16:19:29
+// C/C++ source code generated on  : 31-Aug-2015 09:51:22
 //
-#ifndef __CH_DN_TO_H_UN_H__
-#define __CH_DN_TO_H_UN_H__
+#ifndef __UNDISTORTPOINT_H__
+#define __UNDISTORTPOINT_H__
 
 // Include Files
 #include <math.h>
@@ -21,13 +21,15 @@
 #include "SLAM_types.h"
 
 // Function Declarations
-extern void Ch_dn_To_h_un(double k1, double k2, double k3, double x, double y,
-  double h_dn_l_To_h_un_l[4]);
+extern void undistortPoint(const double pt_d_data[], const int pt_d_size[1],
+  const double c_cameraParameters_CameraParame[3], const double
+  d_cameraParameters_CameraParame[2], const double
+  e_cameraParameters_CameraParame[2], double pt_u_data[], int pt_u_size[1]);
 
 #endif
 
 //
-// File trailer for Ch_dn_To_h_un.h
+// File trailer for undistortPoint.h
 //
 // [EOF]
 //

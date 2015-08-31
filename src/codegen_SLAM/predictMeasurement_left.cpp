@@ -5,15 +5,13 @@
 // File: predictMeasurement_left.cpp
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 30-Aug-2015 16:19:29
+// C/C++ source code generated on  : 31-Aug-2015 09:51:22
 //
 
 // Include Files
 #include "rt_nonfinite.h"
 #include "SLAM.h"
 #include "predictMeasurement_left.h"
-#include "predictMeasurement_stereo.h"
-#include "SLAM_rtwutil.h"
 #include <ros/console.h>
 #include <stdio.h>
 
@@ -22,88 +20,22 @@
 //
 // PREDICTMEASUREMENT Predict the measurement of a feature given in the left
 // camera frame
-//    Get the pixel coordinates where a feature given in the left camera
-//    frame would be visible in both cameras
+//    Get the normalized pixel coordinates where a feature given in the left camera
+//    frame
 // Arguments    : const double fp_l[3]
-//                const double c_cameraparams_CameraParameters[3]
-//                const double d_cameraparams_CameraParameters[2]
-//                const double e_cameraparams_CameraParameters[2]
-//                double h_u_l[2]
+//                double px_n[2]
 // Return Type  : void
 //
-void predictMeasurement_left(const double fp_l[3], const double
-  c_cameraparams_CameraParameters[3], const double
-  d_cameraparams_CameraParameters[2], const double
-  e_cameraparams_CameraParameters[2], double h_u_l[2])
+void predictMeasurement_left(const double fp_l[3], double px_n[2])
 {
-  double h_cin_l[3];
   int i;
-  double radsq_l;
-  double b;
 
-  //  camera parameters for the left and right camera
-  //  r_lr = cameraparams.r_lr;
-  //  R_lr = cameraparams.R_lr;
-  //  R_rl=R_lr';
-  //  if fp_l(3) == 0
-  //      ROS_ERROR('h_ci_l(3)==0')
-  //  end
-  //  if fp_r(3) == 0
-  //      ROS_ERROR('h_ci_r(3)==0')
-  //  end
-  for (i = 0; i < 3; i++) {
-    h_cin_l[i] = fp_l[i] / fp_l[2];
+  //  normalized feature in camera frame
+  for (i = 0; i < 2; i++) {
+    px_n[i] = fp_l[i] / fp_l[2];
   }
 
-  //  if any(isnan(h_cin_l))
-  //      ROS_ERROR('h_cin_l')
-  //      ROS_ERROR('h_ci_l(3) = %f', h_cin_l(3))
-  //  end
-  //  if any(isnan(h_cin_r))
-  //      ROS_ERROR('h_cin_r')
-  //      ROS_ERROR('h_ci_r(3) = %f', h_cin_r(3))
-  //  end
-  //  h_uin_l = h_cin_l(1:2);
-  //  h_uin_r = h_cin_r(1:2);
-  //  if any(isnan(h_uin_l))
-  //      ROS_ERROR('h_uin_l')
-  //  end
-  //  if any(isnan(h_uin_r))
-  //      ROS_ERROR('h_uin_r')
-  //  end
-  //  rad_l=sqrt(h_uin_l(1)^2+h_uin_l(2)^2);
-  //  rad_r=sqrt(h_uin_r(1)^2+h_uin_r(2)^2);
-  radsq_l = h_cin_l[0] * h_cin_l[0] + h_cin_l[1] * h_cin_l[1];
-  b = ((1.0 + c_cameraparams_CameraParameters[0] * radsq_l) +
-       c_cameraparams_CameraParameters[1] * (radsq_l * radsq_l)) +
-    c_cameraparams_CameraParameters[2] * rt_powd_snf(radsq_l, 4.0);
-  for (i = 0; i < 3; i++) {
-    h_cin_l[i] *= b;
-  }
-
-  //  if any(isnan(rad_l))
-  //      ROS_ERROR('rad_l')
-  //  end
-  //  if any(isnan(rad_r))
-  //      ROS_ERROR('rad_r')
-  //  end
-  //  if any(isnan(h_din_l))
-  //      ROS_ERROR('h_din_l')
-  //  end
-  //  if any(isnan(h_din_r))
-  //      ROS_ERROR('h_din_r')
-  //  end
-  h_u_l[0] = e_cameraparams_CameraParameters[0] +
-    d_cameraparams_CameraParameters[0] * h_cin_l[0];
-  h_u_l[1] = e_cameraparams_CameraParameters[1] +
-    d_cameraparams_CameraParameters[1] * h_cin_l[1];
-
-  //  if any(isnan(h_u_l))
-  //      ROS_ERROR('h_di_l')
-  //  end
-  //  if any(isnan(h_u_r))
-  //      ROS_ERROR('h_di_r')
-  //  end
+  //  undistorted measurement in normalized pixels
 }
 
 //

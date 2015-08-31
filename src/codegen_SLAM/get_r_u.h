@@ -2,34 +2,31 @@
 // Academic License - for use in teaching, academic research, and meeting
 // course requirements at degree granting institutions only.  Not for
 // government, commercial, or other organizational use.
-// File: fileManager.cpp
+// File: get_r_u.h
 //
 // MATLAB Coder version            : 2.8
 // C/C++ source code generated on  : 31-Aug-2015 09:51:22
 //
+#ifndef __GET_R_U_H__
+#define __GET_R_U_H__
 
 // Include Files
+#include <math.h>
+#include <stddef.h>
+#include <stdlib.h>
+#include <string.h>
+#include "rt_defines.h"
 #include "rt_nonfinite.h"
-#include "SLAM.h"
-#include "fileManager.h"
-#include <ros/console.h>
-#include <stdio.h>
+#include "rtwtypes.h"
+#include "SLAM_types.h"
 
-// Function Definitions
+// Function Declarations
+extern double get_r_u(double k1, double k2, double k3, double rd);
 
-//
-// Arguments    : FILE * *f
-//                boolean_T *a
-// Return Type  : void
-//
-void fileManager(FILE * *f, boolean_T *a)
-{
-  *f = stdout;
-  *a = true;
-}
+#endif
 
 //
-// File trailer for fileManager.cpp
+// File trailer for get_r_u.h
 //
 // [EOF]
 //
