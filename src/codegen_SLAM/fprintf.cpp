@@ -5,7 +5,7 @@
 // File: fprintf.cpp
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 01-Sep-2015 16:22:53
+// C/C++ source code generated on  : 01-Sep-2015 21:11:55
 //
 
 // Include Files
@@ -17,18 +17,44 @@
 #include <stdio.h>
 
 // Function Declarations
-static double c_fprintf(signed char varargin_1);
+static double c_fprintf();
 static double e_fprintf(signed char varargin_1);
-static double g_fprintf(int varargin_1, int varargin_2);
-static double i_fprintf();
+static double g_fprintf(signed char varargin_1);
+static double i_fprintf(int varargin_1, int varargin_2);
+static double k_fprintf();
 
 // Function Definitions
+
+//
+// Arguments    : void
+// Return Type  : double
+//
+static double c_fprintf()
+{
+  int nbytesint;
+  FILE * b_NULL;
+  boolean_T autoflush;
+  FILE * filestar;
+  static const char cfmt[17] = { 'h', 'y', 'p', 'o', 't', 'h', 'e', 's', 'i',
+    's', ' ', 't', 'e', 's', 't', '\x0a', '\x00' };
+
+  nbytesint = 0;
+  b_NULL = NULL;
+  fileManager(&filestar, &autoflush);
+  if (filestar == b_NULL) {
+  } else {
+    nbytesint = fprintf(filestar, cfmt);
+    fflush(filestar);
+  }
+
+  return nbytesint;
+}
 
 //
 // Arguments    : signed char varargin_1
 // Return Type  : double
 //
-static double c_fprintf(signed char varargin_1)
+static double e_fprintf(signed char varargin_1)
 {
   int nbytesint;
   FILE * b_NULL;
@@ -55,7 +81,7 @@ static double c_fprintf(signed char varargin_1)
 // Arguments    : signed char varargin_1
 // Return Type  : double
 //
-static double e_fprintf(signed char varargin_1)
+static double g_fprintf(signed char varargin_1)
 {
   int nbytesint;
   FILE * b_NULL;
@@ -84,7 +110,7 @@ static double e_fprintf(signed char varargin_1)
 //                int varargin_2
 // Return Type  : double
 //
-static double g_fprintf(int varargin_1, int varargin_2)
+static double i_fprintf(int varargin_1, int varargin_2)
 {
   int nbytesint;
   FILE * b_NULL;
@@ -111,7 +137,7 @@ static double g_fprintf(int varargin_1, int varargin_2)
 // Arguments    : void
 // Return Type  : double
 //
-static double i_fprintf()
+static double k_fprintf()
 {
   int nbytesint;
   FILE * b_NULL;
@@ -137,12 +163,12 @@ static double i_fprintf()
 }
 
 //
-// Arguments    : signed char formatSpec
+// Arguments    : void
 // Return Type  : void
 //
-void b_fprintf(signed char formatSpec)
+void b_fprintf()
 {
-  c_fprintf(formatSpec);
+  c_fprintf();
 }
 
 //
@@ -155,22 +181,31 @@ void d_fprintf(signed char formatSpec)
 }
 
 //
+// Arguments    : signed char formatSpec
+// Return Type  : void
+//
+void f_fprintf(signed char formatSpec)
+{
+  g_fprintf(formatSpec);
+}
+
+//
 // Arguments    : int formatSpec
 //                int varargin_1
 // Return Type  : void
 //
-void f_fprintf(int formatSpec, int varargin_1)
+void h_fprintf(int formatSpec, int varargin_1)
 {
-  g_fprintf(formatSpec, varargin_1);
+  i_fprintf(formatSpec, varargin_1);
 }
 
 //
 // Arguments    : void
 // Return Type  : void
 //
-void h_fprintf()
+void j_fprintf()
 {
-  i_fprintf();
+  k_fprintf();
 }
 
 //

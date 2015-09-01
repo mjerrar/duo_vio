@@ -2,13 +2,13 @@
 // Academic License - for use in teaching, academic research, and meeting
 // course requirements at degree granting institutions only.  Not for
 // government, commercial, or other organizational use.
-// File: predictMeasurement_left.h
+// File: kron.h
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 01-Sep-2015 16:22:53
+// C/C++ source code generated on  : 01-Sep-2015 21:11:55
 //
-#ifndef __PREDICTMEASUREMENT_LEFT_H__
-#define __PREDICTMEASUREMENT_LEFT_H__
+#ifndef __KRON_H__
+#define __KRON_H__
 
 // Include Files
 #include <math.h>
@@ -21,12 +21,13 @@
 #include "SLAM_types.h"
 
 // Function Declarations
-extern void predictMeasurement_left(const double fp_l[3], double px_n[2]);
+extern void kron(const double A_data[], const int A_size[2], const double B[4],
+                 double K_data[], int K_size[2]);
 
 #endif
 
 //
-// File trailer for predictMeasurement_left.h
+// File trailer for kron.h
 //
 // [EOF]
 //

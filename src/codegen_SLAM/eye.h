@@ -5,7 +5,7 @@
 // File: eye.h
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 01-Sep-2015 16:22:53
+// C/C++ source code generated on  : 01-Sep-2015 21:11:55
 //
 #ifndef __EYE_H__
 #define __EYE_H__
@@ -23,6 +23,7 @@
 // Function Declarations
 extern void b_eye(double varargin_1, emxArray_real_T *I);
 extern void c_eye(const double varargin_1[2], emxArray_real_T *I);
+extern void d_eye(double I[144]);
 extern void eye(double I[9]);
 
 #endif

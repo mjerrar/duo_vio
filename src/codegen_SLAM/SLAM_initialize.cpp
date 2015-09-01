@@ -5,13 +5,14 @@
 // File: SLAM_initialize.cpp
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 01-Sep-2015 16:22:53
+// C/C++ source code generated on  : 01-Sep-2015 21:11:55
 //
 
 // Include Files
 #include "rt_nonfinite.h"
 #include "SLAM.h"
 #include "SLAM_initialize.h"
+#include "SLAM_pred.h"
 #include "SLAM_updIT.h"
 #include "SLAM_data.h"
 #include <ros/console.h>
@@ -41,6 +42,7 @@ void SLAM_initialize()
   initialized_not_empty_init();
   SLAM_init();
   SLAM_updIT_init();
+  SLAM_pred_init();
 }
 
 //

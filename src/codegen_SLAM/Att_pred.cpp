@@ -5,7 +5,7 @@
 // File: Att_pred.cpp
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 01-Sep-2015 16:22:53
+// C/C++ source code generated on  : 01-Sep-2015 21:11:55
 //
 
 // Include Files
@@ -43,7 +43,7 @@ void Att_pred(const double x_data[], const double P_data[], const int P_size[2],
   double a[9];
   double Phi[9];
   int k;
-  int i12;
+  int i11;
   double c;
   int y_size_idx_1;
   int cr;
@@ -73,28 +73,28 @@ void Att_pred(const double x_data[], const double P_data[], const int P_size[2],
   a[8] = 0.0;
   for (k = 0; k < 3; k++) {
     I[k + 3 * k] = 1.0;
-    for (i12 = 0; i12 < 3; i12++) {
-      Phi[i12 + 3 * k] = I[i12 + 3 * k] + -a[i12 + 3 * k] * dt;
+    for (i11 = 0; i11 < 3; i11++) {
+      Phi[i11 + 3 * k] = I[i11 + 3 * k] + -a[i11 + 3 * k] * dt;
     }
   }
 
   c = dt * dt;
   if (P_size[0] == 1) {
     y_size_idx_1 = P_size[1];
-    for (i12 = 0; i12 < 3; i12++) {
+    for (i11 = 0; i11 < 3; i11++) {
       k = P_size[1];
       for (cr = 0; cr < k; cr++) {
-        y_data[i12 + 3 * cr] = 0.0;
+        y_data[i11 + 3 * cr] = 0.0;
         for (br = 0; br < 3; br++) {
-          y_data[i12 + 3 * cr] += Phi[i12 + 3 * br] * P_data[br + cr];
+          y_data[i11 + 3 * cr] += Phi[i11 + 3 * br] * P_data[br + cr];
         }
       }
     }
   } else {
     y_size_idx_1 = (signed char)P_size[1];
     k = 3 * (signed char)P_size[1];
-    for (i12 = 0; i12 < k; i12++) {
-      y_data[i12] = 0.0;
+    for (i11 = 0; i11 < k; i11++) {
+      y_data[i11] = 0.0;
     }
 
     k = 3 * (P_size[1] - 1);
@@ -123,18 +123,18 @@ void Att_pred(const double x_data[], const double P_data[], const int P_size[2],
     }
   }
 
-  for (i12 = 0; i12 < 3; i12++) {
+  for (i11 = 0; i11 < 3; i11++) {
     for (cr = 0; cr < 3; cr++) {
-      I[cr + 3 * i12] = Phi[i12 + 3 * cr];
+      I[cr + 3 * i11] = Phi[i11 + 3 * cr];
     }
   }
 
   if (y_size_idx_1 == 1) {
-    for (i12 = 0; i12 < 3; i12++) {
+    for (i11 = 0; i11 < 3; i11++) {
       for (cr = 0; cr < 3; cr++) {
-        Phi[i12 + 3 * cr] = 0.0;
+        Phi[i11 + 3 * cr] = 0.0;
         for (br = 0; br < 3; br++) {
-          Phi[i12 + 3 * cr] += y_data[i12 + 3 * br] * I[br + 3 * cr];
+          Phi[i11 + 3 * cr] += y_data[i11 + 3 * br] * I[br + 3 * cr];
         }
       }
     }
@@ -149,8 +149,8 @@ void Att_pred(const double x_data[], const double P_data[], const int P_size[2],
     br = 0;
     for (cr = 0; cr < 8; cr += 3) {
       ar = -1;
-      i12 = br + y_size_idx_1;
-      for (ib = br; ib + 1 <= i12; ib++) {
+      i11 = br + y_size_idx_1;
+      for (ib = br; ib + 1 <= i11; ib++) {
         if (I[ib] != 0.0) {
           ia = ar;
           for (ic = cr; ic + 1 <= cr + 3; ic++) {
@@ -166,24 +166,24 @@ void Att_pred(const double x_data[], const double P_data[], const int P_size[2],
     }
   }
 
-  for (i12 = 0; i12 < 3; i12++) {
+  for (i11 = 0; i11 < 3; i11++) {
     for (cr = 0; cr < 3; cr++) {
-      a[i12 + 3 * cr] = 0.0;
+      a[i11 + 3 * cr] = 0.0;
       for (br = 0; br < 3; br++) {
-        a[i12 + 3 * cr] += (double)c_a[i12 + 3 * br] * ((double)b_a[br + 3 * cr]
+        a[i11 + 3 * cr] += (double)c_a[i11 + 3 * br] * ((double)b_a[br + 3 * cr]
           * q * c);
       }
     }
   }
 
-  for (i12 = 0; i12 < 3; i12++) {
+  for (i11 = 0; i11 < 3; i11++) {
     for (cr = 0; cr < 3; cr++) {
       c = 0.0;
       for (br = 0; br < 3; br++) {
-        c += a[i12 + 3 * br] * (double)c_a[br + 3 * cr];
+        c += a[i11 + 3 * br] * (double)c_a[br + 3 * cr];
       }
 
-      b_P[i12 + 3 * cr] = Phi[i12 + 3 * cr] + c;
+      b_P[i11 + 3 * cr] = Phi[i11 + 3 * cr] + c;
     }
   }
 
@@ -212,10 +212,10 @@ void Att_pred(const double x_data[], const double P_data[], const int P_size[2],
   b_dq[1] = dq[1];
   b_dq[2] = dq[2];
   b_dq[3] = dq[3];
-  for (i12 = 0; i12 < 4; i12++) {
-    x[i12] = 0.0;
+  for (i11 = 0; i11 < 4; i11++) {
+    x[i11] = 0.0;
     for (cr = 0; cr < 4; cr++) {
-      x[i12] += b_x[i12 + (cr << 2)] * b_dq[cr];
+      x[i11] += b_x[i11 + (cr << 2)] * b_dq[cr];
     }
   }
 }

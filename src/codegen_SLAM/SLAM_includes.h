@@ -14,10 +14,10 @@
 #include <getMap.h>
 #include <get_r_u.h>
 #include <initializePoint.h>
+#include <kron.h>
 #include <mrdivide.h>
 #include <norm.h>
 #include <OnePointRANSAC_EKF.h>
-#include <predictMeasurement_left.h>
 #include <predictMeasurement_stereo.h>
 #include <QuatFromRotJ.h>
 #include <quatmultJ.h>

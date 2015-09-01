@@ -5,7 +5,7 @@
 // File: eye.cpp
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 01-Sep-2015 16:22:53
+// C/C++ source code generated on  : 01-Sep-2015 21:11:55
 //
 
 // Include Files
@@ -74,6 +74,19 @@ void c_eye(const double varargin_1[2], emxArray_real_T *I)
     for (k = 0; k + 1 <= (int)minval; k++) {
       I->data[k + I->size[0] * k] = 1.0;
     }
+  }
+}
+
+//
+// Arguments    : double I[144]
+// Return Type  : void
+//
+void d_eye(double I[144])
+{
+  int k;
+  memset(&I[0], 0, 144U * sizeof(double));
+  for (k = 0; k < 12; k++) {
+    I[k + 12 * k] = 1.0;
   }
 }
 

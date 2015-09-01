@@ -5,7 +5,7 @@
 // File: ros_error.h
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 01-Sep-2015 16:22:53
+// C/C++ source code generated on  : 01-Sep-2015 21:11:55
 //
 #ifndef __ROS_ERROR_H__
 #define __ROS_ERROR_H__
@@ -21,7 +21,6 @@
 #include "SLAM_types.h"
 
 // Function Declarations
-extern void b_ros_error();
 extern void ros_error();
 
 #endif

@@ -5,7 +5,7 @@
 // File: Att_upd.cpp
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 01-Sep-2015 16:22:53
+// C/C++ source code generated on  : 01-Sep-2015 21:11:55
 //
 
 // Include Files
@@ -63,7 +63,7 @@ void Att_upd(const double x_data[], double P_data[], int P_size[2], const double
   double theta;
   int dq_size[1];
   double dq_data[4];
-  double dv24[4];
+  double dv22[4];
   emxArray_real_T b_dq_data;
   double c_x[16];
   double dq[4];
@@ -237,13 +237,13 @@ void Att_upd(const double x_data[], double P_data[], int P_size[2], const double
 
     dq_data[3] = 1.0;
   } else {
-    dv24[0] = 0.5 * x_apo_data[0] * sin(theta) / theta;
-    dv24[1] = 0.5 * x_apo_data[1] * sin(theta) / theta;
-    dv24[2] = 0.5 * x_apo_data[2] * sin(theta) / theta;
-    dv24[3] = cos(theta);
+    dv22[0] = 0.5 * x_apo_data[0] * sin(theta) / theta;
+    dv22[1] = 0.5 * x_apo_data[1] * sin(theta) / theta;
+    dv22[2] = 0.5 * x_apo_data[2] * sin(theta) / theta;
+    dv22[3] = cos(theta);
     dq_size[0] = 4;
     for (cr = 0; cr < 4; cr++) {
-      dq_data[cr] = dv24[cr];
+      dq_data[cr] = dv22[cr];
     }
   }
 

@@ -5,7 +5,7 @@
 // File: ros_warn.cpp
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 01-Sep-2015 16:22:53
+// C/C++ source code generated on  : 01-Sep-2015 21:11:55
 //
 
 // Include Files
@@ -26,12 +26,12 @@
 void b_ros_warn()
 {
   char cv8[16];
-  int i13;
+  int i12;
   static const char cv9[16] = { 'S', 'L', 'A', 'M', ' ', 's', 'o', 'f', 't', ' ',
     'r', 'e', 's', 'e', 't', '\x00' };
 
-  for (i13 = 0; i13 < 16; i13++) {
-    cv8[i13] = cv9[i13];
+  for (i12 = 0; i12 < 16; i12++) {
+    cv8[i12] = cv9[i12];
   }
 
   ROS_WARN(cv8);
@@ -46,13 +46,13 @@ void b_ros_warn()
 void ros_warn()
 {
   char cv6[38];
-  int i10;
+  int i9;
   static const char cv7[38] = { '1', '-', 'p', 'o', 'i', 'n', 't', ' ', 'R', 'A',
     'N', 'S', 'A', 'C', ' ', 'r', 'e', 'j', 'e', 'c', 't', 'e', 'd', ' ', 'a',
     'l', 'l', ' ', 'f', 'e', 'a', 't', 'u', 'r', 'e', 's', '!', '\x00' };
 
-  for (i10 = 0; i10 < 38; i10++) {
-    cv6[i10] = cv7[i10];
+  for (i9 = 0; i9 < 38; i9++) {
+    cv6[i9] = cv7[i9];
   }
 
   ROS_WARN(cv6);

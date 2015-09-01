@@ -5,7 +5,7 @@
 // File: getMap.cpp
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 01-Sep-2015 16:22:53
+// C/C++ source code generated on  : 01-Sep-2015 21:11:55
 //
 
 // Include Files
@@ -58,11 +58,11 @@ void getMap(const emxArray_real_T *x, const emxArray_real_T *b_anchorFeatures,
   int ii;
   int anchorIdx;
   int idx;
-  signed char ii_data[24];
+  signed char ii_data[32];
   boolean_T exitg1;
   boolean_T guard1 = false;
   int ii_size_idx_0;
-  signed char featureIdxVect_data[24];
+  signed char featureIdxVect_data[32];
   double b_stateSize;
   double anchorPos[3];
   double a;
@@ -106,13 +106,13 @@ void getMap(const emxArray_real_T *x, const emxArray_real_T *b_anchorFeatures,
     idx = 0;
     ii = 1;
     exitg1 = false;
-    while ((!exitg1) && (ii < 25)) {
+    while ((!exitg1) && (ii < 33)) {
       guard1 = false;
       if (b_anchorFeatures->data[(ii + b_anchorFeatures->size[0] * anchorIdx) -
           1] != 0.0) {
         idx++;
         ii_data[idx - 1] = (signed char)ii;
-        if (idx >= 24) {
+        if (idx >= 32) {
           exitg1 = true;
         } else {
           guard1 = true;
