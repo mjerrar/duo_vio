@@ -1,6 +1,6 @@
 <launch>
 
-  <arg name="exposure_duo" default="50" />
+  <arg name="exposure_duo" default="100" />
   <arg name="gain_duo" default="100" />
   <arg name="FPS_duo" default="60" />
   <arg name="resolution_width_duo" default="320" />
