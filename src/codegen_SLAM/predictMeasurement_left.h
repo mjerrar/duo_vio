@@ -2,13 +2,13 @@
 // Academic License - for use in teaching, academic research, and meeting
 // course requirements at degree granting institutions only.  Not for
 // government, commercial, or other organizational use.
-// File: fileManager.h
+// File: predictMeasurement_left.h
 //
 // MATLAB Coder version            : 2.8
 // C/C++ source code generated on  : 01-Sep-2015 21:43:27
 //
-#ifndef __FILEMANAGER_H__
-#define __FILEMANAGER_H__
+#ifndef __PREDICTMEASUREMENT_LEFT_H__
+#define __PREDICTMEASUREMENT_LEFT_H__
 
 // Include Files
 #include <math.h>
@@ -21,12 +21,12 @@
 #include "SLAM_types.h"
 
 // Function Declarations
-extern void fileManager(FILE * *f, boolean_T *a);
+extern void predictMeasurement_left(const double fp_l[3], double px_n[2]);
 
 #endif
 
 //
-// File trailer for fileManager.h
+// File trailer for predictMeasurement_left.h
 //
 // [EOF]
 //
