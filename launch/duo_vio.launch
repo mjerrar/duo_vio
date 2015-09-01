@@ -1,24 +1,90 @@
 <launch>
 
-  <include file="$(find duo3d_ros)/launch/duo_proc.launch" />
+  <arg name="exposure_duo" default="50" />
+  <arg name="gain_duo" default="100" />
+  <arg name="FPS_duo" default="60" />
+  <arg name="resolution_width_duo" default="320" />
+  <arg name="resolution_height_duo" default="240" />
+  
+  <arg name="im_noise" default="0.01" />
+  <arg name="acc_noise" default="1" />
+  <arg name="gyro_noise" default="1" />
+  <arg name="gyro_bias_noise" default="0.001" />
+  <arg name="orientation_noise" default="1" />
+  <arg name="pressure_noise" default="1" />
+  <arg name="sigma_init" default="0.0001" />
+  
+  <arg name="Kp_xy" default="1" />
+  <arg name="Ki_xy" default="0" />
+  <arg name="Kd_xy" default="1.4" />
+  <arg name="Kp_z" default="1" />
+  <arg name="Ki_z" default="0" />
+  <arg name="Kd_z" default="1.4" />
+  <arg name="Kp_yaw" default="1" />
+  <arg name="Kd_yaw" default="1" />
+  <arg name="i_lim" default="10" />
+  
+  <arg name="use_orientation" default="0" />
+  <arg name="use_pressure" default="0" />
+  <arg name="use_magnetometer" default="0" />
+  <arg name="use_ext_pose" default="0" />
+  <arg name="fixed_anchor" default="1" />
+  <arg name="use_controller_to_predict" default="0" />
+  <arg name="max_ekf_iterations" default="1" />
 
-  <node name="vio_ros_node" pkg="vio_ros" type="vio_ros_node" output="screen" >
-    <remap from="/imu" to="/duo3d_camera/cam_imu"/>
-    <remap from="/left_image" to="/left/image_rect"/>
-    <remap from="/right_image" to="/right/image_rect"/>
+  <arg name="camera_name" default="101" /> <!-- the camera name is equal to the last 3 digits of the odroid's IP -->
+  <arg name="lense_type" default="FS3028B13M8" />
 
-    <param name="process_noise_1" type="double" value="0.01" />
-    <param name="process_noise_2" type="double" value="0.01" />
-    <param name="process_noise_3" type="double" value="0.0" />
+  <arg name="show_tracker_images" default="1" />
+  <arg name="debug_publish_freq" default="10" />
+  <arg name="publish_on_debug_topics" default="1" />
 
-    <param name="im_noise_1" type="double" value="2" />
-    <param name="im_noise_2" type="double" value="2" />
-    <param name="im_noise_3" type="double" value="2" />
+  <arg name="use_vicon_for_control_arg" default="0" />
 
-    <param name="num_points_per_anchor" type="int" value="1" />
-    <param name="num_anchors" type="int" value="32" />
+  <!-- duo camera node -->
+  <include file="$(find duo3d_ros)/launch/duo.launch">
+    <arg name="exposure" value="$(arg exposure_duo)" />
+    <arg name="gain" value="$(arg gain_duo)" />
+    <arg name="FPS" value="$(arg FPS_duo)" />
+    <arg name="resolution_width" value="$(arg resolution_width_duo)" />
+    <arg name="resolution_height" value="$(arg resolution_height_duo)" />
+  </include>
 
-    <param name="show_tracker_images" type="bool" value="1" />
+ <!-- visual odometry node --> 
+ <include file="$(find vio_ros)/launch/vio.launch">
 
-  </node>
+    <arg name="acc_noise" value="$(arg acc_noise)" />
+    <arg name="gyro_noise" value="$(arg gyro_noise)" />
+    <arg name="gyro_bias_noise" value="$(arg gyro_bias_noise)" />
+    <arg name="im_noise" value="$(arg im_noise)" />
+
+    <arg name="use_orientation" value="$(arg use_orientation)" />
+    <arg name="use_pressure" value="$(arg use_pressure)" />
+    <arg name="use_magnetometer" value="$(arg use_magnetometer)" />
+    <arg name="use_controller_to_predict" value="$(arg use_controller_to_predict)" />
+    <arg name="use_ext_pose" value="$(arg use_ext_pose)" />
+    <arg name="fixed_anchor" value="$(arg fixed_anchor)" />
+    <arg name="max_ekf_iterations" value="$(arg max_ekf_iterations)" />
+
+    <arg name="orientation_noise" value="$(arg orientation_noise)" />
+    <arg name="pressure_noise" value="$(arg pressure_noise)" />
+    <arg name="sigma_init" value="$(arg sigma_init)" />
+
+    <arg name="Kp_xy" value="$(arg Kp_xy)" />
+    <arg name="Ki_xy" value="$(arg Ki_xy)" />
+    <arg name="Kd_xy" value="$(arg Kd_xy)" />
+    <arg name="Kp_z" value="$(arg Kp_z)" />
+    <arg name="Ki_z" value="$(arg Ki_z)" />
+    <arg name="Kd_z" value="$(arg Kd_z)" />
+    <arg name="Kp_yaw" value="$(arg Kp_yaw)" />
+    <arg name="Kd_yaw" value="$(arg Kd_yaw)" />
+    <arg name="i_lim" value="$(arg i_lim)" />
+
+    <arg name="show_tracker_images" value="$(arg show_tracker_images)" />
+
+    <arg name="debug_publish_freq" value="$(arg debug_publish_freq)" />
+    <arg name="publish_on_debug_topics" value="$(arg publish_on_debug_topics)" />
+    <arg name="use_vicon_for_control" value="$(arg use_vicon_for_control_arg)" />
+  </include>
+
 </launch>

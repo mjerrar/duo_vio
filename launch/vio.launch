@@ -6,12 +6,13 @@
   <arg name="resolution_width_duo" default="320" />
   <arg name="resolution_height_duo" default="240" />
   
-  <arg name="im_noise" default="1" />
-  <arg name="acc_noise" default="1" />
-  <arg name="gyro_noise" default="1" />
-  <arg name="orientation_noise" default="1" />
+  <arg name="im_noise" default="0.01" />
+  <arg name="acc_noise" default="0.1" />
+  <arg name="gyro_noise" default="0.1" />
+  <arg name="gyro_bias_noise" default="0.001" />
+  <arg name="orientation_noise" default="0.1" />
   <arg name="pressure_noise" default="1" />
-  <arg name="sigma_init" default="0.0001" />
+  <arg name="sigma_init" default="0.00001" />
   
   <arg name="Kp_xy" default="1" />
   <arg name="Ki_xy" default="0" />
@@ -27,9 +28,11 @@
   <arg name="use_pressure" default="0" />
   <arg name="use_magnetometer" default="0" />
   <arg name="use_ext_pose" default="0" />
-  <arg name="fixed_anchor" default="0" />
+  <arg name="fixed_anchor" default="1" />
   <arg name="use_controller_to_predict" default="0" />
   <arg name="max_ekf_iterations" default="1" />
+
+  <arg name="use_vicon_for_control" default="0" />
 
   <arg name="camera_name" default="101" /> <!-- the camera name is equal to the last 3 digits of the odroid's IP -->
   <arg name="lense_type" default="FS3028B13M8" />
@@ -38,16 +41,6 @@
   <arg name="debug_publish_freq" default="10" />
   <arg name="publish_on_debug_topics" default="1" />
 
-  <arg name="use_vicon_for_control_arg" default="0" />
-
-  <include file="$(find duo3d_ros)/launch/duo.launch">
-    <arg name="exposure" value="$(arg exposure_duo)" />
-    <arg name="gain" value="$(arg gain_duo)" />
-    <arg name="FPS" value="$(arg FPS_duo)" />
-    <arg name="resolution_width" value="$(arg resolution_width_duo)" />
-    <arg name="resolution_height" value="$(arg resolution_height_duo)" />
-  </include>
-
   <node name="vio_ros_node" pkg="vio_ros" type="vio_ros_node" output="screen" >
     <remap from="/imu" to="/duo3d_camera/cam_imu"/>
     <remap from="/left_image" to="/duo3d_camera/left/image_raw"/>
@@ -55,7 +48,7 @@
 
     <param name="acc_noise" type="double" value="$(arg acc_noise)" />
     <param name="gyro_noise" type="double" value="$(arg gyro_noise)" />
-    <param name="process_noise_3" type="double" value="0.0" />
+    <param name="gyro_bias_noise" type="double" value="$(arg gyro_bias_noise)" />
     <param name="im_noise" type="double" value="$(arg im_noise)" />
 
     <param name="use_orientation" type="bool" value="$(arg use_orientation)" />
@@ -82,7 +75,7 @@
 
     <!-- note that these parameters are not free. The total number of points num_anchors*num_points_per_anchor must equal the total number of points with wich SLAM was codered in Matlab. -->
     <param name="num_points_per_anchor" type="int" value="4" />
-    <param name="num_anchors" type="int" value="6" />
+    <param name="num_anchors" type="int" value="8" />
 
     <param name="show_tracker_images" type="bool" value="$(arg show_tracker_images)" />
    
@@ -93,7 +86,7 @@
 
     <param name="debug_publish_freq" type="double" value="$(arg debug_publish_freq)" />
     <param name="publish_on_debug_topics" type="bool" value="$(arg publish_on_debug_topics)" />
-    <param name="use_vicon_for_control" type="bool" value="$(arg use_vicon_for_control_arg)" />
+    <param name="use_vicon_for_control" type="bool" value="$(arg use_vicon_for_control)" />
   </node>
 
 </launch>
