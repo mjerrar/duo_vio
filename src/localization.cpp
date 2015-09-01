@@ -369,6 +369,10 @@ void Localization::dynamicReconfigureCb(vio_ros::vio_rosConfig &config, uint32_t
 	vioParams.use_pressure = config.use_pressure;
 	vioParams.use_magnetometer = config.use_magnetometer;
 	vioParams.use_controller_to_predict = config.use_controller_to_predict;
+	vioParams.max_ekf_iterations = config.max_ekf_iterations;
+	vioParams.use_ext_pose = config.use_ext_pose;
+	vioParams.fixed_anchor = config.fixed_anchor;
+
 
 }
 
