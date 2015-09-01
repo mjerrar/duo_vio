@@ -54,6 +54,7 @@ Localization::Localization()
 
 	nh_.param<double>("acc_noise", noiseParams.process_noise[0], 1);
 	nh_.param<double>("gyro_noise", noiseParams.process_noise[1], 1);
+	nh_.param<double>("gyro_bias_noise", noiseParams.process_noise[2], 1);
 	nh_.param<double>("process_noise_3", noiseParams.process_noise[2], 0.0);
 	nh_.param<double>("process_noise_4", noiseParams.process_noise[3], 0.0);
 	nh_.param<double>("orientation_noise", noiseParams.orientation_noise, 1.0);
@@ -176,9 +177,14 @@ void Localization::duo3dCb(const duo3d_ros::Duo3d& msg)
 		return;
 	}
 
+	double dt;
 	// Init time on first call
 	if (prev_time_.isZero())
 	{
+		prev_time_ = msg.header.stamp;
+		dt = 1/60.0;
+	} else {
+		dt = (msg.header.stamp - prev_time_).toSec();
 		prev_time_ = msg.header.stamp;
 	}
 
@@ -186,8 +192,6 @@ void Localization::duo3dCb(const duo3d_ros::Duo3d& msg)
 	geometry_msgs::Twist velocity;
 	pose_stamped.header.stamp = msg.header.stamp;
 	pose_stamped.header.frame_id = "world";
-	double dt = (msg.header.stamp - prev_time_).toSec();
-	prev_time_ = msg.header.stamp;
 
 	bool debug_publish = (ros::Time::now() - last_debug_publish).toSec() > debug_publish_delay;
 	bool debug_display_tracks = false;
@@ -212,7 +216,7 @@ void Localization::duo3dCb(const duo3d_ros::Duo3d& msg)
 
 	if(!use_vicon_for_control_)
 	{
-	  velocity_pub_.publish(velocity);
+		velocity_pub_.publish(velocity);
 	}
 
 
