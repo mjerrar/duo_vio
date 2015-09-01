@@ -5,7 +5,7 @@
 // File: SLAM_data.cpp
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 31-Aug-2015 20:50:24
+// C/C++ source code generated on  : 01-Sep-2015 16:22:53
 //
 
 // Include Files
@@ -18,10 +18,8 @@
 // Variable Definitions
 double R_bc[9];
 double numStates;
-double numTrackFeatures;
 double numStatesxt;
 double minFeatureThreshold;
-unsigned int state[625];
 
 //
 // File trailer for SLAM_data.cpp

@@ -5,7 +5,7 @@
 // File: getMap.cpp
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 31-Aug-2015 20:50:24
+// C/C++ source code generated on  : 01-Sep-2015 16:22:53
 //
 
 // Include Files
@@ -41,7 +41,7 @@
 // Arguments    : const emxArray_real_T *x
 //                const emxArray_real_T *b_anchorFeatures
 //                const emxArray_real_T *b_m_vect
-//                double c_numTrackFeatures
+//                double numTrackFeatures
 //                double stateSize
 //                double numStatesPerAnchorxt
 //                emxArray_real_T *map
@@ -50,7 +50,7 @@
 // Return Type  : void
 //
 void getMap(const emxArray_real_T *x, const emxArray_real_T *b_anchorFeatures,
-            const emxArray_real_T *b_m_vect, double c_numTrackFeatures, double
+            const emxArray_real_T *b_m_vect, double numTrackFeatures, double
             stateSize, double numStatesPerAnchorxt, emxArray_real_T *map,
             emxArray_real_T *anchorInd, emxArray_real_T *featureAnchorInd)
 {
@@ -79,25 +79,25 @@ void getMap(const emxArray_real_T *x, const emxArray_real_T *b_anchorFeatures,
   double anchorRot[9];
   i4 = map->size[0] * map->size[1];
   map->size[0] = 3;
-  map->size[1] = (int)c_numTrackFeatures;
+  map->size[1] = (int)numTrackFeatures;
   emxEnsureCapacity((emxArray__common *)map, i4, (int)sizeof(double));
-  ii = 3 * (int)c_numTrackFeatures;
+  ii = 3 * (int)numTrackFeatures;
   for (i4 = 0; i4 < ii; i4++) {
     map->data[i4] = rtNaN;
   }
 
   i4 = anchorInd->size[0];
-  anchorInd->size[0] = (int)c_numTrackFeatures;
+  anchorInd->size[0] = (int)numTrackFeatures;
   emxEnsureCapacity((emxArray__common *)anchorInd, i4, (int)sizeof(double));
-  ii = (int)c_numTrackFeatures;
+  ii = (int)numTrackFeatures;
   for (i4 = 0; i4 < ii; i4++) {
     anchorInd->data[i4] = 0.0;
   }
 
   i4 = featureAnchorInd->size[0];
-  featureAnchorInd->size[0] = (int)c_numTrackFeatures;
+  featureAnchorInd->size[0] = (int)numTrackFeatures;
   emxEnsureCapacity((emxArray__common *)featureAnchorInd, i4, (int)sizeof(double));
-  ii = (int)c_numTrackFeatures;
+  ii = (int)numTrackFeatures;
   for (i4 = 0; i4 < ii; i4++) {
     featureAnchorInd->data[i4] = 0.0;
   }

@@ -5,7 +5,7 @@
 // File: initializePoint.cpp
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 31-Aug-2015 20:50:24
+// C/C++ source code generated on  : 01-Sep-2015 16:22:53
 //
 
 // Include Files
@@ -396,9 +396,9 @@ void initializePoint(const emxArray_real_T *b_xt, const double
   double pos[6];
   int rankR;
   int i;
-  double dv3[4];
+  double dv2[4];
   double rot[8];
-  static const signed char iv5[4] = { 0, 0, 0, 1 };
+  static const signed char iv3[4] = { 0, 0, 0, 1 };
 
   double zn_d_l[2];
   double zn_d_r[2];
@@ -446,10 +446,10 @@ void initializePoint(const emxArray_real_T *b_xt, const double
     }
   }
 
-  QuatFromRotJ(b_cameraparams_R_lr, dv3);
+  QuatFromRotJ(b_cameraparams_R_lr, dv2);
   for (rankR = 0; rankR < 4; rankR++) {
-    rot[rankR] = iv5[rankR];
-    rot[4 + rankR] = dv3[rankR];
+    rot[rankR] = iv3[rankR];
+    rot[4 + rankR] = dv2[rankR];
   }
 
   zn_d_l[0] = (z_l[0] - e_cameraparams_CameraParameters[0]) /

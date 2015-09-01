@@ -7,7 +7,6 @@
 #include <colon.h>
 #include <cross.h>
 #include <diag.h>
-#include <eml_rand_mt19937ar_stateful.h>
 #include <eye.h>
 #include <fileManager.h>
 #include <fprintf.h>
@@ -23,7 +22,6 @@
 #include <QuatFromRotJ.h>
 #include <quatmultJ.h>
 #include <quatPlusThetaJ.h>
-#include <rand.h>
 #include <rdivide.h>
 #include <repmat.h>
 #include <ros_error.h>
@@ -46,5 +44,4 @@
 #include <SLAM_updIT.h>
 #include <sum.h>
 #include <svd.h>
-#include <undistortPoint.h>
 #endif

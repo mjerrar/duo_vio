@@ -5,7 +5,7 @@
 // File: fprintf.cpp
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 31-Aug-2015 20:50:24
+// C/C++ source code generated on  : 01-Sep-2015 16:22:53
 //
 
 // Include Files
@@ -21,7 +21,6 @@ static double c_fprintf(signed char varargin_1);
 static double e_fprintf(signed char varargin_1);
 static double g_fprintf(int varargin_1, int varargin_2);
 static double i_fprintf();
-static double k_fprintf(double varargin_1, double varargin_2, double varargin_3);
 
 // Function Definitions
 
@@ -138,34 +137,6 @@ static double i_fprintf()
 }
 
 //
-// Arguments    : double varargin_1
-//                double varargin_2
-//                double varargin_3
-// Return Type  : double
-//
-static double k_fprintf(double varargin_1, double varargin_2, double varargin_3)
-{
-  int nbytesint;
-  FILE * b_NULL;
-  boolean_T autoflush;
-  FILE * filestar;
-  static const char cfmt[34] = { 'i', 'n', 'g', 'e', 'g', 'r', 'a', 'l', ' ',
-    'c', 'o', 'n', 't', 'r', 'o', 'l', ':', ' ', '%', '.', '3', 'f', ' ', '%',
-    '.', '3', 'f', ' ', '%', '.', '3', 'f', '\x0a', '\x00' };
-
-  nbytesint = 0;
-  b_NULL = NULL;
-  fileManager(&filestar, &autoflush);
-  if (filestar == b_NULL) {
-  } else {
-    nbytesint = fprintf(filestar, cfmt, varargin_1, varargin_2, varargin_3);
-    fflush(filestar);
-  }
-
-  return nbytesint;
-}
-
-//
 // Arguments    : signed char formatSpec
 // Return Type  : void
 //
@@ -200,17 +171,6 @@ void f_fprintf(int formatSpec, int varargin_1)
 void h_fprintf()
 {
   i_fprintf();
-}
-
-//
-// Arguments    : double formatSpec
-//                double varargin_1
-//                double varargin_2
-// Return Type  : void
-//
-void j_fprintf(double formatSpec, double varargin_1, double varargin_2)
-{
-  k_fprintf(formatSpec, varargin_1, varargin_2);
 }
 
 //
