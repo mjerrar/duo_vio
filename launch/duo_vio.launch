@@ -7,12 +7,12 @@
   <arg name="resolution_height_duo" default="240" />
   
   <arg name="im_noise" default="0.01" />
-  <arg name="acc_noise" default="1" />
-  <arg name="gyro_noise" default="1" />
+  <arg name="acc_noise" default="0.1" />
+  <arg name="gyro_noise" default="0.1" />
   <arg name="gyro_bias_noise" default="0.001" />
   <arg name="orientation_noise" default="1" />
   <arg name="pressure_noise" default="1" />
-  <arg name="sigma_init" default="0.0001" />
+  <arg name="sigma_init" default="0.00001" />
   
   <arg name="Kp_xy" default="1" />
   <arg name="Ki_xy" default="0" />
