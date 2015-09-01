@@ -5,7 +5,7 @@
 // File: ros_warn.h
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 01-Sep-2015 21:43:27
+// C/C++ source code generated on  : 01-Sep-2015 22:19:36
 //
 #ifndef __ROS_WARN_H__
 #define __ROS_WARN_H__
@@ -21,7 +21,6 @@
 #include "SLAM_types.h"
 
 // Function Declarations
-extern void b_ros_warn();
 extern void ros_warn();
 
 #endif

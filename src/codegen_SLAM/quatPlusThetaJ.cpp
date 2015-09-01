@@ -5,7 +5,7 @@
 // File: quatPlusThetaJ.cpp
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 01-Sep-2015 21:43:27
+// C/C++ source code generated on  : 01-Sep-2015 22:19:36
 //
 
 // Include Files
@@ -28,7 +28,7 @@ void quatPlusThetaJ(const double dtheta[3], double dq[4])
   double theta;
   int i;
   double B;
-  theta = norm(dtheta) * 0.5;
+  theta = b_norm(dtheta) * 0.5;
   if (theta < 0.244) {
     for (i = 0; i < 3; i++) {
       dq[i] = 0.5 * dtheta[i];
@@ -42,7 +42,7 @@ void quatPlusThetaJ(const double dtheta[3], double dq[4])
     dq[3] = cos(theta);
   }
 
-  B = b_norm(dq);
+  B = norm(dq);
   for (i = 0; i < 4; i++) {
     dq[i] /= B;
   }

@@ -131,8 +131,8 @@ Localization::Localization()
 
 	update_vec_.assign(num_points_, 0);
 
-	// initialize a valid quaternion in case this topic does not publish
-	mavros_imu_data_.orientation.w = 1.0;
+//	// initialize a valid quaternion in case this topic does not publish
+//	mavros_imu_data_.orientation.w = 1.0;
 
 }
 

@@ -5,7 +5,7 @@
 // File: ros_error.cpp
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 01-Sep-2015 21:43:27
+// C/C++ source code generated on  : 01-Sep-2015 22:19:36
 //
 
 // Include Files
@@ -25,17 +25,17 @@
 //
 void b_ros_error()
 {
-  char cv4[25];
-  int i5;
-  static const char cv5[25] = { 'm', 'a', 'p', ' ', 'f', 'e', 'a', 't', 'u', 'r',
+  char cv8[25];
+  int i7;
+  static const char cv9[25] = { 'm', 'a', 'p', ' ', 'f', 'e', 'a', 't', 'u', 'r',
     'e', ' ', 'i', 's', ' ', 'n', 'o', 't', ' ', 'v', 'a', 'l', 'i', 'd', '\x00'
   };
 
-  for (i5 = 0; i5 < 25; i5++) {
-    cv4[i5] = cv5[i5];
+  for (i7 = 0; i7 < 25; i7++) {
+    cv8[i7] = cv9[i7];
   }
 
-  ROS_ERROR(cv4);
+  ROS_ERROR(cv8);
 }
 
 //
@@ -46,17 +46,17 @@ void b_ros_error()
 //
 void ros_error()
 {
-  char cv0[38];
-  int i3;
-  static const char cv1[38] = { 'A', 'n', 'c', 'h', 'o', 'r', ' ', 'f', 'e', 'a',
+  char cv4[38];
+  int i5;
+  static const char cv5[38] = { 'A', 'n', 'c', 'h', 'o', 'r', ' ', 'f', 'e', 'a',
     't', 'u', 'r', 'e', ' ', 'm', 'a', 't', 'r', 'i', 'x', ' ', 'i', 's', ' ',
     'i', 'n', 'c', 'o', 'n', 's', 'i', 's', 't', 'e', 'n', 't', '\x00' };
 
-  for (i3 = 0; i3 < 38; i3++) {
-    cv0[i3] = cv1[i3];
+  for (i5 = 0; i5 < 38; i5++) {
+    cv4[i5] = cv5[i5];
   }
 
-  ROS_ERROR(cv0);
+  ROS_ERROR(cv4);
 }
 
 //

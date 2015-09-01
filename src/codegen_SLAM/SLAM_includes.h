@@ -26,6 +26,7 @@
 #include "rdivide.h"
 #include "repmat.h"
 #include "ros_error.h"
+#include "ros_info.h"
 #include "ros_warn.h"
 #include "rt_defines.h"
 #include "rtGetInf.h"

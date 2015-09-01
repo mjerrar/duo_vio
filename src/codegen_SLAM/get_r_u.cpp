@@ -5,7 +5,7 @@
 // File: get_r_u.cpp
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 01-Sep-2015 21:43:27
+// C/C++ source code generated on  : 01-Sep-2015 22:19:36
 //
 
 // Include Files
@@ -38,8 +38,8 @@ double get_r_u(double k1, double k2, double k3, double rd)
   double a;
   double b_a;
   double diff;
-  char cv2[46];
-  static const char cv3[46] = { 'n', 'e', 'g', 'a', 't', 'i', 'v', 'e', ' ', 'u',
+  char cv6[46];
+  static const char cv7[46] = { 'n', 'e', 'g', 'a', 't', 'i', 'v', 'e', ' ', 'u',
     'n', 'd', 'i', 's', 't', 'o', 'r', 't', 'e', 'd', ' ', 'r', 'a', 'd', 'i',
     'u', 's', '.', ' ', 'r', 'd', ' ', '=', ' ', '%', 'f', ',', ' ', 'r', 'u',
     ' ', '=', ' ', '%', 'f', '\x00' };
@@ -65,10 +65,10 @@ double get_r_u(double k1, double k2, double k3, double rd)
     // #coder
     // ROS_WARN Print to ROS_WARN in ROS or to console in Matlab
     for (i = 0; i < 46; i++) {
-      cv2[i] = cv3[i];
+      cv6[i] = cv7[i];
     }
 
-    ROS_WARN(cv2, rd, x);
+    ROS_WARN(cv6, rd, x);
   }
 
   return sqrt(x);

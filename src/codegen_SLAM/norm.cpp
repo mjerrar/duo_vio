@@ -5,7 +5,7 @@
 // File: norm.cpp
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 01-Sep-2015 21:43:27
+// C/C++ source code generated on  : 01-Sep-2015 22:19:36
 //
 
 // Include Files
@@ -18,10 +18,10 @@
 // Function Definitions
 
 //
-// Arguments    : const double x[4]
+// Arguments    : const double x[3]
 // Return Type  : double
 //
-double b_norm(const double x[4])
+double b_norm(const double x[3])
 {
   double y;
   double scale;
@@ -30,7 +30,7 @@ double b_norm(const double x[4])
   double t;
   y = 0.0;
   scale = 2.2250738585072014E-308;
-  for (k = 0; k < 4; k++) {
+  for (k = 0; k < 3; k++) {
     absxk = fabs(x[k]);
     if (absxk > scale) {
       t = scale / absxk;
@@ -109,10 +109,10 @@ double d_norm(const emxArray_real_T *x)
 }
 
 //
-// Arguments    : const double x[3]
+// Arguments    : const double x[4]
 // Return Type  : double
 //
-double norm(const double x[3])
+double norm(const double x[4])
 {
   double y;
   double scale;
@@ -121,7 +121,7 @@ double norm(const double x[3])
   double t;
   y = 0.0;
   scale = 2.2250738585072014E-308;
-  for (k = 0; k < 3; k++) {
+  for (k = 0; k < 4; k++) {
     absxk = fabs(x[k]);
     if (absxk > scale) {
       t = scale / absxk;
