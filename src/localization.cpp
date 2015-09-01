@@ -365,6 +365,7 @@ void Localization::dynamicReconfigureCb(vio_ros::vio_rosConfig &config, uint32_t
 	noiseParams.image_noise[1] = config.im_noise;
 	noiseParams.process_noise[0] = config.acc_noise;
 	noiseParams.process_noise[1] = config.gyro_noise;
+	noiseParams.process_noise[2] = config.gyro_bias_noise;
 	noiseParams.orientation_noise = config.orientation_noise;
 	noiseParams.pressure_noise = config.pressure_noise;
 	noiseParams.sigmaInit = config.sigma_init;
@@ -376,6 +377,8 @@ void Localization::dynamicReconfigureCb(vio_ros::vio_rosConfig &config, uint32_t
 	vioParams.max_ekf_iterations = config.max_ekf_iterations;
 	vioParams.use_ext_pose = config.use_ext_pose;
 	vioParams.fixed_anchor = config.fixed_anchor;
+
+	show_tracker_images_ = config.show_tracker_images;
 
 
 }
