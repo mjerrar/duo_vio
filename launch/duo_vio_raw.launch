@@ -23,7 +23,7 @@
   <arg name="Kd_yaw" default="1" />
   <arg name="i_lim" default="10" />
   
-  <arg name="use_orientation" default="1" />
+  <arg name="use_orientation" default="0" />
   <arg name="use_pressure" default="0" />
   <arg name="use_magnetometer" default="0" />
   <arg name="use_ext_pose" default="0" />
