@@ -5,7 +5,7 @@
 // File: eye.cpp
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 01-Sep-2015 22:19:36
+// C/C++ source code generated on  : 02-Sep-2015 21:38:45
 //
 
 // Include Files
@@ -19,36 +19,11 @@
 // Function Definitions
 
 //
-// Arguments    : double varargin_1
-//                emxArray_real_T *I
-// Return Type  : void
-//
-void b_eye(double varargin_1, emxArray_real_T *I)
-{
-  int k;
-  int loop_ub;
-  k = I->size[0] * I->size[1];
-  I->size[0] = (int)varargin_1;
-  I->size[1] = (int)varargin_1;
-  emxEnsureCapacity((emxArray__common *)I, k, (int)sizeof(double));
-  loop_ub = (int)varargin_1 * (int)varargin_1;
-  for (k = 0; k < loop_ub; k++) {
-    I->data[k] = 0.0;
-  }
-
-  if ((int)varargin_1 > 0) {
-    for (k = 0; k + 1 <= (int)varargin_1; k++) {
-      I->data[k + I->size[0] * k] = 1.0;
-    }
-  }
-}
-
-//
 // Arguments    : const double varargin_1[2]
 //                emxArray_real_T *I
 // Return Type  : void
 //
-void c_eye(const double varargin_1[2], emxArray_real_T *I)
+void b_eye(const double varargin_1[2], emxArray_real_T *I)
 {
   double minval;
   int k;
@@ -81,7 +56,7 @@ void c_eye(const double varargin_1[2], emxArray_real_T *I)
 // Arguments    : double I[144]
 // Return Type  : void
 //
-void d_eye(double I[144])
+void c_eye(double I[144])
 {
   int k;
   memset(&I[0], 0, 144U * sizeof(double));
@@ -91,15 +66,27 @@ void d_eye(double I[144])
 }
 
 //
-// Arguments    : double I[9]
+// Arguments    : double varargin_1
+//                emxArray_real_T *I
 // Return Type  : void
 //
-void eye(double I[9])
+void eye(double varargin_1, emxArray_real_T *I)
 {
   int k;
-  memset(&I[0], 0, 9U * sizeof(double));
-  for (k = 0; k < 3; k++) {
-    I[k + 3 * k] = 1.0;
+  int loop_ub;
+  k = I->size[0] * I->size[1];
+  I->size[0] = (int)varargin_1;
+  I->size[1] = (int)varargin_1;
+  emxEnsureCapacity((emxArray__common *)I, k, (int)sizeof(double));
+  loop_ub = (int)varargin_1 * (int)varargin_1;
+  for (k = 0; k < loop_ub; k++) {
+    I->data[k] = 0.0;
+  }
+
+  if ((int)varargin_1 > 0) {
+    for (k = 0; k + 1 <= (int)varargin_1; k++) {
+      I->data[k + I->size[0] * k] = 1.0;
+    }
   }
 }
 

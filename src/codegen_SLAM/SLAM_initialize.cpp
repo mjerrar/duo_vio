@@ -5,15 +5,15 @@
 // File: SLAM_initialize.cpp
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 01-Sep-2015 22:19:36
+// C/C++ source code generated on  : 02-Sep-2015 21:38:45
 //
 
 // Include Files
 #include "rt_nonfinite.h"
 #include "SLAM.h"
 #include "SLAM_initialize.h"
-#include "SLAM_pred.h"
 #include "SLAM_updIT.h"
+#include "SLAM_pred.h"
 #include "SLAM_data.h"
 #include <ros/console.h>
 #include <stdio.h>
@@ -35,6 +35,7 @@ void SLAM_initialize()
     -0.9999, 0.9999, -0.0077, 0.0087 };
 
   rt_InitInfAndNaN(8U);
+  last_imu_not_empty_init();
   minFeatureThreshold = b_minFeatureThreshold;
   numStatesxt = b_numStatesxt;
   numStates = b_numStates;
@@ -42,7 +43,6 @@ void SLAM_initialize()
   initialized_not_empty_init();
   SLAM_init();
   SLAM_updIT_init();
-  SLAM_pred_init();
 }
 
 //

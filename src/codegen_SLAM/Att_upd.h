@@ -5,7 +5,7 @@
 // File: Att_upd.h
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 01-Sep-2015 22:19:36
+// C/C++ source code generated on  : 02-Sep-2015 21:38:45
 //
 #ifndef __ATT_UPD_H__
 #define __ATT_UPD_H__
@@ -21,8 +21,8 @@
 #include "SLAM_types.h"
 
 // Function Declarations
-extern void Att_upd(const double x_data[], double P_data[], int P_size[2], const
-                    double z[3], double n, double dt, double x[4]);
+extern void Att_upd(double x[4], double b_P[9], const double z[3], double n,
+                    double dt);
 
 #endif
 

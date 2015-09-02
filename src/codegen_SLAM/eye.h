@@ -5,7 +5,7 @@
 // File: eye.h
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 01-Sep-2015 22:19:36
+// C/C++ source code generated on  : 02-Sep-2015 21:38:45
 //
 #ifndef __EYE_H__
 #define __EYE_H__
@@ -21,10 +21,9 @@
 #include "SLAM_types.h"
 
 // Function Declarations
-extern void b_eye(double varargin_1, emxArray_real_T *I);
-extern void c_eye(const double varargin_1[2], emxArray_real_T *I);
-extern void d_eye(double I[144]);
-extern void eye(double I[9]);
+extern void b_eye(const double varargin_1[2], emxArray_real_T *I);
+extern void c_eye(double I[144]);
+extern void eye(double varargin_1, emxArray_real_T *I);
 
 #endif
 

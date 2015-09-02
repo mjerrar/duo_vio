@@ -1,11 +1,9 @@
 #ifndef __SLAM_INCLUDES__
 #define __SLAM_INCLUDES__
 #include "any.h"
-#include "Att_pred.h"
 #include "Att_upd.h"
 #include "blkdiag.h"
 #include "colon.h"
-#include "cross.h"
 #include "diag.h"
 #include "eye.h"
 #include "fileManager.h"
@@ -23,10 +21,7 @@
 #include "QuatFromRotJ.h"
 #include "quatmultJ.h"
 #include "quatPlusThetaJ.h"
-#include "rdivide.h"
-#include "repmat.h"
 #include "ros_error.h"
-#include "ros_info.h"
 #include "ros_warn.h"
 #include "rt_defines.h"
 #include "rtGetInf.h"
