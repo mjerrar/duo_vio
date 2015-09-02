@@ -156,7 +156,7 @@ void Localization::duo3dCb(const duo3d_ros::Duo3d& msg)
 
 	last_duo_msg_ = msg;
 
-	double tic_total = ros::Time::now().toSec();
+	ros::Time tic_total = ros::Time::now();
 	sensor_msgs::MagneticField mag; // TODO Subscribe to mag topic
 
 	cv_bridge::CvImagePtr cv_left_image;
@@ -244,7 +244,7 @@ void Localization::duo3dCb(const duo3d_ros::Duo3d& msg)
 		visMarker();
 	}
 
-	double time_measurement = ros::Time::now().toSec() - tic_total;
+	double time_measurement = (ros::Time::now() - tic_total).toSec();
 
 	t_avg=0.05*time_measurement+(1-0.05)*t_avg;
 	if (debug_publish)
