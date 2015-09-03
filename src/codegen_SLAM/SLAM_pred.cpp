@@ -5,7 +5,7 @@
 // File: SLAM_pred.cpp
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 03-Sep-2015 11:02:00
+// C/C++ source code generated on  : 03-Sep-2015 16:53:59
 //
 
 // Include Files
@@ -46,17 +46,7 @@ static void dxdt_dPdt(const double meas[6], const emxArray_real_T *x,
   double dv5[16];
   double b_x[4];
   double dv6[4];
-  double c_x[9];
-  double d_x[3];
-  double d1;
-  static const double grav[3] = { 0.0, 0.0, 9.81 };
 
-  //  if ~all(size(q) == [4, 1])
-  //      error('q does not have the size of a quaternion')
-  //  end
-  //  if abs(norm(q) - 1) > 1e-3
-  //      error('The provided quaternion is not a valid rotation quaternion because it does not have norm 1') 
-  //  end
   // time derivative of the state
   unnamed_idx_0 = (unsigned int)x->size[0];
   i11 = x_dot->size[0];
@@ -118,32 +108,7 @@ static void dxdt_dPdt(const double meas[6], const emxArray_real_T *x,
   }
 
   //  rot angle
-  c_x[0] = ((x->data[3] * x->data[3] - x->data[4] * x->data[4]) - x->data[5] *
-            x->data[5]) + x->data[6] * x->data[6];
-  c_x[1] = 2.0 * (x->data[3] * x->data[4] + x->data[5] * x->data[6]);
-  c_x[2] = 2.0 * (x->data[3] * x->data[5] - x->data[4] * x->data[6]);
-  c_x[3] = 2.0 * (x->data[3] * x->data[4] - x->data[5] * x->data[6]);
-  c_x[4] = ((-(x->data[3] * x->data[3]) + x->data[4] * x->data[4]) - x->data[5] *
-            x->data[5]) + x->data[6] * x->data[6];
-  c_x[5] = 2.0 * (x->data[4] * x->data[5] + x->data[3] * x->data[6]);
-  c_x[6] = 2.0 * (x->data[3] * x->data[5] + x->data[4] * x->data[6]);
-  c_x[7] = 2.0 * (x->data[4] * x->data[5] - x->data[3] * x->data[6]);
-  c_x[8] = ((-(x->data[3] * x->data[3]) - x->data[4] * x->data[4]) + x->data[5] *
-            x->data[5]) + x->data[6] * x->data[6];
-  for (i11 = 0; i11 < 3; i11++) {
-    d1 = 0.0;
-    for (loop_ub = 0; loop_ub < 3; loop_ub++) {
-      d1 += c_x[i11 + 3 * loop_ub] * meas[3 + loop_ub];
-    }
-
-    d_x[i11] = d1 - grav[i11];
-  }
-
-  for (i11 = 0; i11 < 3; i11++) {
-    x_dot->data[7 + i11] = d_x[i11];
-  }
-
-  //  velocity
+  //  x_dot(8:10)  = R_cw'*a - grav;            % velocity
 }
 
 //
@@ -170,6 +135,7 @@ void SLAM_pred(emxArray_real_T *P_apo, emxArray_real_T *x, double dt, const
                const double measurements_acc_duo[3], double c_numStates)
 {
   double w[3];
+  double a[3];
   int i23;
   double b_w;
   double current_imu[6];
@@ -218,17 +184,15 @@ void SLAM_pred(emxArray_real_T *P_apo, emxArray_real_T *x, double dt, const
   double b_xx[4];
   double dv16[6];
   emxArray_real_T *x2;
+  double meas_2[6];
   emxArray_real_T *x3;
-  emxArray_real_T *x4;
   unsigned int unnamed_idx_0;
   double dv17[9];
   double dv18[16];
   double dv19[16];
   double dv20[4];
-  double c_xx[9];
-  double d_xx[3];
-  static const double grav[3] = { 0.0, 0.0, 9.81 };
-
+  emxArray_real_T *x4;
+  double dv21[9];
   emxArray_int32_T *r14;
   emxArray_real_T *c_x;
 
@@ -236,12 +200,13 @@ void SLAM_pred(emxArray_real_T *P_apo, emxArray_real_T *x, double dt, const
   //  %% Iterative Camera Pose optimization (EKF)
   for (i23 = 0; i23 < 3; i23++) {
     b_w = measurements_gyr_duo[i23] - x->data[10 + i23];
+    a[i23] = 0.0 * measurements_acc_duo[i23];
     current_imu[i23] = b_w;
     w[i23] = b_w;
   }
 
   for (k = 0; k < 3; k++) {
-    current_imu[k + 3] = measurements_acc_duo[k];
+    current_imu[k + 3] = a[k];
   }
 
   if (!last_imu_not_empty) {
@@ -322,13 +287,13 @@ void SLAM_pred(emxArray_real_T *P_apo, emxArray_real_T *x, double dt, const
   }
 
   dv14[0] = 0.0;
-  dv14[3] = -measurements_acc_duo[2];
-  dv14[6] = measurements_acc_duo[1];
-  dv14[1] = measurements_acc_duo[2];
+  dv14[3] = -a[2];
+  dv14[6] = a[1];
+  dv14[1] = a[2];
   dv14[4] = 0.0;
-  dv14[7] = -measurements_acc_duo[0];
-  dv14[2] = -measurements_acc_duo[1];
-  dv14[5] = measurements_acc_duo[0];
+  dv14[7] = -a[0];
+  dv14[2] = -a[1];
+  dv14[5] = a[0];
   dv14[8] = 0.0;
   for (i23 = 0; i23 < 3; i23++) {
     for (cr = 0; cr < 3; cr++) {
@@ -845,6 +810,10 @@ void SLAM_pred(emxArray_real_T *P_apo, emxArray_real_T *x, double dt, const
 
   b_emxInit_real_T(&x2, 1);
   dxdt_dPdt(dv16, xx, x2);
+  for (k = 0; k < 6; k++) {
+    meas_2[k] = last_imu[k] + (current_imu[k] - last_imu[k]) * 0.5;
+  }
+
   if (1.0 > c_numStates + 1.0) {
     loop_ub = 0;
   } else {
@@ -871,12 +840,70 @@ void SLAM_pred(emxArray_real_T *P_apo, emxArray_real_T *x, double dt, const
     xx->data[3 + i23] = b_xx[i23];
   }
 
-  for (k = 0; k < 6; k++) {
-    dv16[k] = last_imu[k] + (current_imu[k] - last_imu[k]) * 0.5;
+  b_emxInit_real_T(&x3, 1);
+
+  // time derivative of the state
+  unnamed_idx_0 = (unsigned int)xx->size[0];
+  i23 = x3->size[0];
+  x3->size[0] = (int)unnamed_idx_0;
+  emxEnsureCapacity((emxArray__common *)x3, i23, (int)sizeof(double));
+  loop_ub = (int)unnamed_idx_0;
+  for (i23 = 0; i23 < loop_ub; i23++) {
+    x3->data[i23] = 0.0;
   }
 
-  b_emxInit_real_T(&x3, 1);
-  dxdt_dPdt(dv16, xx, x3);
+  for (i23 = 0; i23 < 3; i23++) {
+    x3->data[i23] = xx->data[7 + i23];
+  }
+
+  //  position
+  dv17[0] = 0.0;
+  dv17[3] = -meas_2[2];
+  dv17[6] = meas_2[1];
+  dv17[1] = meas_2[2];
+  dv17[4] = 0.0;
+  dv17[7] = -meas_2[0];
+  dv17[2] = -meas_2[1];
+  dv17[5] = meas_2[0];
+  dv17[8] = 0.0;
+  for (i23 = 0; i23 < 3; i23++) {
+    for (cr = 0; cr < 3; cr++) {
+      dv18[cr + (i23 << 2)] = -dv17[cr + 3 * i23];
+    }
+  }
+
+  for (i23 = 0; i23 < 3; i23++) {
+    dv18[12 + i23] = meas_2[i23];
+  }
+
+  for (i23 = 0; i23 < 3; i23++) {
+    dv18[3 + (i23 << 2)] = -meas_2[i23];
+  }
+
+  dv18[15] = 0.0;
+  for (i23 = 0; i23 < 4; i23++) {
+    for (cr = 0; cr < 4; cr++) {
+      dv19[cr + (i23 << 2)] = 0.5 * dv18[cr + (i23 << 2)];
+    }
+  }
+
+  for (i23 = 0; i23 < 4; i23++) {
+    b_xx[i23] = xx->data[3 + i23];
+  }
+
+  for (i23 = 0; i23 < 4; i23++) {
+    dv20[i23] = 0.0;
+    for (cr = 0; cr < 4; cr++) {
+      dv20[i23] += dv19[i23 + (cr << 2)] * b_xx[cr];
+    }
+  }
+
+  for (i23 = 0; i23 < 4; i23++) {
+    x3->data[3 + i23] = dv20[i23];
+  }
+
+  //  rot angle
+  //  x_dot(8:10)  = R_cw'*a - grav;            % velocity
   if (1.0 > c_numStates + 1.0) {
     loop_ub = 0;
   } else {
@@ -905,12 +932,6 @@ void SLAM_pred(emxArray_real_T *P_apo, emxArray_real_T *x, double dt, const
 
   b_emxInit_real_T(&x4, 1);
 
-  //  if ~all(size(q) == [4, 1])
-  //      error('q does not have the size of a quaternion')
-  //  end
-  //  if abs(norm(q) - 1) > 1e-3
-  //      error('The provided quaternion is not a valid rotation quaternion because it does not have norm 1') 
-  //  end
   // time derivative of the state
   unnamed_idx_0 = (unsigned int)xx->size[0];
   i23 = x4->size[0];
@@ -926,18 +947,18 @@ void SLAM_pred(emxArray_real_T *P_apo, emxArray_real_T *x, double dt, const
   }
 
   //  position
-  dv17[0] = 0.0;
-  dv17[3] = -current_imu[2];
-  dv17[6] = current_imu[1];
-  dv17[1] = current_imu[2];
-  dv17[4] = 0.0;
-  dv17[7] = -current_imu[0];
-  dv17[2] = -current_imu[1];
-  dv17[5] = current_imu[0];
-  dv17[8] = 0.0;
+  dv21[0] = 0.0;
+  dv21[3] = -current_imu[2];
+  dv21[6] = current_imu[1];
+  dv21[1] = current_imu[2];
+  dv21[4] = 0.0;
+  dv21[7] = -current_imu[0];
+  dv21[2] = -current_imu[1];
+  dv21[5] = current_imu[0];
+  dv21[8] = 0.0;
   for (i23 = 0; i23 < 3; i23++) {
     for (cr = 0; cr < 3; cr++) {
-      dv18[cr + (i23 << 2)] = -dv17[cr + 3 * i23];
+      dv18[cr + (i23 << 2)] = -dv21[cr + 3 * i23];
     }
   }
 
@@ -960,6 +981,7 @@ void SLAM_pred(emxArray_real_T *P_apo, emxArray_real_T *x, double dt, const
     b_xx[i23] = xx->data[3 + i23];
   }
 
+  emxFree_real_T(&xx);
   for (i23 = 0; i23 < 4; i23++) {
     dv20[i23] = 0.0;
     for (cr = 0; cr < 4; cr++) {
@@ -972,33 +994,7 @@ void SLAM_pred(emxArray_real_T *P_apo, emxArray_real_T *x, double dt, const
   }
 
   //  rot angle
-  c_xx[0] = ((xx->data[3] * xx->data[3] - xx->data[4] * xx->data[4]) - xx->data
-             [5] * xx->data[5]) + xx->data[6] * xx->data[6];
-  c_xx[1] = 2.0 * (xx->data[3] * xx->data[4] + xx->data[5] * xx->data[6]);
-  c_xx[2] = 2.0 * (xx->data[3] * xx->data[5] - xx->data[4] * xx->data[6]);
-  c_xx[3] = 2.0 * (xx->data[3] * xx->data[4] - xx->data[5] * xx->data[6]);
-  c_xx[4] = ((-(xx->data[3] * xx->data[3]) + xx->data[4] * xx->data[4]) -
-             xx->data[5] * xx->data[5]) + xx->data[6] * xx->data[6];
-  c_xx[5] = 2.0 * (xx->data[4] * xx->data[5] + xx->data[3] * xx->data[6]);
-  c_xx[6] = 2.0 * (xx->data[3] * xx->data[5] + xx->data[4] * xx->data[6]);
-  c_xx[7] = 2.0 * (xx->data[4] * xx->data[5] - xx->data[3] * xx->data[6]);
-  c_xx[8] = ((-(xx->data[3] * xx->data[3]) - xx->data[4] * xx->data[4]) +
-             xx->data[5] * xx->data[5]) + xx->data[6] * xx->data[6];
-  emxFree_real_T(&xx);
-  for (i23 = 0; i23 < 3; i23++) {
-    c = 0.0;
-    for (cr = 0; cr < 3; cr++) {
-      c += c_xx[i23 + 3 * cr] * current_imu[3 + cr];
-    }
-
-    d_xx[i23] = c - grav[i23];
-  }
-
-  for (i23 = 0; i23 < 3; i23++) {
-    x4->data[7 + i23] = d_xx[i23];
-  }
-
-  //  velocity
+  //  x_dot(8:10)  = R_cw'*a - grav;            % velocity
   if (1.0 > c_numStates + 1.0) {
     loop_ub = 0;
   } else {

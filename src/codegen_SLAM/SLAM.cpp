@@ -5,7 +5,7 @@
 // File: SLAM.cpp
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 03-Sep-2015 11:02:00
+// C/C++ source code generated on  : 03-Sep-2015 16:53:59
 //
 
 // Include Files
@@ -131,7 +131,7 @@ void SLAM(double updateVect[32], const double z_all_l[64], const double z_all_r
 
   int itilerow;
   double dq[4];
-  double d4;
+  double d3;
   static const signed char y[9] = { 1, 0, 0, 0, 1, 0, 0, 0, 1 };
 
   double err_p_b[3];
@@ -143,17 +143,19 @@ void SLAM(double updateVect[32], const double z_all_l[64], const double z_all_r
   double b_measurements_[9];
   double c;
   double b_err_p_b[3];
-  double Phi[9];
+  double R_bw[9];
   double dv9[16];
   double b_dq[4];
   double c_measurements_[9];
-  double b_Phi[9];
+  double b_R_bw[9];
   double a[9];
   static const signed char b_b[9] = { 1, 0, 0, 0, 1, 0, 0, 0, 1 };
 
   static const signed char b_a[9] = { -1, 0, 0, 0, -1, 0, 0, 0, -1 };
 
-  double yaw;
+  static const signed char c_b[9] = { 1, 0, 0, 0, 1, 0, 0, 0, 0 };
+
+  double yaw_trafo;
   static const signed char iv4[3] = { 0, 0, 1 };
 
   double c_ControllerGains[3];
@@ -267,7 +269,7 @@ void SLAM(double updateVect[32], const double z_all_l[64], const double z_all_r
     }
 
     //  initial real vector
-    d4 = b_VIOParameters->num_anchors * (6.0 +
+    d3 = b_VIOParameters->num_anchors * (6.0 +
       b_VIOParameters->num_points_per_anchor);
     ibcol = r3->size[0] * r3->size[1];
     r3->size[0] = (int)numStates;
@@ -279,10 +281,10 @@ void SLAM(double updateVect[32], const double z_all_l[64], const double z_all_r
     }
 
     ibcol = r4->size[0] * r4->size[1];
-    r4->size[0] = (int)d4;
-    r4->size[1] = (int)d4;
+    r4->size[0] = (int)d3;
+    r4->size[1] = (int)d3;
     emxEnsureCapacity((emxArray__common *)r4, ibcol, (int)sizeof(double));
-    outsize_idx_0 = (int)d4 * (int)d4;
+    outsize_idx_0 = (int)d3 * (int)d3;
     for (ibcol = 0; ibcol < outsize_idx_0; ibcol++) {
       r4->data[ibcol] = 0.0;
     }
@@ -390,7 +392,7 @@ void SLAM(double updateVect[32], const double z_all_l[64], const double z_all_r
     for (k = 0; k < 3; k++) {
       R_cw[k + 3 * k] = 1.0;
       for (ibcol = 0; ibcol < 3; ibcol++) {
-        Phi[ibcol + 3 * k] = R_cw[ibcol + 3 * k] + -b_measurements_[ibcol + 3 *
+        R_bw[ibcol + 3 * k] = R_cw[ibcol + 3 * k] + -b_measurements_[ibcol + 3 *
           k] * dt;
       }
 
@@ -429,8 +431,8 @@ void SLAM(double updateVect[32], const double z_all_l[64], const double z_all_r
       for (outsize_idx_0 = 0; outsize_idx_0 < 3; outsize_idx_0++) {
         b_measurements_[ibcol + 3 * outsize_idx_0] = 0.0;
         for (itilerow = 0; itilerow < 3; itilerow++) {
-          b_measurements_[ibcol + 3 * outsize_idx_0] += Phi[ibcol + 3 * itilerow]
-            * P_att[itilerow + 3 * outsize_idx_0];
+          b_measurements_[ibcol + 3 * outsize_idx_0] += R_bw[ibcol + 3 *
+            itilerow] * P_att[itilerow + 3 * outsize_idx_0];
         }
 
         c_measurements_[ibcol + 3 * outsize_idx_0] = 0.0;
@@ -441,10 +443,10 @@ void SLAM(double updateVect[32], const double z_all_l[64], const double z_all_r
       }
 
       for (outsize_idx_0 = 0; outsize_idx_0 < 3; outsize_idx_0++) {
-        b_Phi[ibcol + 3 * outsize_idx_0] = 0.0;
+        b_R_bw[ibcol + 3 * outsize_idx_0] = 0.0;
         for (itilerow = 0; itilerow < 3; itilerow++) {
-          b_Phi[ibcol + 3 * outsize_idx_0] += b_measurements_[ibcol + 3 *
-            itilerow] * Phi[outsize_idx_0 + 3 * itilerow];
+          b_R_bw[ibcol + 3 * outsize_idx_0] += b_measurements_[ibcol + 3 *
+            itilerow] * R_bw[outsize_idx_0 + 3 * itilerow];
         }
 
         a[ibcol + 3 * outsize_idx_0] = 0.0;
@@ -457,7 +459,7 @@ void SLAM(double updateVect[32], const double z_all_l[64], const double z_all_r
 
     for (ibcol = 0; ibcol < 3; ibcol++) {
       for (outsize_idx_0 = 0; outsize_idx_0 < 3; outsize_idx_0++) {
-        P_att[outsize_idx_0 + 3 * ibcol] = b_Phi[outsize_idx_0 + 3 * ibcol] +
+        P_att[outsize_idx_0 + 3 * ibcol] = b_R_bw[outsize_idx_0 + 3 * ibcol] +
           a[outsize_idx_0 + 3 * ibcol];
       }
     }
@@ -468,49 +470,61 @@ void SLAM(double updateVect[32], const double z_all_l[64], const double z_all_r
       xt->data[3 + ibcol] = x_att[ibcol];
     }
 
-    initializing_attitude++;
-    if (initializing_attitude >= 20.0) {
-      for (ibcol = 0; ibcol < 3; ibcol++) {
-        for (outsize_idx_0 = 0; outsize_idx_0 < 3; outsize_idx_0++) {
-          P->data[(outsize_idx_0 + P->size[0] * (3 + ibcol)) + 3] =
-            P_att[outsize_idx_0 + 3 * ibcol];
+    initializing_attitude = 2.0;
+
+    //  if ~all(size(q) == [4, 1])
+    //      error('q does not have the size of a quaternion')
+    //  end
+    //  if abs(norm(q) - 1) > 1e-3
+    //      error('The provided quaternion is not a valid rotation quaternion because it does not have norm 1') 
+    //  end
+    R_cw[0] = ((x_att[0] * x_att[0] - x_att[1] * x_att[1]) - x_att[2] * x_att[2])
+      + x_att[3] * x_att[3];
+    R_cw[3] = 2.0 * (x_att[0] * x_att[1] + x_att[2] * x_att[3]);
+    R_cw[6] = 2.0 * (x_att[0] * x_att[2] - x_att[1] * x_att[3]);
+    R_cw[1] = 2.0 * (x_att[0] * x_att[1] - x_att[2] * x_att[3]);
+    R_cw[4] = ((-(x_att[0] * x_att[0]) + x_att[1] * x_att[1]) - x_att[2] *
+               x_att[2]) + x_att[3] * x_att[3];
+    R_cw[7] = 2.0 * (x_att[1] * x_att[2] + x_att[0] * x_att[3]);
+    R_cw[2] = 2.0 * (x_att[0] * x_att[2] + x_att[1] * x_att[3]);
+    R_cw[5] = 2.0 * (x_att[1] * x_att[2] - x_att[0] * x_att[3]);
+    R_cw[8] = ((-(x_att[0] * x_att[0]) - x_att[1] * x_att[1]) + x_att[2] *
+               x_att[2]) + x_att[3] * x_att[3];
+    for (ibcol = 0; ibcol < 3; ibcol++) {
+      for (outsize_idx_0 = 0; outsize_idx_0 < 3; outsize_idx_0++) {
+        b_measurements_[ibcol + 3 * outsize_idx_0] = 0.0;
+        for (itilerow = 0; itilerow < 3; itilerow++) {
+          b_measurements_[ibcol + 3 * outsize_idx_0] += 0.1 * R_cw[ibcol + 3 *
+            itilerow] * (double)c_b[itilerow + 3 * outsize_idx_0];
         }
-      }
-
-      SLAM_updIT(P, xt, cameraParameters->CameraParameters1.RadialDistortion,
-                 cameraParameters->CameraParameters1.FocalLength,
-                 cameraParameters->CameraParameters1.PrincipalPoint,
-                 cameraParameters->CameraParameters2.RadialDistortion,
-                 cameraParameters->CameraParameters2.FocalLength,
-                 cameraParameters->CameraParameters2.PrincipalPoint,
-                 cameraParameters->r_lr, cameraParameters->R_lr,
-                 cameraParameters->R_rl, updateVect, z_all_l, z_all_r,
-                 noiseParameters->image_noise, noiseParameters->sigmaInit,
-                 noiseParameters->orientation_noise,
-                 noiseParameters->pressure_noise, noiseParameters->ext_pos_noise,
-                 noiseParameters->ext_att_noise, &measurements_,
-                 height_offset_pressure, *b_VIOParameters, h_u_apo_out, map_out);
-      initializing_attitude = 0.0;
-    } else {
-      ibcol = h_u_apo_out->size[0];
-      h_u_apo_out->size[0] = (int)(numTrackFeatures * 4.0);
-      emxEnsureCapacity((emxArray__common *)h_u_apo_out, ibcol, (int)sizeof
-                        (double));
-      outsize_idx_0 = (int)(numTrackFeatures * 4.0);
-      for (ibcol = 0; ibcol < outsize_idx_0; ibcol++) {
-        h_u_apo_out->data[ibcol] = 0.0;
-      }
-
-      ibcol = map_out->size[0] * map_out->size[1];
-      map_out->size[0] = 3;
-      map_out->size[1] = (int)numTrackFeatures;
-      emxEnsureCapacity((emxArray__common *)map_out, ibcol, (int)sizeof(double));
-      outsize_idx_0 = 3 * (int)numTrackFeatures;
-      for (ibcol = 0; ibcol < outsize_idx_0; ibcol++) {
-        map_out->data[ibcol] = 0.0;
       }
     }
 
+    for (ibcol = 0; ibcol < 3; ibcol++) {
+      for (outsize_idx_0 = 0; outsize_idx_0 < 3; outsize_idx_0++) {
+        P->data[(ibcol + P->size[0] * (3 + outsize_idx_0)) + 3] = 0.0;
+        for (itilerow = 0; itilerow < 3; itilerow++) {
+          P->data[(ibcol + P->size[0] * (3 + outsize_idx_0)) + 3] +=
+            b_measurements_[ibcol + 3 * itilerow] * R_cw[outsize_idx_0 + 3 *
+            itilerow];
+        }
+      }
+    }
+
+    SLAM_updIT(P, xt, cameraParameters->CameraParameters1.RadialDistortion,
+               cameraParameters->CameraParameters1.FocalLength,
+               cameraParameters->CameraParameters1.PrincipalPoint,
+               cameraParameters->CameraParameters2.RadialDistortion,
+               cameraParameters->CameraParameters2.FocalLength,
+               cameraParameters->CameraParameters2.PrincipalPoint,
+               cameraParameters->r_lr, cameraParameters->R_lr,
+               cameraParameters->R_rl, updateVect, z_all_l, z_all_r,
+               noiseParameters->image_noise, noiseParameters->sigmaInit,
+               noiseParameters->orientation_noise,
+               noiseParameters->pressure_noise, noiseParameters->ext_pos_noise,
+               noiseParameters->ext_att_noise, &measurements_,
+               height_offset_pressure, *b_VIOParameters, h_u_apo_out, map_out);
+    initializing_attitude = 0.0;
     ibcol = xt_out->size[0];
     xt_out->size[0] = xt->size[0];
     emxEnsureCapacity((emxArray__common *)xt_out, ibcol, (int)sizeof(double));
@@ -618,13 +632,13 @@ void SLAM(double updateVect[32], const double z_all_l[64], const double z_all_r
         ext_pose_offset_initialized = true;
       } else {
         for (ibcol = 0; ibcol < 3; ibcol++) {
-          d4 = 0.0;
+          d3 = 0.0;
           for (outsize_idx_0 = 0; outsize_idx_0 < 3; outsize_idx_0++) {
-            d4 += ext_att_offset[outsize_idx_0 + 3 * ibcol] *
+            d3 += ext_att_offset[outsize_idx_0 + 3 * ibcol] *
               measurements_.pos_ext[outsize_idx_0];
           }
 
-          b_err_p_b[ibcol] = d4 + ext_pos_offset[ibcol];
+          b_err_p_b[ibcol] = d3 + ext_pos_offset[ibcol];
         }
 
         for (ibcol = 0; ibcol < 3; ibcol++) {
@@ -717,19 +731,17 @@ void SLAM(double updateVect[32], const double z_all_l[64], const double z_all_r
     R_cw[0] = ((xt->data[3] * xt->data[3] - xt->data[4] * xt->data[4]) -
                xt->data[5] * xt->data[5]) + xt->data[6] * xt->data[6];
     R_cw[3] = 2.0 * (xt->data[3] * xt->data[4] + xt->data[5] * xt->data[6]);
-    R_cw[2] = 2.0 * (xt->data[3] * xt->data[5] + xt->data[4] * xt->data[6]);
-    R_cw[5] = 2.0 * (xt->data[4] * xt->data[5] - xt->data[3] * xt->data[6]);
-    R_cw[8] = ((-(xt->data[3] * xt->data[3]) - xt->data[4] * xt->data[4]) +
-               xt->data[5] * xt->data[5]) + xt->data[6] * xt->data[6];
-    yaw = rt_atan2d_snf(R_cw[3], R_cw[0]);
-    R_cw[0] = cos(yaw);
-    R_cw[3] = sin(yaw);
-    R_cw[6] = 0.0;
-    R_cw[1] = sin(yaw);
-    R_cw[4] = cos(yaw);
-    R_cw[7] = 0.0;
+    yaw_trafo = rt_atan2d_snf(R_cw[3], R_cw[0]) + 1.5707963267948966;
+
+    //  transform between world and control frame (yaw-rotatate world frame)
+    R_bw[0] = cos(yaw_trafo);
+    R_bw[3] = sin(yaw_trafo);
+    R_bw[6] = 0.0;
+    R_bw[1] = sin(yaw_trafo);
+    R_bw[4] = cos(yaw_trafo);
+    R_bw[7] = 0.0;
     for (ibcol = 0; ibcol < 3; ibcol++) {
-      R_cw[2 + 3 * ibcol] = iv4[ibcol];
+      R_bw[2 + 3 * ibcol] = iv4[ibcol];
     }
 
     for (ibcol = 0; ibcol < 3; ibcol++) {
@@ -739,24 +751,24 @@ void SLAM(double updateVect[32], const double z_all_l[64], const double z_all_r
     for (ibcol = 0; ibcol < 3; ibcol++) {
       err_p_b[ibcol] = 0.0;
       for (outsize_idx_0 = 0; outsize_idx_0 < 3; outsize_idx_0++) {
-        err_p_b[ibcol] += R_cw[ibcol + 3 * outsize_idx_0] *
+        err_p_b[ibcol] += R_bw[ibcol + 3 * outsize_idx_0] *
           b_err_p_b[outsize_idx_0];
       }
     }
 
-    //  position error in body frame
+    //  position error in control frame
     for (ibcol = 0; ibcol < 3; ibcol++) {
       b_err_p_b[ibcol] = xt->data[7 + ibcol] - ref->velocity[ibcol];
     }
 
-    //  velocity error in body frame
+    //  velocity error in control frame
     c_ControllerGains[0] = b_ControllerGains->Ki_xy * err_p_b[0];
     c_ControllerGains[1] = b_ControllerGains->Ki_xy * err_p_b[1];
     c_ControllerGains[2] = b_ControllerGains->Ki_z * err_p_b[2];
     for (ibcol = 0; ibcol < 3; ibcol++) {
       err_v_b[ibcol] = 0.0;
       for (outsize_idx_0 = 0; outsize_idx_0 < 3; outsize_idx_0++) {
-        err_v_b[ibcol] += R_cw[ibcol + 3 * outsize_idx_0] *
+        err_v_b[ibcol] += R_bw[ibcol + 3 * outsize_idx_0] *
           b_err_p_b[outsize_idx_0];
       }
 
@@ -775,6 +787,7 @@ void SLAM(double updateVect[32], const double z_all_l[64], const double z_all_r
       i_control[0] = minval;
     }
 
+    //  saturate integral part
     if ((b_ControllerGains->i_lim <= i_control[1]) || rtIsNaN(i_control[1])) {
       minval = b_ControllerGains->i_lim;
     } else {
@@ -800,6 +813,7 @@ void SLAM(double updateVect[32], const double z_all_l[64], const double z_all_r
     }
 
     //  fprintf('ingegral control: %.3f %.3f %.3f\n', i_control(1), i_control(2), i_control(3)) 
+    //  fprintf('control frame error: %.3f %.3f %.3f %.3f\n', err_p_b(1), err_p_b(2), err_p_b(3), (yaw_ctrl - ref.position(4))) 
     d_ControllerGains[0] = b_ControllerGains->Kp_xy * err_p_b[0];
     d_ControllerGains[1] = b_ControllerGains->Kp_xy * err_p_b[1];
     d_ControllerGains[2] = b_ControllerGains->Kp_z * err_p_b[2];
