@@ -10,6 +10,9 @@
 #include <math.h>
 #include <stdio.h>
 #include <visualization_msgs/Marker.h>
+#include <time.h>
+
+static const int DUO_QUEUE_SIZE = 100;
 
 Localization::Localization()
 : nh_("~"),
@@ -18,7 +21,8 @@ Localization::Localization()
   received_IMU_data(false),
   change_reference(false),
   vicon_pos(3, 0.0),
-  vicon_quaternion(4, 0.0)
+  vicon_quaternion(4, 0.0),
+  max_clicks_(0)
 {
 
 	emxInitArray_real_T(&xt_out,1);
@@ -30,7 +34,7 @@ Localization::Localization()
 
 	pose_pub_ = nh_.advertise<geometry_msgs::PoseStamped>("/pose",1);
 	velocity_pub_ = nh_.advertise<geometry_msgs::Twist>("/velocity",1);
-	combined_sub = nh_.subscribe("/duo3d_camera/combined",1,
+	combined_sub = nh_.subscribe("/duo3d_camera/combined",DUO_QUEUE_SIZE,
 			&Localization::duo3dCb,this);
 	point_cloud_pub_ = nh_.advertise<sensor_msgs::PointCloud>("/vio/features_point_cloud",1); //TODO: add to debug parameter
 	path_pub_ = nh_.advertise<nav_msgs::Path>("/vio/SLAM_path",1);
@@ -47,6 +51,7 @@ Localization::Localization()
 			&Localization::mavrosPressureCb, this);
 	joy_sub_ = nh_.subscribe("/joy",1, &Localization::joystickCb, this);
 	position_reference_sub_ = nh_.subscribe("/onboard_localization/position_reference",1, &Localization::positionReferenceCb, this);
+	msg_processed_pub = nh_.advertise<std_msgs::Int32>("/vio/msg_processed", 1);
 
 
 	// Init parameters
@@ -144,6 +149,8 @@ Localization::~Localization()
 	emxDestroyArray_real_T(h_u_apo);
 	emxDestroyArray_real_T(map);
 	SLAM_terminate();
+
+	printf("Longest update duration: %.3f msec, %.3f Hz\n", float(max_clicks_)/CLOCKS_PER_SEC, CLOCKS_PER_SEC/float(max_clicks_));
 }
 
 void Localization::duo3dCb(const duo3d_ros::Duo3d& msg)
@@ -154,9 +161,12 @@ void Localization::duo3dCb(const duo3d_ros::Duo3d& msg)
 		return;
 	}
 
+	ros::Time tic_total = ros::Time::now();
+	clock_t tic_total_clock = clock();
+
 	last_duo_msg_ = msg;
 
-	ros::Time tic_total = ros::Time::now();
+
 	sensor_msgs::MagneticField mag; // TODO Subscribe to mag topic
 
 	cv_bridge::CvImagePtr cv_left_image;
@@ -247,8 +257,22 @@ void Localization::duo3dCb(const duo3d_ros::Duo3d& msg)
 	double time_measurement = (ros::Time::now() - tic_total).toSec();
 
 	t_avg=0.05*time_measurement+(1-0.05)*t_avg;
-	if (debug_publish)
-		ROS_INFO("Duration: %f ms. Theoretical max frequency: %.3f Hz\n", t_avg, 1/t_avg);
+	if (0&&debug_publish || time_measurement > 1/60.0)
+	{
+		if (time_measurement > 1/60.0)
+			ROS_WARN("Duration: %f ms. Theoretical max frequency: %.3f Hz\n", time_measurement, 1/time_measurement);
+		else
+			ROS_INFO("Duration: %f ms. Theoretical max frequency: %.3f Hz\n", time_measurement, 1/time_measurement);
+	}
+	clock_t toc_total_clock = clock();
+
+	if (toc_total_clock - tic_total_clock > max_clicks_)
+		max_clicks_ = toc_total_clock - tic_total_clock;
+
+	std_msgs::Int32 m;
+	m.data = DUO_QUEUE_SIZE;
+	msg_processed_pub.publish(m);
+
 }
 
 void Localization::mavrosImuCb(const sensor_msgs::Imu msg)
@@ -436,7 +460,12 @@ void Localization::update(double dt, const cv::Mat& left_image, const cv::Mat& r
 	ros::Time tic = ros::Time::now();
 	ros::Time tic_total = tic;
 
+	clock_t bef = clock();
+
 	handle_points_klt(left_image, right_image, z_all_l, z_all_r, update_vec_);
+
+	clock_t aft = clock();
+	printf("KLT  took %d clicks, %.3f msec\n", int(aft - bef), 1000*float(aft - bef)/CLOCKS_PER_SEC);
 
 	double update_vec_array[num_points_];
 	double update_vec_array_out[num_points_];
@@ -469,6 +498,8 @@ void Localization::update(double dt, const cv::Mat& left_image, const cv::Mat& r
 	// Update SLAM and get pose estimation
 	tic = ros::Time::now();
 
+	bef = clock();
+
 	SLAM(update_vec_array,
 			&z_all_l[0],
 			&z_all_r[0],
@@ -485,6 +516,9 @@ void Localization::update(double dt, const cv::Mat& left_image, const cv::Mat& r
 			P_apo_out,
 			map,
 			u_out);
+
+	aft = clock();
+	printf("SLAM took %d clicks, %.3f msec\n", int(aft - bef), 1000*float(aft - bef)/CLOCKS_PER_SEC);
 
 	// failure check
 	double dx = abs(xt_out->data[0] - pose.position.x);

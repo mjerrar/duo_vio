@@ -43,6 +43,7 @@
 #include "std_msgs/MultiArrayDimension.h"
 
 #include "std_msgs/Float32MultiArray.h"
+#include "std_msgs/Int32.h"
 
 #include "onboard_localization/PositionReference.h"
 
@@ -59,6 +60,7 @@ private:
 	bool received_IMU_data;
 	bool publish_on_debug_topics;
 	int display_tracks_cnt;
+	int max_clicks_;
 	ros::Time last_debug_publish;
 
 	StereoParameters cameraParams;
@@ -82,6 +84,8 @@ private:
 
 	ros::Publisher debug_imu_pub_; // publisher that publishes the imu data that is fed to SLAM, for rosbags
 	ros::Publisher debug_img_pub_; // publisher that publishes the images that are fed to SLAM, for rosbags
+
+	ros::Publisher msg_processed_pub;
 
 	tf::TransformBroadcaster tf_broadcaster_;
 
