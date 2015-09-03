@@ -5,7 +5,7 @@
 // File: SLAM.cpp
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 03-Sep-2015 21:38:20
+// C/C++ source code generated on  : 03-Sep-2015 21:50:35
 //
 
 // Include Files
@@ -163,7 +163,6 @@ void SLAM(double updateVect[24], const double z_all_l[48], const double z_all_r
   double c_ControllerGains[3];
   double err_v_b[3];
   double minval;
-  double u_out_pos[3];
   for (outsize_idx_0 = 0; outsize_idx_0 < 4; outsize_idx_0++) {
     u_out[outsize_idx_0] = 0.0;
   }
@@ -813,24 +812,19 @@ void SLAM(double updateVect[24], const double z_all_l[48], const double z_all_r
     }
 
     //  fprintf('ingegral control: %.3f %.3f %.3f\n', i_control(1), i_control(2), i_control(3)) 
-    u_out_pos[0] = -((b_ControllerGains->Kp_xy * err_p_b[0] + i_control[0]) +
-                     b_ControllerGains->Kd_xy * err_v_b[0]);
-    u_out_pos[1] = -((b_ControllerGains->Kp_xy * err_p_b[1] + i_control[1]) +
-                     b_ControllerGains->Kd_xy * err_v_b[1]);
-    u_out_pos[2] = -((b_ControllerGains->Kp_z * err_p_b[2] + i_control[2]) +
-                     b_ControllerGains->Kd_z * err_v_b[2]);
-
     //  yaw_ctrl = atan2(R_cw(1,2), R_cw(1,1));
-    j_fprintf(err_p_b[0], err_p_b[1], err_p_b[2], (r + 1.5707963267948966) -
-              ref->position[3]);
-    for (outsize_idx_0 = 0; outsize_idx_0 < 3; outsize_idx_0++) {
-      u_out[outsize_idx_0] = u_out_pos[outsize_idx_0];
-    }
-
+    //  fprintf('control frame error: %.3f %.3f %.3f %.3f\n', err_p_b(1), err_p_b(2), err_p_b(3), (yaw_trafo - ref.position(4))) 
+    u_out[0] = -((b_ControllerGains->Kp_xy * err_p_b[0] + i_control[0]) +
+                 b_ControllerGains->Kd_xy * err_v_b[0]);
+    u_out[1] = -((b_ControllerGains->Kp_xy * err_p_b[1] + i_control[1]) +
+                 b_ControllerGains->Kd_xy * err_v_b[1]);
+    u_out[2] = -((b_ControllerGains->Kp_z * err_p_b[2] + i_control[2]) +
+                 b_ControllerGains->Kd_z * err_v_b[2]);
     u_out[3] = b_ControllerGains->Kd_yaw * ref->velocity[3] -
       b_ControllerGains->Kp_yaw * ((r + 1.5707963267948966) - ref->position[3]);
+    j_fprintf(err_p_b[0], err_p_b[1], err_p_b[2], (r + 1.5707963267948966) -
+              ref->position[3], u_out[0], u_out[1], u_out[2], u_out[3]);
 
-    //  fprintf('position error (%.3f, %.3f, %.3f, %.3f), control: (%.3f, %.3f, %.3f, %.3f)\n', xt(1) - ref(1), xt(2) - ref(2), xt(3) - ref(3), yaw - ref(4), u_out_x, u_out_y, u_out_z, u_out_yaw); 
     //  if almost all features were lost, do a soft reset
     ibcol = xt->size[0];
     xt->size[0] = xt_apo->size[0];
