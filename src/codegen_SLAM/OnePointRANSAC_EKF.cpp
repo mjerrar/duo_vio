@@ -5,7 +5,7 @@
 // File: OnePointRANSAC_EKF.cpp
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 03-Sep-2015 16:53:59
+// C/C++ source code generated on  : 03-Sep-2015 17:44:13
 //
 
 // Include Files
@@ -34,7 +34,7 @@
 // the state
 // Arguments    : emxArray_real_T *b_xt
 //                emxArray_real_T *b_P
-//                double z_all_l[64]
+//                double z_all_l[48]
 //                double c_numStatesxt
 //                double c_numStates
 //                const double c_cameraparams_CameraParameters[3]
@@ -55,7 +55,7 @@
 // Return Type  : void
 //
 void OnePointRANSAC_EKF(emxArray_real_T *b_xt, emxArray_real_T *b_P, double
-  z_all_l[64], double c_numStatesxt, double c_numStates, const double
+  z_all_l[48], double c_numStatesxt, double c_numStates, const double
   c_cameraparams_CameraParameters[3], const double
   d_cameraparams_CameraParameters[2], const double
   e_cameraparams_CameraParameters[2], const emxArray_real_T *b_anchorFeatures,
@@ -70,21 +70,21 @@ void OnePointRANSAC_EKF(emxArray_real_T *b_xt, emxArray_real_T *b_P, double
   double numPointsPerAnchor;
   int i16;
   int loop_ub;
-  boolean_T x[32];
+  boolean_T x[24];
   int idx;
-  int ii_data[32];
+  int ii_data[24];
   int ii;
   boolean_T exitg2;
   boolean_T guard1 = false;
-  signed char indMeas_data[32];
+  signed char indMeas_data[24];
   emxArray_real_T *K;
   emxArray_real_T *H;
-  signed char x_data[64];
+  signed char x_data[48];
   int nx;
-  double indMeas_z_data[64];
+  double indMeas_z_data[48];
   int indMeas_z_size[1];
   int k;
-  double tmp_data[64];
+  double tmp_data[48];
   double k1_l;
   double k2_l;
   double k3_l;
@@ -97,7 +97,7 @@ void OnePointRANSAC_EKF(emxArray_real_T *b_xt, emxArray_real_T *b_P, double
   emxArray_real_T *map;
   emxArray_real_T *anchorInd;
   emxArray_real_T *featureAnchorInd;
-  boolean_T HI_inlierStatus_data[32];
+  boolean_T HI_inlierStatus_data[24];
   emxArray_real_T *x_apo_prev;
   int ib;
   int it;
@@ -110,21 +110,21 @@ void OnePointRANSAC_EKF(emxArray_real_T *b_xt, emxArray_real_T *b_P, double
   emxArray_real_T *b_x_apo;
   emxArray_real_T *c_xt;
   boolean_T exitg1;
-  double b_indMeas_data[32];
+  double b_indMeas_data[24];
   int indMeas_size[1];
   int R_size[2];
-  static double R_data[5476];
+  double R_data[3364];
   int r_size[1];
-  double r_data[74];
+  double r_data[58];
   int i17;
   double a[2];
   int m;
   int ic;
   int ia;
-  double S_data[5476];
+  double S_data[3364];
   double r[2];
   double S[4];
-  double C_data[5476];
+  double C_data[3364];
   int C_size[2];
   double d_xt[3];
   double dv11[4];
@@ -140,7 +140,7 @@ void OnePointRANSAC_EKF(emxArray_real_T *b_xt, emxArray_real_T *b_P, double
   //  threshold for minimum LI supporter
   numPointsPerAnchor = b_VIOParameters.num_points_per_anchor;
   i16 = c_anchorFeatures->size[0] * c_anchorFeatures->size[1];
-  c_anchorFeatures->size[0] = 32;
+  c_anchorFeatures->size[0] = 24;
   c_anchorFeatures->size[1] = b_anchorFeatures->size[1];
   emxEnsureCapacity((emxArray__common *)c_anchorFeatures, i16, (int)sizeof
                     (boolean_T));
@@ -154,12 +154,12 @@ void OnePointRANSAC_EKF(emxArray_real_T *b_xt, emxArray_real_T *b_P, double
   ii = 1;
   emxFree_boolean_T(&c_anchorFeatures);
   exitg2 = false;
-  while ((!exitg2) && (ii < 33)) {
+  while ((!exitg2) && (ii < 25)) {
     guard1 = false;
     if (x[ii - 1]) {
       idx++;
       ii_data[idx - 1] = ii;
-      if (idx >= 32) {
+      if (idx >= 24) {
         exitg2 = true;
       } else {
         guard1 = true;
@@ -881,7 +881,7 @@ void OnePointRANSAC_EKF(emxArray_real_T *b_xt, emxArray_real_T *b_P, double
     }
 
     for (idx = 0; idx < b_anchorFeatures->size[1]; idx++) {
-      for (i16 = 0; i16 < 32; i16++) {
+      for (i16 = 0; i16 < 24; i16++) {
         x[i16] = (b_anchorFeatures->data[i16 + b_anchorFeatures->size[0] * idx] ==
                   1.0);
       }

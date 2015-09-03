@@ -5,7 +5,7 @@
 // File: SLAM.cpp
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 03-Sep-2015 16:53:59
+// C/C++ source code generated on  : 03-Sep-2015 17:44:13
 //
 
 // Include Files
@@ -84,9 +84,9 @@ static double rt_atan2d_snf(double u0, double u1)
 
 //
 // NOTE: Comment this out for MEXing
-// Arguments    : double updateVect[32]
-//                const double z_all_l[64]
-//                const double z_all_r[64]
+// Arguments    : double updateVect[24]
+//                const double z_all_l[48]
+//                const double z_all_r[48]
 //                double dt
 //                const VIOMeasurements *measurements
 //                const ReferenceCommand *ref
@@ -102,8 +102,8 @@ static double rt_atan2d_snf(double u0, double u1)
 //                double u_out[4]
 // Return Type  : void
 //
-void SLAM(double updateVect[32], const double z_all_l[64], const double z_all_r
-          [64], double dt, const VIOMeasurements *measurements, const
+void SLAM(double updateVect[24], const double z_all_l[48], const double z_all_r
+          [48], double dt, const VIOMeasurements *measurements, const
           ReferenceCommand *ref, const VIOParameters *b_VIOParameters, const
           StereoParameters *cameraParameters, const NoiseParameters
           *noiseParameters, const ControllerGains *b_ControllerGains, boolean_T
@@ -189,7 +189,7 @@ void SLAM(double updateVect[32], const double z_all_l[64], const double z_all_r
       ext_att_offset[k + 3 * k] = 1.0;
     }
 
-    for (outsize_idx_0 = 0; outsize_idx_0 < 32; outsize_idx_0++) {
+    for (outsize_idx_0 = 0; outsize_idx_0 < 24; outsize_idx_0++) {
       updateVect[outsize_idx_0] = 0.0;
     }
 

@@ -5,7 +5,7 @@
 // File: SLAM_initialize.cpp
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 03-Sep-2015 16:53:59
+// C/C++ source code generated on  : 03-Sep-2015 17:44:13
 //
 
 // Include Files
@@ -21,7 +21,7 @@
 // Named Constants
 #define b_numStates                    (12.0)
 #define b_numStatesxt                  (13.0)
-#define b_minFeatureThreshold          (2.0)
+#define b_minFeatureThreshold          (3.0)
 
 // Function Definitions
 

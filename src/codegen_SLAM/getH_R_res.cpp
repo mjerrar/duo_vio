@@ -5,7 +5,7 @@
 // File: getH_R_res.cpp
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 03-Sep-2015 16:53:59
+// C/C++ source code generated on  : 03-Sep-2015 17:44:13
 //
 
 // Include Files
@@ -52,7 +52,7 @@
 // Arguments    : const emxArray_real_T *b_xt
 //                double errorStateSize
 //                double stateSize
-//                const double z_all_l[64]
+//                const double z_all_l[48]
 //                const double indMeas_data[]
 //                const int indMeas_size[1]
 //                const emxArray_real_T *map
@@ -77,7 +77,7 @@
 // Return Type  : void
 //
 void getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
-                stateSize, const double z_all_l[64], const double indMeas_data[],
+                stateSize, const double z_all_l[48], const double indMeas_data[],
                 const int indMeas_size[1], const emxArray_real_T *map, const
                 emxArray_real_T *anchorIdx, const emxArray_real_T
                 *featureAnchorIdx, const emxArray_real_T *b_m_vect, const double
@@ -99,7 +99,7 @@ void getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
   int ib;
   int cr;
   emxArray_real_T *H_xc;
-  double z_data[64];
+  double z_data[48];
   int k;
   emxArray_real_T *H_orientation;
   emxArray_real_T *H_pressure;
@@ -190,7 +190,7 @@ void getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
   double d[4];
   emxArray_real_T *r2;
   int R_vision_size[2];
-  double R_vision_data[4096];
+  double R_vision_data[2304];
   double r_pressure;
   double r_ext_pose[6];
   emxArray_real_T *H_ext_pose;
@@ -201,7 +201,7 @@ void getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
   double b_measurements[9];
   signed char I[9];
   double c_measurements[9];
-  int tmp_data[64];
+  int tmp_data[48];
   signed char iv1[3];
   static const signed char b[9] = { 1, 0, 0, 0, 1, 0, 0, 0, 1 };
 

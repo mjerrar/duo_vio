@@ -5,7 +5,7 @@
 // File: any.cpp
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 03-Sep-2015 16:53:59
+// C/C++ source code generated on  : 03-Sep-2015 17:44:13
 //
 
 // Include Files
@@ -18,10 +18,10 @@
 // Function Definitions
 
 //
-// Arguments    : const boolean_T x[32]
+// Arguments    : const boolean_T x[24]
 // Return Type  : boolean_T
 //
-boolean_T any(const boolean_T x[32])
+boolean_T any(const boolean_T x[24])
 {
   boolean_T y;
   int k;
@@ -29,7 +29,7 @@ boolean_T any(const boolean_T x[32])
   y = false;
   k = 0;
   exitg1 = false;
-  while ((!exitg1) && (k < 32)) {
+  while ((!exitg1) && (k < 24)) {
     if (!!x[k]) {
       y = true;
       exitg1 = true;
@@ -43,10 +43,10 @@ boolean_T any(const boolean_T x[32])
 
 //
 // Arguments    : const emxArray_boolean_T *x
-//                boolean_T y[32]
+//                boolean_T y[24]
 // Return Type  : void
 //
-void b_any(const emxArray_boolean_T *x, boolean_T y[32])
+void b_any(const emxArray_boolean_T *x, boolean_T y[24])
 {
   int iy;
   int i1;
@@ -55,14 +55,14 @@ void b_any(const emxArray_boolean_T *x, boolean_T y[32])
   int ix;
   boolean_T exitg1;
   boolean_T b0;
-  for (iy = 0; iy < 32; iy++) {
+  for (iy = 0; iy < 24; iy++) {
     y[iy] = false;
   }
 
   iy = -1;
   i1 = 0;
-  i2 = (x->size[1] - 1) << 5;
-  for (j = 0; j < 32; j++) {
+  i2 = (x->size[1] - 1) * 24;
+  for (j = 0; j < 24; j++) {
     i1++;
     i2++;
     iy++;
@@ -74,7 +74,7 @@ void b_any(const emxArray_boolean_T *x, boolean_T y[32])
         y[iy] = true;
         exitg1 = true;
       } else {
-        ix += 32;
+        ix += 24;
       }
     }
   }

@@ -5,7 +5,7 @@
 // File: Att_upd.h
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 03-Sep-2015 16:53:59
+// C/C++ source code generated on  : 03-Sep-2015 17:44:13
 //
 #ifndef __ATT_UPD_H__
 #define __ATT_UPD_H__

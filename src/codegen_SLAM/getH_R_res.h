@@ -5,7 +5,7 @@
 // File: getH_R_res.h
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 03-Sep-2015 16:53:59
+// C/C++ source code generated on  : 03-Sep-2015 17:44:13
 //
 #ifndef __GETH_R_RES_H__
 #define __GETH_R_RES_H__
@@ -22,7 +22,7 @@
 
 // Function Declarations
 extern void getH_R_res(const emxArray_real_T *b_xt, double errorStateSize,
-  double stateSize, const double z_all_l[64], const double indMeas_data[], const
+  double stateSize, const double z_all_l[48], const double indMeas_data[], const
   int indMeas_size[1], const emxArray_real_T *map, const emxArray_real_T
   *anchorIdx, const emxArray_real_T *featureAnchorIdx, const emxArray_real_T
   *b_m_vect, const double noiseParameters_image_noise[2], double
