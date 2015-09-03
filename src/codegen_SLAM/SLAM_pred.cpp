@@ -5,7 +5,7 @@
 // File: SLAM_pred.cpp
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 03-Sep-2015 23:12:57
+// C/C++ source code generated on  : 03-Sep-2015 23:44:32
 //
 
 // Include Files
@@ -125,22 +125,20 @@ static void dxdt_dPdt(const double meas[6], const emxArray_real_T *x,
 //                emxArray_real_T *x
 //                double dt
 //                const double processNoise[4]
-//                const double measurements_gyr_duo[3]
 //                const double measurements_acc_duo[3]
 //                double c_numStates
 // Return Type  : void
 //
 void SLAM_pred(emxArray_real_T *P_apo, emxArray_real_T *x, double dt, const
-               double processNoise[4], const double measurements_gyr_duo[3],
-               const double measurements_acc_duo[3], double c_numStates)
+               double processNoise[4], const double measurements_acc_duo[3],
+               double c_numStates)
 {
   double w[3];
   double a[3];
-  int i23;
-  double b_w;
-  double current_imu[6];
   int k;
+  double current_imu[6];
   double R_cw[9];
+  int i23;
   int cr;
   double G[108];
   static const signed char iv6[27] = { -1, 0, 0, 0, -1, 0, 0, 0, -1, 0, 0, 0, 0,
@@ -198,11 +196,12 @@ void SLAM_pred(emxArray_real_T *P_apo, emxArray_real_T *x, double dt, const
 
   //  (C) Tobias Naegeli naegelit@inf.ethz.ch
   //  %% Iterative Camera Pose optimization (EKF)
-  for (i23 = 0; i23 < 3; i23++) {
-    b_w = measurements_gyr_duo[i23] - x->data[10 + i23];
-    a[i23] = 0.0 * measurements_acc_duo[i23];
-    current_imu[i23] = b_w;
-    w[i23] = b_w;
+  w[0] = 0.0;
+  w[1] = -1.5707963267948966 / dt;
+  w[2] = 0.0;
+  for (k = 0; k < 3; k++) {
+    a[k] = 0.0 * measurements_acc_duo[k];
+    current_imu[k] = w[k];
   }
 
   for (k = 0; k < 3; k++) {
@@ -272,13 +271,13 @@ void SLAM_pred(emxArray_real_T *P_apo, emxArray_real_T *x, double dt, const
 
   c_eye(P_xx_apr);
   dv13[0] = 0.0;
-  dv13[3] = -w[2];
+  dv13[3] = -0.0;
   dv13[6] = w[1];
-  dv13[1] = w[2];
+  dv13[1] = 0.0;
   dv13[4] = 0.0;
-  dv13[7] = -w[0];
+  dv13[7] = -0.0;
   dv13[2] = -w[1];
-  dv13[5] = w[0];
+  dv13[5] = 0.0;
   dv13[8] = 0.0;
   for (i23 = 0; i23 < 3; i23++) {
     for (cr = 0; cr < 3; cr++) {

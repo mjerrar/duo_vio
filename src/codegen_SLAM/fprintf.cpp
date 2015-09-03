@@ -5,7 +5,7 @@
 // File: fprintf.cpp
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 03-Sep-2015 23:12:57
+// C/C++ source code generated on  : 03-Sep-2015 23:44:32
 //
 
 // Include Files
@@ -21,7 +21,7 @@ static double c_fprintf(signed char varargin_1);
 static double e_fprintf(signed char varargin_1);
 static double g_fprintf(int varargin_1, int varargin_2);
 static double i_fprintf();
-static double k_fprintf(double varargin_1);
+static double k_fprintf(double varargin_1, double varargin_2);
 static double m_fprintf(double varargin_1, double varargin_2, double varargin_3,
   double varargin_4, double varargin_5, double varargin_6, double varargin_7,
   double varargin_8);
@@ -142,23 +142,24 @@ static double i_fprintf()
 
 //
 // Arguments    : double varargin_1
+//                double varargin_2
 // Return Type  : double
 //
-static double k_fprintf(double varargin_1)
+static double k_fprintf(double varargin_1, double varargin_2)
 {
   int nbytesint;
   FILE * b_NULL;
   boolean_T autoflush;
   FILE * filestar;
-  static const char cfmt[11] = { 'y', 'a', 'w', ':', ' ', '%', '.', '3', 'f',
-    '\x0a', '\x00' };
+  static const char cfmt[21] = { 'y', 'a', 'w', ':', ' ', '%', '.', '3', 'f',
+    ',', ' ', 'r', 'e', 'f', ' ', '%', '.', '3', 'f', '\x0a', '\x00' };
 
   nbytesint = 0;
   b_NULL = NULL;
   fileManager(&filestar, &autoflush);
   if (filestar == b_NULL) {
   } else {
-    nbytesint = fprintf(filestar, cfmt, varargin_1);
+    nbytesint = fprintf(filestar, cfmt, varargin_1, varargin_2);
     fflush(filestar);
   }
 
@@ -244,11 +245,12 @@ void h_fprintf()
 
 //
 // Arguments    : double formatSpec
+//                double varargin_1
 // Return Type  : void
 //
-void j_fprintf(double formatSpec)
+void j_fprintf(double formatSpec, double varargin_1)
 {
-  k_fprintf(formatSpec);
+  k_fprintf(formatSpec, varargin_1);
 }
 
 //

@@ -5,7 +5,7 @@
 // File: sum.cpp
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 03-Sep-2015 23:12:57
+// C/C++ source code generated on  : 03-Sep-2015 23:44:32
 //
 
 // Include Files

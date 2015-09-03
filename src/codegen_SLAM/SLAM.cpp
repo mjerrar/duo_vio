@@ -5,7 +5,7 @@
 // File: SLAM.cpp
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 03-Sep-2015 23:12:57
+// C/C++ source code generated on  : 03-Sep-2015 23:44:32
 //
 
 // Include Files
@@ -272,6 +272,7 @@ void SLAM(double updateVect[24], const double z_all_l[48], const double z_all_r
     }
 
     //  initial real vector
+    xt->data[0] = 1.0;
     d2 = b_VIOParameters->num_anchors * (6.0 +
       b_VIOParameters->num_points_per_anchor);
     ibcol = r3->size[0] * r3->size[1];
@@ -698,8 +699,8 @@ void SLAM(double updateVect[24], const double z_all_l[48], const double z_all_r
       }
     }
 
-    SLAM_pred(P, xt, dt, noiseParameters->process_noise, measurements_.gyr_duo,
-              measurements_.acc_duo, numStates);
+    SLAM_pred(P, xt, dt, noiseParameters->process_noise, measurements_.acc_duo,
+              numStates);
     ibcol = xt_apo->size[0];
     xt_apo->size[0] = xt->size[0];
     emxEnsureCapacity((emxArray__common *)xt_apo, ibcol, (int)sizeof(double));
@@ -734,11 +735,11 @@ void SLAM(double updateVect[24], const double z_all_l[48], const double z_all_r
                xt->data[5] * xt->data[5]) + xt->data[6] * xt->data[6];
     r = rt_atan2d_snf(R_cw[3], R_cw[0]);
     yaw_trafo = rt_atan2d_snf(R_cw[3], R_cw[0]) + 1.5707963267948966;
-    j_fprintf(r + 1.5707963267948966);
+    j_fprintf(r + 1.5707963267948966, ref->position[3]);
 
     //  transform between world and control frame (yaw-rotatate world frame)
     R_cw[0] = cos(yaw_trafo);
-    R_cw[1] = sin(yaw_trafo);
+    R_cw[1] = -sin(yaw_trafo);
     R_cw[2] = 0.0;
     R_cw[3] = sin(yaw_trafo);
     R_cw[4] = cos(yaw_trafo);
