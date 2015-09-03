@@ -62,7 +62,6 @@ private:
 	int display_tracks_cnt;
 	int max_clicks_;
 	int clear_queue_counter;
-	bool do_clear_queue;
 	ros::Time last_debug_publish;
 
 	StereoParameters cameraParams;
@@ -76,7 +75,7 @@ private:
 	ros::Subscriber mavros_mag_sub_;
 	ros::Subscriber mavros_pressure_sub_;
 	ros::Subscriber joy_sub_;
-    ros::Subscriber position_reference_sub_;
+	ros::Subscriber position_reference_sub_;
 
 
 	ros::Publisher pose_pub_;

@@ -159,6 +159,9 @@ void Localization::duo3dCb(const duo3d_ros::Duo3d& msg)
 	if (!received_IMU_data && vioParams.use_orientation)
 	{
 		ROS_INFO("No IMU data yet!");
+		std_msgs::Int32 m;
+		m.data = DUO_QUEUE_SIZE;
+		msg_processed_pub.publish(m);
 		return;
 	}
 
@@ -167,6 +170,7 @@ void Localization::duo3dCb(const duo3d_ros::Duo3d& msg)
 	{
 		if(clear_queue_counter < DUO_QUEUE_SIZE)
 		{
+			printf("clearing queue\n");
 			clear_queue_counter++;
 			std_msgs::Int32 m;
 			m.data = DUO_QUEUE_SIZE;
@@ -181,7 +185,6 @@ void Localization::duo3dCb(const duo3d_ros::Duo3d& msg)
 	clock_t tic_total_clock = clock();
 
 	last_duo_msg_ = msg;
-
 
 	sensor_msgs::MagneticField mag; // TODO Subscribe to mag topic
 
