@@ -12,7 +12,7 @@
 #include <visualization_msgs/Marker.h>
 #include <time.h>
 
-static const int DUO_QUEUE_SIZE = 100;
+static const int DUO_QUEUE_SIZE = 30;
 
 Localization::Localization()
 : nh_("~"),
