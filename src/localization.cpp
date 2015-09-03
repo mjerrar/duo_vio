@@ -257,7 +257,7 @@ void Localization::duo3dCb(const duo3d_ros::Duo3d& msg)
 	double time_measurement = (ros::Time::now() - tic_total).toSec();
 
 	t_avg=0.05*time_measurement+(1-0.05)*t_avg;
-	if (0&&debug_publish || time_measurement > 1/60.0)
+	if (debug_publish || time_measurement > 1/60.0)
 	{
 		if (time_measurement > 1/60.0)
 			ROS_WARN("Duration: %f ms. Theoretical max frequency: %.3f Hz\n", time_measurement, 1/time_measurement);
@@ -460,12 +460,12 @@ void Localization::update(double dt, const cv::Mat& left_image, const cv::Mat& r
 	ros::Time tic = ros::Time::now();
 	ros::Time tic_total = tic;
 
-	clock_t bef = clock();
+//	clock_t bef = clock();
 
 	handle_points_klt(left_image, right_image, z_all_l, z_all_r, update_vec_);
 
-	clock_t aft = clock();
-	printf("KLT  took %d clicks, %.3f msec\n", int(aft - bef), 1000*float(aft - bef)/CLOCKS_PER_SEC);
+//	clock_t aft = clock();
+//	printf("KLT  took %d clicks, %.3f msec\n", int(aft - bef), 1000*float(aft - bef)/CLOCKS_PER_SEC);
 
 	double update_vec_array[num_points_];
 	double update_vec_array_out[num_points_];
@@ -498,7 +498,7 @@ void Localization::update(double dt, const cv::Mat& left_image, const cv::Mat& r
 	// Update SLAM and get pose estimation
 	tic = ros::Time::now();
 
-	bef = clock();
+//	bef = clock();
 
 	SLAM(update_vec_array,
 			&z_all_l[0],
@@ -517,8 +517,8 @@ void Localization::update(double dt, const cv::Mat& left_image, const cv::Mat& r
 			map,
 			u_out);
 
-	aft = clock();
-	printf("SLAM took %d clicks, %.3f msec\n", int(aft - bef), 1000*float(aft - bef)/CLOCKS_PER_SEC);
+//	aft = clock();
+//	printf("SLAM took %d clicks, %.3f msec\n", int(aft - bef), 1000*float(aft - bef)/CLOCKS_PER_SEC);
 
 	// failure check
 	double dx = abs(xt_out->data[0] - pose.position.x);
