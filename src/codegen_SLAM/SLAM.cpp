@@ -5,7 +5,7 @@
 // File: SLAM.cpp
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 03-Sep-2015 23:44:32
+// C/C++ source code generated on  : 03-Sep-2015 23:49:51
 //
 
 // Include Files
@@ -272,7 +272,6 @@ void SLAM(double updateVect[24], const double z_all_l[48], const double z_all_r
     }
 
     //  initial real vector
-    xt->data[0] = 1.0;
     d2 = b_VIOParameters->num_anchors * (6.0 +
       b_VIOParameters->num_points_per_anchor);
     ibcol = r3->size[0] * r3->size[1];
@@ -699,8 +698,8 @@ void SLAM(double updateVect[24], const double z_all_l[48], const double z_all_r
       }
     }
 
-    SLAM_pred(P, xt, dt, noiseParameters->process_noise, measurements_.acc_duo,
-              numStates);
+    SLAM_pred(P, xt, dt, noiseParameters->process_noise, measurements_.gyr_duo,
+              measurements_.acc_duo, numStates);
     ibcol = xt_apo->size[0];
     xt_apo->size[0] = xt->size[0];
     emxEnsureCapacity((emxArray__common *)xt_apo, ibcol, (int)sizeof(double));
