@@ -5,7 +5,7 @@
 // File: SLAM.cpp
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 03-Sep-2015 21:50:35
+// C/C++ source code generated on  : 03-Sep-2015 22:12:48
 //
 
 // Include Files
@@ -125,7 +125,7 @@ void SLAM(double updateVect[24], const double z_all_l[48], const double z_all_r
     'n', 'g', ' ', 'o', 'r', 'i', 'e', 'n', 't', 'a', 't', 'i', 'o', 'n', ' ',
     'w', 'i', 't', 'h', ' ', 'D', 'U', 'O', ' ', 'I', 'M', 'U', '\x00' };
 
-  static const double dv7[9] = { 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, -1.0, 0.0 };
+  static const double dv7[9] = { 0.0, 0.0, 1.0, -1.0, 0.0, 0.0, 0.0, -1.0, 0.0 };
 
   static const double dv8[9] = { 0.01, 0.0, 0.0, 0.0, 0.01, 0.0, 0.0, 0.0, 0.01
   };
@@ -211,9 +211,14 @@ void SLAM(double updateVect[24], const double z_all_l[48], const double z_all_r
     //
     //          R_iw_init = [x_n_b,y_n_b,z_n_b];
     //
+    //  R_iw_init = [1 0 0;
+    //              0 0 -1;
+    //              0 1 0];
     QuatFromRotJ(dv7, x_att);
     memcpy(&P_att[0], &dv8[0], 9U * sizeof(double));
     initializing_attitude = 1.0;
+
+    //      xt = [ref.position(1:3);QuatFromRotJ(R_iw_init);0;0;0; measurements_.gyr_duo; repmat([0;0;0;0;0;0;1; zeros(numPointsPerAnchor, 1)], numAnchors, 1)];      % initial real vector 
     ibcol = xt_apo->size[0];
     xt_apo->size[0] = 7 + (int)b_VIOParameters->num_points_per_anchor;
     emxEnsureCapacity((emxArray__common *)xt_apo, ibcol, (int)sizeof(double));
@@ -248,10 +253,9 @@ void SLAM(double updateVect[24], const double z_all_l[48], const double z_all_r
     ibcol = xt->size[0];
     xt->size[0] = 13 + b->size[0];
     emxEnsureCapacity((emxArray__common *)xt, ibcol, (int)sizeof(double));
-    for (ibcol = 0; ibcol < 3; ibcol++) {
-      xt->data[ibcol] = ref->position[ibcol];
-    }
-
+    xt->data[0] = 1.0;
+    xt->data[1] = 0.0;
+    xt->data[2] = 0.0;
     for (ibcol = 0; ibcol < 4; ibcol++) {
       xt->data[ibcol + 3] = dq[ibcol];
     }
