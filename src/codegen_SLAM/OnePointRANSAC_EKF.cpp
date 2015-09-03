@@ -5,7 +5,7 @@
 // File: OnePointRANSAC_EKF.cpp
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 03-Sep-2015 17:44:13
+// C/C++ source code generated on  : 03-Sep-2015 21:14:23
 //
 
 // Include Files
@@ -47,6 +47,7 @@
 //                double noiseParameters_pressure_noise
 //                double noiseParameters_ext_pos_noise
 //                double noiseParameters_ext_att_noise
+//                double c_noiseParameters_gravity_align
 //                const VIOMeasurements *IMU_measurements
 //                double b_height_offset_pressure
 //                const VIOParameters b_VIOParameters
@@ -62,9 +63,9 @@ void OnePointRANSAC_EKF(emxArray_real_T *b_xt, emxArray_real_T *b_P, double
   const emxArray_real_T *b_m_vect, const double noiseParameters_image_noise[2],
   double c_noiseParameters_orientation_n, double noiseParameters_pressure_noise,
   double noiseParameters_ext_pos_noise, double noiseParameters_ext_att_noise,
-  const VIOMeasurements *IMU_measurements, double b_height_offset_pressure,
-  const VIOParameters b_VIOParameters, double validFeatures_data[], int
-  validFeatures_size[1])
+  double c_noiseParameters_gravity_align, const VIOMeasurements
+  *IMU_measurements, double b_height_offset_pressure, const VIOParameters
+  b_VIOParameters, double validFeatures_data[], int validFeatures_size[1])
 {
   emxArray_boolean_T *c_anchorFeatures;
   double numPointsPerAnchor;
@@ -113,18 +114,18 @@ void OnePointRANSAC_EKF(emxArray_real_T *b_xt, emxArray_real_T *b_P, double
   double b_indMeas_data[24];
   int indMeas_size[1];
   int R_size[2];
-  double R_data[3364];
+  double R_data[3721];
   int r_size[1];
-  double r_data[58];
+  double r_data[61];
   int i17;
   double a[2];
   int m;
   int ic;
   int ia;
-  double S_data[3364];
+  double S_data[3721];
   double r[2];
   double S[4];
-  double C_data[3364];
+  double C_data[3721];
   int C_size[2];
   double d_xt[3];
   double dv11[4];
@@ -315,9 +316,9 @@ void OnePointRANSAC_EKF(emxArray_real_T *b_xt, emxArray_real_T *b_P, double
                indMeas_size, map, anchorInd, featureAnchorInd, b_m_vect,
                noiseParameters_image_noise, c_noiseParameters_orientation_n,
                noiseParameters_pressure_noise, noiseParameters_ext_pos_noise,
-               noiseParameters_ext_att_noise, IMU_measurements,
-               b_height_offset_pressure, b_VIOParameters, r_data, r_size, H,
-               indMeas_z_data, indMeas_z_size, R_data, R_size);
+               noiseParameters_ext_att_noise, c_noiseParameters_gravity_align,
+               IMU_measurements, b_height_offset_pressure, b_VIOParameters,
+               r_data, r_size, H, indMeas_z_data, indMeas_z_size, R_data, R_size);
     if (1.0 + (double)it == 1.0) {
       //  only do outlier rejection in first iteration
       if ((H->size[1] == 1) || (b_P->size[0] == 1)) {

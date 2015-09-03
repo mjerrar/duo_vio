@@ -13,7 +13,8 @@
   <arg name="orientation_noise" default="1" />
   <arg name="pressure_noise" default="1" />
   <arg name="sigma_init" default="0.00001" />
-  
+  <arg name="gravity_alignment_noise" default="1" />
+
   <arg name="Kp_xy" default="1" />
   <arg name="Ki_xy" default="0" />
   <arg name="Kd_xy" default="1.4" />
@@ -69,6 +70,7 @@
     <arg name="orientation_noise" value="$(arg orientation_noise)" />
     <arg name="pressure_noise" value="$(arg pressure_noise)" />
     <arg name="sigma_init" value="$(arg sigma_init)" />
+    <arg name="gravity_alignment_noise" value="$(arg gravity_alignment_noise)" />
 
     <arg name="Kp_xy" value="$(arg Kp_xy)" />
     <arg name="Ki_xy" value="$(arg Ki_xy)" />

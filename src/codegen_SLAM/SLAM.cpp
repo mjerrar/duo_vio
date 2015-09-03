@@ -5,7 +5,7 @@
 // File: SLAM.cpp
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 03-Sep-2015 17:44:13
+// C/C++ source code generated on  : 03-Sep-2015 21:14:23
 //
 
 // Include Files
@@ -131,7 +131,7 @@ void SLAM(double updateVect[24], const double z_all_l[48], const double z_all_r
 
   int itilerow;
   double dq[4];
-  double d3;
+  double d2;
   static const signed char y[9] = { 1, 0, 0, 0, 1, 0, 0, 0, 1 };
 
   double err_p_b[3];
@@ -269,7 +269,7 @@ void SLAM(double updateVect[24], const double z_all_l[48], const double z_all_r
     }
 
     //  initial real vector
-    d3 = b_VIOParameters->num_anchors * (6.0 +
+    d2 = b_VIOParameters->num_anchors * (6.0 +
       b_VIOParameters->num_points_per_anchor);
     ibcol = r3->size[0] * r3->size[1];
     r3->size[0] = (int)numStates;
@@ -281,10 +281,10 @@ void SLAM(double updateVect[24], const double z_all_l[48], const double z_all_r
     }
 
     ibcol = r4->size[0] * r4->size[1];
-    r4->size[0] = (int)d3;
-    r4->size[1] = (int)d3;
+    r4->size[0] = (int)d2;
+    r4->size[1] = (int)d2;
     emxEnsureCapacity((emxArray__common *)r4, ibcol, (int)sizeof(double));
-    outsize_idx_0 = (int)d3 * (int)d3;
+    outsize_idx_0 = (int)d2 * (int)d2;
     for (ibcol = 0; ibcol < outsize_idx_0; ibcol++) {
       r4->data[ibcol] = 0.0;
     }
@@ -519,11 +519,8 @@ void SLAM(double updateVect[24], const double z_all_l[48], const double z_all_r
                cameraParameters->CameraParameters2.PrincipalPoint,
                cameraParameters->r_lr, cameraParameters->R_lr,
                cameraParameters->R_rl, updateVect, z_all_l, z_all_r,
-               noiseParameters->image_noise, noiseParameters->sigmaInit,
-               noiseParameters->orientation_noise,
-               noiseParameters->pressure_noise, noiseParameters->ext_pos_noise,
-               noiseParameters->ext_att_noise, &measurements_,
-               height_offset_pressure, *b_VIOParameters, h_u_apo_out, map_out);
+               noiseParameters, &measurements_, height_offset_pressure,
+               *b_VIOParameters, h_u_apo_out, map_out);
     initializing_attitude = 0.0;
     ibcol = xt_out->size[0];
     xt_out->size[0] = xt->size[0];
@@ -632,13 +629,13 @@ void SLAM(double updateVect[24], const double z_all_l[48], const double z_all_r
         ext_pose_offset_initialized = true;
       } else {
         for (ibcol = 0; ibcol < 3; ibcol++) {
-          d3 = 0.0;
+          d2 = 0.0;
           for (outsize_idx_0 = 0; outsize_idx_0 < 3; outsize_idx_0++) {
-            d3 += ext_att_offset[outsize_idx_0 + 3 * ibcol] *
+            d2 += ext_att_offset[outsize_idx_0 + 3 * ibcol] *
               measurements_.pos_ext[outsize_idx_0];
           }
 
-          b_err_p_b[ibcol] = d3 + ext_pos_offset[ibcol];
+          b_err_p_b[ibcol] = d2 + ext_pos_offset[ibcol];
         }
 
         for (ibcol = 0; ibcol < 3; ibcol++) {
@@ -716,11 +713,8 @@ void SLAM(double updateVect[24], const double z_all_l[48], const double z_all_r
                cameraParameters->CameraParameters2.PrincipalPoint,
                cameraParameters->r_lr, cameraParameters->R_lr,
                cameraParameters->R_rl, updateVect, z_all_l, z_all_r,
-               noiseParameters->image_noise, noiseParameters->sigmaInit,
-               noiseParameters->orientation_noise,
-               noiseParameters->pressure_noise, noiseParameters->ext_pos_noise,
-               noiseParameters->ext_att_noise, &measurements_,
-               height_offset_pressure, *b_VIOParameters, h_u_apo_out, map_out);
+               noiseParameters, &measurements_, height_offset_pressure,
+               *b_VIOParameters, h_u_apo_out, map_out);
 
     //  if ~all(size(q) == [4, 1])
     //      error('q does not have the size of a quaternion')

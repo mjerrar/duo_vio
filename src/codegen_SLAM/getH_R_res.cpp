@@ -5,7 +5,7 @@
 // File: getH_R_res.cpp
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 03-Sep-2015 17:44:13
+// C/C++ source code generated on  : 03-Sep-2015 21:14:23
 //
 
 // Include Files
@@ -16,6 +16,7 @@
 #include "SLAM_emxutil.h"
 #include "predictMeasurement_left.h"
 #include "any.h"
+#include "norm.h"
 #include "QuatFromRotJ.h"
 #include "kron.h"
 #include "eye.h"
@@ -64,6 +65,7 @@
 //                double noiseParameters_pressure_noise
 //                double noiseParameters_ext_pos_noise
 //                double noiseParameters_ext_att_noise
+//                double c_noiseParameters_gravity_align
 //                const VIOMeasurements *measurements
 //                double b_height_offset_pressure
 //                const VIOParameters b_VIOParameters
@@ -85,7 +87,8 @@ void getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
                 c_noiseParameters_orientation_n, double
                 noiseParameters_pressure_noise, double
                 noiseParameters_ext_pos_noise, double
-                noiseParameters_ext_att_noise, const VIOMeasurements
+                noiseParameters_ext_att_noise, double
+                c_noiseParameters_gravity_align, const VIOMeasurements
                 *measurements, double b_height_offset_pressure, const
                 VIOParameters b_VIOParameters, double r_data[], int r_size[1],
                 emxArray_real_T *H, double h_u_data[], int h_u_size[1], double
@@ -111,13 +114,12 @@ void getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
     'e', ' ', '%', 'i', ' ', 'i', 's', ' ', 'n', 'o', 't', ' ', 'v', 'a', 'l',
     'i', 'd', '\x00' };
 
-  double d0;
+  double indMeas;
   double c_xt;
   double b_map[3];
   double r_orientation[3];
   int ar;
   double dv0[2];
-  double indMeas;
   double h_u_To_h_ci_l[6];
   int nm1d2;
   signed char b_k;
@@ -175,8 +177,8 @@ void getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
   double wb_stateSize;
   double xb_stateSize;
   double d_xt[9];
-  double y[3];
-  double b_y;
+  double r_grav[3];
+  double b_r_grav;
   double e_xt;
   double dv1[9];
   double b_R_cw[3];
@@ -194,16 +196,22 @@ void getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
   double r_pressure;
   double r_ext_pose[6];
   emxArray_real_T *H_ext_pose;
+  emxArray_real_T *H_grav;
   int residual_size;
   int orientation_idx;
   int pressure_idx;
   int ext_pose_idx;
+  int grav_idx;
   double b_measurements[9];
   signed char I[9];
   double c_measurements[9];
+  signed char b_I[9];
+  double B;
+  static const signed char b[3] = { 0, 0, 1 };
+
   int tmp_data[48];
   signed char iv1[3];
-  static const signed char b[9] = { 1, 0, 0, 0, 1, 0, 0, 0, 1 };
+  static const signed char b_b[9] = { 1, 0, 0, 0, 1, 0, 0, 0, 1 };
 
   signed char iv2[6];
   emxInit_real_T(&H_xm, 2);
@@ -282,14 +290,14 @@ void getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
         cv4[ib] = cv5[ib];
       }
 
-      d0 = rt_roundd_snf(indMeas_data[k]);
-      if (d0 < 2.147483648E+9) {
-        if (d0 >= -2.147483648E+9) {
-          ib = (int)d0;
+      indMeas = rt_roundd_snf(indMeas_data[k]);
+      if (indMeas < 2.147483648E+9) {
+        if (indMeas >= -2.147483648E+9) {
+          ib = (int)indMeas;
         } else {
           ib = MIN_int32_T;
         }
-      } else if (d0 >= 2.147483648E+9) {
+      } else if (indMeas >= 2.147483648E+9) {
         ib = MAX_int32_T;
       } else {
         ib = 0;
@@ -567,11 +575,11 @@ void getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
                  - 1]) + b_xt->data[(int)(wb_stateSize + 7.0) - 1] * b_xt->data
         [(int)(xb_stateSize + 7.0) - 1];
       for (ib = 0; ib < 3; ib++) {
-        y[ib] = 0.0;
+        r_grav[ib] = 0.0;
         for (ar = 0; ar < 3; ar++) {
-          b_y = y[ib] + d_xt[ib + 3 * ar] * b_m_vect->data[ar + b_m_vect->size[0]
-            * ((int)indMeas_data[k] - 1)];
-          y[ib] = b_y;
+          b_r_grav = r_grav[ib] + d_xt[ib + 3 * ar] * b_m_vect->data[ar +
+            b_m_vect->size[0] * ((int)indMeas_data[k] - 1)];
+          r_grav[ib] = b_r_grav;
         }
       }
 
@@ -582,13 +590,13 @@ void getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
         indMeas_data[k] - 1] - 1.0) * (7.0 + numPointsPerAnchor)) + 7.0) +
         featureAnchorIdx->data[(int)indMeas_data[k] - 1]) - 1];
       dv1[0] = 0.0;
-      dv1[3] = -y[2];
-      dv1[6] = y[1];
-      dv1[1] = y[2];
+      dv1[3] = -r_grav[2];
+      dv1[6] = r_grav[1];
+      dv1[1] = r_grav[2];
       dv1[4] = 0.0;
-      dv1[7] = -y[0];
-      dv1[2] = -y[1];
-      dv1[5] = y[0];
+      dv1[7] = -r_grav[0];
+      dv1[2] = -r_grav[1];
+      dv1[5] = r_grav[0];
       dv1[8] = 0.0;
       nm1d2 = (int)(featureAnchorIdx->data[(int)indMeas_data[k] - 1] - 1.0);
       for (ib = 0; ib < 3; ib++) {
@@ -801,6 +809,10 @@ void getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
     r_ext_pose[nm1d2] = 0.0;
   }
 
+  for (nm1d2 = 0; nm1d2 < 3; nm1d2++) {
+    r_grav[nm1d2] = 0.0;
+  }
+
   ib = H_orientation->size[0] * H_orientation->size[1];
   H_orientation->size[0] = 3;
   H_orientation->size[1] = (int)(errorStateSize + b_VIOParameters.num_anchors *
@@ -835,10 +847,23 @@ void getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
     H_ext_pose->data[ib] = 0.0;
   }
 
+  emxInit_real_T(&H_grav, 2);
+  ib = H_grav->size[0] * H_grav->size[1];
+  H_grav->size[0] = 3;
+  H_grav->size[1] = (int)(errorStateSize + b_VIOParameters.num_anchors * (6.0 +
+    b_VIOParameters.num_points_per_anchor));
+  emxEnsureCapacity((emxArray__common *)H_grav, ib, (int)sizeof(double));
+  cr = 3 * (int)(errorStateSize + b_VIOParameters.num_anchors * (6.0 +
+    b_VIOParameters.num_points_per_anchor));
+  for (ib = 0; ib < cr; ib++) {
+    H_grav->data[ib] = 0.0;
+  }
+
   residual_size = indMeas_size[0] << 1;
   orientation_idx = 0;
   pressure_idx = 0;
   ext_pose_idx = 0;
+  grav_idx = 0;
   if (b_VIOParameters.use_orientation) {
     //  if ~all(size(q) == [4, 1])
     //      error('q does not have the size of a quaternion')
@@ -976,9 +1001,12 @@ void getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
       I[k + 3 * k] = 1;
     }
 
-    memset(&R_cw[0], 0, 9U * sizeof(double));
+    for (ib = 0; ib < 9; ib++) {
+      b_I[ib] = 0;
+    }
+
     for (k = 0; k < 3; k++) {
-      R_cw[k + 3 * k] = 1.0;
+      b_I[k + 3 * k] = 1;
     }
 
     for (ib = 0; ib < 3; ib++) {
@@ -1001,13 +1029,37 @@ void getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
 
     for (ib = 0; ib < 3; ib++) {
       for (ar = 0; ar < 3; ar++) {
-        H_ext_pose->data[(ar + H_ext_pose->size[0] * (ib + 3)) + 3] = R_cw[ar +
-          3 * ib];
+        H_ext_pose->data[(ar + H_ext_pose->size[0] * (ib + 3)) + 3] = b_I[ar + 3
+          * ib];
       }
     }
 
     ext_pose_idx = residual_size;
     residual_size += 6;
+  }
+
+  if (b_VIOParameters.gravity_align) {
+    B = norm(measurements->acc_duo);
+    for (ib = 0; ib < 3; ib++) {
+      indMeas = 0.0;
+      for (ar = 0; ar < 3; ar++) {
+        indMeas += R_cw[ib + 3 * ar] * (double)b[ar];
+      }
+
+      r_grav[ib] = measurements->acc_duo[ib] / B - indMeas;
+    }
+
+    H_grav->data[H_grav->size[0] * 3] = 0.0;
+    H_grav->data[H_grav->size[0] << 2] = -R_cw[8];
+    H_grav->data[H_grav->size[0] * 5] = R_cw[7];
+    H_grav->data[1 + H_grav->size[0] * 3] = R_cw[8];
+    H_grav->data[1 + (H_grav->size[0] << 2)] = 0.0;
+    H_grav->data[1 + H_grav->size[0] * 5] = -R_cw[6];
+    H_grav->data[2 + H_grav->size[0] * 3] = -R_cw[7];
+    H_grav->data[2 + (H_grav->size[0] << 2)] = R_cw[6];
+    H_grav->data[2 + H_grav->size[0] * 5] = 0.0;
+    grav_idx = residual_size;
+    residual_size += 3;
   }
 
   r_size[0] = residual_size;
@@ -1095,7 +1147,7 @@ void getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
     for (ib = 0; ib < 3; ib++) {
       for (ar = 0; ar < 3; ar++) {
         R_data[(ar + orientation_idx) + R_size[0] * (ib + orientation_idx)] =
-          c_noiseParameters_orientation_n * (double)b[ar + 3 * ib];
+          c_noiseParameters_orientation_n * (double)b_b[ar + 3 * ib];
       }
     }
   }
@@ -1134,7 +1186,7 @@ void getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
     for (ib = 0; ib < 3; ib++) {
       for (ar = 0; ar < 3; ar++) {
         R_data[(ar + ext_pose_idx) + R_size[0] * (ib + ext_pose_idx)] =
-          noiseParameters_ext_pos_noise * (double)b[ar + 3 * ib];
+          noiseParameters_ext_pos_noise * (double)b_b[ar + 3 * ib];
       }
     }
 
@@ -1155,12 +1207,38 @@ void getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
     for (ib = 0; ib < 3; ib++) {
       for (ar = 0; ar < 3; ar++) {
         R_data[((ar + ext_pose_idx) + R_size[0] * ((ib + ext_pose_idx) + 3)) + 3]
-          = noiseParameters_ext_att_noise * (double)b[ar + 3 * ib];
+          = noiseParameters_ext_att_noise * (double)b_b[ar + 3 * ib];
       }
     }
   }
 
   emxFree_real_T(&H_ext_pose);
+  if (b_VIOParameters.gravity_align) {
+    for (ib = 0; ib < 3; ib++) {
+      r_data[ib + grav_idx] = r_grav[ib];
+    }
+
+    for (ib = 0; ib < 3; ib++) {
+      iv1[ib] = (signed char)(ib + (signed char)grav_idx);
+    }
+
+    cr = H_grav->size[1];
+    for (ib = 0; ib < cr; ib++) {
+      for (ar = 0; ar < 3; ar++) {
+        H->data[iv1[ar] + H->size[0] * ib] = H_grav->data[ar + H_grav->size[0] *
+          ib];
+      }
+    }
+
+    for (ib = 0; ib < 3; ib++) {
+      for (ar = 0; ar < 3; ar++) {
+        R_data[(ar + grav_idx) + R_size[0] * (ib + grav_idx)] =
+          c_noiseParameters_gravity_align * (double)b_b[ar + 3 * ib];
+      }
+    }
+  }
+
+  emxFree_real_T(&H_grav);
 }
 
 //

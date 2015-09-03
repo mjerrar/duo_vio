@@ -70,6 +70,7 @@ Localization::Localization()
 	nh_.param<double>("im_noise", noiseParams.image_noise[1], 1.0);
 	nh_.param<double>("ext_pos_noise", noiseParams.ext_pos_noise, 0.1);
 	nh_.param<double>("ext_att_noise", noiseParams.ext_att_noise, 0.1);
+	nh_.param<double>("gravity_alignment_noise", noiseParams.gravity_alignment_noise, 1);
 
 	nh_.param<int>("num_points_per_anchor", vioParams.num_points_per_anchor, 1);
 	nh_.param<int>("num_anchors", vioParams.num_anchors, 1);
@@ -78,9 +79,10 @@ Localization::Localization()
 	nh_.param<bool>("use_orientation", vioParams.use_orientation, false);
 	nh_.param<bool>("use_pressure", vioParams.use_pressure, false);
 	nh_.param<bool>("use_magnetometer", vioParams.use_magnetometer, false);
-	nh_.param<bool>("use_controller_to_predict", vioParams.use_controller_to_predict, 1);
-	nh_.param<bool>("use_ext_pose", vioParams.use_ext_pose, 1);
-	nh_.param<bool>("fixed_anchor", vioParams.fixed_anchor, 1);
+	nh_.param<bool>("use_controller_to_predict", vioParams.use_controller_to_predict, false);
+	nh_.param<bool>("use_ext_pose", vioParams.use_ext_pose, false);
+	nh_.param<bool>("fixed_anchor", vioParams.fixed_anchor, false);
+	nh_.param<bool>("gravity_align", vioParams.gravity_align, false);
 
 
 	nh_.param<double>("Kp_xy", controllerGains.Kp_xy, 1);
@@ -408,17 +410,19 @@ void Localization::dynamicReconfigureCb(vio_ros::vio_rosConfig &config, uint32_t
 	noiseParams.process_noise[0] = config.acc_noise;
 	noiseParams.process_noise[1] = config.gyro_noise;
 	noiseParams.process_noise[2] = config.gyro_bias_noise;
-	noiseParams.orientation_noise = config.orientation_noise;
+//	noiseParams.orientation_noise = config.orientation_noise;
 	noiseParams.pressure_noise = config.pressure_noise;
 	noiseParams.sigmaInit = config.sigma_init;
+	noiseParams.gravity_alignment_noise = config.gravity_alignment_noise;
 
-	vioParams.use_orientation = config.use_orientation;
+//	vioParams.use_orientation = config.use_orientation;
 	vioParams.use_pressure = config.use_pressure;
 	vioParams.use_magnetometer = config.use_magnetometer;
 	vioParams.use_controller_to_predict = config.use_controller_to_predict;
 	vioParams.max_ekf_iterations = config.max_ekf_iterations;
 	vioParams.use_ext_pose = config.use_ext_pose;
 	vioParams.fixed_anchor = config.fixed_anchor;
+	vioParams.gravity_align = config.gravity_align;
 
 	show_tracker_images_ = config.show_tracker_images;
 

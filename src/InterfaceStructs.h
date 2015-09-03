@@ -24,6 +24,7 @@ struct VIOParameters
 	bool use_ext_pose;
 	bool use_controller_to_predict;
 	bool fixed_anchor;
+	bool gravity_align;
 };
 
 // ControllerGains
@@ -52,6 +53,7 @@ struct NoiseParameters
 	double sigmaInit;
 	double ext_pos_noise;
 	double ext_att_noise;
+	double gravity_alignment_noise;
 };
 
 // VIOMeasurements
