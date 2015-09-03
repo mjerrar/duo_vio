@@ -170,7 +170,6 @@ void Localization::duo3dCb(const duo3d_ros::Duo3d& msg)
 	{
 		if(clear_queue_counter < DUO_QUEUE_SIZE)
 		{
-			printf("clearing queue\n");
 			clear_queue_counter++;
 			std_msgs::Int32 m;
 			m.data = DUO_QUEUE_SIZE;
