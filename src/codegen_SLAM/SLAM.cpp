@@ -5,7 +5,7 @@
 // File: SLAM.cpp
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 03-Sep-2015 21:14:23
+// C/C++ source code generated on  : 03-Sep-2015 21:31:09
 //
 
 // Include Files
@@ -17,6 +17,7 @@
 #include "SLAM_updIT.h"
 #include "Att_upd.h"
 #include "quatPlusThetaJ.h"
+#include "fprintf.h"
 #include "SLAM_pred.h"
 #include "SLAM_rtwutil.h"
 #include "SLAM_data.h"
@@ -161,8 +162,8 @@ void SLAM(double updateVect[24], const double z_all_l[48], const double z_all_r
   double c_ControllerGains[3];
   double err_v_b[3];
   double minval;
-  double d_ControllerGains[3];
-  double e_ControllerGains[3];
+  double u_out_pos[3];
+  double yaw_ctrl;
   for (outsize_idx_0 = 0; outsize_idx_0 < 4; outsize_idx_0++) {
     u_out[outsize_idx_0] = 0.0;
   }
@@ -807,21 +808,20 @@ void SLAM(double updateVect[24], const double z_all_l[48], const double z_all_r
     }
 
     //  fprintf('ingegral control: %.3f %.3f %.3f\n', i_control(1), i_control(2), i_control(3)) 
-    //  fprintf('control frame error: %.3f %.3f %.3f %.3f\n', err_p_b(1), err_p_b(2), err_p_b(3), (yaw_ctrl - ref.position(4))) 
-    d_ControllerGains[0] = b_ControllerGains->Kp_xy * err_p_b[0];
-    d_ControllerGains[1] = b_ControllerGains->Kp_xy * err_p_b[1];
-    d_ControllerGains[2] = b_ControllerGains->Kp_z * err_p_b[2];
-    e_ControllerGains[0] = b_ControllerGains->Kd_xy * err_v_b[0];
-    e_ControllerGains[1] = b_ControllerGains->Kd_xy * err_v_b[1];
-    e_ControllerGains[2] = b_ControllerGains->Kd_z * err_v_b[2];
-    for (ibcol = 0; ibcol < 3; ibcol++) {
-      u_out[ibcol] = -((d_ControllerGains[ibcol] + i_control[ibcol]) +
-                       e_ControllerGains[ibcol]);
+    u_out_pos[0] = -((b_ControllerGains->Kp_xy * err_p_b[0] + i_control[0]) +
+                     b_ControllerGains->Kd_xy * err_v_b[0]);
+    u_out_pos[1] = -((b_ControllerGains->Kp_xy * err_p_b[1] + i_control[1]) +
+                     b_ControllerGains->Kd_xy * err_v_b[1]);
+    u_out_pos[2] = -((b_ControllerGains->Kp_z * err_p_b[2] + i_control[2]) +
+                     b_ControllerGains->Kd_z * err_v_b[2]);
+    yaw_ctrl = rt_atan2d_snf(R_cw[3], R_cw[0]);
+    j_fprintf(err_p_b[0], err_p_b[1], err_p_b[2], yaw_ctrl - ref->position[3]);
+    for (outsize_idx_0 = 0; outsize_idx_0 < 3; outsize_idx_0++) {
+      u_out[outsize_idx_0] = u_out_pos[outsize_idx_0];
     }
 
     u_out[3] = b_ControllerGains->Kd_yaw * ref->velocity[3] -
-      b_ControllerGains->Kp_yaw * (rt_atan2d_snf(R_cw[3], R_cw[0]) -
-      ref->position[3]);
+      b_ControllerGains->Kp_yaw * (yaw_ctrl - ref->position[3]);
 
     //  fprintf('position error (%.3f, %.3f, %.3f, %.3f), control: (%.3f, %.3f, %.3f, %.3f)\n', xt(1) - ref(1), xt(2) - ref(2), xt(3) - ref(3), yaw - ref(4), u_out_x, u_out_y, u_out_z, u_out_yaw); 
     //  if almost all features were lost, do a soft reset

@@ -5,7 +5,7 @@
 // File: fprintf.h
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 03-Sep-2015 21:14:23
+// C/C++ source code generated on  : 03-Sep-2015 21:31:09
 //
 #ifndef __FPRINTF_H__
 #define __FPRINTF_H__
@@ -25,6 +25,8 @@ extern void b_fprintf(signed char formatSpec);
 extern void d_fprintf(signed char formatSpec);
 extern void f_fprintf(int formatSpec, int varargin_1);
 extern void h_fprintf();
+extern void j_fprintf(double formatSpec, double varargin_1, double varargin_2,
+                      double varargin_3);
 
 #endif
 
