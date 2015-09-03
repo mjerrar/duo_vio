@@ -25,13 +25,18 @@ Localization::Localization()
   max_clicks_(0),
   clear_queue_counter(0)
 {
-
 	emxInitArray_real_T(&xt_out,1);
 	emxInitArray_real_T(&P_apo_out,2);
 	emxInitArray_real_T(&h_u_apo,1);
 	emxInitArray_real_T(&map,2);
 	SLAM_initialize();
 	emxInitArray_real_T(&h_u_apo_,1);
+
+	referenceCommand = {};
+	cameraParams = {};
+	noiseParams = {};
+	controllerGains = {};
+	vioParams = {};
 
 	pose_pub_ = nh_.advertise<geometry_msgs::PoseStamped>("/pose",1);
 	velocity_pub_ = nh_.advertise<geometry_msgs::Twist>("/velocity",1);
@@ -138,6 +143,7 @@ Localization::Localization()
 	num_points_ = vioParams.num_anchors*vioParams.num_points_per_anchor;
 
 	update_vec_.assign(num_points_, 0);
+
 
 //	// initialize a valid quaternion in case this topic does not publish
 //	mavros_imu_data_.orientation.w = 1.0;
