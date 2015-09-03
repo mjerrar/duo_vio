@@ -32,6 +32,7 @@
   <arg name="fixed_anchor" default="1" />
   <arg name="use_controller_to_predict" default="0" />
   <arg name="max_ekf_iterations" default="1" />
+  <arg name="gravity_align" default="0" />
 
   <arg name="use_vicon_for_control" default="0" />
 
@@ -59,6 +60,7 @@
     <param name="use_ext_pose" type="bool" value="$(arg use_ext_pose)" />
     <param name="fixed_anchor" type="bool" value="$(arg fixed_anchor)" />
     <param name="max_ekf_iterations" type="int" value="$(arg max_ekf_iterations)" />
+    <param name="gravity_align" type="int" value="$(arg gravity_align)" />
 
     <param name="orientation_noise" type="double" value="$(arg orientation_noise)" />
     <param name="pressure_noise" type="double" value="$(arg pressure_noise)" />

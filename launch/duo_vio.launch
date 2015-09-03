@@ -32,6 +32,7 @@
   <arg name="fixed_anchor" default="1" />
   <arg name="use_controller_to_predict" default="0" />
   <arg name="max_ekf_iterations" default="1" />
+  <arg name="gravity_align" default="0" />
 
   <arg name="camera_name" default="101" /> <!-- the camera name is equal to the last 3 digits of the odroid's IP -->
   <arg name="lense_type" default="FS3028B13M8" />
@@ -66,6 +67,7 @@
     <arg name="use_ext_pose" value="$(arg use_ext_pose)" />
     <arg name="fixed_anchor" value="$(arg fixed_anchor)" />
     <arg name="max_ekf_iterations" value="$(arg max_ekf_iterations)" />
+    <arg name="gravity_align" value="$(arg gravity_align)" />
 
     <arg name="orientation_noise" value="$(arg orientation_noise)" />
     <arg name="pressure_noise" value="$(arg pressure_noise)" />
