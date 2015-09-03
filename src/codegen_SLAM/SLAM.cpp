@@ -5,7 +5,7 @@
 // File: SLAM.cpp
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 03-Sep-2015 21:31:09
+// C/C++ source code generated on  : 03-Sep-2015 21:38:20
 //
 
 // Include Files
@@ -144,11 +144,11 @@ void SLAM(double updateVect[24], const double z_all_l[48], const double z_all_r
   double b_measurements_[9];
   double c;
   double b_err_p_b[3];
-  double R_bw[9];
+  double Phi[9];
   double dv9[16];
   double b_dq[4];
   double c_measurements_[9];
-  double b_R_bw[9];
+  double b_Phi[9];
   double a[9];
   static const signed char b_b[9] = { 1, 0, 0, 0, 1, 0, 0, 0, 1 };
 
@@ -156,6 +156,7 @@ void SLAM(double updateVect[24], const double z_all_l[48], const double z_all_r
 
   static const signed char c_b[9] = { 1, 0, 0, 0, 1, 0, 0, 0, 0 };
 
+  double r;
   double yaw_trafo;
   static const signed char iv4[3] = { 0, 0, 1 };
 
@@ -163,7 +164,6 @@ void SLAM(double updateVect[24], const double z_all_l[48], const double z_all_r
   double err_v_b[3];
   double minval;
   double u_out_pos[3];
-  double yaw_ctrl;
   for (outsize_idx_0 = 0; outsize_idx_0 < 4; outsize_idx_0++) {
     u_out[outsize_idx_0] = 0.0;
   }
@@ -393,7 +393,7 @@ void SLAM(double updateVect[24], const double z_all_l[48], const double z_all_r
     for (k = 0; k < 3; k++) {
       R_cw[k + 3 * k] = 1.0;
       for (ibcol = 0; ibcol < 3; ibcol++) {
-        R_bw[ibcol + 3 * k] = R_cw[ibcol + 3 * k] + -b_measurements_[ibcol + 3 *
+        Phi[ibcol + 3 * k] = R_cw[ibcol + 3 * k] + -b_measurements_[ibcol + 3 *
           k] * dt;
       }
 
@@ -432,8 +432,8 @@ void SLAM(double updateVect[24], const double z_all_l[48], const double z_all_r
       for (outsize_idx_0 = 0; outsize_idx_0 < 3; outsize_idx_0++) {
         b_measurements_[ibcol + 3 * outsize_idx_0] = 0.0;
         for (itilerow = 0; itilerow < 3; itilerow++) {
-          b_measurements_[ibcol + 3 * outsize_idx_0] += R_bw[ibcol + 3 *
-            itilerow] * P_att[itilerow + 3 * outsize_idx_0];
+          b_measurements_[ibcol + 3 * outsize_idx_0] += Phi[ibcol + 3 * itilerow]
+            * P_att[itilerow + 3 * outsize_idx_0];
         }
 
         c_measurements_[ibcol + 3 * outsize_idx_0] = 0.0;
@@ -444,10 +444,10 @@ void SLAM(double updateVect[24], const double z_all_l[48], const double z_all_r
       }
 
       for (outsize_idx_0 = 0; outsize_idx_0 < 3; outsize_idx_0++) {
-        b_R_bw[ibcol + 3 * outsize_idx_0] = 0.0;
+        b_Phi[ibcol + 3 * outsize_idx_0] = 0.0;
         for (itilerow = 0; itilerow < 3; itilerow++) {
-          b_R_bw[ibcol + 3 * outsize_idx_0] += b_measurements_[ibcol + 3 *
-            itilerow] * R_bw[outsize_idx_0 + 3 * itilerow];
+          b_Phi[ibcol + 3 * outsize_idx_0] += b_measurements_[ibcol + 3 *
+            itilerow] * Phi[outsize_idx_0 + 3 * itilerow];
         }
 
         a[ibcol + 3 * outsize_idx_0] = 0.0;
@@ -460,7 +460,7 @@ void SLAM(double updateVect[24], const double z_all_l[48], const double z_all_r
 
     for (ibcol = 0; ibcol < 3; ibcol++) {
       for (outsize_idx_0 = 0; outsize_idx_0 < 3; outsize_idx_0++) {
-        P_att[outsize_idx_0 + 3 * ibcol] = b_R_bw[outsize_idx_0 + 3 * ibcol] +
+        P_att[outsize_idx_0 + 3 * ibcol] = b_Phi[outsize_idx_0 + 3 * ibcol] +
           a[outsize_idx_0 + 3 * ibcol];
       }
     }
@@ -726,17 +726,22 @@ void SLAM(double updateVect[24], const double z_all_l[48], const double z_all_r
     R_cw[0] = ((xt->data[3] * xt->data[3] - xt->data[4] * xt->data[4]) -
                xt->data[5] * xt->data[5]) + xt->data[6] * xt->data[6];
     R_cw[3] = 2.0 * (xt->data[3] * xt->data[4] + xt->data[5] * xt->data[6]);
+    R_cw[2] = 2.0 * (xt->data[3] * xt->data[5] + xt->data[4] * xt->data[6]);
+    R_cw[5] = 2.0 * (xt->data[4] * xt->data[5] - xt->data[3] * xt->data[6]);
+    R_cw[8] = ((-(xt->data[3] * xt->data[3]) - xt->data[4] * xt->data[4]) +
+               xt->data[5] * xt->data[5]) + xt->data[6] * xt->data[6];
+    r = rt_atan2d_snf(R_cw[3], R_cw[0]);
     yaw_trafo = rt_atan2d_snf(R_cw[3], R_cw[0]) + 1.5707963267948966;
 
     //  transform between world and control frame (yaw-rotatate world frame)
-    R_bw[0] = cos(yaw_trafo);
-    R_bw[3] = sin(yaw_trafo);
-    R_bw[6] = 0.0;
-    R_bw[1] = sin(yaw_trafo);
-    R_bw[4] = cos(yaw_trafo);
-    R_bw[7] = 0.0;
+    R_cw[0] = cos(yaw_trafo);
+    R_cw[3] = sin(yaw_trafo);
+    R_cw[6] = 0.0;
+    R_cw[1] = sin(yaw_trafo);
+    R_cw[4] = cos(yaw_trafo);
+    R_cw[7] = 0.0;
     for (ibcol = 0; ibcol < 3; ibcol++) {
-      R_bw[2 + 3 * ibcol] = iv4[ibcol];
+      R_cw[2 + 3 * ibcol] = iv4[ibcol];
     }
 
     for (ibcol = 0; ibcol < 3; ibcol++) {
@@ -746,7 +751,7 @@ void SLAM(double updateVect[24], const double z_all_l[48], const double z_all_r
     for (ibcol = 0; ibcol < 3; ibcol++) {
       err_p_b[ibcol] = 0.0;
       for (outsize_idx_0 = 0; outsize_idx_0 < 3; outsize_idx_0++) {
-        err_p_b[ibcol] += R_bw[ibcol + 3 * outsize_idx_0] *
+        err_p_b[ibcol] += R_cw[ibcol + 3 * outsize_idx_0] *
           b_err_p_b[outsize_idx_0];
       }
     }
@@ -763,7 +768,7 @@ void SLAM(double updateVect[24], const double z_all_l[48], const double z_all_r
     for (ibcol = 0; ibcol < 3; ibcol++) {
       err_v_b[ibcol] = 0.0;
       for (outsize_idx_0 = 0; outsize_idx_0 < 3; outsize_idx_0++) {
-        err_v_b[ibcol] += R_bw[ibcol + 3 * outsize_idx_0] *
+        err_v_b[ibcol] += R_cw[ibcol + 3 * outsize_idx_0] *
           b_err_p_b[outsize_idx_0];
       }
 
@@ -814,14 +819,16 @@ void SLAM(double updateVect[24], const double z_all_l[48], const double z_all_r
                      b_ControllerGains->Kd_xy * err_v_b[1]);
     u_out_pos[2] = -((b_ControllerGains->Kp_z * err_p_b[2] + i_control[2]) +
                      b_ControllerGains->Kd_z * err_v_b[2]);
-    yaw_ctrl = rt_atan2d_snf(R_cw[3], R_cw[0]);
-    j_fprintf(err_p_b[0], err_p_b[1], err_p_b[2], yaw_ctrl - ref->position[3]);
+
+    //  yaw_ctrl = atan2(R_cw(1,2), R_cw(1,1));
+    j_fprintf(err_p_b[0], err_p_b[1], err_p_b[2], (r + 1.5707963267948966) -
+              ref->position[3]);
     for (outsize_idx_0 = 0; outsize_idx_0 < 3; outsize_idx_0++) {
       u_out[outsize_idx_0] = u_out_pos[outsize_idx_0];
     }
 
     u_out[3] = b_ControllerGains->Kd_yaw * ref->velocity[3] -
-      b_ControllerGains->Kp_yaw * (yaw_ctrl - ref->position[3]);
+      b_ControllerGains->Kp_yaw * ((r + 1.5707963267948966) - ref->position[3]);
 
     //  fprintf('position error (%.3f, %.3f, %.3f, %.3f), control: (%.3f, %.3f, %.3f, %.3f)\n', xt(1) - ref(1), xt(2) - ref(2), xt(3) - ref(3), yaw - ref(4), u_out_x, u_out_y, u_out_z, u_out_yaw); 
     //  if almost all features were lost, do a soft reset
