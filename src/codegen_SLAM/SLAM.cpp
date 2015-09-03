@@ -5,7 +5,7 @@
 // File: SLAM.cpp
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 03-Sep-2015 22:21:33
+// C/C++ source code generated on  : 03-Sep-2015 22:44:17
 //
 
 // Include Files
@@ -728,8 +728,8 @@ void SLAM(double updateVect[24], const double z_all_l[48], const double z_all_r
     R_cw[0] = ((xt->data[3] * xt->data[3] - xt->data[4] * xt->data[4]) -
                xt->data[5] * xt->data[5]) + xt->data[6] * xt->data[6];
     R_cw[3] = 2.0 * (xt->data[3] * xt->data[4] + xt->data[5] * xt->data[6]);
-    R_cw[2] = 2.0 * (xt->data[3] * xt->data[5] + xt->data[4] * xt->data[6]);
-    R_cw[5] = 2.0 * (xt->data[4] * xt->data[5] - xt->data[3] * xt->data[6]);
+    R_cw[6] = 2.0 * (xt->data[3] * xt->data[5] - xt->data[4] * xt->data[6]);
+    R_cw[7] = 2.0 * (xt->data[4] * xt->data[5] + xt->data[3] * xt->data[6]);
     R_cw[8] = ((-(xt->data[3] * xt->data[3]) - xt->data[4] * xt->data[4]) +
                xt->data[5] * xt->data[5]) + xt->data[6] * xt->data[6];
     r = rt_atan2d_snf(R_cw[3], R_cw[0]);
@@ -737,13 +737,13 @@ void SLAM(double updateVect[24], const double z_all_l[48], const double z_all_r
 
     //  transform between world and control frame (yaw-rotatate world frame)
     R_cw[0] = cos(yaw_trafo);
-    R_cw[3] = sin(yaw_trafo);
-    R_cw[6] = 0.0;
     R_cw[1] = sin(yaw_trafo);
+    R_cw[2] = 0.0;
+    R_cw[3] = sin(yaw_trafo);
     R_cw[4] = cos(yaw_trafo);
-    R_cw[7] = 0.0;
+    R_cw[5] = 0.0;
     for (ibcol = 0; ibcol < 3; ibcol++) {
-      R_cw[2 + 3 * ibcol] = iv4[ibcol];
+      R_cw[6 + ibcol] = iv4[ibcol];
     }
 
     for (ibcol = 0; ibcol < 3; ibcol++) {
