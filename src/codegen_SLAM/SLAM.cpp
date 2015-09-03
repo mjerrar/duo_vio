@@ -5,7 +5,7 @@
 // File: SLAM.cpp
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 03-Sep-2015 22:44:17
+// C/C++ source code generated on  : 03-Sep-2015 23:12:57
 //
 
 // Include Files
@@ -734,6 +734,7 @@ void SLAM(double updateVect[24], const double z_all_l[48], const double z_all_r
                xt->data[5] * xt->data[5]) + xt->data[6] * xt->data[6];
     r = rt_atan2d_snf(R_cw[3], R_cw[0]);
     yaw_trafo = rt_atan2d_snf(R_cw[3], R_cw[0]) + 1.5707963267948966;
+    j_fprintf(r + 1.5707963267948966);
 
     //  transform between world and control frame (yaw-rotatate world frame)
     R_cw[0] = cos(yaw_trafo);
@@ -825,7 +826,7 @@ void SLAM(double updateVect[24], const double z_all_l[48], const double z_all_r
                  b_ControllerGains->Kd_z * err_v_b[2]);
     u_out[3] = b_ControllerGains->Kd_yaw * ref->velocity[3] -
       b_ControllerGains->Kp_yaw * ((r + 1.5707963267948966) - ref->position[3]);
-    j_fprintf(err_p_b[0], err_p_b[1], err_p_b[2], (r + 1.5707963267948966) -
+    l_fprintf(err_p_b[0], err_p_b[1], err_p_b[2], (r + 1.5707963267948966) -
               ref->position[3], u_out[0], u_out[1], u_out[2], u_out[3]);
 
     //  if almost all features were lost, do a soft reset
