@@ -61,6 +61,8 @@ private:
 	bool publish_on_debug_topics;
 	int display_tracks_cnt;
 	int max_clicks_;
+	int clear_queue_counter;
+	bool do_clear_queue;
 	ros::Time last_debug_publish;
 
 	StereoParameters cameraParams;

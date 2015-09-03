@@ -22,7 +22,8 @@ Localization::Localization()
   change_reference(false),
   vicon_pos(3, 0.0),
   vicon_quaternion(4, 0.0),
-  max_clicks_(0)
+  max_clicks_(0),
+  clear_queue_counter(0)
 {
 
 	emxInitArray_real_T(&xt_out,1);
@@ -159,6 +160,21 @@ void Localization::duo3dCb(const duo3d_ros::Duo3d& msg)
 	{
 		ROS_INFO("No IMU data yet!");
 		return;
+	}
+
+	// upon reset, catch up with the duo messages before resetting SLAM
+	if (SLAM_reset_flag)
+	{
+		if(clear_queue_counter < DUO_QUEUE_SIZE)
+		{
+			clear_queue_counter++;
+			std_msgs::Int32 m;
+			m.data = DUO_QUEUE_SIZE;
+			msg_processed_pub.publish(m);
+			return;
+		} else {
+			clear_queue_counter = 0;
+		}
 	}
 
 	ros::Time tic_total = ros::Time::now();
