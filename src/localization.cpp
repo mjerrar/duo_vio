@@ -32,8 +32,9 @@ Localization::Localization()
 	SLAM_initialize();
 	emxInitArray_real_T(&h_u_apo_,1);
 
-	referenceCommand = {};
-	cameraParams = {};
+	// initialize struct
+	referenceCommand = {{0, 0, 0, 0}, {0, 0, 0, 0}};
+	cameraParams = {{},{}};
 	noiseParams = {};
 	controllerGains = {};
 	vioParams = {};
