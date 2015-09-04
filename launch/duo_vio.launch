@@ -10,7 +10,6 @@
   <arg name="acc_noise" default="1" />
   <arg name="gyro_noise" default="0.1" />
   <arg name="gyro_bias_noise" default="0.001" />
-  <arg name="orientation_noise" default="1" />
   <arg name="pressure_noise" default="1" />
   <arg name="sigma_init" default="0.00001" />
   <arg name="gravity_alignment_noise" default="1" />
@@ -25,7 +24,6 @@
   <arg name="Kd_yaw" default="1" />
   <arg name="i_lim" default="10" />
   
-  <arg name="use_orientation" default="0" />
   <arg name="use_pressure" default="0" />
   <arg name="use_magnetometer" default="0" />
   <arg name="use_ext_pose" default="0" />
@@ -60,7 +58,6 @@
     <arg name="gyro_bias_noise" value="$(arg gyro_bias_noise)" />
     <arg name="im_noise" value="$(arg im_noise)" />
 
-    <arg name="use_orientation" value="$(arg use_orientation)" />
     <arg name="use_pressure" value="$(arg use_pressure)" />
     <arg name="use_magnetometer" value="$(arg use_magnetometer)" />
     <arg name="use_controller_to_predict" value="$(arg use_controller_to_predict)" />
@@ -69,7 +66,6 @@
     <arg name="max_ekf_iterations" value="$(arg max_ekf_iterations)" />
     <arg name="gravity_align" value="$(arg gravity_align)" />
 
-    <arg name="orientation_noise" value="$(arg orientation_noise)" />
     <arg name="pressure_noise" value="$(arg pressure_noise)" />
     <arg name="sigma_init" value="$(arg sigma_init)" />
     <arg name="gravity_alignment_noise" value="$(arg gravity_alignment_noise)" />
