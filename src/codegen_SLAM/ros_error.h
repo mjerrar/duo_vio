@@ -5,7 +5,7 @@
 // File: ros_error.h
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 04-Sep-2015 16:58:25
+// C/C++ source code generated on  : 04-Sep-2015 22:40:16
 //
 #ifndef __ROS_ERROR_H__
 #define __ROS_ERROR_H__
@@ -25,7 +25,6 @@ extern void b_ros_error();
 extern void c_ros_error();
 extern void d_ros_error();
 extern void e_ros_error();
-extern void f_ros_error();
 extern void ros_error();
 
 #endif

@@ -5,7 +5,7 @@
 // File: ros_error.cpp
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 04-Sep-2015 16:58:25
+// C/C++ source code generated on  : 04-Sep-2015 22:40:16
 //
 
 // Include Files
@@ -102,27 +102,6 @@ void e_ros_error()
   }
 
   ROS_ERROR(cv14);
-}
-
-//
-// #coder
-// ROS_ERROR Print to ROS_ERROR in ROS or to console in Matlab
-// Arguments    : void
-// Return Type  : void
-//
-void f_ros_error()
-{
-  char cv16[35];
-  int i14;
-  static const char cv17[35] = { 'R', 'e', 'f', 'e', 'r', 'e', 'n', 'c', 'e',
-    ' ', 'y', 'a', 'w', ' ', 'i', 's', ' ', 'N', 'a', 'n', '!', ' ', 'P', 'u',
-    't', 't', 'i', 'n', 'g', ' ', 't', 'o', ' ', '0', '\x00' };
-
-  for (i14 = 0; i14 < 35; i14++) {
-    cv16[i14] = cv17[i14];
-  }
-
-  ROS_ERROR(cv16);
 }
 
 //
