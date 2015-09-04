@@ -2,7 +2,7 @@
 ## Makefile generated for MATLAB file/project 'SLAM'. 
 ## 
 ## Makefile     : SLAM_rtw.mk
-## Generated on : Fri Sep 04 10:59:06 2015
+## Generated on : Fri Sep 04 16:24:43 2015
 ## MATLAB Coder version: 2.8 (R2015a)
 ## 
 ## Build Info:
@@ -189,7 +189,7 @@ DEFINES = $(DEFINES_STANDARD)
 ## SOURCE FILES
 ###########################################################################
 
-SRCS = $(START_DIR)/codegen/lib/SLAM/SLAM_rtwutil.cpp $(START_DIR)/codegen/lib/SLAM/SLAM_data.cpp $(START_DIR)/codegen/lib/SLAM/SLAM_initialize.cpp $(START_DIR)/codegen/lib/SLAM/SLAM_terminate.cpp $(START_DIR)/codegen/lib/SLAM/SLAM.cpp $(START_DIR)/codegen/lib/SLAM/diag.cpp $(START_DIR)/codegen/lib/SLAM/QuatFromRotJ.cpp $(START_DIR)/codegen/lib/SLAM/mrdivide.cpp $(START_DIR)/codegen/lib/SLAM/eye.cpp $(START_DIR)/codegen/lib/SLAM/quatPlusThetaJ.cpp $(START_DIR)/codegen/lib/SLAM/norm.cpp $(START_DIR)/codegen/lib/SLAM/quatmultJ.cpp $(START_DIR)/codegen/lib/SLAM/Att_upd.cpp $(START_DIR)/codegen/lib/SLAM/SLAM_updIT.cpp $(START_DIR)/codegen/lib/SLAM/sum.cpp $(START_DIR)/codegen/lib/SLAM/any.cpp $(START_DIR)/codegen/lib/SLAM/ros_error.cpp $(START_DIR)/codegen/lib/SLAM/OnePointRANSAC_EKF.cpp $(START_DIR)/codegen/lib/SLAM/get_r_u.cpp $(START_DIR)/codegen/lib/SLAM/ros_warn.cpp $(START_DIR)/codegen/lib/SLAM/colon.cpp $(START_DIR)/codegen/lib/SLAM/getMap.cpp $(START_DIR)/codegen/lib/SLAM/getH_R_res.cpp $(START_DIR)/codegen/lib/SLAM/predictMeasurement_left.cpp $(START_DIR)/codegen/lib/SLAM/kron.cpp $(START_DIR)/codegen/lib/SLAM/fprintf.cpp $(START_DIR)/codegen/lib/SLAM/fileManager.cpp $(START_DIR)/codegen/lib/SLAM/initializePoint.cpp $(START_DIR)/codegen/lib/SLAM/svd.cpp $(START_DIR)/codegen/lib/SLAM/predictMeasurement_stereo.cpp $(START_DIR)/codegen/lib/SLAM/SLAM_pred.cpp $(START_DIR)/codegen/lib/SLAM/SLAM_emxutil.cpp $(START_DIR)/codegen/lib/SLAM/SLAM_emxAPI.cpp $(START_DIR)/codegen/lib/SLAM/rt_nonfinite.cpp $(START_DIR)/codegen/lib/SLAM/rtGetNaN.cpp $(START_DIR)/codegen/lib/SLAM/rtGetInf.cpp
+SRCS = $(START_DIR)/codegen/lib/SLAM/SLAM_rtwutil.cpp $(START_DIR)/codegen/lib/SLAM/SLAM_data.cpp $(START_DIR)/codegen/lib/SLAM/SLAM_initialize.cpp $(START_DIR)/codegen/lib/SLAM/SLAM_terminate.cpp $(START_DIR)/codegen/lib/SLAM/SLAM.cpp $(START_DIR)/codegen/lib/SLAM/diag.cpp $(START_DIR)/codegen/lib/SLAM/QuatFromRotJ.cpp $(START_DIR)/codegen/lib/SLAM/mrdivide.cpp $(START_DIR)/codegen/lib/SLAM/eye.cpp $(START_DIR)/codegen/lib/SLAM/Att_pred.cpp $(START_DIR)/codegen/lib/SLAM/quatPlusThetaJ.cpp $(START_DIR)/codegen/lib/SLAM/norm.cpp $(START_DIR)/codegen/lib/SLAM/quatmultJ.cpp $(START_DIR)/codegen/lib/SLAM/Att_upd.cpp $(START_DIR)/codegen/lib/SLAM/SLAM_updIT.cpp $(START_DIR)/codegen/lib/SLAM/sum.cpp $(START_DIR)/codegen/lib/SLAM/any.cpp $(START_DIR)/codegen/lib/SLAM/ros_error.cpp $(START_DIR)/codegen/lib/SLAM/OnePointRANSAC_EKF.cpp $(START_DIR)/codegen/lib/SLAM/get_r_u.cpp $(START_DIR)/codegen/lib/SLAM/ros_warn.cpp $(START_DIR)/codegen/lib/SLAM/colon.cpp $(START_DIR)/codegen/lib/SLAM/getMap.cpp $(START_DIR)/codegen/lib/SLAM/getH_R_res.cpp $(START_DIR)/codegen/lib/SLAM/predictMeasurement_left.cpp $(START_DIR)/codegen/lib/SLAM/kron.cpp $(START_DIR)/codegen/lib/SLAM/fprintf.cpp $(START_DIR)/codegen/lib/SLAM/fileManager.cpp $(START_DIR)/codegen/lib/SLAM/initializePoint.cpp $(START_DIR)/codegen/lib/SLAM/svd.cpp $(START_DIR)/codegen/lib/SLAM/predictMeasurement_stereo.cpp $(START_DIR)/codegen/lib/SLAM/SLAM_pred.cpp $(START_DIR)/codegen/lib/SLAM/SLAM_emxutil.cpp $(START_DIR)/codegen/lib/SLAM/SLAM_emxAPI.cpp $(START_DIR)/codegen/lib/SLAM/rt_nonfinite.cpp $(START_DIR)/codegen/lib/SLAM/rtGetNaN.cpp $(START_DIR)/codegen/lib/SLAM/rtGetInf.cpp
 
 ALL_SRCS = $(SRCS)
 
@@ -197,7 +197,7 @@ ALL_SRCS = $(SRCS)
 ## OBJECTS
 ###########################################################################
 
-OBJS = SLAM_rtwutil.o SLAM_data.o SLAM_initialize.o SLAM_terminate.o SLAM.o diag.o QuatFromRotJ.o mrdivide.o eye.o quatPlusThetaJ.o norm.o quatmultJ.o Att_upd.o SLAM_updIT.o sum.o any.o ros_error.o OnePointRANSAC_EKF.o get_r_u.o ros_warn.o colon.o getMap.o getH_R_res.o predictMeasurement_left.o kron.o fprintf.o fileManager.o initializePoint.o svd.o predictMeasurement_stereo.o SLAM_pred.o SLAM_emxutil.o SLAM_emxAPI.o rt_nonfinite.o rtGetNaN.o rtGetInf.o
+OBJS = SLAM_rtwutil.o SLAM_data.o SLAM_initialize.o SLAM_terminate.o SLAM.o diag.o QuatFromRotJ.o mrdivide.o eye.o Att_pred.o quatPlusThetaJ.o norm.o quatmultJ.o Att_upd.o SLAM_updIT.o sum.o any.o ros_error.o OnePointRANSAC_EKF.o get_r_u.o ros_warn.o colon.o getMap.o getH_R_res.o predictMeasurement_left.o kron.o fprintf.o fileManager.o initializePoint.o svd.o predictMeasurement_stereo.o SLAM_pred.o SLAM_emxutil.o SLAM_emxAPI.o rt_nonfinite.o rtGetNaN.o rtGetInf.o
 
 ALL_OBJS = $(OBJS)
 

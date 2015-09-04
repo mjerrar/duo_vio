@@ -5,7 +5,7 @@
 // File: eye.cpp
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 04-Sep-2015 11:04:36
+// C/C++ source code generated on  : 04-Sep-2015 16:33:03
 //
 
 // Include Files
@@ -19,11 +19,36 @@
 // Function Definitions
 
 //
+// Arguments    : double varargin_1
+//                emxArray_real_T *I
+// Return Type  : void
+//
+void b_eye(double varargin_1, emxArray_real_T *I)
+{
+  int k;
+  int loop_ub;
+  k = I->size[0] * I->size[1];
+  I->size[0] = (int)varargin_1;
+  I->size[1] = (int)varargin_1;
+  emxEnsureCapacity((emxArray__common *)I, k, (int)sizeof(double));
+  loop_ub = (int)varargin_1 * (int)varargin_1;
+  for (k = 0; k < loop_ub; k++) {
+    I->data[k] = 0.0;
+  }
+
+  if ((int)varargin_1 > 0) {
+    for (k = 0; k + 1 <= (int)varargin_1; k++) {
+      I->data[k + I->size[0] * k] = 1.0;
+    }
+  }
+}
+
+//
 // Arguments    : const double varargin_1[2]
 //                emxArray_real_T *I
 // Return Type  : void
 //
-void b_eye(const double varargin_1[2], emxArray_real_T *I)
+void c_eye(const double varargin_1[2], emxArray_real_T *I)
 {
   double minval;
   int k;
@@ -53,40 +78,28 @@ void b_eye(const double varargin_1[2], emxArray_real_T *I)
 }
 
 //
-// Arguments    : double I[144]
+// Arguments    : double I[225]
 // Return Type  : void
 //
-void c_eye(double I[144])
+void d_eye(double I[225])
 {
   int k;
-  memset(&I[0], 0, 144U * sizeof(double));
-  for (k = 0; k < 12; k++) {
-    I[k + 12 * k] = 1.0;
+  memset(&I[0], 0, 225U * sizeof(double));
+  for (k = 0; k < 15; k++) {
+    I[k + 15 * k] = 1.0;
   }
 }
 
 //
-// Arguments    : double varargin_1
-//                emxArray_real_T *I
+// Arguments    : double I[9]
 // Return Type  : void
 //
-void eye(double varargin_1, emxArray_real_T *I)
+void eye(double I[9])
 {
   int k;
-  int loop_ub;
-  k = I->size[0] * I->size[1];
-  I->size[0] = (int)varargin_1;
-  I->size[1] = (int)varargin_1;
-  emxEnsureCapacity((emxArray__common *)I, k, (int)sizeof(double));
-  loop_ub = (int)varargin_1 * (int)varargin_1;
-  for (k = 0; k < loop_ub; k++) {
-    I->data[k] = 0.0;
-  }
-
-  if ((int)varargin_1 > 0) {
-    for (k = 0; k + 1 <= (int)varargin_1; k++) {
-      I->data[k + I->size[0] * k] = 1.0;
-    }
+  memset(&I[0], 0, 9U * sizeof(double));
+  for (k = 0; k < 3; k++) {
+    I[k + 3 * k] = 1.0;
   }
 }
 

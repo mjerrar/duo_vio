@@ -5,7 +5,7 @@
 // File: SLAM_initialize.cpp
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 04-Sep-2015 11:04:36
+// C/C++ source code generated on  : 04-Sep-2015 16:33:03
 //
 
 // Include Files
@@ -19,8 +19,8 @@
 #include <stdio.h>
 
 // Named Constants
-#define b_numStates                    (12.0)
-#define b_numStatesxt                  (13.0)
+#define b_numStates                    (15.0)
+#define b_numStatesxt                  (16.0)
 #define b_minFeatureThreshold          (3.0)
 
 // Function Definitions
@@ -31,14 +31,10 @@
 //
 void SLAM_initialize()
 {
-  static const double b_R_bc[9] = { -0.0077, -0.9999, 0.0101, 0.0087, -0.0101,
-    -0.9999, 0.9999, -0.0077, 0.0087 };
-
   rt_InitInfAndNaN(8U);
   last_imu_not_empty_init();
   minFeatureThreshold = b_minFeatureThreshold;
   numStatesxt = b_numStatesxt;
-  memcpy(&R_bc[0], &b_R_bc[0], 9U * sizeof(double));
   numStates = b_numStates;
   initialized_not_empty_init();
   SLAM_init();

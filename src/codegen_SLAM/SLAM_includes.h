@@ -1,6 +1,7 @@
 #ifndef __SLAM_INCLUDES__
 #define __SLAM_INCLUDES__
 #include "any.h"
+#include "Att_pred.h"
 #include "Att_upd.h"
 #include "colon.h"
 #include "diag.h"
