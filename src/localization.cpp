@@ -32,7 +32,7 @@ Localization::Localization()
 	SLAM_initialize();
 	emxInitArray_real_T(&h_u_apo_,1);
 
-	// initialize struct
+	// initialize structs
 	referenceCommand = {{0, 0, 0, 0}, {0, 0, 0, 0}};
 	cameraParams = {{},{}};
 	noiseParams = {};
@@ -69,7 +69,6 @@ Localization::Localization()
 	nh_.param<double>("gyro_bias_noise", noiseParams.process_noise[2], 1);
 	nh_.param<double>("process_noise_3", noiseParams.process_noise[2], 0.0);
 	nh_.param<double>("process_noise_4", noiseParams.process_noise[3], 0.0);
-	nh_.param<double>("orientation_noise", noiseParams.orientation_noise, 1.0);
 	nh_.param<double>("pressure_noise", noiseParams.pressure_noise, 1.0);
 	nh_.param<double>("sigma_init", noiseParams.sigmaInit, 0.0001);
 	nh_.param<double>("im_noise", noiseParams.image_noise[0], 1.0);
@@ -77,12 +76,12 @@ Localization::Localization()
 	nh_.param<double>("ext_pos_noise", noiseParams.ext_pos_noise, 0.1);
 	nh_.param<double>("ext_att_noise", noiseParams.ext_att_noise, 0.1);
 	nh_.param<double>("gravity_alignment_noise", noiseParams.gravity_alignment_noise, 1);
+	nh_.param<double>("gravity_alignment_noise", noiseParams.controller_model_noise, 0);
 
 	nh_.param<int>("num_points_per_anchor", vioParams.num_points_per_anchor, 1);
 	nh_.param<int>("num_anchors", vioParams.num_anchors, 1);
 	nh_.param<int>("max_ekf_iterations", vioParams.max_ekf_iterations, 1);
 
-	nh_.param<bool>("use_orientation", vioParams.use_orientation, false);
 	nh_.param<bool>("use_pressure", vioParams.use_pressure, false);
 	nh_.param<bool>("use_magnetometer", vioParams.use_magnetometer, false);
 	nh_.param<bool>("use_controller_to_predict", vioParams.use_controller_to_predict, false);
@@ -165,15 +164,6 @@ Localization::~Localization()
 
 void Localization::duo3dCb(const duo3d_ros::Duo3d& msg)
 {
-	if (!received_IMU_data && vioParams.use_orientation)
-	{
-		ROS_INFO("No IMU data yet!");
-		std_msgs::Int32 m;
-		m.data = DUO_QUEUE_SIZE;
-		msg_processed_pub.publish(m);
-		return;
-	}
-
 	// upon reset, catch up with the duo messages before resetting SLAM
 	if (SLAM_reset_flag)
 	{

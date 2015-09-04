@@ -18,7 +18,6 @@ struct VIOParameters
 	int num_points_per_anchor;
 	int num_anchors;
 	int max_ekf_iterations;
-	bool use_orientation;
 	bool use_pressure;
 	bool use_magnetometer;
 	bool use_ext_pose;
@@ -48,12 +47,12 @@ struct NoiseParameters
 {
 	double process_noise[4];
 	double image_noise[2];
-	double orientation_noise;
 	double pressure_noise;
 	double sigmaInit;
 	double ext_pos_noise;
 	double ext_att_noise;
 	double gravity_alignment_noise;
+	double controller_model_noise;
 };
 
 // VIOMeasurements
