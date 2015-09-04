@@ -5,7 +5,7 @@
 // File: SLAM_pred.cpp
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 04-Sep-2015 22:40:16
+// C/C++ source code generated on  : 04-Sep-2015 23:21:02
 //
 
 // Include Files
@@ -146,13 +146,13 @@ void SLAM_pred(emxArray_real_T *P_apo, emxArray_real_T *x, double dt, const
   double R_cw[9];
   int cr;
   double G[180];
-  static const signed char iv5[36] = { -1, 0, 0, 0, -1, 0, 0, 0, -1, 0, 0, 0, 0,
+  static const signed char iv6[36] = { -1, 0, 0, 0, -1, 0, 0, 0, -1, 0, 0, 0, 0,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 
-  static const signed char iv6[36] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  static const signed char iv7[36] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
     0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 
-  static const signed char iv7[36] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  static const signed char iv8[36] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1 };
 
   double P_xx_apr[225];
@@ -160,13 +160,13 @@ void SLAM_pred(emxArray_real_T *P_apo, emxArray_real_T *x, double dt, const
   double b_R_cw[9];
   double dv14[9];
   double b_G[225];
-  static const signed char iv8[45] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  static const signed char iv9[45] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
     0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
     0, 0, 0, 0, 0 };
 
-  static const signed char iv9[9] = { -1, 0, 0, 0, -1, 0, 0, 0, -1 };
+  static const signed char iv10[9] = { -1, 0, 0, 0, -1, 0, 0, 0, -1 };
 
-  static const signed char iv10[9] = { 1, 0, 0, 0, 1, 0, 0, 0, 1 };
+  static const signed char iv11[9] = { 1, 0, 0, 0, 1, 0, 0, 0, 1 };
 
   double Phi[225];
   int loop_ub;
@@ -248,7 +248,7 @@ void SLAM_pred(emxArray_real_T *P_apo, emxArray_real_T *x, double dt, const
     }
 
     for (cr = 0; cr < 3; cr++) {
-      G[(cr + 15 * i29) + 3] = iv5[cr + 3 * i29];
+      G[(cr + 15 * i29) + 3] = iv6[cr + 3 * i29];
     }
   }
 
@@ -278,15 +278,15 @@ void SLAM_pred(emxArray_real_T *P_apo, emxArray_real_T *x, double dt, const
 
   for (i29 = 0; i29 < 12; i29++) {
     for (cr = 0; cr < 3; cr++) {
-      G[(cr + 15 * i29) + 9] = iv6[cr + 3 * i29];
+      G[(cr + 15 * i29) + 9] = iv7[cr + 3 * i29];
     }
 
     for (cr = 0; cr < 3; cr++) {
-      G[(cr + 15 * i29) + 12] = iv7[cr + 3 * i29];
+      G[(cr + 15 * i29) + 12] = iv8[cr + 3 * i29];
     }
   }
 
-  c_eye(P_xx_apr);
+  d_eye(P_xx_apr);
   dv13[0] = 0.0;
   dv13[3] = -w[2];
   dv13[6] = w[1];
@@ -322,7 +322,7 @@ void SLAM_pred(emxArray_real_T *P_apo, emxArray_real_T *x, double dt, const
 
   for (i29 = 0; i29 < 15; i29++) {
     for (cr = 0; cr < 3; cr++) {
-      b_G[cr + 15 * i29] = iv8[cr + 3 * i29];
+      b_G[cr + 15 * i29] = iv9[cr + 3 * i29];
     }
   }
 
@@ -346,7 +346,7 @@ void SLAM_pred(emxArray_real_T *P_apo, emxArray_real_T *x, double dt, const
 
   for (i29 = 0; i29 < 3; i29++) {
     for (cr = 0; cr < 3; cr++) {
-      b_G[(cr + 15 * (i29 + 9)) + 3] = iv9[cr + 3 * i29];
+      b_G[(cr + 15 * (i29 + 9)) + 3] = iv10[cr + 3 * i29];
     }
   }
 
@@ -382,7 +382,7 @@ void SLAM_pred(emxArray_real_T *P_apo, emxArray_real_T *x, double dt, const
 
   for (i29 = 0; i29 < 3; i29++) {
     for (cr = 0; cr < 3; cr++) {
-      b_G[(cr + 15 * (i29 + 12)) + 6] = iv10[cr + 3 * i29];
+      b_G[(cr + 15 * (i29 + 12)) + 6] = iv11[cr + 3 * i29];
     }
   }
 
