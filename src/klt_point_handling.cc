@@ -65,7 +65,7 @@ void handle_points_klt(
 	{
 		if (!prev_corners.empty())
 		{
-			cv::calcOpticalFlowPyrLK(prev_img, img_l, prev_corners, cur_corners, status, error, cv::Size(21,21), 3);
+			cv::calcOpticalFlowPyrLK(prev_img, img_l, prev_corners, cur_corners, status, error, cv::Size(9,9), 3);
 			prev_corners = cur_corners;
 
 
