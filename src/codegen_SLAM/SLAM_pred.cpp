@@ -5,7 +5,7 @@
 // File: SLAM_pred.cpp
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 04-Sep-2015 16:33:03
+// C/C++ source code generated on  : 04-Sep-2015 16:58:25
 //
 
 // Include Files
@@ -260,7 +260,7 @@ void SLAM_pred(emxArray_real_T *P_apo, emxArray_real_T *x, double dt, const
 
   for (i30 = 0; i30 < 3; i30++) {
     for (cr = 0; cr < 3; cr++) {
-      G[(cr + 15 * (i30 + 3)) + 6] = -R_cw[cr + 3 * i30];
+      G[(cr + 15 * (i30 + 3)) + 6] = -R_cw[i30 + 3 * cr];
     }
   }
 

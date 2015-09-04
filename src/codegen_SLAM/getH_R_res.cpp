@@ -5,7 +5,7 @@
 // File: getH_R_res.cpp
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 04-Sep-2015 16:33:03
+// C/C++ source code generated on  : 04-Sep-2015 16:58:25
 //
 
 // Include Files
@@ -112,12 +112,12 @@ void getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
     'e', ' ', '%', 'i', ' ', 'i', 's', ' ', 'n', 'o', 't', ' ', 'v', 'a', 'l',
     'i', 'd', '\x00' };
 
-  double indMeas;
   double c_xt;
   double b_map[3];
   double r_grav[3];
   int br;
   double dv2[2];
+  double indMeas;
   double h_u_To_h_ci_l[6];
   int nm1d2;
   signed char b_k;
@@ -177,10 +177,10 @@ void getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
   double b_measurements[9];
   double y[3];
   double b_y;
-  double d_xt;
+  double b_R_cw[9];
   double dv3[9];
-  double b_R_cw[3];
-  double e_xt[9];
+  double c_R_cw[3];
+  double d_R_cw[9];
   int i6;
   double anew;
   double apnd;
@@ -286,14 +286,14 @@ void getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
         cv4[ar] = cv5[ar];
       }
 
-      indMeas = rt_roundd_snf(indMeas_data[k]);
-      if (indMeas < 2.147483648E+9) {
-        if (indMeas >= -2.147483648E+9) {
-          ar = (int)indMeas;
+      c_xt = rt_roundd_snf(indMeas_data[k]);
+      if (c_xt < 2.147483648E+9) {
+        if (c_xt >= -2.147483648E+9) {
+          ar = (int)c_xt;
         } else {
           ar = MIN_int32_T;
         }
-      } else if (indMeas >= 2.147483648E+9) {
+      } else if (c_xt >= 2.147483648E+9) {
         ar = MAX_int32_T;
       } else {
         ar = 0;
@@ -575,9 +575,12 @@ void getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
       c_xt = b_xt->data[(int)(((stateSize + (anchorIdx->data[(int)indMeas_data[k]
         - 1] - 1.0) * (7.0 + numPointsPerAnchor)) + 7.0) +
         featureAnchorIdx->data[(int)indMeas_data[k] - 1]) - 1];
-      d_xt = -b_xt->data[(int)(((stateSize + (anchorIdx->data[(int)
-        indMeas_data[k] - 1] - 1.0) * (7.0 + numPointsPerAnchor)) + 7.0) +
-        featureAnchorIdx->data[(int)indMeas_data[k] - 1]) - 1];
+      for (ar = 0; ar < 3; ar++) {
+        for (br = 0; br < 3; br++) {
+          b_R_cw[br + 3 * ar] = -R_cw[br + 3 * ar];
+        }
+      }
+
       dv3[0] = 0.0;
       dv3[3] = -y[2];
       dv3[6] = y[1];
@@ -593,9 +596,9 @@ void getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
       }
 
       for (ar = 0; ar < 3; ar++) {
-        b_R_cw[ar] = 0.0;
+        c_R_cw[ar] = 0.0;
         for (br = 0; br < 3; br++) {
-          b_R_cw[ar] += R_cw[ar + 3 * br] * b_map[br];
+          c_R_cw[ar] += R_cw[ar + 3 * br] * b_map[br];
         }
       }
 
@@ -603,9 +606,9 @@ void getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
                  - 1]);
       for (ar = 0; ar < 3; ar++) {
         for (br = 0; br < 3; br++) {
-          e_xt[ar + 3 * br] = 0.0;
+          d_R_cw[ar + 3 * br] = 0.0;
           for (i6 = 0; i6 < 3; i6++) {
-            e_xt[ar + 3 * br] += d_xt * R_cw[ar + 3 * i6] * dv3[i6 + 3 * br];
+            d_R_cw[ar + 3 * br] += b_R_cw[ar + 3 * i6] * dv3[i6 + 3 * br];
           }
         }
       }
@@ -622,7 +625,7 @@ void getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
 
       for (ar = 0; ar < 3; ar++) {
         for (br = 0; br < 3; br++) {
-          H_grav->data[br + H_grav->size[0] * (ar + 3)] = e_xt[br + 3 * ar];
+          H_grav->data[br + H_grav->size[0] * (ar + 3)] = d_R_cw[br + 3 * ar];
         }
       }
 
@@ -633,7 +636,7 @@ void getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
       }
 
       for (ar = 0; ar < 3; ar++) {
-        H_grav->data[ar + H_grav->size[0] * (6 + nm1d2)] = b_R_cw[ar];
+        H_grav->data[ar + H_grav->size[0] * (6 + nm1d2)] = c_R_cw[ar];
       }
 
       for (ar = 0; ar < cr; ar++) {
@@ -937,12 +940,12 @@ void getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
   if (b_VIOParameters.gravity_align) {
     B = norm(measurements->acc_duo);
     for (ar = 0; ar < 3; ar++) {
-      indMeas = 0.0;
+      c_xt = 0.0;
       for (br = 0; br < 3; br++) {
-        indMeas += R_cw[ar + 3 * br] * (double)b[br];
+        c_xt += R_cw[ar + 3 * br] * (double)b[br];
       }
 
-      r_grav[ar] = measurements->acc_duo[ar] / B - indMeas;
+      r_grav[ar] = measurements->acc_duo[ar] / B - c_xt;
     }
 
     H_grav->data[H_grav->size[0] * 3] = 0.0;
