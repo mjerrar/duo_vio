@@ -23,6 +23,7 @@ struct VIOParameters
 	bool use_ext_pose;
 	bool use_controller_to_predict;
 	bool fixed_anchor;
+	bool fixed_feature;
 	bool gravity_align;
 };
 

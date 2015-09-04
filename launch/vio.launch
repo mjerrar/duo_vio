@@ -30,6 +30,7 @@
   <arg name="use_magnetometer" default="0" />
   <arg name="use_ext_pose" default="0" />
   <arg name="fixed_anchor" default="1" />
+  <arg name="fixed_feature" default="1" />
   <arg name="use_controller_to_predict" default="0" />
   <arg name="max_ekf_iterations" default="1" />
   <arg name="gravity_align" default="0" />
@@ -58,6 +59,7 @@
     <param name="use_controller_to_predict" type="bool" value="$(arg use_controller_to_predict)" />
     <param name="use_ext_pose" type="bool" value="$(arg use_ext_pose)" />
     <param name="fixed_anchor" type="bool" value="$(arg fixed_anchor)" />
+    <param name="fixed_feature" type="bool" value="$(arg fixed_feature)" />
     <param name="max_ekf_iterations" type="int" value="$(arg max_ekf_iterations)" />
     <param name="gravity_align" type="int" value="$(arg gravity_align)" />
 

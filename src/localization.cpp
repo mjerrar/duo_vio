@@ -87,6 +87,7 @@ Localization::Localization()
 	nh_.param<bool>("use_controller_to_predict", vioParams.use_controller_to_predict, false);
 	nh_.param<bool>("use_ext_pose", vioParams.use_ext_pose, false);
 	nh_.param<bool>("fixed_anchor", vioParams.fixed_anchor, false);
+	nh_.param<bool>("fixed_feature", vioParams.fixed_feature, false);
 	nh_.param<bool>("gravity_align", vioParams.gravity_align, false);
 
 
@@ -175,6 +176,7 @@ void Localization::duo3dCb(const duo3d_ros::Duo3d& msg)
 			msg_processed_pub.publish(m);
 			return;
 		} else {
+			slam_path_.poses.clear();
 			clear_queue_counter = 0;
 		}
 	}
@@ -419,6 +421,7 @@ void Localization::dynamicReconfigureCb(vio_ros::vio_rosConfig &config, uint32_t
 	vioParams.max_ekf_iterations = config.max_ekf_iterations;
 	vioParams.use_ext_pose = config.use_ext_pose;
 	vioParams.fixed_anchor = config.fixed_anchor;
+	vioParams.fixed_feature = config.fixed_feature;
 	vioParams.gravity_align = config.gravity_align;
 
 	show_tracker_images_ = config.show_tracker_images;
