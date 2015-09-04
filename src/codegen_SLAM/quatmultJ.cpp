@@ -5,7 +5,7 @@
 // File: quatmultJ.cpp
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 03-Sep-2015 23:49:51
+// C/C++ source code generated on  : 04-Sep-2015 11:04:36
 //
 
 // Include Files
@@ -27,8 +27,8 @@ void quatmultJ(const double q[4], const double p[4], double qp[4])
 {
   double b_p[16];
   double b_q[4];
-  int i5;
-  int i6;
+  int i0;
+  int i1;
   b_p[0] = p[3];
   b_p[4] = -p[2];
   b_p[8] = p[1];
@@ -49,10 +49,10 @@ void quatmultJ(const double q[4], const double p[4], double qp[4])
   b_q[1] = q[1];
   b_q[2] = q[2];
   b_q[3] = q[3];
-  for (i5 = 0; i5 < 4; i5++) {
-    qp[i5] = 0.0;
-    for (i6 = 0; i6 < 4; i6++) {
-      qp[i5] += b_p[i5 + (i6 << 2)] * b_q[i6];
+  for (i0 = 0; i0 < 4; i0++) {
+    qp[i0] = 0.0;
+    for (i1 = 0; i1 < 4; i1++) {
+      qp[i0] += b_p[i0 + (i1 << 2)] * b_q[i1];
     }
   }
 }

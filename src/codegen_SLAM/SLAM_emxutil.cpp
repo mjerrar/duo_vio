@@ -5,7 +5,7 @@
 // File: SLAM_emxutil.cpp
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 03-Sep-2015 23:49:51
+// C/C++ source code generated on  : 04-Sep-2015 11:04:36
 //
 
 // Include Files
@@ -16,6 +16,27 @@
 #include <stdio.h>
 
 // Function Definitions
+
+//
+// Arguments    : emxArray_boolean_T **pEmxArray
+//                int b_numDimensions
+// Return Type  : void
+//
+void b_emxInit_boolean_T(emxArray_boolean_T **pEmxArray, int b_numDimensions)
+{
+  emxArray_boolean_T *emxArray;
+  int i;
+  *pEmxArray = (emxArray_boolean_T *)malloc(sizeof(emxArray_boolean_T));
+  emxArray = *pEmxArray;
+  emxArray->data = (boolean_T *)NULL;
+  emxArray->numDimensions = b_numDimensions;
+  emxArray->size = (int *)malloc((unsigned int)(sizeof(int) * b_numDimensions));
+  emxArray->allocatedSize = 0;
+  emxArray->canFreeData = true;
+  for (i = 0; i < b_numDimensions; i++) {
+    emxArray->size[i] = 0;
+  }
+}
 
 //
 // Arguments    : emxArray_int32_T **pEmxArray

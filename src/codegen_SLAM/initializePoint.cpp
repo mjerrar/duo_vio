@@ -5,7 +5,7 @@
 // File: initializePoint.cpp
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 03-Sep-2015 23:49:51
+// C/C++ source code generated on  : 04-Sep-2015 11:04:36
 //
 
 // Include Files
@@ -35,7 +35,7 @@ static double f_eml_xnrm2(int n, const double x[30], int ix0);
 static void b_eml_xgeqp3(double A[30], double tau[5], int jpvt[5])
 {
   double work[5];
-  int i22;
+  int i21;
   double vn1[5];
   double vn2[5];
   int k;
@@ -54,9 +54,9 @@ static void b_eml_xgeqp3(double A[30], double tau[5], int jpvt[5])
   int lastc;
   boolean_T exitg2;
   int32_T exitg1;
-  for (i22 = 0; i22 < 5; i22++) {
-    jpvt[i22] = 1 + i22;
-    work[i22] = 0.0;
+  for (i21 = 0; i21 < 5; i21++) {
+    jpvt[i21] = 1 + i21;
+    work[i21] = 0.0;
   }
 
   k = 1;
@@ -129,8 +129,8 @@ static void b_eml_xgeqp3(double A[30], double tau[5], int jpvt[5])
         itemp = 0;
         do {
           itemp++;
-          i22 = i_i - i;
-          for (k = i_i + 1; k + 1 <= i22 + 6; k++) {
+          i21 = i_i - i;
+          for (k = i_i + 1; k + 1 <= i21 + 6; k++) {
             A[k] *= 9.9792015476736E+291;
           }
 
@@ -145,8 +145,8 @@ static void b_eml_xgeqp3(double A[30], double tau[5], int jpvt[5])
 
         temp2 = (smax - absxk) / smax;
         absxk = 1.0 / (absxk - smax);
-        i22 = i_i - i;
-        for (k = i_i + 1; k + 1 <= i22 + 6; k++) {
+        i21 = i_i - i;
+        for (k = i_i + 1; k + 1 <= i21 + 6; k++) {
           A[k] *= absxk;
         }
 
@@ -158,8 +158,8 @@ static void b_eml_xgeqp3(double A[30], double tau[5], int jpvt[5])
       } else {
         temp2 = (smax - A[i_i]) / smax;
         absxk = 1.0 / (A[i_i] - smax);
-        i22 = i_i - i;
-        for (k = i_i + 1; k + 1 <= i22 + 6; k++) {
+        i21 = i_i - i;
+        for (k = i_i + 1; k + 1 <= i21 + 6; k++) {
           A[k] *= absxk;
         }
 
@@ -217,8 +217,8 @@ static void b_eml_xgeqp3(double A[30], double tau[5], int jpvt[5])
           }
 
           iy = 0;
-          i22 = i_ip1 + 6 * (lastc - 1);
-          for (itemp = i_ip1; itemp <= i22; itemp += 6) {
+          i21 = i_ip1 + 6 * (lastc - 1);
+          for (itemp = i_ip1; itemp <= i21; itemp += 6) {
             ix = i_i;
             smax = 0.0;
             pvt = (itemp + lastv) - 1;
@@ -240,8 +240,8 @@ static void b_eml_xgeqp3(double A[30], double tau[5], int jpvt[5])
             if (work[pvt] != 0.0) {
               smax = work[pvt] * -tau[i];
               ix = i_i;
-              i22 = lastv + itemp;
-              for (k = itemp; k + 1 <= i22; k++) {
+              i21 = lastv + itemp;
+              for (k = itemp; k + 1 <= i21; k++) {
                 A[k] += A[ix] * smax;
                 ix++;
               }
@@ -395,7 +395,7 @@ void initializePoint(const emxArray_real_T *b_xt, const double
   double pos[6];
   int rankR;
   int i;
-  double dv2[4];
+  double dv4[4];
   double rot[8];
   static const signed char iv3[4] = { 0, 0, 0, 1 };
 
@@ -445,10 +445,10 @@ void initializePoint(const emxArray_real_T *b_xt, const double
     }
   }
 
-  QuatFromRotJ(b_cameraparams_R_lr, dv2);
+  QuatFromRotJ(b_cameraparams_R_lr, dv4);
   for (rankR = 0; rankR < 4; rankR++) {
     rot[rankR] = iv3[rankR];
-    rot[4 + rankR] = dv2[rankR];
+    rot[4 + rankR] = dv4[rankR];
   }
 
   zn_d_l[0] = (z_l[0] - e_cameraparams_CameraParameters[0]) /

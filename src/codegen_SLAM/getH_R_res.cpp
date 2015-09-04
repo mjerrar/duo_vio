@@ -5,7 +5,7 @@
 // File: getH_R_res.cpp
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 03-Sep-2015 23:49:51
+// C/C++ source code generated on  : 04-Sep-2015 11:04:36
 //
 
 // Include Files
@@ -119,7 +119,7 @@ void getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
   double b_map[3];
   double r_orientation[3];
   int ar;
-  double dv0[2];
+  double dv2[2];
   double h_u_To_h_ci_l[6];
   int nm1d2;
   signed char b_k;
@@ -180,7 +180,7 @@ void getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
   double r_grav[3];
   double b_r_grav;
   double e_xt;
-  double dv1[9];
+  double dv3[9];
   double b_R_cw[3];
   double f_xt[9];
   double anew;
@@ -321,10 +321,10 @@ void getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
       }
 
       //  = R_cw*(rho*anchorPos + anchorRot'*m - rho*r_wc_pred)
-      predictMeasurement_left(r_orientation, dv0);
+      predictMeasurement_left(r_orientation, dv2);
       cr = k << 1;
       for (ib = 0; ib < 2; ib++) {
-        h_u_data[ib + cr] = dv0[ib];
+        h_u_data[ib + cr] = dv2[ib];
       }
 
       cr = k << 1;
@@ -589,15 +589,15 @@ void getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
       e_xt = -b_xt->data[(int)(((stateSize + (anchorIdx->data[(int)
         indMeas_data[k] - 1] - 1.0) * (7.0 + numPointsPerAnchor)) + 7.0) +
         featureAnchorIdx->data[(int)indMeas_data[k] - 1]) - 1];
-      dv1[0] = 0.0;
-      dv1[3] = -r_grav[2];
-      dv1[6] = r_grav[1];
-      dv1[1] = r_grav[2];
-      dv1[4] = 0.0;
-      dv1[7] = -r_grav[0];
-      dv1[2] = -r_grav[1];
-      dv1[5] = r_grav[0];
-      dv1[8] = 0.0;
+      dv3[0] = 0.0;
+      dv3[3] = -r_grav[2];
+      dv3[6] = r_grav[1];
+      dv3[1] = r_grav[2];
+      dv3[4] = 0.0;
+      dv3[7] = -r_grav[0];
+      dv3[2] = -r_grav[1];
+      dv3[5] = r_grav[0];
+      dv3[8] = 0.0;
       nm1d2 = (int)(featureAnchorIdx->data[(int)indMeas_data[k] - 1] - 1.0);
       for (ib = 0; ib < 3; ib++) {
         b_map[ib] = r_orientation[ib] - b_xt->data[ib];
@@ -616,7 +616,7 @@ void getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
         for (ar = 0; ar < 3; ar++) {
           f_xt[ib + 3 * ar] = 0.0;
           for (br = 0; br < 3; br++) {
-            f_xt[ib + 3 * ar] += e_xt * R_cw[ib + 3 * br] * dv1[br + 3 * ar];
+            f_xt[ib + 3 * ar] += e_xt * R_cw[ib + 3 * br] * dv3[br + 3 * ar];
           }
         }
       }
@@ -904,14 +904,14 @@ void getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
       }
 
       for (ar = 0; ar < 3; ar++) {
-        dv1[ib + 3 * ar] = 0.0;
+        dv3[ib + 3 * ar] = 0.0;
         for (br = 0; br < 3; br++) {
-          dv1[ib + 3 * ar] += d_xt[ib + 3 * br] * R_cw[ar + 3 * br];
+          dv3[ib + 3 * ar] += d_xt[ib + 3 * br] * R_cw[ar + 3 * br];
         }
       }
     }
 
-    QuatFromRotJ(dv1, d);
+    QuatFromRotJ(dv3, d);
     for (nm1d2 = 0; nm1d2 < 3; nm1d2++) {
       r_orientation[nm1d2] = d[nm1d2];
     }

@@ -5,7 +5,7 @@
 // File: any.cpp
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 03-Sep-2015 23:49:51
+// C/C++ source code generated on  : 04-Sep-2015 11:04:36
 //
 
 // Include Files
@@ -120,6 +120,32 @@ boolean_T d_any(const emxArray_boolean_T *x)
   while ((!exitg1) && (ix <= x->size[1])) {
     b1 = !x->data[ix - 1];
     if (!b1) {
+      y = true;
+      exitg1 = true;
+    } else {
+      ix++;
+    }
+  }
+
+  return y;
+}
+
+//
+// Arguments    : const emxArray_boolean_T *x
+// Return Type  : boolean_T
+//
+boolean_T e_any(const emxArray_boolean_T *x)
+{
+  boolean_T y;
+  int ix;
+  boolean_T exitg1;
+  boolean_T b2;
+  y = false;
+  ix = 1;
+  exitg1 = false;
+  while ((!exitg1) && (ix <= x->size[0])) {
+    b2 = !x->data[ix - 1];
+    if (!b2) {
       y = true;
       exitg1 = true;
     } else {

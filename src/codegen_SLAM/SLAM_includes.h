@@ -2,7 +2,6 @@
 #define __SLAM_INCLUDES__
 #include "any.h"
 #include "Att_upd.h"
-#include "blkdiag.h"
 #include "colon.h"
 #include "diag.h"
 #include "eye.h"

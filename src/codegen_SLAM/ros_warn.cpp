@@ -5,7 +5,7 @@
 // File: ros_warn.cpp
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 03-Sep-2015 23:49:51
+// C/C++ source code generated on  : 04-Sep-2015 11:04:36
 //
 
 // Include Files
@@ -26,13 +26,13 @@
 void ros_warn()
 {
   char cv6[38];
-  int i9;
+  int i6;
   static const char cv7[38] = { '1', '-', 'p', 'o', 'i', 'n', 't', ' ', 'R', 'A',
     'N', 'S', 'A', 'C', ' ', 'r', 'e', 'j', 'e', 'c', 't', 'e', 'd', ' ', 'a',
     'l', 'l', ' ', 'f', 'e', 'a', 't', 'u', 'r', 'e', 's', '!', '\x00' };
 
-  for (i9 = 0; i9 < 38; i9++) {
-    cv6[i9] = cv7[i9];
+  for (i6 = 0; i6 < 38; i6++) {
+    cv6[i6] = cv7[i6];
   }
 
   ROS_WARN(cv6);

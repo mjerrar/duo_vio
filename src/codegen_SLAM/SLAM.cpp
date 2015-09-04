@@ -5,19 +5,19 @@
 // File: SLAM.cpp
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 03-Sep-2015 23:49:51
+// C/C++ source code generated on  : 04-Sep-2015 11:04:36
 //
 
 // Include Files
 #include "rt_nonfinite.h"
 #include "SLAM.h"
 #include "SLAM_emxutil.h"
-#include "blkdiag.h"
 #include "QuatFromRotJ.h"
 #include "SLAM_updIT.h"
 #include "Att_upd.h"
 #include "quatPlusThetaJ.h"
 #include "fprintf.h"
+#include "any.h"
 #include "SLAM_pred.h"
 #include "SLAM_rtwutil.h"
 #include "SLAM_data.h"
@@ -38,9 +38,197 @@ static double x_att[4];
 static double P_att[9];
 
 // Function Declarations
+static void initialize(const double ref_position[4], double measurements_bar_fmu,
+  double numPointsPerAnchor, double numAnchors, double c_numStates,
+  emxArray_real_T *b_xt, emxArray_real_T *b_P, double *b_height_offset_pressure);
 static double rt_atan2d_snf(double u0, double u1);
 
 // Function Definitions
+
+//
+// Arguments    : const double ref_position[4]
+//                double measurements_bar_fmu
+//                double numPointsPerAnchor
+//                double numAnchors
+//                double c_numStates
+//                emxArray_real_T *b_xt
+//                emxArray_real_T *b_P
+//                double *b_height_offset_pressure
+// Return Type  : void
+//
+static void initialize(const double ref_position[4], double measurements_bar_fmu,
+  double numPointsPerAnchor, double numAnchors, double c_numStates,
+  emxArray_real_T *b_xt, emxArray_real_T *b_P, double *b_height_offset_pressure)
+{
+  emxArray_real_T *a;
+  int k;
+  int loop_ub;
+  emxArray_real_T *b;
+  int outsize_idx_0;
+  int outsize_idx_1;
+  int ibcol;
+  double dv0[4];
+  static const double dv1[9] = { 0.0, 0.0, 1.0, -1.0, 0.0, 0.0, 0.0, -1.0, 0.0 };
+
+  static const double gyro_offset[3] = { 0.534299594891486, -0.26782462470649,
+    0.000842792650371513 };
+
+  double d0;
+  static const signed char y[9] = { 1, 0, 0, 0, 1, 0, 0, 0, 1 };
+
+  b_emxInit_real_T(&a, 1);
+
+  //          za = measurements_.acc_duo;
+  //          z_n_b = za/norm(za);
+  //          m_n_b = [1;0;0];
+  //          y_n_b = cross(z_n_b,m_n_b);
+  //          y_n_b = y_n_b./norm(y_n_b);
+  //          x_n_b = (cross(y_n_b,z_n_b));
+  //          x_n_b = x_n_b./norm(x_n_b);
+  //
+  //          R_iw_init = [x_n_b,y_n_b,z_n_b];
+  //
+  //  R_iw_init = [1 0 0;
+  //              0 0 -1;
+  //              0 1 0];
+  k = a->size[0];
+  a->size[0] = 7 + (int)numPointsPerAnchor;
+  emxEnsureCapacity((emxArray__common *)a, k, (int)sizeof(double));
+  a->data[0] = 0.0;
+  a->data[1] = 0.0;
+  a->data[2] = 0.0;
+  a->data[3] = 0.0;
+  a->data[4] = 0.0;
+  a->data[5] = 0.0;
+  a->data[6] = 1.0;
+  loop_ub = (int)numPointsPerAnchor;
+  for (k = 0; k < loop_ub; k++) {
+    a->data[k + 7] = 0.0;
+  }
+
+  b_emxInit_real_T(&b, 1);
+  outsize_idx_0 = a->size[0] * (int)numAnchors;
+  k = b->size[0];
+  b->size[0] = outsize_idx_0;
+  emxEnsureCapacity((emxArray__common *)b, k, (int)sizeof(double));
+  if (!(outsize_idx_0 == 0)) {
+    outsize_idx_0 = a->size[0];
+    for (outsize_idx_1 = 1; outsize_idx_1 <= (int)numAnchors; outsize_idx_1++) {
+      ibcol = (outsize_idx_1 - 1) * outsize_idx_0;
+      for (k = 0; k + 1 <= outsize_idx_0; k++) {
+        b->data[ibcol + k] = a->data[k];
+      }
+    }
+  }
+
+  emxFree_real_T(&a);
+  QuatFromRotJ(dv1, dv0);
+  k = b_xt->size[0];
+  b_xt->size[0] = 13 + b->size[0];
+  emxEnsureCapacity((emxArray__common *)b_xt, k, (int)sizeof(double));
+  for (k = 0; k < 3; k++) {
+    b_xt->data[k] = ref_position[k];
+  }
+
+  for (k = 0; k < 4; k++) {
+    b_xt->data[k + 3] = dv0[k];
+  }
+
+  b_xt->data[7] = 0.0;
+  b_xt->data[8] = 0.0;
+  b_xt->data[9] = 0.0;
+  for (k = 0; k < 3; k++) {
+    b_xt->data[k + 10] = gyro_offset[k];
+  }
+
+  loop_ub = b->size[0];
+  for (k = 0; k < loop_ub; k++) {
+    b_xt->data[k + 13] = b->data[k];
+  }
+
+  emxFree_real_T(&b);
+
+  //  initial real vector
+  d0 = numAnchors * (6.0 + numPointsPerAnchor);
+  loop_ub = (int)(numAnchors * (6.0 + numPointsPerAnchor));
+  outsize_idx_0 = (int)c_numStates + (int)d0;
+  outsize_idx_1 = (int)c_numStates + (int)d0;
+  k = b_P->size[0] * b_P->size[1];
+  b_P->size[0] = outsize_idx_0;
+  emxEnsureCapacity((emxArray__common *)b_P, k, (int)sizeof(double));
+  k = b_P->size[0] * b_P->size[1];
+  b_P->size[1] = outsize_idx_1;
+  emxEnsureCapacity((emxArray__common *)b_P, k, (int)sizeof(double));
+  outsize_idx_0 *= outsize_idx_1;
+  for (k = 0; k < outsize_idx_0; k++) {
+    b_P->data[k] = 0.0;
+  }
+
+  if ((int)c_numStates > 0) {
+    outsize_idx_0 = (int)c_numStates;
+    for (k = 0; k < outsize_idx_0; k++) {
+      outsize_idx_1 = (int)c_numStates;
+      for (ibcol = 0; ibcol < outsize_idx_1; ibcol++) {
+        b_P->data[ibcol + b_P->size[0] * k] = 0.0;
+      }
+    }
+  }
+
+  if ((int)d0 > 0) {
+    if ((int)c_numStates + 1 > (int)c_numStates + (int)d0) {
+      k = 1;
+    } else {
+      k = (int)c_numStates + 1;
+    }
+
+    if ((int)c_numStates + 1 > (int)c_numStates + (int)d0) {
+      ibcol = 1;
+    } else {
+      ibcol = (int)c_numStates + 1;
+    }
+
+    for (outsize_idx_0 = 0; outsize_idx_0 < loop_ub; outsize_idx_0++) {
+      for (outsize_idx_1 = 0; outsize_idx_1 < loop_ub; outsize_idx_1++) {
+        b_P->data[((k + outsize_idx_1) + b_P->size[0] * ((ibcol + outsize_idx_0)
+                    - 1)) - 1] = 0.0;
+      }
+    }
+  }
+
+  //  initial error state covariance
+  for (k = 0; k < 3; k++) {
+    for (ibcol = 0; ibcol < 3; ibcol++) {
+      b_P->data[ibcol + b_P->size[0] * k] = 0.0;
+    }
+  }
+
+  //  position
+  for (k = 0; k < 3; k++) {
+    for (ibcol = 0; ibcol < 3; ibcol++) {
+      b_P->data[(ibcol + b_P->size[0] * (3 + k)) + 3] = 0.0;
+    }
+  }
+
+  //  orientation
+  //      P(4:6,4:6) = R_iw_init * diag([1 1 0]) * R_iw_init';
+  //      P(4:6,4:6) = diag([0 0 1]);
+  for (k = 0; k < 3; k++) {
+    for (ibcol = 0; ibcol < 3; ibcol++) {
+      b_P->data[(ibcol + b_P->size[0] * (6 + k)) + 6] = 0.0;
+    }
+  }
+
+  //  velocity
+  for (k = 0; k < 3; k++) {
+    for (ibcol = 0; ibcol < 3; ibcol++) {
+      b_P->data[(ibcol + b_P->size[0] * (9 + k)) + 9] = y[ibcol + 3 * k];
+    }
+  }
+
+  //  gyro bias
+  *b_height_offset_pressure = (1.0 - rt_powd_snf(measurements_bar_fmu / 101325.0,
+    0.190284)) * 145366.45;
+}
 
 //
 // Arguments    : double u0
@@ -90,7 +278,7 @@ static double rt_atan2d_snf(double u0, double u1)
 //                const double z_all_r[48]
 //                double dt
 //                const VIOMeasurements *measurements
-//                const ReferenceCommand *ref
+//                ReferenceCommand *ref
 //                const VIOParameters *b_VIOParameters
 //                const StereoParameters *cameraParameters
 //                const NoiseParameters *noiseParameters
@@ -104,37 +292,24 @@ static double rt_atan2d_snf(double u0, double u1)
 // Return Type  : void
 //
 void SLAM(double updateVect[24], const double z_all_l[48], const double z_all_r
-          [48], double dt, const VIOMeasurements *measurements, const
-          ReferenceCommand *ref, const VIOParameters *b_VIOParameters, const
-          StereoParameters *cameraParameters, const NoiseParameters
-          *noiseParameters, const ControllerGains *b_ControllerGains, boolean_T
-          resetFlag, emxArray_real_T *h_u_apo_out, emxArray_real_T *xt_out,
-          emxArray_real_T *P_apo_out, emxArray_real_T *map_out, double u_out[4])
+          [48], double dt, const VIOMeasurements *measurements, ReferenceCommand
+          *ref, const VIOParameters *b_VIOParameters, const StereoParameters
+          *cameraParameters, const NoiseParameters *noiseParameters, const
+          ControllerGains *b_ControllerGains, boolean_T resetFlag,
+          emxArray_real_T *h_u_apo_out, emxArray_real_T *xt_out, emxArray_real_T
+          *P_apo_out, emxArray_real_T *map_out, double u_out[4])
 {
-  int outsize_idx_0;
+  int k;
   double numTrackFeatures;
   VIOMeasurements measurements_;
-  emxArray_real_T *xt_apo;
-  emxArray_real_T *b;
-  emxArray_real_T *r3;
-  emxArray_real_T *r4;
-  int k;
-  char cv8[38];
-  int ibcol;
-  static const char cv9[38] = { 'I', 'n', 'i', 't', 'i', 'a', 'l', 'i', 'z', 'i',
-    'n', 'g', ' ', 'o', 'r', 'i', 'e', 'n', 't', 'a', 't', 'i', 'o', 'n', ' ',
-    'w', 'i', 't', 'h', ' ', 'D', 'U', 'O', ' ', 'I', 'M', 'U', '\x00' };
+  emxArray_boolean_T *r3;
+  double b_height_offset_pressure;
+  static const double b_x_att[4] = { 0.5, -0.5, 0.5, -0.5 };
 
-  static const double dv7[9] = { 0.0, 0.0, 1.0, -1.0, 0.0, 0.0, 0.0, -1.0, 0.0 };
+  static const double b_P_att[9] = { 0.01, 0.0, 0.0, 0.0, 0.01, 0.0, 0.0, 0.0,
+    0.01 };
 
-  static const double dv8[9] = { 0.01, 0.0, 0.0, 0.0, 0.01, 0.0, 0.0, 0.0, 0.01
-  };
-
-  int itilerow;
-  double dq[4];
-  double d2;
-  static const signed char y[9] = { 1, 0, 0, 0, 1, 0, 0, 0, 1 };
-
+  int i9;
   double err_p_b[3];
   static const double gyro_offset[3] = { 0.534299594891486, -0.26782462470649,
     0.000842792650371513 };
@@ -145,26 +320,75 @@ void SLAM(double updateVect[24], const double z_all_l[48], const double z_all_r
   double c;
   double b_err_p_b[3];
   double Phi[9];
+  double dq[4];
   double dv9[16];
   double b_dq[4];
   double c_measurements_[9];
   double b_Phi[9];
   double a[9];
-  static const signed char b_b[9] = { 1, 0, 0, 0, 1, 0, 0, 0, 1 };
+  int i10;
+  static const signed char b_a[9] = { 1, 0, 0, 0, 1, 0, 0, 0, 1 };
 
-  static const signed char b_a[9] = { -1, 0, 0, 0, -1, 0, 0, 0, -1 };
+  static const signed char c_a[9] = { -1, 0, 0, 0, -1, 0, 0, 0, -1 };
 
-  static const signed char c_b[9] = { 1, 0, 0, 0, 1, 0, 0, 0, 0 };
+  static const signed char b[9] = { 1, 0, 0, 0, 1, 0, 0, 0, 0 };
+
+  char cv8[33];
+  static const char cv9[33] = { 'G', 'o', 't', ' ', 'N', 'a', 'N', 's', ' ', 'i',
+    'n', ' ', 't', 'h', 'e', ' ', 's', 't', 'a', 't', 'e', '.', ' ', 'R', 'e',
+    's', 'e', 't', 't', 'i', 'n', 'g', '\x00' };
 
   double r;
-  double yaw_trafo;
+  double yaw;
+  char cv10[42];
+  static const char cv11[42] = { 'R', 'e', 'f', 'e', 'r', 'e', 'n', 'c', 'e',
+    ' ', 'x', ' ', 'p', 'o', 's', 'i', 't', 'i', 'o', 'n', ' ', 'i', 's', ' ',
+    'N', 'a', 'n', '!', ' ', 'P', 'u', 't', 't', 'i', 'n', 'g', ' ', 't', 'o',
+    ' ', '0', '\x00' };
+
+  static const char cv12[42] = { 'R', 'e', 'f', 'e', 'r', 'e', 'n', 'c', 'e',
+    ' ', 'y', ' ', 'p', 'o', 's', 'i', 't', 'i', 'o', 'n', ' ', 'i', 's', ' ',
+    'N', 'a', 'n', '!', ' ', 'P', 'u', 't', 't', 'i', 'n', 'g', ' ', 't', 'o',
+    ' ', '0', '\x00' };
+
+  static const char cv13[42] = { 'R', 'e', 'f', 'e', 'r', 'e', 'n', 'c', 'e',
+    ' ', 'z', ' ', 'p', 'o', 's', 'i', 't', 'i', 'o', 'n', ' ', 'i', 's', ' ',
+    'N', 'a', 'n', '!', ' ', 'P', 'u', 't', 't', 'i', 'n', 'g', ' ', 't', 'o',
+    ' ', '0', '\x00' };
+
+  char cv14[35];
+  static const char cv15[35] = { 'R', 'e', 'f', 'e', 'r', 'e', 'n', 'c', 'e',
+    ' ', 'y', 'a', 'w', ' ', 'i', 's', ' ', 'N', 'a', 'n', '!', ' ', 'P', 'u',
+    't', 't', 'i', 'n', 'g', ' ', 't', 'o', ' ', '0', '\x00' };
+
+  static const char cv16[42] = { 'R', 'e', 'f', 'e', 'r', 'e', 'n', 'c', 'e',
+    ' ', 'x', ' ', 'v', 'e', 'l', 'o', 'c', 'i', 't', 'y', ' ', 'i', 's', ' ',
+    'N', 'a', 'n', '!', ' ', 'P', 'u', 't', 't', 'i', 'n', 'g', ' ', 't', 'o',
+    ' ', '0', '\x00' };
+
+  static const char cv17[42] = { 'R', 'e', 'f', 'e', 'r', 'e', 'n', 'c', 'e',
+    ' ', 'y', ' ', 'v', 'e', 'l', 'o', 'c', 'i', 't', 'y', ' ', 'i', 's', ' ',
+    'N', 'a', 'n', '!', ' ', 'P', 'u', 't', 't', 'i', 'n', 'g', ' ', 't', 'o',
+    ' ', '0', '\x00' };
+
+  static const char cv18[42] = { 'R', 'e', 'f', 'e', 'r', 'e', 'n', 'c', 'e',
+    ' ', 'z', ' ', 'v', 'e', 'l', 'o', 'c', 'i', 't', 'y', ' ', 'i', 's', ' ',
+    'N', 'a', 'n', '!', ' ', 'P', 'u', 't', 't', 'i', 'n', 'g', ' ', 't', 'o',
+    ' ', '0', '\x00' };
+
+  char cv19[39];
+  static const char cv20[39] = { 'v', 'e', 'l', 'o', 'c', 'i', 't', 'y', ' ',
+    'y', 'a', 'w', ' ', 'r', 'a', 't', 'e', ' ', 'i', 's', ' ', 'N', 'a', 'n',
+    '!', ' ', 'P', 'u', 't', 't', 'i', 'n', 'g', ' ', 't', 'o', ' ', '0', '\x00'
+  };
+
   static const signed char iv4[3] = { 0, 0, 1 };
 
   double c_ControllerGains[3];
   double err_v_b[3];
   double minval;
-  for (outsize_idx_0 = 0; outsize_idx_0 < 4; outsize_idx_0++) {
-    u_out[outsize_idx_0] = 0.0;
+  for (k = 0; k < 4; k++) {
+    u_out[k] = 0.0;
   }
 
   //  for coder
@@ -173,15 +397,27 @@ void SLAM(double updateVect[24], const double z_all_l[48], const double z_all_r
   measurements_ = *measurements;
 
   //  copy for coders
-  b_emxInit_real_T(&xt_apo, 1);
-  b_emxInit_real_T(&b, 1);
-  emxInit_real_T(&r3, 2);
-  emxInit_real_T(&r4, 2);
+  emxInit_boolean_T(&r3, 1);
   if ((!initialized_not_empty) || resetFlag) {
+    initialize(ref->position, measurements->bar_fmu,
+               b_VIOParameters->num_points_per_anchor,
+               b_VIOParameters->num_anchors, numStates, xt, P,
+               &b_height_offset_pressure);
+    for (k = 0; k < 4; k++) {
+      x_att[k] = b_x_att[k];
+    }
+
+    memcpy(&P_att[0], &b_P_att[0], 9U * sizeof(double));
+    for (k = 0; k < 24; k++) {
+      updateVect[k] = 0.0;
+    }
+
+    height_offset_pressure = b_height_offset_pressure;
     initialized_not_empty = true;
+    initializing_attitude = 1.0;
     ext_pose_offset_initialized = false;
-    for (outsize_idx_0 = 0; outsize_idx_0 < 3; outsize_idx_0++) {
-      ext_pos_offset[outsize_idx_0] = 0.0;
+    for (k = 0; k < 3; k++) {
+      ext_pos_offset[k] = 0.0;
     }
 
     memset(&ext_att_offset[0], 0, 9U * sizeof(double));
@@ -189,187 +425,47 @@ void SLAM(double updateVect[24], const double z_all_l[48], const double z_all_r
       ext_att_offset[k + 3 * k] = 1.0;
     }
 
-    for (outsize_idx_0 = 0; outsize_idx_0 < 24; outsize_idx_0++) {
-      updateVect[outsize_idx_0] = 0.0;
-    }
-
-    // #coder
-    // ROS_INFO Print to ROS_INFO in ROS or to console in Matlab
-    for (ibcol = 0; ibcol < 38; ibcol++) {
-      cv8[ibcol] = cv9[ibcol];
-    }
-
-    ROS_INFO(cv8);
-
-    //          za = measurements_.acc_duo;
-    //          z_n_b = za/norm(za);
-    //          m_n_b = [1;0;0];
-    //          y_n_b = cross(z_n_b,m_n_b);
-    //          y_n_b = y_n_b./norm(y_n_b);
-    //          x_n_b = (cross(y_n_b,z_n_b));
-    //          x_n_b = x_n_b./norm(x_n_b);
-    //
-    //          R_iw_init = [x_n_b,y_n_b,z_n_b];
-    //
-    //  R_iw_init = [1 0 0;
-    //              0 0 -1;
-    //              0 1 0];
-    QuatFromRotJ(dv7, x_att);
-    memcpy(&P_att[0], &dv8[0], 9U * sizeof(double));
-    initializing_attitude = 1.0;
-    ibcol = xt_apo->size[0];
-    xt_apo->size[0] = 7 + (int)b_VIOParameters->num_points_per_anchor;
-    emxEnsureCapacity((emxArray__common *)xt_apo, ibcol, (int)sizeof(double));
-    xt_apo->data[0] = 0.0;
-    xt_apo->data[1] = 0.0;
-    xt_apo->data[2] = 0.0;
-    xt_apo->data[3] = 0.0;
-    xt_apo->data[4] = 0.0;
-    xt_apo->data[5] = 0.0;
-    xt_apo->data[6] = 1.0;
-    outsize_idx_0 = (int)b_VIOParameters->num_points_per_anchor;
-    for (ibcol = 0; ibcol < outsize_idx_0; ibcol++) {
-      xt_apo->data[ibcol + 7] = 0.0;
-    }
-
-    outsize_idx_0 = xt_apo->size[0] * (int)b_VIOParameters->num_anchors;
-    ibcol = b->size[0];
-    b->size[0] = outsize_idx_0;
-    emxEnsureCapacity((emxArray__common *)b, ibcol, (int)sizeof(double));
-    if (!(outsize_idx_0 == 0)) {
-      outsize_idx_0 = xt_apo->size[0];
-      for (itilerow = 1; itilerow <= (int)b_VIOParameters->num_anchors; itilerow
-           ++) {
-        ibcol = (itilerow - 1) * outsize_idx_0;
-        for (k = 0; k + 1 <= outsize_idx_0; k++) {
-          b->data[ibcol + k] = xt_apo->data[k];
-        }
-      }
-    }
-
-    QuatFromRotJ(dv7, dq);
-    ibcol = xt->size[0];
-    xt->size[0] = 13 + b->size[0];
-    emxEnsureCapacity((emxArray__common *)xt, ibcol, (int)sizeof(double));
-    for (ibcol = 0; ibcol < 3; ibcol++) {
-      xt->data[ibcol] = ref->position[ibcol];
-    }
-
-    for (ibcol = 0; ibcol < 4; ibcol++) {
-      xt->data[ibcol + 3] = dq[ibcol];
-    }
-
-    xt->data[7] = 0.0;
-    xt->data[8] = 0.0;
-    xt->data[9] = 0.0;
-    for (ibcol = 0; ibcol < 3; ibcol++) {
-      xt->data[ibcol + 10] = measurements_.gyr_duo[ibcol];
-    }
-
-    outsize_idx_0 = b->size[0];
-    for (ibcol = 0; ibcol < outsize_idx_0; ibcol++) {
-      xt->data[ibcol + 13] = b->data[ibcol];
-    }
-
-    //  initial real vector
-    d2 = b_VIOParameters->num_anchors * (6.0 +
-      b_VIOParameters->num_points_per_anchor);
-    ibcol = r3->size[0] * r3->size[1];
-    r3->size[0] = (int)numStates;
-    r3->size[1] = (int)numStates;
-    emxEnsureCapacity((emxArray__common *)r3, ibcol, (int)sizeof(double));
-    outsize_idx_0 = (int)numStates * (int)numStates;
-    for (ibcol = 0; ibcol < outsize_idx_0; ibcol++) {
-      r3->data[ibcol] = 0.0;
-    }
-
-    ibcol = r4->size[0] * r4->size[1];
-    r4->size[0] = (int)d2;
-    r4->size[1] = (int)d2;
-    emxEnsureCapacity((emxArray__common *)r4, ibcol, (int)sizeof(double));
-    outsize_idx_0 = (int)d2 * (int)d2;
-    for (ibcol = 0; ibcol < outsize_idx_0; ibcol++) {
-      r4->data[ibcol] = 0.0;
-    }
-
-    blkdiag(r3, r4, P);
-
-    //  initial error state covariance
-    for (ibcol = 0; ibcol < 3; ibcol++) {
-      for (outsize_idx_0 = 0; outsize_idx_0 < 3; outsize_idx_0++) {
-        P->data[outsize_idx_0 + P->size[0] * ibcol] = 0.0;
-      }
-    }
-
-    //  position
-    for (ibcol = 0; ibcol < 3; ibcol++) {
-      for (outsize_idx_0 = 0; outsize_idx_0 < 3; outsize_idx_0++) {
-        P->data[(outsize_idx_0 + P->size[0] * (3 + ibcol)) + 3] = 0.0;
-      }
-    }
-
-    //  orientation
-    //      P(4:6,4:6) = R_iw_init * diag([1 1 0]) * R_iw_init';
-    //      P(4:6,4:6) = diag([0 0 1]);
-    for (ibcol = 0; ibcol < 3; ibcol++) {
-      for (outsize_idx_0 = 0; outsize_idx_0 < 3; outsize_idx_0++) {
-        P->data[(outsize_idx_0 + P->size[0] * (6 + ibcol)) + 6] = 0.0;
-      }
-    }
-
-    //  velocity
-    for (ibcol = 0; ibcol < 3; ibcol++) {
-      for (outsize_idx_0 = 0; outsize_idx_0 < 3; outsize_idx_0++) {
-        P->data[(outsize_idx_0 + P->size[0] * (9 + ibcol)) + 9] =
-          y[outsize_idx_0 + 3 * ibcol];
-      }
-    }
-
-    //  gyro bias
-    height_offset_pressure = (1.0 - rt_powd_snf(measurements_.bar_fmu / 101325.0,
-      0.190284)) * 145366.45;
-    ibcol = xt_out->size[0];
+    i9 = xt_out->size[0];
     xt_out->size[0] = xt->size[0];
-    emxEnsureCapacity((emxArray__common *)xt_out, ibcol, (int)sizeof(double));
-    outsize_idx_0 = xt->size[0];
-    for (ibcol = 0; ibcol < outsize_idx_0; ibcol++) {
-      xt_out->data[ibcol] = xt->data[ibcol];
+    emxEnsureCapacity((emxArray__common *)xt_out, i9, (int)sizeof(double));
+    k = xt->size[0];
+    for (i9 = 0; i9 < k; i9++) {
+      xt_out->data[i9] = xt->data[i9];
     }
 
-    ibcol = P_apo_out->size[0] * P_apo_out->size[1];
+    i9 = P_apo_out->size[0] * P_apo_out->size[1];
     P_apo_out->size[0] = P->size[0];
     P_apo_out->size[1] = P->size[1];
-    emxEnsureCapacity((emxArray__common *)P_apo_out, ibcol, (int)sizeof(double));
-    outsize_idx_0 = P->size[0] * P->size[1];
-    for (ibcol = 0; ibcol < outsize_idx_0; ibcol++) {
-      P_apo_out->data[ibcol] = P->data[ibcol];
+    emxEnsureCapacity((emxArray__common *)P_apo_out, i9, (int)sizeof(double));
+    k = P->size[0] * P->size[1];
+    for (i9 = 0; i9 < k; i9++) {
+      P_apo_out->data[i9] = P->data[i9];
     }
 
-    ibcol = h_u_apo_out->size[0];
+    i9 = h_u_apo_out->size[0];
     h_u_apo_out->size[0] = (int)(numTrackFeatures * 4.0);
-    emxEnsureCapacity((emxArray__common *)h_u_apo_out, ibcol, (int)sizeof(double));
-    outsize_idx_0 = (int)(numTrackFeatures * 4.0);
-    for (ibcol = 0; ibcol < outsize_idx_0; ibcol++) {
-      h_u_apo_out->data[ibcol] = 0.0;
+    emxEnsureCapacity((emxArray__common *)h_u_apo_out, i9, (int)sizeof(double));
+    k = (int)(numTrackFeatures * 4.0);
+    for (i9 = 0; i9 < k; i9++) {
+      h_u_apo_out->data[i9] = 0.0;
     }
 
-    ibcol = map_out->size[0] * map_out->size[1];
+    i9 = map_out->size[0] * map_out->size[1];
     map_out->size[0] = 3;
     map_out->size[1] = (int)numTrackFeatures;
-    emxEnsureCapacity((emxArray__common *)map_out, ibcol, (int)sizeof(double));
-    outsize_idx_0 = 3 * (int)numTrackFeatures;
-    for (ibcol = 0; ibcol < outsize_idx_0; ibcol++) {
-      map_out->data[ibcol] = 0.0;
+    emxEnsureCapacity((emxArray__common *)map_out, i9, (int)sizeof(double));
+    k = 3 * (int)numTrackFeatures;
+    for (i9 = 0; i9 < k; i9++) {
+      map_out->data[i9] = 0.0;
     }
 
     //  the last control outputs (in camera frame)
-    for (outsize_idx_0 = 0; outsize_idx_0 < 3; outsize_idx_0++) {
-      i_control[outsize_idx_0] = 0.0;
+    for (k = 0; k < 3; k++) {
+      i_control[k] = 0.0;
     }
   } else if (initializing_attitude > 0.0) {
-    for (outsize_idx_0 = 0; outsize_idx_0 < 3; outsize_idx_0++) {
-      err_p_b[outsize_idx_0] = measurements_.gyr_duo[outsize_idx_0] -
-        gyro_offset[outsize_idx_0];
+    for (k = 0; k < 3; k++) {
+      err_p_b[k] = measurements_.gyr_duo[k] - gyro_offset[k];
     }
 
     q = noiseParameters->process_noise[1] * 1000.0;
@@ -394,9 +490,8 @@ void SLAM(double updateVect[24], const double z_all_l[48], const double z_all_r
     c = dt * dt;
     for (k = 0; k < 3; k++) {
       R_cw[k + 3 * k] = 1.0;
-      for (ibcol = 0; ibcol < 3; ibcol++) {
-        Phi[ibcol + 3 * k] = R_cw[ibcol + 3 * k] + -b_measurements_[ibcol + 3 *
-          k] * dt;
+      for (i9 = 0; i9 < 3; i9++) {
+        Phi[i9 + 3 * k] = R_cw[i9 + 3 * k] + -b_measurements_[i9 + 3 * k] * dt;
       }
 
       b_err_p_b[k] = err_p_b[k] * dt;
@@ -423,54 +518,51 @@ void SLAM(double updateVect[24], const double z_all_l[48], const double z_all_r
     b_dq[1] = dq[1];
     b_dq[2] = dq[2];
     b_dq[3] = dq[3];
-    for (ibcol = 0; ibcol < 4; ibcol++) {
-      x_att[ibcol] = 0.0;
-      for (outsize_idx_0 = 0; outsize_idx_0 < 4; outsize_idx_0++) {
-        x_att[ibcol] += dv9[ibcol + (outsize_idx_0 << 2)] * b_dq[outsize_idx_0];
+    for (i9 = 0; i9 < 4; i9++) {
+      x_att[i9] = 0.0;
+      for (k = 0; k < 4; k++) {
+        x_att[i9] += dv9[i9 + (k << 2)] * b_dq[k];
       }
     }
 
-    for (ibcol = 0; ibcol < 3; ibcol++) {
-      for (outsize_idx_0 = 0; outsize_idx_0 < 3; outsize_idx_0++) {
-        b_measurements_[ibcol + 3 * outsize_idx_0] = 0.0;
-        for (itilerow = 0; itilerow < 3; itilerow++) {
-          b_measurements_[ibcol + 3 * outsize_idx_0] += Phi[ibcol + 3 * itilerow]
-            * P_att[itilerow + 3 * outsize_idx_0];
+    for (i9 = 0; i9 < 3; i9++) {
+      for (k = 0; k < 3; k++) {
+        b_measurements_[i9 + 3 * k] = 0.0;
+        for (i10 = 0; i10 < 3; i10++) {
+          b_measurements_[i9 + 3 * k] += Phi[i9 + 3 * i10] * P_att[i10 + 3 * k];
         }
 
-        c_measurements_[ibcol + 3 * outsize_idx_0] = 0.0;
-        for (itilerow = 0; itilerow < 3; itilerow++) {
-          c_measurements_[ibcol + 3 * outsize_idx_0] += (double)b_a[ibcol + 3 *
-            itilerow] * ((double)b_b[itilerow + 3 * outsize_idx_0] * q * c);
+        c_measurements_[i9 + 3 * k] = 0.0;
+        for (i10 = 0; i10 < 3; i10++) {
+          c_measurements_[i9 + 3 * k] += (double)c_a[i9 + 3 * i10] * ((double)
+            b_a[i10 + 3 * k] * q * c);
         }
       }
 
-      for (outsize_idx_0 = 0; outsize_idx_0 < 3; outsize_idx_0++) {
-        b_Phi[ibcol + 3 * outsize_idx_0] = 0.0;
-        for (itilerow = 0; itilerow < 3; itilerow++) {
-          b_Phi[ibcol + 3 * outsize_idx_0] += b_measurements_[ibcol + 3 *
-            itilerow] * Phi[outsize_idx_0 + 3 * itilerow];
+      for (k = 0; k < 3; k++) {
+        b_Phi[i9 + 3 * k] = 0.0;
+        for (i10 = 0; i10 < 3; i10++) {
+          b_Phi[i9 + 3 * k] += b_measurements_[i9 + 3 * i10] * Phi[k + 3 * i10];
         }
 
-        a[ibcol + 3 * outsize_idx_0] = 0.0;
-        for (itilerow = 0; itilerow < 3; itilerow++) {
-          a[ibcol + 3 * outsize_idx_0] += c_measurements_[ibcol + 3 * itilerow] *
-            (double)b_a[itilerow + 3 * outsize_idx_0];
+        a[i9 + 3 * k] = 0.0;
+        for (i10 = 0; i10 < 3; i10++) {
+          a[i9 + 3 * k] += c_measurements_[i9 + 3 * i10] * (double)c_a[i10 + 3 *
+            k];
         }
       }
     }
 
-    for (ibcol = 0; ibcol < 3; ibcol++) {
-      for (outsize_idx_0 = 0; outsize_idx_0 < 3; outsize_idx_0++) {
-        P_att[outsize_idx_0 + 3 * ibcol] = b_Phi[outsize_idx_0 + 3 * ibcol] +
-          a[outsize_idx_0 + 3 * ibcol];
+    for (i9 = 0; i9 < 3; i9++) {
+      for (k = 0; k < 3; k++) {
+        P_att[k + 3 * i9] = b_Phi[k + 3 * i9] + a[k + 3 * i9];
       }
     }
 
     Att_upd(x_att, P_att, measurements_.acc_duo, noiseParameters->process_noise
             [0] * 1.0E+10, dt);
-    for (ibcol = 0; ibcol < 4; ibcol++) {
-      xt->data[3 + ibcol] = x_att[ibcol];
+    for (i9 = 0; i9 < 4; i9++) {
+      xt->data[3 + i9] = x_att[i9];
     }
 
     initializing_attitude = 2.0;
@@ -493,23 +585,22 @@ void SLAM(double updateVect[24], const double z_all_l[48], const double z_all_r
     R_cw[5] = 2.0 * (x_att[1] * x_att[2] - x_att[0] * x_att[3]);
     R_cw[8] = ((-(x_att[0] * x_att[0]) - x_att[1] * x_att[1]) + x_att[2] *
                x_att[2]) + x_att[3] * x_att[3];
-    for (ibcol = 0; ibcol < 3; ibcol++) {
-      for (outsize_idx_0 = 0; outsize_idx_0 < 3; outsize_idx_0++) {
-        b_measurements_[ibcol + 3 * outsize_idx_0] = 0.0;
-        for (itilerow = 0; itilerow < 3; itilerow++) {
-          b_measurements_[ibcol + 3 * outsize_idx_0] += 0.1 * R_cw[ibcol + 3 *
-            itilerow] * (double)c_b[itilerow + 3 * outsize_idx_0];
+    for (i9 = 0; i9 < 3; i9++) {
+      for (k = 0; k < 3; k++) {
+        b_measurements_[i9 + 3 * k] = 0.0;
+        for (i10 = 0; i10 < 3; i10++) {
+          b_measurements_[i9 + 3 * k] += 0.1 * R_cw[i9 + 3 * i10] * (double)
+            b[i10 + 3 * k];
         }
       }
     }
 
-    for (ibcol = 0; ibcol < 3; ibcol++) {
-      for (outsize_idx_0 = 0; outsize_idx_0 < 3; outsize_idx_0++) {
-        P->data[(ibcol + P->size[0] * (3 + outsize_idx_0)) + 3] = 0.0;
-        for (itilerow = 0; itilerow < 3; itilerow++) {
-          P->data[(ibcol + P->size[0] * (3 + outsize_idx_0)) + 3] +=
-            b_measurements_[ibcol + 3 * itilerow] * R_cw[outsize_idx_0 + 3 *
-            itilerow];
+    for (i9 = 0; i9 < 3; i9++) {
+      for (k = 0; k < 3; k++) {
+        P->data[(i9 + P->size[0] * (3 + k)) + 3] = 0.0;
+        for (i10 = 0; i10 < 3; i10++) {
+          P->data[(i9 + P->size[0] * (3 + k)) + 3] += b_measurements_[i9 + 3 *
+            i10] * R_cw[k + 3 * i10];
         }
       }
     }
@@ -525,32 +616,32 @@ void SLAM(double updateVect[24], const double z_all_l[48], const double z_all_r
                noiseParameters, &measurements_, height_offset_pressure,
                *b_VIOParameters, h_u_apo_out, map_out);
     initializing_attitude = 0.0;
-    ibcol = xt_out->size[0];
+    i9 = xt_out->size[0];
     xt_out->size[0] = xt->size[0];
-    emxEnsureCapacity((emxArray__common *)xt_out, ibcol, (int)sizeof(double));
-    outsize_idx_0 = xt->size[0];
-    for (ibcol = 0; ibcol < outsize_idx_0; ibcol++) {
-      xt_out->data[ibcol] = xt->data[ibcol];
+    emxEnsureCapacity((emxArray__common *)xt_out, i9, (int)sizeof(double));
+    k = xt->size[0];
+    for (i9 = 0; i9 < k; i9++) {
+      xt_out->data[i9] = xt->data[i9];
     }
 
-    ibcol = P_apo_out->size[0] * P_apo_out->size[1];
+    i9 = P_apo_out->size[0] * P_apo_out->size[1];
     P_apo_out->size[0] = P->size[0];
     P_apo_out->size[1] = P->size[1];
-    emxEnsureCapacity((emxArray__common *)P_apo_out, ibcol, (int)sizeof(double));
-    outsize_idx_0 = P->size[0] * P->size[1];
-    for (ibcol = 0; ibcol < outsize_idx_0; ibcol++) {
-      P_apo_out->data[ibcol] = P->data[ibcol];
+    emxEnsureCapacity((emxArray__common *)P_apo_out, i9, (int)sizeof(double));
+    k = P->size[0] * P->size[1];
+    for (i9 = 0; i9 < k; i9++) {
+      P_apo_out->data[i9] = P->data[i9];
     }
   } else {
     if (b_VIOParameters->use_ext_pose) {
       if (!ext_pose_offset_initialized) {
-        for (ibcol = 0; ibcol < 3; ibcol++) {
-          ext_pos_offset[ibcol] = xt->data[ibcol] - measurements_.pos_ext[ibcol];
+        for (i9 = 0; i9 < 3; i9++) {
+          ext_pos_offset[i9] = xt->data[i9] - measurements_.pos_ext[i9];
         }
 
         //  in vio frame
-        for (ibcol = 0; ibcol < 3; ibcol++) {
-          measurements_.pos_ext[ibcol] = xt->data[ibcol];
+        for (i9 = 0; i9 < 3; i9++) {
+          measurements_.pos_ext[i9] = xt->data[i9];
         }
 
         //  if ~all(size(q) == [4, 1])
@@ -615,34 +706,34 @@ void SLAM(double updateVect[24], const double z_all_l[48], const double z_all_r
           xt->data[6]);
         b_measurements_[8] = ((-(xt->data[3] * xt->data[3]) - xt->data[4] *
           xt->data[4]) + xt->data[5] * xt->data[5]) + xt->data[6] * xt->data[6];
-        for (ibcol = 0; ibcol < 3; ibcol++) {
-          for (outsize_idx_0 = 0; outsize_idx_0 < 3; outsize_idx_0++) {
-            ext_att_offset[ibcol + 3 * outsize_idx_0] = 0.0;
-            for (itilerow = 0; itilerow < 3; itilerow++) {
-              ext_att_offset[ibcol + 3 * outsize_idx_0] += c_measurements_[ibcol
-                + 3 * itilerow] * b_measurements_[itilerow + 3 * outsize_idx_0];
+        for (i9 = 0; i9 < 3; i9++) {
+          for (k = 0; k < 3; k++) {
+            ext_att_offset[i9 + 3 * k] = 0.0;
+            for (i10 = 0; i10 < 3; i10++) {
+              ext_att_offset[i9 + 3 * k] += c_measurements_[i9 + 3 * i10] *
+                b_measurements_[i10 + 3 * k];
             }
           }
         }
 
-        for (ibcol = 0; ibcol < 4; ibcol++) {
-          measurements_.att_ext[ibcol] = xt->data[3 + ibcol];
+        for (i9 = 0; i9 < 4; i9++) {
+          measurements_.att_ext[i9] = xt->data[3 + i9];
         }
 
         ext_pose_offset_initialized = true;
       } else {
-        for (ibcol = 0; ibcol < 3; ibcol++) {
-          d2 = 0.0;
-          for (outsize_idx_0 = 0; outsize_idx_0 < 3; outsize_idx_0++) {
-            d2 += ext_att_offset[outsize_idx_0 + 3 * ibcol] *
-              measurements_.pos_ext[outsize_idx_0];
+        for (i9 = 0; i9 < 3; i9++) {
+          b_height_offset_pressure = 0.0;
+          for (k = 0; k < 3; k++) {
+            b_height_offset_pressure += ext_att_offset[k + 3 * i9] *
+              measurements_.pos_ext[k];
           }
 
-          b_err_p_b[ibcol] = d2 + ext_pos_offset[ibcol];
+          b_err_p_b[i9] = b_height_offset_pressure + ext_pos_offset[i9];
         }
 
-        for (ibcol = 0; ibcol < 3; ibcol++) {
-          measurements_.pos_ext[ibcol] = b_err_p_b[ibcol];
+        for (i9 = 0; i9 < 3; i9++) {
+          measurements_.pos_ext[i9] = b_err_p_b[i9];
         }
 
         //  if ~all(size(q) == [4, 1])
@@ -683,13 +774,12 @@ void SLAM(double updateVect[24], const double z_all_l[48], const double z_all_r
           measurements_.att_ext[1]) + measurements_.att_ext[2] *
                               measurements_.att_ext[2]) + measurements_.att_ext
           [3] * measurements_.att_ext[3];
-        for (ibcol = 0; ibcol < 3; ibcol++) {
-          for (outsize_idx_0 = 0; outsize_idx_0 < 3; outsize_idx_0++) {
-            c_measurements_[ibcol + 3 * outsize_idx_0] = 0.0;
-            for (itilerow = 0; itilerow < 3; itilerow++) {
-              c_measurements_[ibcol + 3 * outsize_idx_0] +=
-                b_measurements_[ibcol + 3 * itilerow] * ext_att_offset[itilerow
-                + 3 * outsize_idx_0];
+        for (i9 = 0; i9 < 3; i9++) {
+          for (k = 0; k < 3; k++) {
+            c_measurements_[i9 + 3 * k] = 0.0;
+            for (i10 = 0; i10 < 3; i10++) {
+              c_measurements_[i9 + 3 * k] += b_measurements_[i9 + 3 * i10] *
+                ext_att_offset[i10 + 3 * k];
             }
           }
         }
@@ -700,15 +790,7 @@ void SLAM(double updateVect[24], const double z_all_l[48], const double z_all_r
 
     SLAM_pred(P, xt, dt, noiseParameters->process_noise, measurements_.gyr_duo,
               measurements_.acc_duo, numStates);
-    ibcol = xt_apo->size[0];
-    xt_apo->size[0] = xt->size[0];
-    emxEnsureCapacity((emxArray__common *)xt_apo, ibcol, (int)sizeof(double));
-    outsize_idx_0 = xt->size[0];
-    for (ibcol = 0; ibcol < outsize_idx_0; ibcol++) {
-      xt_apo->data[ibcol] = xt->data[ibcol];
-    }
-
-    SLAM_updIT(P, xt_apo, cameraParameters->CameraParameters1.RadialDistortion,
+    SLAM_updIT(P, xt, cameraParameters->CameraParameters1.RadialDistortion,
                cameraParameters->CameraParameters1.FocalLength,
                cameraParameters->CameraParameters1.PrincipalPoint,
                cameraParameters->CameraParameters2.RadialDistortion,
@@ -718,6 +800,47 @@ void SLAM(double updateVect[24], const double z_all_l[48], const double z_all_r
                cameraParameters->R_rl, updateVect, z_all_l, z_all_r,
                noiseParameters, &measurements_, height_offset_pressure,
                *b_VIOParameters, h_u_apo_out, map_out);
+    i9 = r3->size[0];
+    r3->size[0] = xt->size[0];
+    emxEnsureCapacity((emxArray__common *)r3, i9, (int)sizeof(boolean_T));
+    k = xt->size[0];
+    for (i9 = 0; i9 < k; i9++) {
+      r3->data[i9] = rtIsNaN(xt->data[i9]);
+    }
+
+    if (e_any(r3)) {
+      // #coder
+      // ROS_ERROR Print to ROS_ERROR in ROS or to console in Matlab
+      for (i9 = 0; i9 < 33; i9++) {
+        cv8[i9] = cv9[i9];
+      }
+
+      ROS_ERROR(cv8);
+      initialize(ref->position, measurements->bar_fmu,
+                 b_VIOParameters->num_points_per_anchor,
+                 b_VIOParameters->num_anchors, numStates, xt, P,
+                 &b_height_offset_pressure);
+      for (k = 0; k < 4; k++) {
+        x_att[k] = b_x_att[k];
+      }
+
+      memcpy(&P_att[0], &b_P_att[0], 9U * sizeof(double));
+      for (k = 0; k < 24; k++) {
+        updateVect[k] = 0.0;
+      }
+
+      height_offset_pressure = b_height_offset_pressure;
+      ext_pose_offset_initialized = false;
+      for (k = 0; k < 3; k++) {
+        ext_pos_offset[k] = 0.0;
+      }
+
+      memset(&ext_att_offset[0], 0, 9U * sizeof(double));
+      for (k = 0; k < 3; k++) {
+        ext_att_offset[k + 3 * k] = 1.0;
+        i_control[k] = 0.0;
+      }
+    }
 
     //  if ~all(size(q) == [4, 1])
     //      error('q does not have the size of a quaternion')
@@ -733,49 +856,134 @@ void SLAM(double updateVect[24], const double z_all_l[48], const double z_all_r
     R_cw[8] = ((-(xt->data[3] * xt->data[3]) - xt->data[4] * xt->data[4]) +
                xt->data[5] * xt->data[5]) + xt->data[6] * xt->data[6];
     r = rt_atan2d_snf(R_cw[3], R_cw[0]);
-    yaw_trafo = rt_atan2d_snf(R_cw[3], R_cw[0]) + 1.5707963267948966;
+    yaw = rt_atan2d_snf(R_cw[3], R_cw[0]) + 1.5707963267948966;
     j_fprintf(r + 1.5707963267948966, ref->position[3]);
+    if (rtIsNaN(ref->position[0])) {
+      // #coder
+      // ROS_ERROR Print to ROS_ERROR in ROS or to console in Matlab
+      for (i9 = 0; i9 < 42; i9++) {
+        cv10[i9] = cv11[i9];
+      }
+
+      ROS_ERROR(cv10);
+      ref->position[0] = 0.0;
+    }
+
+    if (rtIsNaN(ref->position[1])) {
+      // #coder
+      // ROS_ERROR Print to ROS_ERROR in ROS or to console in Matlab
+      for (i9 = 0; i9 < 42; i9++) {
+        cv10[i9] = cv12[i9];
+      }
+
+      ROS_ERROR(cv10);
+      ref->position[1] = 0.0;
+    }
+
+    if (rtIsNaN(ref->position[2])) {
+      // #coder
+      // ROS_ERROR Print to ROS_ERROR in ROS or to console in Matlab
+      for (i9 = 0; i9 < 42; i9++) {
+        cv10[i9] = cv13[i9];
+      }
+
+      ROS_ERROR(cv10);
+      ref->position[2] = 0.0;
+    }
+
+    if (rtIsNaN(ref->position[3])) {
+      // #coder
+      // ROS_ERROR Print to ROS_ERROR in ROS or to console in Matlab
+      for (i9 = 0; i9 < 35; i9++) {
+        cv14[i9] = cv15[i9];
+      }
+
+      ROS_ERROR(cv14);
+      ref->position[3] = 0.0;
+    }
+
+    if (rtIsNaN(ref->velocity[0])) {
+      // #coder
+      // ROS_ERROR Print to ROS_ERROR in ROS or to console in Matlab
+      for (i9 = 0; i9 < 42; i9++) {
+        cv10[i9] = cv16[i9];
+      }
+
+      ROS_ERROR(cv10);
+      ref->position[0] = 0.0;
+    }
+
+    if (rtIsNaN(ref->velocity[1])) {
+      // #coder
+      // ROS_ERROR Print to ROS_ERROR in ROS or to console in Matlab
+      for (i9 = 0; i9 < 42; i9++) {
+        cv10[i9] = cv17[i9];
+      }
+
+      ROS_ERROR(cv10);
+      ref->position[1] = 0.0;
+    }
+
+    if (rtIsNaN(ref->velocity[2])) {
+      // #coder
+      // ROS_ERROR Print to ROS_ERROR in ROS or to console in Matlab
+      for (i9 = 0; i9 < 42; i9++) {
+        cv10[i9] = cv18[i9];
+      }
+
+      ROS_ERROR(cv10);
+      ref->position[2] = 0.0;
+    }
+
+    if (rtIsNaN(ref->position[3])) {
+      // #coder
+      // ROS_ERROR Print to ROS_ERROR in ROS or to console in Matlab
+      for (i9 = 0; i9 < 39; i9++) {
+        cv19[i9] = cv20[i9];
+      }
+
+      ROS_ERROR(cv19);
+      ref->position[3] = 0.0;
+    }
 
     //  transform between world and control frame (yaw-rotatate world frame)
-    R_cw[0] = cos(yaw_trafo);
-    R_cw[1] = -sin(yaw_trafo);
+    R_cw[0] = cos(yaw);
+    R_cw[1] = -sin(yaw);
     R_cw[2] = 0.0;
-    R_cw[3] = sin(yaw_trafo);
-    R_cw[4] = cos(yaw_trafo);
+    R_cw[3] = sin(yaw);
+    R_cw[4] = cos(yaw);
     R_cw[5] = 0.0;
-    for (ibcol = 0; ibcol < 3; ibcol++) {
-      R_cw[6 + ibcol] = iv4[ibcol];
+    for (i9 = 0; i9 < 3; i9++) {
+      R_cw[6 + i9] = iv4[i9];
     }
 
-    for (ibcol = 0; ibcol < 3; ibcol++) {
-      b_err_p_b[ibcol] = xt->data[ibcol] - ref->position[ibcol];
+    for (i9 = 0; i9 < 3; i9++) {
+      b_err_p_b[i9] = xt->data[i9] - ref->position[i9];
     }
 
-    for (ibcol = 0; ibcol < 3; ibcol++) {
-      err_p_b[ibcol] = 0.0;
-      for (outsize_idx_0 = 0; outsize_idx_0 < 3; outsize_idx_0++) {
-        err_p_b[ibcol] += R_cw[ibcol + 3 * outsize_idx_0] *
-          b_err_p_b[outsize_idx_0];
+    for (i9 = 0; i9 < 3; i9++) {
+      err_p_b[i9] = 0.0;
+      for (k = 0; k < 3; k++) {
+        err_p_b[i9] += R_cw[i9 + 3 * k] * b_err_p_b[k];
       }
     }
 
     //  position error in control frame
-    for (ibcol = 0; ibcol < 3; ibcol++) {
-      b_err_p_b[ibcol] = xt->data[7 + ibcol] - ref->velocity[ibcol];
+    for (i9 = 0; i9 < 3; i9++) {
+      b_err_p_b[i9] = xt->data[7 + i9] - ref->velocity[i9];
     }
 
     //  velocity error in control frame
     c_ControllerGains[0] = b_ControllerGains->Ki_xy * err_p_b[0];
     c_ControllerGains[1] = b_ControllerGains->Ki_xy * err_p_b[1];
     c_ControllerGains[2] = b_ControllerGains->Ki_z * err_p_b[2];
-    for (ibcol = 0; ibcol < 3; ibcol++) {
-      err_v_b[ibcol] = 0.0;
-      for (outsize_idx_0 = 0; outsize_idx_0 < 3; outsize_idx_0++) {
-        err_v_b[ibcol] += R_cw[ibcol + 3 * outsize_idx_0] *
-          b_err_p_b[outsize_idx_0];
+    for (i9 = 0; i9 < 3; i9++) {
+      err_v_b[i9] = 0.0;
+      for (k = 0; k < 3; k++) {
+        err_v_b[i9] += R_cw[i9 + 3 * k] * b_err_p_b[k];
       }
 
-      i_control[ibcol] += c_ControllerGains[ibcol];
+      i_control[i9] += c_ControllerGains[i9];
     }
 
     if ((b_ControllerGains->i_lim <= i_control[0]) || rtIsNaN(i_control[0])) {
@@ -828,40 +1036,27 @@ void SLAM(double updateVect[24], const double z_all_l[48], const double z_all_r
       b_ControllerGains->Kp_yaw * ((r + 1.5707963267948966) - ref->position[3]);
     l_fprintf(err_p_b[0], err_p_b[1], err_p_b[2], (r + 1.5707963267948966) -
               ref->position[3], u_out[0], u_out[1], u_out[2], u_out[3]);
-
-    //  if almost all features were lost, do a soft reset
-    ibcol = xt->size[0];
-    xt->size[0] = xt_apo->size[0];
-    emxEnsureCapacity((emxArray__common *)xt, ibcol, (int)sizeof(double));
-    outsize_idx_0 = xt_apo->size[0];
-    for (ibcol = 0; ibcol < outsize_idx_0; ibcol++) {
-      xt->data[ibcol] = xt_apo->data[ibcol];
-    }
-
-    ibcol = xt_out->size[0];
+    i9 = xt_out->size[0];
     xt_out->size[0] = xt->size[0];
-    emxEnsureCapacity((emxArray__common *)xt_out, ibcol, (int)sizeof(double));
-    outsize_idx_0 = xt->size[0];
-    for (ibcol = 0; ibcol < outsize_idx_0; ibcol++) {
-      xt_out->data[ibcol] = xt->data[ibcol];
+    emxEnsureCapacity((emxArray__common *)xt_out, i9, (int)sizeof(double));
+    k = xt->size[0];
+    for (i9 = 0; i9 < k; i9++) {
+      xt_out->data[i9] = xt->data[i9];
     }
 
-    ibcol = P_apo_out->size[0] * P_apo_out->size[1];
+    i9 = P_apo_out->size[0] * P_apo_out->size[1];
     P_apo_out->size[0] = P->size[0];
     P_apo_out->size[1] = P->size[1];
-    emxEnsureCapacity((emxArray__common *)P_apo_out, ibcol, (int)sizeof(double));
-    outsize_idx_0 = P->size[0] * P->size[1];
-    for (ibcol = 0; ibcol < outsize_idx_0; ibcol++) {
-      P_apo_out->data[ibcol] = P->data[ibcol];
+    emxEnsureCapacity((emxArray__common *)P_apo_out, i9, (int)sizeof(double));
+    k = P->size[0] * P->size[1];
+    for (i9 = 0; i9 < k; i9++) {
+      P_apo_out->data[i9] = P->data[i9];
     }
 
     // % output asserts for coder
   }
 
-  emxFree_real_T(&r4);
-  emxFree_real_T(&r3);
-  emxFree_real_T(&b);
-  emxFree_real_T(&xt_apo);
+  emxFree_boolean_T(&r3);
 }
 
 //

@@ -5,7 +5,7 @@
 // File: SLAM_initialize.cpp
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 03-Sep-2015 23:49:51
+// C/C++ source code generated on  : 04-Sep-2015 11:04:36
 //
 
 // Include Files
@@ -38,8 +38,8 @@ void SLAM_initialize()
   last_imu_not_empty_init();
   minFeatureThreshold = b_minFeatureThreshold;
   numStatesxt = b_numStatesxt;
-  numStates = b_numStates;
   memcpy(&R_bc[0], &b_R_bc[0], 9U * sizeof(double));
+  numStates = b_numStates;
   initialized_not_empty_init();
   SLAM_init();
   SLAM_updIT_init();
