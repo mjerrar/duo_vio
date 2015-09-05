@@ -123,7 +123,7 @@ Localization::Localization()
 	{
 		throw std::string("Failed to open camera calibration %s", path.c_str());
 	}
-	nh_.param<double>("FPS_duo", fps_duo, 60);
+	nh_.param<double>("FPS_duo", fps_duo, 60.0);
 
 	cameraParams = parseYaml(YamlNode);
 
@@ -280,7 +280,7 @@ void Localization::duo3dCb(const duo3d_ros::Duo3d& msg)
 	t_avg=0.05*time_measurement+(1-0.05)*t_avg;
 	if (debug_publish || time_measurement > 1/fps_duo)
 	{
-		if (time_measurement > 1/60.0)
+		if (time_measurement > 1/fps_duo)
 			ROS_WARN("Duration: %f ms. Theoretical max frequency: %.3f Hz\n", time_measurement, 1/time_measurement);
 		else
 			ROS_INFO("Duration: %f ms. Theoretical max frequency: %.3f Hz\n", time_measurement, 1/time_measurement);
