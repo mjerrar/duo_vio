@@ -62,6 +62,7 @@ private:
 	int display_tracks_cnt;
 	int max_clicks_;
 	int clear_queue_counter;
+	double fps_duo;
 	ros::Time last_debug_publish;
 
 	StereoParameters cameraParams;
