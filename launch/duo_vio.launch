@@ -90,6 +90,7 @@
     <arg name="resolution_height_duo" value="$(arg resolution_height_duo)" />
     <arg name="camera_name" value="$(arg camera_name)" />
     <arg name="lense_type" value="$(arg lense_type)" />
+    <arg name="FPS_duo" value="$(arg FPS_duo)" />
   </include>
 
 </launch>
