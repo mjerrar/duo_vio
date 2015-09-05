@@ -1,10 +1,10 @@
 <launch>
 
-  <arg name="exposure_duo" default="100" />
+  <arg name="exposure_duo" default="50" />
   <arg name="gain_duo" default="100" />
-  <arg name="FPS_duo" default="60" />
-  <arg name="resolution_width_duo" default="320" />
-  <arg name="resolution_height_duo" default="240" />
+  <arg name="FPS_duo" default="30" />
+  <arg name="resolution_width_duo" default="752" />
+  <arg name="resolution_height_duo" default="480" />
   
   <arg name="im_noise" default="0.01" />
   <arg name="acc_noise" default="1" />
@@ -85,6 +85,11 @@
     <arg name="debug_publish_freq" value="$(arg debug_publish_freq)" />
     <arg name="publish_on_debug_topics" value="$(arg publish_on_debug_topics)" />
     <arg name="use_vicon_for_control" value="$(arg use_vicon_for_control_arg)" />
+
+    <arg name="resolution_width_duo" value="$(arg resolution_width_duo)" />
+    <arg name="resolution_height_duo" value="$(arg resolution_height_duo)" />
+    <arg name="camera_name" value="$(arg camera_name)" />
+    <arg name="lense_type" value="$(arg lense_type)" />
   </include>
 
 </launch>

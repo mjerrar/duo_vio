@@ -2,9 +2,9 @@
 
   <arg name="exposure_duo" default="50" />
   <arg name="gain_duo" default="100" />
-  <arg name="FPS_duo" default="60" />
-  <arg name="resolution_width_duo" default="320" />
-  <arg name="resolution_height_duo" default="240" />
+  <arg name="FPS_duo" default="30" />
+  <arg name="resolution_width_duo" default="752" />
+  <arg name="resolution_height_duo" default="480" />
   
   <arg name="im_noise" default="0.01" />
   <arg name="acc_noise" default="1" />
