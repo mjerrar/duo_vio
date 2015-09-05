@@ -277,7 +277,6 @@ void Localization::duo3dCb(const duo3d_ros::Duo3d& msg)
 
 	double time_measurement = (ros::Time::now() - tic_total).toSec();
 
-	t_avg=0.05*time_measurement+(1-0.05)*t_avg;
 	if (debug_publish || time_measurement > 1/fps_duo)
 	{
 		if (time_measurement > 1/fps_duo)
