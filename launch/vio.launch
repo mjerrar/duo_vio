@@ -84,6 +84,7 @@
 
     <param name="show_tracker_images" type="bool" value="$(arg show_tracker_images)" />
    
+    <param name="FPS_duo" type="double" value="$(arg FPS_duo)" />
     <param name="camera_name" type="string" value="$(arg camera_name)" />
     <param name="lense_type" type="string" value="$(arg lense_type)" />
     <param name="resolution_width" type="int" value="$(arg resolution_width_duo)" />

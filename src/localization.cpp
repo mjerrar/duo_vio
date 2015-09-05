@@ -117,11 +117,13 @@ Localization::Localization()
 	res << resolution_height << "x" << resolution_width;
 	std::string path = ros::package::getPath("vio_ros") + "/calib/" + camera_name + "/" + lense_type + "/" + res.str() + "/cameraParams.yaml";
 
+	ROS_INFO("Reading camera calibration from %s", path.c_str());
 	YAML::Node YamlNode = YAML::LoadFile(path);
 	if (YamlNode.IsNull())
 	{
 		throw std::string("Failed to open camera calibration %s", path.c_str());
 	}
+	nh_.param<double>("FPS_duo", fps_duo, 60);
 
 	cameraParams = parseYaml(YamlNode);
 
@@ -276,7 +278,7 @@ void Localization::duo3dCb(const duo3d_ros::Duo3d& msg)
 	double time_measurement = (ros::Time::now() - tic_total).toSec();
 
 	t_avg=0.05*time_measurement+(1-0.05)*t_avg;
-	if (debug_publish || time_measurement > 1/60.0)
+	if (debug_publish || time_measurement > 1/fps_duo)
 	{
 		if (time_measurement > 1/60.0)
 			ROS_WARN("Duration: %f ms. Theoretical max frequency: %.3f Hz\n", time_measurement, 1/time_measurement);
