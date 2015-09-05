@@ -16,7 +16,6 @@ static const int DUO_QUEUE_SIZE = 30;
 
 Localization::Localization()
 : nh_("~"),
-  t_avg(0.0),
   SLAM_reset_flag(0),
   received_IMU_data(false),
   change_reference(false),
@@ -277,7 +276,6 @@ void Localization::duo3dCb(const duo3d_ros::Duo3d& msg)
 
 	double time_measurement = (ros::Time::now() - tic_total).toSec();
 
-	t_avg=0.05*time_measurement+(1-0.05)*t_avg;
 	if (debug_publish || time_measurement > 1/fps_duo)
 	{
 		if (time_measurement > 1/fps_duo)

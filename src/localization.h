@@ -54,7 +54,6 @@ public:
 	~Localization();
 
 private:
-	double t_avg;
 	double debug_publish_delay;
 	bool SLAM_reset_flag;
 	bool received_IMU_data;
