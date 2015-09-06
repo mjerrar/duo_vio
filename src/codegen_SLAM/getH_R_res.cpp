@@ -5,7 +5,7 @@
 // File: getH_R_res.cpp
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 04-Sep-2015 23:21:02
+// C/C++ source code generated on  : 06-Sep-2015 10:04:04
 //
 
 // Include Files
@@ -18,6 +18,7 @@
 #include "any.h"
 #include "norm.h"
 #include "QuatFromRotJ.h"
+#include "predictMeasurement_stereo.h"
 #include "kron.h"
 #include "eye.h"
 #include "SLAM_rtwutil.h"
@@ -56,7 +57,7 @@
 //                const double z_all_l[48]
 //                const double indMeas_data[]
 //                const int indMeas_size[1]
-//                const emxArray_real_T *map
+//                const emxArray_real_T *scaled_map
 //                const emxArray_real_T *anchorIdx
 //                const emxArray_real_T *featureAnchorIdx
 //                const emxArray_real_T *b_m_vect
@@ -75,12 +76,14 @@
 //                int h_u_size[1]
 //                double R_data[]
 //                int R_size[2]
+//                boolean_T invalidFeatures_data[]
+//                int invalidFeatures_size[1]
 // Return Type  : void
 //
 void getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
                 stateSize, const double z_all_l[48], const double indMeas_data[],
-                const int indMeas_size[1], const emxArray_real_T *map, const
-                emxArray_real_T *anchorIdx, const emxArray_real_T
+                const int indMeas_size[1], const emxArray_real_T *scaled_map,
+                const emxArray_real_T *anchorIdx, const emxArray_real_T
                 *featureAnchorIdx, const emxArray_real_T *b_m_vect, const double
                 noiseParameters_image_noise[2], double
                 noiseParameters_pressure_noise, double
@@ -90,11 +93,11 @@ void getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
                 *measurements, double b_height_offset_pressure, const
                 VIOParameters b_VIOParameters, double r_data[], int r_size[1],
                 emxArray_real_T *H, double h_u_data[], int h_u_size[1], double
-                R_data[], int R_size[2])
+                R_data[], int R_size[2], boolean_T invalidFeatures_data[], int
+                invalidFeatures_size[1])
 {
   emxArray_real_T *H_xm;
   double numPointsPerAnchor;
-  double numStatesPerAnchor;
   double numErrorStatesPerAnchor;
   double R_cw[9];
   int ar;
@@ -107,26 +110,31 @@ void getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
   emxArray_real_T *C;
   emxArray_int32_T *r1;
   boolean_T bv0[3];
-  char cv4[28];
-  static const char cv5[28] = { 'm', 'a', 'p', ' ', 'f', 'e', 'a', 't', 'u', 'r',
+  char cv7[28];
+  static const char cv8[28] = { 'm', 'a', 'p', ' ', 'f', 'e', 'a', 't', 'u', 'r',
     'e', ' ', '%', 'i', ' ', 'i', 's', ' ', 'n', 'o', 't', ' ', 'v', 'a', 'l',
     'i', 'd', '\x00' };
 
-  double c_xt;
-  double b_map[3];
-  double r_grav[3];
-  int br;
-  double dv2[2];
   double indMeas;
-  double h_u_To_h_ci_l[6];
-  int nm1d2;
+  char cv9[53];
+  static const char cv10[53] = { 'F', 'e', 'a', 't', 'u', 'r', 'e', ' ', '%',
+    'i', ' ', 'i', 's', ' ', 't', 'o', 'o', ' ', 'c', 'l', 'o', 's', 'e', ' ',
+    'o', 'r', ' ', 'b', 'e', 'h', 'i', 'n', 'd', ' ', 'c', 'a', 'm', 'e', 'r',
+    'a', ',', ' ', 'd', 'i', 's', 'c', 'a', 'r', 'd', 'i', 'n', 'g', '\x00' };
+
   signed char b_k;
+  double dv2[2];
+  double h_u_To_h_ci_l[6];
+  double c_xt;
+  int nm1d2;
+  int br;
   signed char iv0[2];
   double v[2];
   int ic;
   int ib;
   int ia;
   double b_stateSize;
+  double r_grav[3];
   double c_stateSize;
   double d_stateSize;
   double e_stateSize;
@@ -179,9 +187,10 @@ void getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
   double b_y;
   double b_R_cw[9];
   double dv3[9];
+  double b_r_grav[3];
   double c_R_cw[3];
   double d_R_cw[9];
-  int i6;
+  int i7;
   double anew;
   double apnd;
   double ndbl;
@@ -212,7 +221,6 @@ void getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
   signed char iv2[3];
   emxInit_real_T(&H_xm, 2);
   numPointsPerAnchor = b_VIOParameters.num_points_per_anchor;
-  numStatesPerAnchor = 7.0 + b_VIOParameters.num_points_per_anchor;
   numErrorStatesPerAnchor = 6.0 + b_VIOParameters.num_points_per_anchor;
 
   //  if ~all(size(q) == [4, 1])
@@ -269,6 +277,12 @@ void getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
     h_u_data[ar] = 0.0;
   }
 
+  invalidFeatures_size[0] = indMeas_size[0];
+  cr = indMeas_size[0];
+  for (ar = 0; ar < cr; ar++) {
+    invalidFeatures_data[ar] = false;
+  }
+
   k = 0;
   emxInit_real_T(&H_pressure, 2);
   emxInit_real_T(&H_grav, 2);
@@ -276,48 +290,59 @@ void getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
   emxInit_int32_T(&r1, 1);
   while (k <= indMeas_size[0] - 1) {
     for (ar = 0; ar < 3; ar++) {
-      bv0[ar] = rtIsNaN(map->data[ar + map->size[0] * ((int)indMeas_data[k] - 1)]);
+      bv0[ar] = rtIsNaN(scaled_map->data[ar + scaled_map->size[0] * ((int)
+        indMeas_data[k] - 1)]);
     }
 
     if (c_any(bv0)) {
       // #coder
       // ROS_ERROR Print to ROS_ERROR in ROS or to console in Matlab
       for (ar = 0; ar < 28; ar++) {
-        cv4[ar] = cv5[ar];
+        cv7[ar] = cv8[ar];
       }
 
-      c_xt = rt_roundd_snf(indMeas_data[k]);
-      if (c_xt < 2.147483648E+9) {
-        if (c_xt >= -2.147483648E+9) {
-          ar = (int)c_xt;
+      indMeas = rt_roundd_snf(indMeas_data[k]);
+      if (indMeas < 2.147483648E+9) {
+        if (indMeas >= -2.147483648E+9) {
+          ar = (int)indMeas;
         } else {
           ar = MIN_int32_T;
         }
-      } else if (c_xt >= 2.147483648E+9) {
+      } else if (indMeas >= 2.147483648E+9) {
         ar = MAX_int32_T;
       } else {
         ar = 0;
       }
 
-      ROS_ERROR(cv4, ar);
-    } else {
-      c_xt = b_xt->data[(int)(((stateSize + (anchorIdx->data[(int)indMeas_data[k]
-        - 1] - 1.0) * numStatesPerAnchor) + 7.0) + featureAnchorIdx->data[(int)
-        indMeas_data[k] - 1]) - 1];
-      for (ar = 0; ar < 3; ar++) {
-        b_map[ar] = map->data[ar + map->size[0] * ((int)indMeas_data[k] - 1)] -
-          b_xt->data[ar];
+      ROS_ERROR(cv7, ar);
+      invalidFeatures_data[k] = true;
+    } else if (scaled_map->data[2 + scaled_map->size[0] * ((int)indMeas_data[k]
+                - 1)] < 0.1) {
+      // #coder
+      // ROS_WARN Print to ROS_WARN in ROS or to console in Matlab
+      for (ar = 0; ar < 53; ar++) {
+        cv9[ar] = cv10[ar];
       }
 
-      for (ar = 0; ar < 3; ar++) {
-        r_grav[ar] = 0.0;
-        for (br = 0; br < 3; br++) {
-          r_grav[ar] += c_xt * R_cw[ar + 3 * br] * b_map[br];
+      indMeas = rt_roundd_snf(indMeas_data[k]);
+      if (indMeas < 128.0) {
+        if (indMeas >= -128.0) {
+          b_k = (signed char)indMeas;
+        } else {
+          b_k = MIN_int8_T;
         }
+      } else if (indMeas >= 128.0) {
+        b_k = MAX_int8_T;
+      } else {
+        b_k = 0;
       }
 
+      ROS_WARN(cv9, b_k);
+      invalidFeatures_data[k] = true;
+    } else {
       //  = R_cw*(rho*anchorPos + anchorRot'*m - rho*r_wc_pred)
-      predictMeasurement_left(r_grav, dv2);
+      predictMeasurement_left(*(double (*)[3])&scaled_map->data[scaled_map->
+        size[0] * ((int)indMeas_data[k] - 1)], dv2);
       cr = k << 1;
       for (ar = 0; ar < 2; ar++) {
         h_u_data[ar + cr] = dv2[ar];
@@ -330,15 +355,24 @@ void getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
       }
 
       //     %% computation of H(x)
-      h_u_To_h_ci_l[0] = 1.0 / r_grav[2];
+      h_u_To_h_ci_l[0] = 1.0 / scaled_map->data[2 + scaled_map->size[0] * ((int)
+        indMeas_data[k] - 1)];
       h_u_To_h_ci_l[2] = 0.0;
-      h_u_To_h_ci_l[4] = -r_grav[0] / (r_grav[2] * r_grav[2]);
+      h_u_To_h_ci_l[4] = -scaled_map->data[scaled_map->size[0] * ((int)
+        indMeas_data[k] - 1)] / (scaled_map->data[2 + scaled_map->size[0] *
+        ((int)indMeas_data[k] - 1)] * scaled_map->data[2 + scaled_map->size[0] *
+        ((int)indMeas_data[k] - 1)]);
       h_u_To_h_ci_l[1] = 0.0;
-      h_u_To_h_ci_l[3] = 1.0 / r_grav[2];
-      h_u_To_h_ci_l[5] = -r_grav[1] / (r_grav[2] * r_grav[2]);
+      h_u_To_h_ci_l[3] = 1.0 / scaled_map->data[2 + scaled_map->size[0] * ((int)
+        indMeas_data[k] - 1)];
+      h_u_To_h_ci_l[5] = -scaled_map->data[1 + scaled_map->size[0] * ((int)
+        indMeas_data[k] - 1)] / (scaled_map->data[2 + scaled_map->size[0] *
+        ((int)indMeas_data[k] - 1)] * scaled_map->data[2 + scaled_map->size[0] *
+        ((int)indMeas_data[k] - 1)]);
       c_xt = -b_xt->data[(int)(((stateSize + (anchorIdx->data[(int)
-        indMeas_data[k] - 1] - 1.0) * numStatesPerAnchor) + 7.0) +
-        featureAnchorIdx->data[(int)indMeas_data[k] - 1]) - 1];
+        indMeas_data[k] - 1] - 1.0) * (7.0 +
+        b_VIOParameters.num_points_per_anchor)) + 7.0) + featureAnchorIdx->data
+        [(int)indMeas_data[k] - 1]) - 1];
       nm1d2 = (int)(numStates - 6.0);
       ar = H_grav->size[0] * H_grav->size[1];
       H_grav->size[0] = 3;
@@ -351,13 +385,19 @@ void getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
       }
 
       H_grav->data[H_grav->size[0] * 3] = 0.0;
-      H_grav->data[H_grav->size[0] << 2] = -r_grav[2];
-      H_grav->data[H_grav->size[0] * 5] = r_grav[1];
-      H_grav->data[1 + H_grav->size[0] * 3] = r_grav[2];
+      H_grav->data[H_grav->size[0] << 2] = -scaled_map->data[2 +
+        scaled_map->size[0] * ((int)indMeas_data[k] - 1)];
+      H_grav->data[H_grav->size[0] * 5] = scaled_map->data[1 + scaled_map->size
+        [0] * ((int)indMeas_data[k] - 1)];
+      H_grav->data[1 + H_grav->size[0] * 3] = scaled_map->data[2 +
+        scaled_map->size[0] * ((int)indMeas_data[k] - 1)];
       H_grav->data[1 + (H_grav->size[0] << 2)] = 0.0;
-      H_grav->data[1 + H_grav->size[0] * 5] = -r_grav[0];
-      H_grav->data[2 + H_grav->size[0] * 3] = -r_grav[1];
-      H_grav->data[2 + (H_grav->size[0] << 2)] = r_grav[0];
+      H_grav->data[1 + H_grav->size[0] * 5] = -scaled_map->data[scaled_map->
+        size[0] * ((int)indMeas_data[k] - 1)];
+      H_grav->data[2 + H_grav->size[0] * 3] = -scaled_map->data[1 +
+        scaled_map->size[0] * ((int)indMeas_data[k] - 1)];
+      H_grav->data[2 + (H_grav->size[0] << 2)] = scaled_map->data
+        [scaled_map->size[0] * ((int)indMeas_data[k] - 1)];
       H_grav->data[2 + H_grav->size[0] * 5] = 0.0;
       for (ar = 0; ar < nm1d2; ar++) {
         for (br = 0; br < 3; br++) {
@@ -592,13 +632,13 @@ void getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
       dv3[8] = 0.0;
       nm1d2 = (int)(featureAnchorIdx->data[(int)indMeas_data[k] - 1] - 1.0);
       for (ar = 0; ar < 3; ar++) {
-        b_map[ar] = r_grav[ar] - b_xt->data[ar];
+        b_r_grav[ar] = r_grav[ar] - b_xt->data[ar];
       }
 
       for (ar = 0; ar < 3; ar++) {
         c_R_cw[ar] = 0.0;
         for (br = 0; br < 3; br++) {
-          c_R_cw[ar] += R_cw[ar + 3 * br] * b_map[br];
+          c_R_cw[ar] += R_cw[ar + 3 * br] * b_r_grav[br];
         }
       }
 
@@ -607,8 +647,8 @@ void getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
       for (ar = 0; ar < 3; ar++) {
         for (br = 0; br < 3; br++) {
           d_R_cw[ar + 3 * br] = 0.0;
-          for (i6 = 0; i6 < 3; i6++) {
-            d_R_cw[ar + 3 * br] += b_R_cw[ar + 3 * i6] * dv3[i6 + 3 * br];
+          for (i7 = 0; i7 < 3; i7++) {
+            d_R_cw[ar + 3 * br] += b_R_cw[ar + 3 * i7] * dv3[i7 + 3 * br];
           }
         }
       }
@@ -876,9 +916,9 @@ void getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
     for (ar = 0; ar < 3; ar++) {
       for (br = 0; br < 3; br++) {
         b_measurements[ar + 3 * br] = 0.0;
-        for (i6 = 0; i6 < 3; i6++) {
-          b_measurements[ar + 3 * br] += c_measurements[ar + 3 * i6] * R_cw[br +
-            3 * i6];
+        for (i7 = 0; i7 < 3; i7++) {
+          b_measurements[ar + 3 * br] += c_measurements[ar + 3 * i7] * R_cw[br +
+            3 * i7];
         }
       }
     }
@@ -940,12 +980,12 @@ void getH_R_res(const emxArray_real_T *b_xt, double errorStateSize, double
   if (b_VIOParameters.gravity_align) {
     B = norm(measurements->acc_duo);
     for (ar = 0; ar < 3; ar++) {
-      c_xt = 0.0;
+      indMeas = 0.0;
       for (br = 0; br < 3; br++) {
-        c_xt += R_cw[ar + 3 * br] * (double)b[br];
+        indMeas += R_cw[ar + 3 * br] * (double)b[br];
       }
 
-      r_grav[ar] = measurements->acc_duo[ar] / B - c_xt;
+      r_grav[ar] = measurements->acc_duo[ar] / B - indMeas;
     }
 
     H_grav->data[H_grav->size[0] * 3] = 0.0;

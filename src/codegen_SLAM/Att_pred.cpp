@@ -5,7 +5,7 @@
 // File: Att_pred.cpp
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 04-Sep-2015 23:21:02
+// C/C++ source code generated on  : 06-Sep-2015 10:04:04
 //
 
 // Include Files
@@ -36,7 +36,7 @@
 void Att_pred(double x[4], double b_P[9], const double w[3], double q, double dt)
 {
   signed char I[9];
-  int i16;
+  int i18;
   double Phi[9];
   double b_Phi[9];
   int k;
@@ -44,7 +44,7 @@ void Att_pred(double x[4], double b_P[9], const double w[3], double q, double dt
   double a[9];
   double c_Phi[9];
   double b_a[9];
-  int i17;
+  int i19;
   static const signed char c_a[9] = { 1, 0, 0, 0, 1, 0, 0, 0, 1 };
 
   static const signed char d_a[9] = { -1, 0, 0, 0, -1, 0, 0, 0, -1 };
@@ -53,8 +53,8 @@ void Att_pred(double x[4], double b_P[9], const double w[3], double q, double dt
   double dq[4];
   double b_x[16];
   double b_dq[4];
-  for (i16 = 0; i16 < 9; i16++) {
-    I[i16] = 0;
+  for (i18 = 0; i18 < 9; i18++) {
+    I[i18] = 0;
   }
 
   Phi[0] = 0.0;
@@ -68,45 +68,45 @@ void Att_pred(double x[4], double b_P[9], const double w[3], double q, double dt
   Phi[8] = 0.0;
   for (k = 0; k < 3; k++) {
     I[k + 3 * k] = 1;
-    for (i16 = 0; i16 < 3; i16++) {
-      b_Phi[i16 + 3 * k] = (double)I[i16 + 3 * k] + -Phi[i16 + 3 * k] * dt;
+    for (i18 = 0; i18 < 3; i18++) {
+      b_Phi[i18 + 3 * k] = (double)I[i18 + 3 * k] + -Phi[i18 + 3 * k] * dt;
     }
   }
 
   c = dt * dt;
-  for (i16 = 0; i16 < 3; i16++) {
+  for (i18 = 0; i18 < 3; i18++) {
     for (k = 0; k < 3; k++) {
-      Phi[i16 + 3 * k] = 0.0;
-      for (i17 = 0; i17 < 3; i17++) {
-        Phi[i16 + 3 * k] += b_Phi[i16 + 3 * i17] * b_P[i17 + 3 * k];
+      Phi[i18 + 3 * k] = 0.0;
+      for (i19 = 0; i19 < 3; i19++) {
+        Phi[i18 + 3 * k] += b_Phi[i18 + 3 * i19] * b_P[i19 + 3 * k];
       }
 
-      a[i16 + 3 * k] = 0.0;
-      for (i17 = 0; i17 < 3; i17++) {
-        a[i16 + 3 * k] += (double)d_a[i16 + 3 * i17] * ((double)c_a[i17 + 3 * k]
+      a[i18 + 3 * k] = 0.0;
+      for (i19 = 0; i19 < 3; i19++) {
+        a[i18 + 3 * k] += (double)d_a[i18 + 3 * i19] * ((double)c_a[i19 + 3 * k]
           * q * c);
       }
     }
 
     for (k = 0; k < 3; k++) {
-      c_Phi[i16 + 3 * k] = 0.0;
-      for (i17 = 0; i17 < 3; i17++) {
-        c_Phi[i16 + 3 * k] += Phi[i16 + 3 * i17] * b_Phi[k + 3 * i17];
+      c_Phi[i18 + 3 * k] = 0.0;
+      for (i19 = 0; i19 < 3; i19++) {
+        c_Phi[i18 + 3 * k] += Phi[i18 + 3 * i19] * b_Phi[k + 3 * i19];
       }
 
-      b_a[i16 + 3 * k] = 0.0;
-      for (i17 = 0; i17 < 3; i17++) {
-        b_a[i16 + 3 * k] += a[i16 + 3 * i17] * (double)d_a[i17 + 3 * k];
+      b_a[i18 + 3 * k] = 0.0;
+      for (i19 = 0; i19 < 3; i19++) {
+        b_a[i18 + 3 * k] += a[i18 + 3 * i19] * (double)d_a[i19 + 3 * k];
       }
     }
   }
 
-  for (i16 = 0; i16 < 3; i16++) {
+  for (i18 = 0; i18 < 3; i18++) {
     for (k = 0; k < 3; k++) {
-      b_P[k + 3 * i16] = c_Phi[k + 3 * i16] + b_a[k + 3 * i16];
+      b_P[k + 3 * i18] = c_Phi[k + 3 * i18] + b_a[k + 3 * i18];
     }
 
-    b_w[i16] = w[i16] * dt;
+    b_w[i18] = w[i18] * dt;
   }
 
   quatPlusThetaJ(b_w, dq);
@@ -130,10 +130,10 @@ void Att_pred(double x[4], double b_P[9], const double w[3], double q, double dt
   b_dq[1] = dq[1];
   b_dq[2] = dq[2];
   b_dq[3] = dq[3];
-  for (i16 = 0; i16 < 4; i16++) {
-    x[i16] = 0.0;
+  for (i18 = 0; i18 < 4; i18++) {
+    x[i18] = 0.0;
     for (k = 0; k < 4; k++) {
-      x[i16] += b_x[i16 + (k << 2)] * b_dq[k];
+      x[i18] += b_x[i18 + (k << 2)] * b_dq[k];
     }
   }
 }

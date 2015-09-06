@@ -5,7 +5,7 @@
 // File: predictMeasurement_stereo.cpp
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 04-Sep-2015 23:21:02
+// C/C++ source code generated on  : 06-Sep-2015 10:04:04
 //
 
 // Include Files
@@ -48,7 +48,7 @@ void predictMeasurement_stereo(const double fp_l[3], const double
   double fp_r[3];
   int i;
   double b_fp_r;
-  int i8;
+  int i9;
   double h_cin_l[3];
   double radsq_l;
   double b;
@@ -60,8 +60,8 @@ void predictMeasurement_stereo(const double fp_l[3], const double
   //  R_rl=R_lr';
   for (i = 0; i < 3; i++) {
     b_fp_r = 0.0;
-    for (i8 = 0; i8 < 3; i8++) {
-      b_fp_r += cameraparams_R_rl[i + 3 * i8] * fp_l[i8];
+    for (i9 = 0; i9 < 3; i9++) {
+      b_fp_r += cameraparams_R_rl[i + 3 * i9] * fp_l[i9];
     }
 
     fp_r[i] = b_fp_r - cameraparams_r_lr[i];

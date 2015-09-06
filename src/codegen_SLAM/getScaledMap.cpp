@@ -2,7 +2,7 @@
 // Academic License - for use in teaching, academic research, and meeting
 // course requirements at degree granting institutions only.  Not for
 // government, commercial, or other organizational use.
-// File: getMap.cpp
+// File: getScaledMap.cpp
 //
 // MATLAB Coder version            : 2.8
 // C/C++ source code generated on  : 06-Sep-2015 10:04:04
@@ -11,15 +11,17 @@
 // Include Files
 #include "rt_nonfinite.h"
 #include "SLAM.h"
-#include "getMap.h"
+#include "getScaledMap.h"
+#include "SLAM_updIT.h"
 #include "SLAM_emxutil.h"
+#include "SLAM_rtwutil.h"
 #include <ros/console.h>
 #include <stdio.h>
 
 // Function Definitions
 
 //
-// GETMAP Get the feature points from the current state estimate
+// getScaledMap Get the sacled feature points from the current state estimate
 //
 //  INPUT ARGUMENTS:
 //  - x:                    The current state estimate including anchor poses and inverse depths
@@ -33,7 +35,7 @@
 //  - numstatesPerAnchorxt: The size of each anchorstate in xt
 //
 //  OUTPUT ARGUMENTS:
-//  - map:                  The map of feature points in world coordinates (3 x
+//  - map:                  The scaled map of feature points in world coordinates (3 x
 //                          numTrackFeatures)
 //  - anchorInd:            A vector describing which anchor each feature belongs to
 //  - featureAnchorInd:     A vector describing the index of each feature in its
@@ -49,12 +51,14 @@
 //                emxArray_real_T *featureAnchorInd
 // Return Type  : void
 //
-void getMap(const emxArray_real_T *x, const emxArray_real_T *b_anchorFeatures,
-            const emxArray_real_T *b_m_vect, double numTrackFeatures, double
-            stateSize, double numStatesPerAnchorxt, emxArray_real_T *map,
-            emxArray_real_T *anchorInd, emxArray_real_T *featureAnchorInd)
+void getScaledMap(const emxArray_real_T *x, const emxArray_real_T
+                  *b_anchorFeatures, const emxArray_real_T *b_m_vect, double
+                  numTrackFeatures, double stateSize, double
+                  numStatesPerAnchorxt, emxArray_real_T *map, emxArray_real_T
+                  *anchorInd, emxArray_real_T *featureAnchorInd)
 {
-  int i10;
+  double R_cw[9];
+  int i3;
   int ii;
   int anchorIdx;
   int idx;
@@ -77,30 +81,59 @@ void getMap(const emxArray_real_T *x, const emxArray_real_T *b_anchorFeatures,
   double j_a;
   double k_a;
   double anchorRot[9];
-  i10 = map->size[0] * map->size[1];
+  char cv4[28];
+  static const char cv5[28] = { 'F', 'e', 'a', 't', 'u', 'r', 'e', ' ', '%', 'i',
+    ' ', 'h', 'a', 's', ' ', 'n', 'e', 'g', 'a', 't', 'i', 'v', 'e', ' ', 'r',
+    'h', 'o', '\x00' };
+
+  signed char i4;
+  double b_x[3];
+  double fp_scaled_c[3];
+  static const char cv6[28] = { 'F', 'e', 'a', 't', 'u', 'r', 'e', ' ', '%', 'i',
+    ' ', 'i', 's', ' ', 'b', 'e', 'h', 'i', 'n', 'd', ' ', 'c', 'a', 'm', 'e',
+    'r', 'a', '\x00' };
+
+  //  if ~all(size(q) == [4, 1])
+  //      error('q does not have the size of a quaternion')
+  //  end
+  //  if abs(norm(q) - 1) > 1e-3
+  //      error('The provided quaternion is not a valid rotation quaternion because it does not have norm 1') 
+  //  end
+  R_cw[0] = ((x->data[3] * x->data[3] - x->data[4] * x->data[4]) - x->data[5] *
+             x->data[5]) + x->data[6] * x->data[6];
+  R_cw[3] = 2.0 * (x->data[3] * x->data[4] + x->data[5] * x->data[6]);
+  R_cw[6] = 2.0 * (x->data[3] * x->data[5] - x->data[4] * x->data[6]);
+  R_cw[1] = 2.0 * (x->data[3] * x->data[4] - x->data[5] * x->data[6]);
+  R_cw[4] = ((-(x->data[3] * x->data[3]) + x->data[4] * x->data[4]) - x->data[5]
+             * x->data[5]) + x->data[6] * x->data[6];
+  R_cw[7] = 2.0 * (x->data[4] * x->data[5] + x->data[3] * x->data[6]);
+  R_cw[2] = 2.0 * (x->data[3] * x->data[5] + x->data[4] * x->data[6]);
+  R_cw[5] = 2.0 * (x->data[4] * x->data[5] - x->data[3] * x->data[6]);
+  R_cw[8] = ((-(x->data[3] * x->data[3]) - x->data[4] * x->data[4]) + x->data[5]
+             * x->data[5]) + x->data[6] * x->data[6];
+  i3 = map->size[0] * map->size[1];
   map->size[0] = 3;
   map->size[1] = (int)numTrackFeatures;
-  emxEnsureCapacity((emxArray__common *)map, i10, (int)sizeof(double));
+  emxEnsureCapacity((emxArray__common *)map, i3, (int)sizeof(double));
   ii = 3 * (int)numTrackFeatures;
-  for (i10 = 0; i10 < ii; i10++) {
-    map->data[i10] = rtNaN;
+  for (i3 = 0; i3 < ii; i3++) {
+    map->data[i3] = rtNaN;
   }
 
-  i10 = anchorInd->size[0];
+  i3 = anchorInd->size[0];
   anchorInd->size[0] = (int)numTrackFeatures;
-  emxEnsureCapacity((emxArray__common *)anchorInd, i10, (int)sizeof(double));
+  emxEnsureCapacity((emxArray__common *)anchorInd, i3, (int)sizeof(double));
   ii = (int)numTrackFeatures;
-  for (i10 = 0; i10 < ii; i10++) {
-    anchorInd->data[i10] = 0.0;
+  for (i3 = 0; i3 < ii; i3++) {
+    anchorInd->data[i3] = 0.0;
   }
 
-  i10 = featureAnchorInd->size[0];
+  i3 = featureAnchorInd->size[0];
   featureAnchorInd->size[0] = (int)numTrackFeatures;
-  emxEnsureCapacity((emxArray__common *)featureAnchorInd, i10, (int)sizeof
-                    (double));
+  emxEnsureCapacity((emxArray__common *)featureAnchorInd, i3, (int)sizeof(double));
   ii = (int)numTrackFeatures;
-  for (i10 = 0; i10 < ii; i10++) {
-    featureAnchorInd->data[i10] = 0.0;
+  for (i3 = 0; i3 < ii; i3++) {
+    featureAnchorInd->data[i3] = 0.0;
   }
 
   for (anchorIdx = 0; anchorIdx < b_anchorFeatures->size[1]; anchorIdx++) {
@@ -139,15 +172,15 @@ void getMap(const emxArray_real_T *x, const emxArray_real_T *b_anchorFeatures,
       ii = idx;
     }
 
-    for (i10 = 0; i10 < ii; i10++) {
-      featureIdxVect_data[i10] = ii_data[i10];
+    for (i3 = 0; i3 < ii; i3++) {
+      featureIdxVect_data[i3] = ii_data[i3];
     }
 
     //  the transpose prevents going into the loop if find returns empty
     b_stateSize = stateSize + ((1.0 + (double)anchorIdx) - 1.0) *
       numStatesPerAnchorxt;
-    for (i10 = 0; i10 < 3; i10++) {
-      anchorPos[i10] = x->data[(int)(b_stateSize + (1.0 + (double)i10)) - 1];
+    for (i3 = 0; i3 < 3; i3++) {
+      anchorPos[i3] = x->data[(int)(b_stateSize + (1.0 + (double)i3)) - 1];
     }
 
     //  if ~all(size(q) == [4, 1])
@@ -223,17 +256,57 @@ void getMap(const emxArray_real_T *x, const emxArray_real_T *b_anchorFeatures,
       if (b_anchorFeatures->data[(featureIdxVect_data[ii] +
            b_anchorFeatures->size[0] * anchorIdx) - 1] == 1.0) {
         //  if this is not a lost feature
-        b_stateSize = x->data[(int)(((stateSize + ((1.0 + (double)anchorIdx) -
-          1.0) * numStatesPerAnchorxt) + 7.0) + (1.0 + (double)ii)) - 1];
-        for (i10 = 0; i10 < 3; i10++) {
-          a = 0.0;
-          for (idx = 0; idx < 3; idx++) {
-            a += anchorRot[idx + 3 * i10] * b_m_vect->data[idx + b_m_vect->size
-              [0] * (featureIdxVect_data[ii] - 1)];
+        if (x->data[(int)(((stateSize + ((1.0 + (double)anchorIdx) - 1.0) *
+                            numStatesPerAnchorxt) + 7.0) + (1.0 + (double)ii)) -
+            1] < 0.0) {
+          // #coder
+          // ROS_WARN Print to ROS_WARN in ROS or to console in Matlab
+          for (i3 = 0; i3 < 28; i3++) {
+            cv4[i3] = cv5[i3];
           }
 
-          map->data[i10 + map->size[0] * (featureIdxVect_data[ii] - 1)] =
-            anchorPos[i10] + a / b_stateSize;
+          i3 = (int)rt_roundd_snf((double)featureIdxVect_data[ii]);
+          i4 = (signed char)i3;
+          ROS_WARN(cv4, i4);
+        }
+
+        b_stateSize = x->data[(int)(((stateSize + ((1.0 + (double)anchorIdx) -
+          1.0) * numStatesPerAnchorxt) + 7.0) + (1.0 + (double)ii)) - 1];
+        a = x->data[(int)(((stateSize + ((1.0 + (double)anchorIdx) - 1.0) *
+                            numStatesPerAnchorxt) + 7.0) + (1.0 + (double)ii)) -
+          1];
+        for (i3 = 0; i3 < 3; i3++) {
+          b_a = 0.0;
+          for (idx = 0; idx < 3; idx++) {
+            b_a += anchorRot[idx + 3 * i3] * b_m_vect->data[idx + b_m_vect->
+              size[0] * (featureIdxVect_data[ii] - 1)];
+          }
+
+          b_x[i3] = (b_stateSize * anchorPos[i3] + b_a) - x->data[i3] * a;
+        }
+
+        for (i3 = 0; i3 < 3; i3++) {
+          fp_scaled_c[i3] = 0.0;
+          for (idx = 0; idx < 3; idx++) {
+            fp_scaled_c[i3] += R_cw[i3 + 3 * idx] * b_x[idx];
+          }
+        }
+
+        if (fp_scaled_c[2] < 0.0) {
+          // #coder
+          // ROS_WARN Print to ROS_WARN in ROS or to console in Matlab
+          for (i3 = 0; i3 < 28; i3++) {
+            cv4[i3] = cv6[i3];
+          }
+
+          i3 = (int)rt_roundd_snf((double)featureIdxVect_data[ii]);
+          i4 = (signed char)i3;
+          ROS_WARN(cv4, i4);
+        }
+
+        for (i3 = 0; i3 < 3; i3++) {
+          map->data[i3 + map->size[0] * (featureIdxVect_data[ii] - 1)] =
+            fp_scaled_c[i3];
         }
 
         anchorInd->data[featureIdxVect_data[ii] - 1] = 1.0 + (double)anchorIdx;
@@ -244,7 +317,7 @@ void getMap(const emxArray_real_T *x, const emxArray_real_T *b_anchorFeatures,
 }
 
 //
-// File trailer for getMap.cpp
+// File trailer for getScaledMap.cpp
 //
 // [EOF]
 //

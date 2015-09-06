@@ -2,13 +2,13 @@
 // Academic License - for use in teaching, academic research, and meeting
 // course requirements at degree granting institutions only.  Not for
 // government, commercial, or other organizational use.
-// File: diag.h
+// File: getScaledMap.h
 //
 // MATLAB Coder version            : 2.8
 // C/C++ source code generated on  : 06-Sep-2015 10:04:04
 //
-#ifndef __DIAG_H__
-#define __DIAG_H__
+#ifndef __GETSCALEDMAP_H__
+#define __GETSCALEDMAP_H__
 
 // Include Files
 #include <math.h>
@@ -21,12 +21,15 @@
 #include "SLAM_types.h"
 
 // Function Declarations
-extern void diag(const double v[9], double d[81]);
+extern void getScaledMap(const emxArray_real_T *x, const emxArray_real_T
+  *b_anchorFeatures, const emxArray_real_T *b_m_vect, double numTrackFeatures,
+  double stateSize, double numStatesPerAnchorxt, emxArray_real_T *map,
+  emxArray_real_T *anchorInd, emxArray_real_T *featureAnchorInd);
 
 #endif
 
 //
-// File trailer for diag.h
+// File trailer for getScaledMap.h
 //
 // [EOF]
 //

@@ -5,23 +5,22 @@
 // File: SLAM.cpp
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 04-Sep-2015 23:21:02
+// C/C++ source code generated on  : 06-Sep-2015 10:04:04
 //
 
 // Include Files
 #include "rt_nonfinite.h"
 #include "SLAM.h"
 #include "SLAM_emxutil.h"
-#include "eye.h"
-#include "QuatFromRotJ.h"
 #include "SLAM_updIT.h"
-#include "Att_upd.h"
-#include "Att_pred.h"
-#include "fprintf.h"
 #include "ros_error.h"
+#include "eye.h"
+#include "predictMeasurement_stereo.h"
+#include "QuatFromRotJ.h"
 #include "any.h"
 #include "SLAM_pred.h"
-#include "diag.h"
+#include "Att_upd.h"
+#include "Att_pred.h"
 #include "SLAM_rtwutil.h"
 #include "SLAM_data.h"
 #include <ros/console.h>
@@ -78,9 +77,8 @@ static void initialize(const double ref_position[4], double measurements_bar_fmu
     0.000842792650371513 };
 
   double d0;
-  static const signed char y[9] = { 1, 0, 0, 0, 1, 0, 0, 0, 1 };
-
-  static const double b_y[9] = { 0.1, 0.0, 0.0, 0.0, 0.1, 0.0, 0.0, 0.0, 0.1 };
+  static const double y[9] = { 0.001, 0.0, 0.0, 0.0, 0.001, 0.0, 0.0, 0.0, 0.001
+  };
 
   b_emxInit_real_T(&a, 1);
 
@@ -130,7 +128,7 @@ static void initialize(const double ref_position[4], double measurements_bar_fmu
   emxFree_real_T(&a);
   QuatFromRotJ(dv1, dv0);
   k = b_xt->size[0];
-  b_xt->size[0] = 16 + b->size[0];
+  b_xt->size[0] = 13 + b->size[0];
   emxEnsureCapacity((emxArray__common *)b_xt, k, (int)sizeof(double));
   for (k = 0; k < 3; k++) {
     b_xt->data[k] = ref_position[k];
@@ -147,13 +145,9 @@ static void initialize(const double ref_position[4], double measurements_bar_fmu
     b_xt->data[k + 10] = gyro_offset[k];
   }
 
-  for (k = 0; k < 3; k++) {
-    b_xt->data[k + 13] = 2.0;
-  }
-
   loop_ub = b->size[0];
   for (k = 0; k < loop_ub; k++) {
-    b_xt->data[k + 16] = b->data[k];
+    b_xt->data[k + 13] = b->data[k];
   }
 
   emxFree_real_T(&b);
@@ -236,13 +230,6 @@ static void initialize(const double ref_position[4], double measurements_bar_fmu
   }
 
   //  gyro bias
-  for (k = 0; k < 3; k++) {
-    for (ibcol = 0; ibcol < 3; ibcol++) {
-      b_P->data[(ibcol + b_P->size[0] * (12 + k)) + 12] = b_y[ibcol + 3 * k];
-    }
-  }
-
-  //  control dynamics
   *b_height_offset_pressure = (1.0 - rt_powd_snf(measurements_bar_fmu / 101325.0,
     0.190284)) * 145366.45;
 }
@@ -318,17 +305,20 @@ void SLAM(double updateVect[24], const double z_all_l[48], const double z_all_r
 {
   int i;
   double numTrackFeatures;
-  VIOMeasurements measurements_pred;
+  double measurements_pred_gyr_duo[3];
+  double measurements_pred_pos_ext[3];
+  double measurements_pred_att_ext[4];
   double b_measurements[3];
-  int i14;
+  int i16;
   static const double acc_offset[3] = { 0.904219545041063, 0.231515361023414,
     0.186293533362293 };
 
+  double measurements_upd_pos_ext[3];
+  double measurements_pred_acc_duo[3];
   static const double a[9] = { 1.026034113920804, 0.0, 0.0, 0.0,
     1.0222265280883942, 0.0, 0.0, 0.0, 1.0130438978221066 };
 
-  VIOMeasurements measurements_upd;
-  emxArray_boolean_T *r3;
+  double measurements_upd_att_ext[4];
   double b_height_offset_pressure;
   static const double b_x_att[4] = { 0.5, -0.5, 0.5, -0.5 };
 
@@ -338,39 +328,44 @@ void SLAM(double updateVect[24], const double z_all_l[48], const double z_all_r
   static const double gyro_offset[3] = { 0.534299594891486, -0.26782462470649,
     0.000842792650371513 };
 
-  double b_measurements_pred[9];
   double dv9[9];
-  int i15;
+  double measurements_upd_acc_duo[3];
   double R_cw[9];
+  int i17;
+  static const signed char b[9] = { 1, 0, 0, 0, 1, 0, 0, 0, 0 };
+
+  VIOMeasurements expl_temp;
+  double b_measurements_pred_att_ext[9];
+  double dv10[9];
+  emxArray_boolean_T *r3;
   double yaw;
-  char cv16[35];
-  static const char cv17[35] = { 'R', 'e', 'f', 'e', 'r', 'e', 'n', 'c', 'e',
-    ' ', 'y', 'a', 'w', ' ', 'i', 's', ' ', 'N', 'a', 'n', '!', ' ', 'P', 'u',
+  char cv21[35];
+  static const char cv22[35] = { 'R', 'e', 'f', 'e', 'r', 'e', 'n', 'c', 'e',
+    ' ', 'y', 'a', 'w', ' ', 'i', 's', ' ', 'N', 'a', 'N', '!', ' ', 'P', 'u',
     't', 't', 'i', 'n', 'g', ' ', 't', 'o', ' ', '0', '\x00' };
 
-  char cv18[42];
-  static const char cv19[42] = { 'R', 'e', 'f', 'e', 'r', 'e', 'n', 'c', 'e',
+  char cv23[42];
+  static const char cv24[42] = { 'R', 'e', 'f', 'e', 'r', 'e', 'n', 'c', 'e',
     ' ', 'x', ' ', 'v', 'e', 'l', 'o', 'c', 'i', 't', 'y', ' ', 'i', 's', ' ',
-    'N', 'a', 'n', '!', ' ', 'P', 'u', 't', 't', 'i', 'n', 'g', ' ', 't', 'o',
+    'N', 'a', 'N', '!', ' ', 'P', 'u', 't', 't', 'i', 'n', 'g', ' ', 't', 'o',
     ' ', '0', '\x00' };
 
-  static const char cv20[42] = { 'R', 'e', 'f', 'e', 'r', 'e', 'n', 'c', 'e',
+  static const char cv25[42] = { 'R', 'e', 'f', 'e', 'r', 'e', 'n', 'c', 'e',
     ' ', 'y', ' ', 'v', 'e', 'l', 'o', 'c', 'i', 't', 'y', ' ', 'i', 's', ' ',
-    'N', 'a', 'n', '!', ' ', 'P', 'u', 't', 't', 'i', 'n', 'g', ' ', 't', 'o',
+    'N', 'a', 'N', '!', ' ', 'P', 'u', 't', 't', 'i', 'n', 'g', ' ', 't', 'o',
     ' ', '0', '\x00' };
 
-  static const char cv21[42] = { 'R', 'e', 'f', 'e', 'r', 'e', 'n', 'c', 'e',
+  static const char cv26[42] = { 'R', 'e', 'f', 'e', 'r', 'e', 'n', 'c', 'e',
     ' ', 'z', ' ', 'v', 'e', 'l', 'o', 'c', 'i', 't', 'y', ' ', 'i', 's', ' ',
-    'N', 'a', 'n', '!', ' ', 'P', 'u', 't', 't', 'i', 'n', 'g', ' ', 't', 'o',
+    'N', 'a', 'N', '!', ' ', 'P', 'u', 't', 't', 'i', 'n', 'g', ' ', 't', 'o',
     ' ', '0', '\x00' };
 
-  char cv22[39];
-  static const char cv23[39] = { 'v', 'e', 'l', 'o', 'c', 'i', 't', 'y', ' ',
-    'y', 'a', 'w', ' ', 'r', 'a', 't', 'e', ' ', 'i', 's', ' ', 'N', 'a', 'n',
+  char cv27[39];
+  static const char cv28[39] = { 'v', 'e', 'l', 'o', 'c', 'i', 't', 'y', ' ',
+    'y', 'a', 'w', ' ', 'r', 'a', 't', 'e', ' ', 'i', 's', ' ', 'N', 'a', 'N',
     '!', ' ', 'P', 'u', 't', 't', 'i', 'n', 'g', ' ', 't', 'o', ' ', '0', '\x00'
   };
 
-  double R_bw[9];
   static const signed char iv4[3] = { 0, 0, 1 };
 
   double err_p_b[3];
@@ -378,6 +373,8 @@ void SLAM(double updateVect[24], const double z_all_l[48], const double z_all_r
   double err_v_b[3];
   double minval;
   double u_out_pos[3];
+
+  //  persistent att_quiver
   for (i = 0; i < 4; i++) {
     u_out[i] = 0.0;
   }
@@ -385,24 +382,34 @@ void SLAM(double updateVect[24], const double z_all_l[48], const double z_all_r
   //  for coder
   numTrackFeatures = b_VIOParameters->num_anchors *
     b_VIOParameters->num_points_per_anchor;
-  measurements_pred = *measurements;
-
-  //  copy for coders
-  for (i14 = 0; i14 < 3; i14++) {
-    b_measurements[i14] = measurements->acc_duo[i14] - acc_offset[i14];
+  for (i = 0; i < 3; i++) {
+    measurements_pred_gyr_duo[i] = measurements->gyr_duo[i];
+    measurements_pred_pos_ext[i] = measurements->pos_ext[i];
   }
 
-  for (i14 = 0; i14 < 3; i14++) {
-    measurements_pred.acc_duo[i14] = 0.0;
+  for (i = 0; i < 4; i++) {
+    measurements_pred_att_ext[i] = measurements->att_ext[i];
+  }
+
+  //  copy for coders
+  for (i16 = 0; i16 < 3; i16++) {
+    b_measurements[i16] = measurements->acc_duo[i16] - acc_offset[i16];
+  }
+
+  for (i16 = 0; i16 < 3; i16++) {
+    measurements_pred_acc_duo[i16] = 0.0;
     for (i = 0; i < 3; i++) {
-      measurements_pred.acc_duo[i14] += a[i14 + 3 * i] * b_measurements[i];
+      measurements_pred_acc_duo[i16] += a[i16 + 3 * i] * b_measurements[i];
     }
+
+    measurements_upd_pos_ext[i16] = measurements_pred_pos_ext[i16];
   }
 
-  measurements_upd = measurements_pred;
+  for (i = 0; i < 4; i++) {
+    measurements_upd_att_ext[i] = measurements_pred_att_ext[i];
+  }
 
   //  copy for coders
-  emxInit_boolean_T(&r3, 1);
   if ((!initialized_not_empty) || resetFlag) {
     initialize(ref->position, measurements->bar_fmu,
                b_VIOParameters->num_points_per_anchor,
@@ -421,70 +428,109 @@ void SLAM(double updateVect[24], const double z_all_l[48], const double z_all_r
     initialized_not_empty = true;
     initializing_attitude = 1.0;
     ext_pose_offset_initialized = false;
+    eye(ext_att_offset);
     for (i = 0; i < 3; i++) {
       ext_pos_offset[i] = 0.0;
-    }
-
-    eye(ext_att_offset);
-    i14 = xt_out->size[0];
-    xt_out->size[0] = xt->size[0];
-    emxEnsureCapacity((emxArray__common *)xt_out, i14, (int)sizeof(double));
-    i = xt->size[0];
-    for (i14 = 0; i14 < i; i14++) {
-      xt_out->data[i14] = xt->data[i14];
-    }
-
-    i14 = P_apo_out->size[0] * P_apo_out->size[1];
-    P_apo_out->size[0] = P->size[0];
-    P_apo_out->size[1] = P->size[1];
-    emxEnsureCapacity((emxArray__common *)P_apo_out, i14, (int)sizeof(double));
-    i = P->size[0] * P->size[1];
-    for (i14 = 0; i14 < i; i14++) {
-      P_apo_out->data[i14] = P->data[i14];
-    }
-
-    i14 = h_u_apo_out->size[0];
-    h_u_apo_out->size[0] = (int)(numTrackFeatures * 4.0);
-    emxEnsureCapacity((emxArray__common *)h_u_apo_out, i14, (int)sizeof(double));
-    i = (int)(numTrackFeatures * 4.0);
-    for (i14 = 0; i14 < i; i14++) {
-      h_u_apo_out->data[i14] = 0.0;
-    }
-
-    i14 = map_out->size[0] * map_out->size[1];
-    map_out->size[0] = 3;
-    map_out->size[1] = (int)numTrackFeatures;
-    emxEnsureCapacity((emxArray__common *)map_out, i14, (int)sizeof(double));
-    i = 3 * (int)numTrackFeatures;
-    for (i14 = 0; i14 < i; i14++) {
-      map_out->data[i14] = 0.0;
-    }
-
-    for (i = 0; i < 3; i++) {
       last_u[i] = 0.0;
 
       //  the last control outputs (in camera frame)
       i_control[i] = 0.0;
     }
-  } else if (initializing_attitude > 0.0) {
-    for (i = 0; i < 3; i++) {
-      b_measurements[i] = measurements_pred.gyr_duo[i] - gyro_offset[i];
-    }
 
-    Att_pred(x_att, P_att, b_measurements, noiseParameters->process_noise[1] *
-             1000.0, dt);
-    Att_upd(x_att, P_att, measurements_pred.acc_duo,
-            noiseParameters->process_noise[0] * 1.0E+10, dt);
-    for (i14 = 0; i14 < 4; i14++) {
-      xt->data[3 + i14] = x_att[i14];
+    //      figure(2)
+    //      Pose();
+    //      att_quiver = Pose();
+    //      axis([-1 1 -1 1 -1 1])
+    //      return;
+  }
+
+  for (i = 0; i < 3; i++) {
+    b_measurements[i] = measurements_pred_gyr_duo[i] - gyro_offset[i];
+  }
+
+  Att_pred(x_att, P_att, b_measurements, noiseParameters->process_noise[1], dt);
+  Att_upd(x_att, P_att, measurements_pred_acc_duo,
+          noiseParameters->process_noise[0] * 100.0, dt);
+
+  //  if ~all(size(q) == [4, 1])
+  //      error('q does not have the size of a quaternion')
+  //  end
+  //  if abs(norm(q) - 1) > 1e-3
+  //      error('The provided quaternion is not a valid rotation quaternion because it does not have norm 1') 
+  //  end
+  dv9[0] = ((x_att[0] * x_att[0] - x_att[1] * x_att[1]) - x_att[2] * x_att[2]) +
+    x_att[3] * x_att[3];
+  dv9[3] = 2.0 * (x_att[0] * x_att[1] + x_att[2] * x_att[3]);
+  dv9[6] = 2.0 * (x_att[0] * x_att[2] - x_att[1] * x_att[3]);
+  dv9[1] = 2.0 * (x_att[0] * x_att[1] - x_att[2] * x_att[3]);
+  dv9[4] = ((-(x_att[0] * x_att[0]) + x_att[1] * x_att[1]) - x_att[2] * x_att[2])
+    + x_att[3] * x_att[3];
+  dv9[7] = 2.0 * (x_att[1] * x_att[2] + x_att[0] * x_att[3]);
+  dv9[2] = 2.0 * (x_att[0] * x_att[2] + x_att[1] * x_att[3]);
+  dv9[5] = 2.0 * (x_att[1] * x_att[2] - x_att[0] * x_att[3]);
+  dv9[8] = ((-(x_att[0] * x_att[0]) - x_att[1] * x_att[1]) + x_att[2] * x_att[2])
+    + x_att[3] * x_att[3];
+  for (i16 = 0; i16 < 3; i16++) {
+    measurements_upd_acc_duo[i16] = dv9[6 + i16];
+  }
+
+  //  att_quiver.setAttitude(quatInv(x_att));
+  if (initializing_attitude > 0.0) {
+    for (i16 = 0; i16 < 4; i16++) {
+      xt->data[3 + i16] = x_att[i16];
     }
 
     initializing_attitude++;
     if (initializing_attitude >= 10.0) {
-      for (i14 = 0; i14 < 3; i14++) {
+      //  if ~all(size(q) == [4, 1])
+      //      error('q does not have the size of a quaternion')
+      //  end
+      //  if abs(norm(q) - 1) > 1e-3
+      //      error('The provided quaternion is not a valid rotation quaternion because it does not have norm 1') 
+      //  end
+      R_cw[0] = ((x_att[0] * x_att[0] - x_att[1] * x_att[1]) - x_att[2] * x_att
+                 [2]) + x_att[3] * x_att[3];
+      R_cw[3] = 2.0 * (x_att[0] * x_att[1] + x_att[2] * x_att[3]);
+      R_cw[6] = 2.0 * (x_att[0] * x_att[2] - x_att[1] * x_att[3]);
+      R_cw[1] = 2.0 * (x_att[0] * x_att[1] - x_att[2] * x_att[3]);
+      R_cw[4] = ((-(x_att[0] * x_att[0]) + x_att[1] * x_att[1]) - x_att[2] *
+                 x_att[2]) + x_att[3] * x_att[3];
+      R_cw[7] = 2.0 * (x_att[1] * x_att[2] + x_att[0] * x_att[3]);
+      R_cw[2] = 2.0 * (x_att[0] * x_att[2] + x_att[1] * x_att[3]);
+      R_cw[5] = 2.0 * (x_att[1] * x_att[2] - x_att[0] * x_att[3]);
+      R_cw[8] = ((-(x_att[0] * x_att[0]) - x_att[1] * x_att[1]) + x_att[2] *
+                 x_att[2]) + x_att[3] * x_att[3];
+      for (i16 = 0; i16 < 3; i16++) {
         for (i = 0; i < 3; i++) {
-          P->data[(i + P->size[0] * (3 + i14)) + 3] = 1.0E-9 * P_att[i + 3 * i14];
+          dv9[i16 + 3 * i] = 0.0;
+          for (i17 = 0; i17 < 3; i17++) {
+            dv9[i16 + 3 * i] += 0.1 * R_cw[i16 + 3 * i17] * (double)b[i17 + 3 *
+              i];
+          }
         }
+      }
+
+      for (i16 = 0; i16 < 3; i16++) {
+        for (i = 0; i < 3; i++) {
+          P->data[(i16 + P->size[0] * (3 + i)) + 3] = 0.0;
+          for (i17 = 0; i17 < 3; i17++) {
+            P->data[(i16 + P->size[0] * (3 + i)) + 3] += dv9[i16 + 3 * i17] *
+              R_cw[i + 3 * i17];
+          }
+        }
+      }
+
+      for (i = 0; i < 4; i++) {
+        expl_temp.att_ext[i] = measurements_upd_att_ext[i];
+      }
+
+      for (i = 0; i < 3; i++) {
+        expl_temp.pos_ext[i] = measurements_upd_pos_ext[i];
+      }
+
+      expl_temp.bar_fmu = measurements->bar_fmu;
+      for (i = 0; i < 3; i++) {
+        expl_temp.acc_duo[i] = measurements_upd_acc_duo[i];
       }
 
       SLAM_updIT(P, xt, cameraParameters->CameraParameters1.RadialDistortion,
@@ -498,48 +544,48 @@ void SLAM(double updateVect[24], const double z_all_l[48], const double z_all_r
                  noiseParameters->image_noise, noiseParameters->sigmaInit,
                  noiseParameters->pressure_noise, noiseParameters->ext_pos_noise,
                  noiseParameters->ext_att_noise,
-                 noiseParameters->gravity_alignment_noise, &measurements_pred,
+                 noiseParameters->gravity_alignment_noise, &expl_temp,
                  height_offset_pressure, *b_VIOParameters, h_u_apo_out, map_out);
       initializing_attitude = 0.0;
     } else {
-      i14 = h_u_apo_out->size[0];
+      i16 = h_u_apo_out->size[0];
       h_u_apo_out->size[0] = (int)(numTrackFeatures * 4.0);
-      emxEnsureCapacity((emxArray__common *)h_u_apo_out, i14, (int)sizeof(double));
+      emxEnsureCapacity((emxArray__common *)h_u_apo_out, i16, (int)sizeof(double));
       i = (int)(numTrackFeatures * 4.0);
-      for (i14 = 0; i14 < i; i14++) {
-        h_u_apo_out->data[i14] = 0.0;
+      for (i16 = 0; i16 < i; i16++) {
+        h_u_apo_out->data[i16] = 0.0;
       }
 
-      i14 = map_out->size[0] * map_out->size[1];
+      i16 = map_out->size[0] * map_out->size[1];
       map_out->size[0] = 3;
       map_out->size[1] = (int)numTrackFeatures;
-      emxEnsureCapacity((emxArray__common *)map_out, i14, (int)sizeof(double));
+      emxEnsureCapacity((emxArray__common *)map_out, i16, (int)sizeof(double));
       i = 3 * (int)numTrackFeatures;
-      for (i14 = 0; i14 < i; i14++) {
-        map_out->data[i14] = 0.0;
+      for (i16 = 0; i16 < i; i16++) {
+        map_out->data[i16] = 0.0;
       }
     }
 
-    i14 = xt_out->size[0];
+    i16 = xt_out->size[0];
     xt_out->size[0] = xt->size[0];
-    emxEnsureCapacity((emxArray__common *)xt_out, i14, (int)sizeof(double));
+    emxEnsureCapacity((emxArray__common *)xt_out, i16, (int)sizeof(double));
     i = xt->size[0];
-    for (i14 = 0; i14 < i; i14++) {
-      xt_out->data[i14] = xt->data[i14];
+    for (i16 = 0; i16 < i; i16++) {
+      xt_out->data[i16] = xt->data[i16];
     }
 
-    i14 = P_apo_out->size[0] * P_apo_out->size[1];
+    i16 = P_apo_out->size[0] * P_apo_out->size[1];
     P_apo_out->size[0] = P->size[0];
     P_apo_out->size[1] = P->size[1];
-    emxEnsureCapacity((emxArray__common *)P_apo_out, i14, (int)sizeof(double));
+    emxEnsureCapacity((emxArray__common *)P_apo_out, i16, (int)sizeof(double));
     i = P->size[0] * P->size[1];
-    for (i14 = 0; i14 < i; i14++) {
-      P_apo_out->data[i14] = P->data[i14];
+    for (i16 = 0; i16 < i; i16++) {
+      P_apo_out->data[i16] = P->data[i16];
     }
   } else {
     if (b_VIOParameters->use_ext_pose && (!ext_pose_offset_initialized)) {
-      for (i14 = 0; i14 < 3; i14++) {
-        ext_pos_offset[i14] = xt->data[i14] - measurements_pred.pos_ext[i14];
+      for (i16 = 0; i16 < 3; i16++) {
+        ext_pos_offset[i16] = xt->data[i16] - measurements_pred_pos_ext[i16];
       }
 
       //  in vio frame
@@ -555,57 +601,57 @@ void SLAM(double updateVect[24], const double z_all_l[48], const double z_all_r
       //  if abs(norm(q) - 1) > 1e-3
       //      error('The provided quaternion is not a valid rotation quaternion because it does not have norm 1') 
       //  end
-      b_measurements_pred[0] = ((measurements_pred.att_ext[0] *
-        measurements_pred.att_ext[0] - measurements_pred.att_ext[1] *
-        measurements_pred.att_ext[1]) - measurements_pred.att_ext[2] *
-        measurements_pred.att_ext[2]) + measurements_pred.att_ext[3] *
-        measurements_pred.att_ext[3];
-      b_measurements_pred[1] = 2.0 * (measurements_pred.att_ext[0] *
-        measurements_pred.att_ext[1] + measurements_pred.att_ext[2] *
-        measurements_pred.att_ext[3]);
-      b_measurements_pred[2] = 2.0 * (measurements_pred.att_ext[0] *
-        measurements_pred.att_ext[2] - measurements_pred.att_ext[1] *
-        measurements_pred.att_ext[3]);
-      b_measurements_pred[3] = 2.0 * (measurements_pred.att_ext[0] *
-        measurements_pred.att_ext[1] - measurements_pred.att_ext[2] *
-        measurements_pred.att_ext[3]);
-      b_measurements_pred[4] = ((-(measurements_pred.att_ext[0] *
-        measurements_pred.att_ext[0]) + measurements_pred.att_ext[1] *
-        measurements_pred.att_ext[1]) - measurements_pred.att_ext[2] *
-        measurements_pred.att_ext[2]) + measurements_pred.att_ext[3] *
-        measurements_pred.att_ext[3];
-      b_measurements_pred[5] = 2.0 * (measurements_pred.att_ext[1] *
-        measurements_pred.att_ext[2] + measurements_pred.att_ext[0] *
-        measurements_pred.att_ext[3]);
-      b_measurements_pred[6] = 2.0 * (measurements_pred.att_ext[0] *
-        measurements_pred.att_ext[2] + measurements_pred.att_ext[1] *
-        measurements_pred.att_ext[3]);
-      b_measurements_pred[7] = 2.0 * (measurements_pred.att_ext[1] *
-        measurements_pred.att_ext[2] - measurements_pred.att_ext[0] *
-        measurements_pred.att_ext[3]);
-      b_measurements_pred[8] = ((-(measurements_pred.att_ext[0] *
-        measurements_pred.att_ext[0]) - measurements_pred.att_ext[1] *
-        measurements_pred.att_ext[1]) + measurements_pred.att_ext[2] *
-        measurements_pred.att_ext[2]) + measurements_pred.att_ext[3] *
-        measurements_pred.att_ext[3];
-      dv9[0] = ((xt->data[3] * xt->data[3] - xt->data[4] * xt->data[4]) -
-                xt->data[5] * xt->data[5]) + xt->data[6] * xt->data[6];
-      dv9[3] = 2.0 * (xt->data[3] * xt->data[4] + xt->data[5] * xt->data[6]);
-      dv9[6] = 2.0 * (xt->data[3] * xt->data[5] - xt->data[4] * xt->data[6]);
-      dv9[1] = 2.0 * (xt->data[3] * xt->data[4] - xt->data[5] * xt->data[6]);
-      dv9[4] = ((-(xt->data[3] * xt->data[3]) + xt->data[4] * xt->data[4]) -
-                xt->data[5] * xt->data[5]) + xt->data[6] * xt->data[6];
-      dv9[7] = 2.0 * (xt->data[4] * xt->data[5] + xt->data[3] * xt->data[6]);
-      dv9[2] = 2.0 * (xt->data[3] * xt->data[5] + xt->data[4] * xt->data[6]);
-      dv9[5] = 2.0 * (xt->data[4] * xt->data[5] - xt->data[3] * xt->data[6]);
-      dv9[8] = ((-(xt->data[3] * xt->data[3]) - xt->data[4] * xt->data[4]) +
-                xt->data[5] * xt->data[5]) + xt->data[6] * xt->data[6];
-      for (i14 = 0; i14 < 3; i14++) {
+      b_measurements_pred_att_ext[0] = ((measurements_pred_att_ext[0] *
+        measurements_pred_att_ext[0] - measurements_pred_att_ext[1] *
+        measurements_pred_att_ext[1]) - measurements_pred_att_ext[2] *
+        measurements_pred_att_ext[2]) + measurements_pred_att_ext[3] *
+        measurements_pred_att_ext[3];
+      b_measurements_pred_att_ext[1] = 2.0 * (measurements_pred_att_ext[0] *
+        measurements_pred_att_ext[1] + measurements_pred_att_ext[2] *
+        measurements_pred_att_ext[3]);
+      b_measurements_pred_att_ext[2] = 2.0 * (measurements_pred_att_ext[0] *
+        measurements_pred_att_ext[2] - measurements_pred_att_ext[1] *
+        measurements_pred_att_ext[3]);
+      b_measurements_pred_att_ext[3] = 2.0 * (measurements_pred_att_ext[0] *
+        measurements_pred_att_ext[1] - measurements_pred_att_ext[2] *
+        measurements_pred_att_ext[3]);
+      b_measurements_pred_att_ext[4] = ((-(measurements_pred_att_ext[0] *
+        measurements_pred_att_ext[0]) + measurements_pred_att_ext[1] *
+        measurements_pred_att_ext[1]) - measurements_pred_att_ext[2] *
+        measurements_pred_att_ext[2]) + measurements_pred_att_ext[3] *
+        measurements_pred_att_ext[3];
+      b_measurements_pred_att_ext[5] = 2.0 * (measurements_pred_att_ext[1] *
+        measurements_pred_att_ext[2] + measurements_pred_att_ext[0] *
+        measurements_pred_att_ext[3]);
+      b_measurements_pred_att_ext[6] = 2.0 * (measurements_pred_att_ext[0] *
+        measurements_pred_att_ext[2] + measurements_pred_att_ext[1] *
+        measurements_pred_att_ext[3]);
+      b_measurements_pred_att_ext[7] = 2.0 * (measurements_pred_att_ext[1] *
+        measurements_pred_att_ext[2] - measurements_pred_att_ext[0] *
+        measurements_pred_att_ext[3]);
+      b_measurements_pred_att_ext[8] = ((-(measurements_pred_att_ext[0] *
+        measurements_pred_att_ext[0]) - measurements_pred_att_ext[1] *
+        measurements_pred_att_ext[1]) + measurements_pred_att_ext[2] *
+        measurements_pred_att_ext[2]) + measurements_pred_att_ext[3] *
+        measurements_pred_att_ext[3];
+      dv10[0] = ((xt->data[3] * xt->data[3] - xt->data[4] * xt->data[4]) -
+                 xt->data[5] * xt->data[5]) + xt->data[6] * xt->data[6];
+      dv10[3] = 2.0 * (xt->data[3] * xt->data[4] + xt->data[5] * xt->data[6]);
+      dv10[6] = 2.0 * (xt->data[3] * xt->data[5] - xt->data[4] * xt->data[6]);
+      dv10[1] = 2.0 * (xt->data[3] * xt->data[4] - xt->data[5] * xt->data[6]);
+      dv10[4] = ((-(xt->data[3] * xt->data[3]) + xt->data[4] * xt->data[4]) -
+                 xt->data[5] * xt->data[5]) + xt->data[6] * xt->data[6];
+      dv10[7] = 2.0 * (xt->data[4] * xt->data[5] + xt->data[3] * xt->data[6]);
+      dv10[2] = 2.0 * (xt->data[3] * xt->data[5] + xt->data[4] * xt->data[6]);
+      dv10[5] = 2.0 * (xt->data[4] * xt->data[5] - xt->data[3] * xt->data[6]);
+      dv10[8] = ((-(xt->data[3] * xt->data[3]) - xt->data[4] * xt->data[4]) +
+                 xt->data[5] * xt->data[5]) + xt->data[6] * xt->data[6];
+      for (i16 = 0; i16 < 3; i16++) {
         for (i = 0; i < 3; i++) {
-          ext_att_offset[i14 + 3 * i] = 0.0;
-          for (i15 = 0; i15 < 3; i15++) {
-            ext_att_offset[i14 + 3 * i] += b_measurements_pred[i14 + 3 * i15] *
-              dv9[i15 + 3 * i];
+          ext_att_offset[i16 + 3 * i] = 0.0;
+          for (i17 = 0; i17 < 3; i17++) {
+            ext_att_offset[i16 + 3 * i] += b_measurements_pred_att_ext[i16 + 3 *
+              i17] * dv10[i17 + 3 * i];
           }
         }
       }
@@ -621,22 +667,31 @@ void SLAM(double updateVect[24], const double z_all_l[48], const double z_all_r
     }
 
     if (b_VIOParameters->use_controller_to_predict) {
-      j_fprintf(xt->data[13], xt->data[14], xt->data[15]);
-      diag(*(double (*)[3])&xt->data[13], R_cw);
-      for (i14 = 0; i14 < 3; i14++) {
-        measurements_pred.acc_duo[i14] = 0.0;
-        for (i = 0; i < 3; i++) {
-          measurements_pred.acc_duo[i14] += R_cw[i14 + 3 * i] * last_u[i];
-        }
+      for (i = 0; i < 3; i++) {
+        measurements_pred_acc_duo[i] = last_u[i] / 0.5;
       }
     } else {
       for (i = 0; i < 3; i++) {
-        measurements_pred.acc_duo[i] = 0.0;
+        measurements_pred_acc_duo[i] = 0.0;
       }
     }
 
     SLAM_pred(P, xt, dt, noiseParameters->process_noise,
-              measurements_pred.gyr_duo, measurements_pred.acc_duo, numStates);
+              measurements_pred_gyr_duo, measurements_pred_acc_duo, numStates);
+    for (i = 0; i < 4; i++) {
+      expl_temp.att_ext[i] = measurements_upd_att_ext[i];
+    }
+
+    for (i = 0; i < 3; i++) {
+      expl_temp.pos_ext[i] = measurements_upd_pos_ext[i];
+    }
+
+    expl_temp.bar_fmu = measurements->bar_fmu;
+    for (i = 0; i < 3; i++) {
+      expl_temp.acc_duo[i] = measurements_upd_acc_duo[i];
+    }
+
+    emxInit_boolean_T(&r3, 1);
     SLAM_updIT(P, xt, cameraParameters->CameraParameters1.RadialDistortion,
                cameraParameters->CameraParameters1.FocalLength,
                cameraParameters->CameraParameters1.PrincipalPoint,
@@ -648,14 +703,14 @@ void SLAM(double updateVect[24], const double z_all_l[48], const double z_all_r
                noiseParameters->image_noise, noiseParameters->sigmaInit,
                noiseParameters->pressure_noise, noiseParameters->ext_pos_noise,
                noiseParameters->ext_att_noise,
-               noiseParameters->gravity_alignment_noise, &measurements_upd,
+               noiseParameters->gravity_alignment_noise, &expl_temp,
                height_offset_pressure, *b_VIOParameters, h_u_apo_out, map_out);
-    i14 = r3->size[0];
+    i16 = r3->size[0];
     r3->size[0] = xt->size[0];
-    emxEnsureCapacity((emxArray__common *)r3, i14, (int)sizeof(boolean_T));
+    emxEnsureCapacity((emxArray__common *)r3, i16, (int)sizeof(boolean_T));
     i = xt->size[0];
-    for (i14 = 0; i14 < i; i14++) {
-      r3->data[i14] = rtIsNaN(xt->data[i14]);
+    for (i16 = 0; i16 < i; i16++) {
+      r3->data[i16] = rtIsNaN(xt->data[i16]);
     }
 
     if (e_any(r3)) {
@@ -682,6 +737,8 @@ void SLAM(double updateVect[24], const double z_all_l[48], const double z_all_r
       }
     }
 
+    emxFree_boolean_T(&r3);
+
     //  if ~all(size(q) == [4, 1])
     //      error('q does not have the size of a quaternion')
     //  end
@@ -691,7 +748,13 @@ void SLAM(double updateVect[24], const double z_all_l[48], const double z_all_r
     R_cw[0] = ((xt->data[3] * xt->data[3] - xt->data[4] * xt->data[4]) -
                xt->data[5] * xt->data[5]) + xt->data[6] * xt->data[6];
     R_cw[3] = 2.0 * (xt->data[3] * xt->data[4] + xt->data[5] * xt->data[6]);
+    R_cw[6] = 2.0 * (xt->data[3] * xt->data[5] - xt->data[4] * xt->data[6]);
+    R_cw[7] = 2.0 * (xt->data[4] * xt->data[5] + xt->data[3] * xt->data[6]);
+    R_cw[8] = ((-(xt->data[3] * xt->data[3]) - xt->data[4] * xt->data[4]) +
+               xt->data[5] * xt->data[5]) + xt->data[6] * xt->data[6];
     yaw = rt_atan2d_snf(R_cw[3], R_cw[0]) + 1.5707963267948966;
+
+    //  fprintf('yaw: %.3f, ref %.3f\n', yaw, ref.position(4));
     if (rtIsNaN(ref->position[0])) {
       c_ros_error();
       ref->position[0] = 0.0;
@@ -710,96 +773,96 @@ void SLAM(double updateVect[24], const double z_all_l[48], const double z_all_r
     if (rtIsNaN(ref->position[3])) {
       // #coder
       // ROS_ERROR Print to ROS_ERROR in ROS or to console in Matlab
-      for (i14 = 0; i14 < 35; i14++) {
-        cv16[i14] = cv17[i14];
+      for (i16 = 0; i16 < 35; i16++) {
+        cv21[i16] = cv22[i16];
       }
 
-      ROS_ERROR(cv16);
+      ROS_ERROR(cv21);
       ref->position[3] = 0.0;
     }
 
     if (rtIsNaN(ref->velocity[0])) {
       // #coder
       // ROS_ERROR Print to ROS_ERROR in ROS or to console in Matlab
-      for (i14 = 0; i14 < 42; i14++) {
-        cv18[i14] = cv19[i14];
+      for (i16 = 0; i16 < 42; i16++) {
+        cv23[i16] = cv24[i16];
       }
 
-      ROS_ERROR(cv18);
+      ROS_ERROR(cv23);
       ref->position[0] = 0.0;
     }
 
     if (rtIsNaN(ref->velocity[1])) {
       // #coder
       // ROS_ERROR Print to ROS_ERROR in ROS or to console in Matlab
-      for (i14 = 0; i14 < 42; i14++) {
-        cv18[i14] = cv20[i14];
+      for (i16 = 0; i16 < 42; i16++) {
+        cv23[i16] = cv25[i16];
       }
 
-      ROS_ERROR(cv18);
+      ROS_ERROR(cv23);
       ref->position[1] = 0.0;
     }
 
     if (rtIsNaN(ref->velocity[2])) {
       // #coder
       // ROS_ERROR Print to ROS_ERROR in ROS or to console in Matlab
-      for (i14 = 0; i14 < 42; i14++) {
-        cv18[i14] = cv21[i14];
+      for (i16 = 0; i16 < 42; i16++) {
+        cv23[i16] = cv26[i16];
       }
 
-      ROS_ERROR(cv18);
+      ROS_ERROR(cv23);
       ref->position[2] = 0.0;
     }
 
     if (rtIsNaN(ref->position[3])) {
       // #coder
       // ROS_ERROR Print to ROS_ERROR in ROS or to console in Matlab
-      for (i14 = 0; i14 < 39; i14++) {
-        cv22[i14] = cv23[i14];
+      for (i16 = 0; i16 < 39; i16++) {
+        cv27[i16] = cv28[i16];
       }
 
-      ROS_ERROR(cv22);
+      ROS_ERROR(cv27);
       ref->position[3] = 0.0;
     }
 
     //  transform between world and control frame (yaw-rotatate world frame)
-    R_bw[0] = cos(yaw);
-    R_bw[1] = -sin(yaw);
-    R_bw[2] = 0.0;
-    R_bw[3] = sin(yaw);
-    R_bw[4] = cos(yaw);
-    R_bw[5] = 0.0;
-    for (i14 = 0; i14 < 3; i14++) {
-      R_bw[6 + i14] = iv4[i14];
+    R_cw[0] = cos(yaw);
+    R_cw[1] = -sin(yaw);
+    R_cw[2] = 0.0;
+    R_cw[3] = sin(yaw);
+    R_cw[4] = cos(yaw);
+    R_cw[5] = 0.0;
+    for (i16 = 0; i16 < 3; i16++) {
+      R_cw[6 + i16] = iv4[i16];
     }
 
-    for (i14 = 0; i14 < 3; i14++) {
-      b_measurements[i14] = xt->data[i14] - ref->position[i14];
+    for (i16 = 0; i16 < 3; i16++) {
+      b_measurements[i16] = xt->data[i16] - ref->position[i16];
     }
 
-    for (i14 = 0; i14 < 3; i14++) {
-      err_p_b[i14] = 0.0;
+    for (i16 = 0; i16 < 3; i16++) {
+      err_p_b[i16] = 0.0;
       for (i = 0; i < 3; i++) {
-        err_p_b[i14] += R_bw[i14 + 3 * i] * b_measurements[i];
+        err_p_b[i16] += R_cw[i16 + 3 * i] * b_measurements[i];
       }
     }
 
     //  position error in control frame
-    for (i14 = 0; i14 < 3; i14++) {
-      b_measurements[i14] = xt->data[7 + i14] - ref->velocity[i14];
+    for (i16 = 0; i16 < 3; i16++) {
+      b_measurements[i16] = xt->data[7 + i16] - ref->velocity[i16];
     }
 
     //  velocity error in control frame
     c_ControllerGains[0] = b_ControllerGains->Ki_xy * err_p_b[0];
     c_ControllerGains[1] = b_ControllerGains->Ki_xy * err_p_b[1];
     c_ControllerGains[2] = b_ControllerGains->Ki_z * err_p_b[2];
-    for (i14 = 0; i14 < 3; i14++) {
-      err_v_b[i14] = 0.0;
+    for (i16 = 0; i16 < 3; i16++) {
+      err_v_b[i16] = 0.0;
       for (i = 0; i < 3; i++) {
-        err_v_b[i14] += R_bw[i14 + 3 * i] * b_measurements[i];
+        err_v_b[i16] += R_cw[i16 + 3 * i] * b_measurements[i];
       }
 
-      i_control[i14] += c_ControllerGains[i14];
+      i_control[i16] += c_ControllerGains[i16];
     }
 
     if ((b_ControllerGains->i_lim <= i_control[0]) || rtIsNaN(i_control[0])) {
@@ -846,12 +909,7 @@ void SLAM(double updateVect[24], const double z_all_l[48], const double z_all_r
                      b_ControllerGains->Kd_xy * err_v_b[1]);
     u_out_pos[2] = -((b_ControllerGains->Kp_z * err_p_b[2] + i_control[2]) +
                      b_ControllerGains->Kd_z * err_v_b[2]);
-    if (u_out_pos[2] >= 0.05) {
-    } else {
-      u_out_pos[2] = 0.05;
-    }
 
-    //  dont send negative force commands
     //  yaw_ctrl = atan2(R_cw(1,2), R_cw(1,1));
     //  fprintf('control frame error: %.3f %.3f %.3f %.3f\n', err_p_b(1), err_p_b(2), err_p_b(3), (yaw_trafo - ref.position(4))) 
     for (i = 0; i < 3; i++) {
@@ -860,37 +918,34 @@ void SLAM(double updateVect[24], const double z_all_l[48], const double z_all_r
 
     u_out[3] = b_ControllerGains->Kd_yaw * ref->velocity[3] -
       b_ControllerGains->Kp_yaw * (yaw - ref->position[3]);
-    l_fprintf(err_p_b[0], err_p_b[1], err_p_b[2], (rt_atan2d_snf(R_cw[3], R_cw[0])
-               + 1.5707963267948966) - ref->position[3], u_out[0], u_out[1],
-              u_out[2], u_out[3]);
-    for (i14 = 0; i14 < 3; i14++) {
-      last_u[i14] = 0.0;
+
+    //  fprintf('position error (%.3f, %.3f, %.3f, %.3f), control: (%.3f, %.3f, %.3f, %.3f)\n', err_p_b(1), err_p_b(2), err_p_b(3), (yaw - ref.position(4)), u_out(1), u_out(2), u_out(3), u_out(4)); 
+    for (i16 = 0; i16 < 3; i16++) {
+      last_u[i16] = 0.0;
       for (i = 0; i < 3; i++) {
-        last_u[i14] += R_bw[i + 3 * i14] * u_out_pos[i];
+        last_u[i16] += R_cw[i + 3 * i16] * u_out_pos[i];
       }
     }
 
-    i14 = xt_out->size[0];
+    i16 = xt_out->size[0];
     xt_out->size[0] = xt->size[0];
-    emxEnsureCapacity((emxArray__common *)xt_out, i14, (int)sizeof(double));
+    emxEnsureCapacity((emxArray__common *)xt_out, i16, (int)sizeof(double));
     i = xt->size[0];
-    for (i14 = 0; i14 < i; i14++) {
-      xt_out->data[i14] = xt->data[i14];
+    for (i16 = 0; i16 < i; i16++) {
+      xt_out->data[i16] = xt->data[i16];
     }
 
-    i14 = P_apo_out->size[0] * P_apo_out->size[1];
+    i16 = P_apo_out->size[0] * P_apo_out->size[1];
     P_apo_out->size[0] = P->size[0];
     P_apo_out->size[1] = P->size[1];
-    emxEnsureCapacity((emxArray__common *)P_apo_out, i14, (int)sizeof(double));
+    emxEnsureCapacity((emxArray__common *)P_apo_out, i16, (int)sizeof(double));
     i = P->size[0] * P->size[1];
-    for (i14 = 0; i14 < i; i14++) {
-      P_apo_out->data[i14] = P->data[i14];
+    for (i16 = 0; i16 < i; i16++) {
+      P_apo_out->data[i16] = P->data[i16];
     }
 
     // % output asserts for coder
   }
-
-  emxFree_boolean_T(&r3);
 }
 
 //

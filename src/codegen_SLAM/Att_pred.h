@@ -5,7 +5,7 @@
 // File: Att_pred.h
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 04-Sep-2015 23:21:02
+// C/C++ source code generated on  : 06-Sep-2015 10:04:04
 //
 #ifndef __ATT_PRED_H__
 #define __ATT_PRED_H__

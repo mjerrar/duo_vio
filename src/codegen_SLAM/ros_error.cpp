@@ -5,7 +5,7 @@
 // File: ros_error.cpp
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 04-Sep-2015 23:21:02
+// C/C++ source code generated on  : 06-Sep-2015 10:04:04
 //
 
 // Include Files
@@ -25,17 +25,17 @@
 //
 void b_ros_error()
 {
-  char cv8[33];
-  int i10;
-  static const char cv9[33] = { 'G', 'o', 't', ' ', 'N', 'a', 'N', 's', ' ', 'i',
-    'n', ' ', 't', 'h', 'e', ' ', 's', 't', 'a', 't', 'e', '.', ' ', 'R', 'e',
-    's', 'e', 't', 't', 'i', 'n', 'g', '\x00' };
+  char cv13[33];
+  int i12;
+  static const char cv14[33] = { 'G', 'o', 't', ' ', 'N', 'a', 'N', 's', ' ',
+    'i', 'n', ' ', 't', 'h', 'e', ' ', 's', 't', 'a', 't', 'e', '.', ' ', 'R',
+    'e', 's', 'e', 't', 't', 'i', 'n', 'g', '\x00' };
 
-  for (i10 = 0; i10 < 33; i10++) {
-    cv8[i10] = cv9[i10];
+  for (i12 = 0; i12 < 33; i12++) {
+    cv13[i12] = cv14[i12];
   }
 
-  ROS_ERROR(cv8);
+  ROS_ERROR(cv13);
 }
 
 //
@@ -46,18 +46,18 @@ void b_ros_error()
 //
 void c_ros_error()
 {
-  char cv10[42];
-  int i11;
-  static const char cv11[42] = { 'R', 'e', 'f', 'e', 'r', 'e', 'n', 'c', 'e',
+  char cv15[42];
+  int i13;
+  static const char cv16[42] = { 'R', 'e', 'f', 'e', 'r', 'e', 'n', 'c', 'e',
     ' ', 'x', ' ', 'p', 'o', 's', 'i', 't', 'i', 'o', 'n', ' ', 'i', 's', ' ',
-    'N', 'a', 'n', '!', ' ', 'P', 'u', 't', 't', 'i', 'n', 'g', ' ', 't', 'o',
+    'N', 'a', 'N', '!', ' ', 'P', 'u', 't', 't', 'i', 'n', 'g', ' ', 't', 'o',
     ' ', '0', '\x00' };
 
-  for (i11 = 0; i11 < 42; i11++) {
-    cv10[i11] = cv11[i11];
+  for (i13 = 0; i13 < 42; i13++) {
+    cv15[i13] = cv16[i13];
   }
 
-  ROS_ERROR(cv10);
+  ROS_ERROR(cv15);
 }
 
 //
@@ -68,18 +68,18 @@ void c_ros_error()
 //
 void d_ros_error()
 {
-  char cv12[42];
-  int i12;
-  static const char cv13[42] = { 'R', 'e', 'f', 'e', 'r', 'e', 'n', 'c', 'e',
+  char cv17[42];
+  int i14;
+  static const char cv18[42] = { 'R', 'e', 'f', 'e', 'r', 'e', 'n', 'c', 'e',
     ' ', 'y', ' ', 'p', 'o', 's', 'i', 't', 'i', 'o', 'n', ' ', 'i', 's', ' ',
-    'N', 'a', 'n', '!', ' ', 'P', 'u', 't', 't', 'i', 'n', 'g', ' ', 't', 'o',
+    'N', 'a', 'N', '!', ' ', 'P', 'u', 't', 't', 'i', 'n', 'g', ' ', 't', 'o',
     ' ', '0', '\x00' };
 
-  for (i12 = 0; i12 < 42; i12++) {
-    cv12[i12] = cv13[i12];
+  for (i14 = 0; i14 < 42; i14++) {
+    cv17[i14] = cv18[i14];
   }
 
-  ROS_ERROR(cv12);
+  ROS_ERROR(cv17);
 }
 
 //
@@ -90,18 +90,18 @@ void d_ros_error()
 //
 void e_ros_error()
 {
-  char cv14[42];
-  int i13;
-  static const char cv15[42] = { 'R', 'e', 'f', 'e', 'r', 'e', 'n', 'c', 'e',
+  char cv19[42];
+  int i15;
+  static const char cv20[42] = { 'R', 'e', 'f', 'e', 'r', 'e', 'n', 'c', 'e',
     ' ', 'z', ' ', 'p', 'o', 's', 'i', 't', 'i', 'o', 'n', ' ', 'i', 's', ' ',
-    'N', 'a', 'n', '!', ' ', 'P', 'u', 't', 't', 'i', 'n', 'g', ' ', 't', 'o',
+    'N', 'a', 'N', '!', ' ', 'P', 'u', 't', 't', 'i', 'n', 'g', ' ', 't', 'o',
     ' ', '0', '\x00' };
 
-  for (i13 = 0; i13 < 42; i13++) {
-    cv14[i13] = cv15[i13];
+  for (i15 = 0; i15 < 42; i15++) {
+    cv19[i15] = cv20[i15];
   }
 
-  ROS_ERROR(cv14);
+  ROS_ERROR(cv19);
 }
 
 //

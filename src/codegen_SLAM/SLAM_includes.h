@@ -11,6 +11,7 @@
 #include "getH_R_res.h"
 #include "getMap.h"
 #include "get_r_u.h"
+#include "getScaledMap.h"
 #include "initializePoint.h"
 #include "kron.h"
 #include "mrdivide.h"
@@ -41,4 +42,5 @@
 #include "SLAM_updIT.h"
 #include "sum.h"
 #include "svd.h"
+#include "undistortPoint.h"
 #endif
