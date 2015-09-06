@@ -61,7 +61,7 @@
     <param name="fixed_anchor" type="bool" value="$(arg fixed_anchor)" />
     <param name="fixed_feature" type="bool" value="$(arg fixed_feature)" />
     <param name="max_ekf_iterations" type="int" value="$(arg max_ekf_iterations)" />
-    <param name="gravity_align" type="int" value="$(arg gravity_align)" />
+    <param name="gravity_align" type="bool" value="$(arg gravity_align)" />
 
     <param name="pressure_noise" type="double" value="$(arg pressure_noise)" />
     <param name="sigma_init" type="double" value="$(arg sigma_init)" />

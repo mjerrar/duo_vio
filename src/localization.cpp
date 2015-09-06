@@ -409,12 +409,10 @@ void Localization::dynamicReconfigureCb(vio_ros::vio_rosConfig &config, uint32_t
 	noiseParams.process_noise[0] = config.acc_noise;
 	noiseParams.process_noise[1] = config.gyro_noise;
 	noiseParams.process_noise[2] = config.gyro_bias_noise;
-//	noiseParams.orientation_noise = config.orientation_noise;
 	noiseParams.pressure_noise = config.pressure_noise;
 	noiseParams.sigmaInit = config.sigma_init;
 	noiseParams.gravity_alignment_noise = config.gravity_alignment_noise;
 
-//	vioParams.use_orientation = config.use_orientation;
 	vioParams.use_pressure = config.use_pressure;
 	vioParams.use_magnetometer = config.use_magnetometer;
 	vioParams.use_controller_to_predict = config.use_controller_to_predict;
