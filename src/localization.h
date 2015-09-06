@@ -64,6 +64,9 @@ private:
 	double fps_duo;
 	ros::Time last_debug_publish;
 
+	cv::Mat darkCurrentL;
+	cv::Mat darkCurrentR;
+
 	StereoParameters cameraParams;
 	NoiseParameters noiseParams;
 	ControllerGains controllerGains;

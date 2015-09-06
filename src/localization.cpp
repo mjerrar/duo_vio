@@ -139,6 +139,38 @@ Localization::Localization()
 		debug_img_pub_ = nh_.advertise<duo3d_ros::Duo3d>("/vio/debug_img", 1);
 	}
 
+	std::string dark_current_l_path = ros::package::getPath("vio_ros") + "/calib/" + camera_name + "/" + lense_type + "/" + res.str() + "/darkCurrentL.bmp";
+	darkCurrentL = cv::imread(dark_current_l_path, CV_LOAD_IMAGE_GRAYSCALE);
+
+	bool load_default_dark_current = false;
+	if (!darkCurrentL.data)
+	{
+		ROS_WARN("Failed to open left dark current image!");
+		load_default_dark_current = true;
+	} else if (darkCurrentL.rows != resolution_height || darkCurrentL.cols != resolution_width)
+	{
+		ROS_WARN("Left dark current image has the wrong dimensions!");
+		load_default_dark_current = true;
+	}
+	if (load_default_dark_current)
+		darkCurrentL = cv::Mat::zeros(resolution_height, resolution_width, CV_8U);
+
+
+	std::string dark_current_r_path = ros::package::getPath("vio_ros") + "/calib/" + camera_name + "/" + lense_type + "/" + res.str() + "/darkCurrentR.bmp";
+	darkCurrentR = cv::imread(dark_current_r_path, CV_LOAD_IMAGE_GRAYSCALE);
+	load_default_dark_current = false;
+	if (!darkCurrentR.data)
+	{
+		ROS_WARN("Failed to open right dark current image!");
+		load_default_dark_current = true;
+	} else if (darkCurrentR.rows != resolution_height || darkCurrentR.cols != resolution_width)
+	{
+		ROS_WARN("Right dark current image has the wrong dimensions!");
+		load_default_dark_current = true;
+	}
+	if (load_default_dark_current)
+		darkCurrentR = cv::Mat::zeros(resolution_height, resolution_width, CV_8U);
+
 	dynamic_reconfigure::Server<vio_ros::vio_rosConfig>::CallbackType f = boost::bind(&Localization::dynamicReconfigureCb, this, _1, _2);
 	dynamic_reconfigure_server.setCallback(f);
 
@@ -239,7 +271,7 @@ void Localization::duo3dCb(const duo3d_ros::Duo3d& msg)
 		}
 	}
 
-	update(dt, cv_left_image->image, cv_right_image->image, msg.imu, mag, pose, velocity, debug_display_tracks);
+	update(dt, cv_left_image->image - darkCurrentL, cv_right_image->image - darkCurrentR, msg.imu, mag, pose, velocity, debug_display_tracks);
 
 	pose_stamped.pose = pose;
 	pose_pub_.publish(pose_stamped);
