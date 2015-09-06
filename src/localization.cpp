@@ -75,7 +75,7 @@ Localization::Localization()
 	nh_.param<double>("ext_pos_noise", noiseParams.ext_pos_noise, 0.1);
 	nh_.param<double>("ext_att_noise", noiseParams.ext_att_noise, 0.1);
 	nh_.param<double>("gravity_alignment_noise", noiseParams.gravity_alignment_noise, 1);
-	nh_.param<double>("gravity_alignment_noise", noiseParams.controller_model_noise, 0);
+	nh_.param<double>("controller_model_noise", noiseParams.controller_model_noise, 0);
 
 	nh_.param<int>("num_points_per_anchor", vioParams.num_points_per_anchor, 1);
 	nh_.param<int>("num_anchors", vioParams.num_anchors, 1);
