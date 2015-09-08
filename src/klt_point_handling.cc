@@ -89,7 +89,7 @@ void handle_points_klt(
 
 	img_l.copyTo(prev_img);
 
-	bool init_new_points_with_KLT = true;
+	bool init_new_points_with_KLT = false;
 
 	if (!img_r.empty())
 	{
@@ -241,21 +241,38 @@ static void initMorePoints(
 	if (good_matches.size() != targetNumPoints)
 		printf("Number of good matches: %d, desired: %d\n", (int) good_matches.size(), targetNumPoints);
 
+	std::vector<cv::Point2f> leftPoints, rightPoints;
+	for (int i = 0; i < good_matches.size(); i++)
+	{
+		leftPoints.push_back(keypointsL[good_matches[i].trainIdx].pt);
+		rightPoints.push_back(keypointsR[good_matches[i].queryIdx].pt);
+	}
+
+	// get sub pixel accurate points
+	Size winSize = Size( 5, 5 );
+	Size zeroZone = Size( -1, -1 );
+	TermCriteria criteria = TermCriteria( CV_TERMCRIT_EPS + CV_TERMCRIT_ITER, 40, 0.001 );
+	cornerSubPix( img_l, leftPoints, winSize, zeroZone, criteria );
+	cornerSubPix( img_r, rightPoints, winSize, zeroZone, criteria );
+
+
+
+
 	int good_matches_idx = 0;
 	for (int i = 0; i < updateVect.size(); i++)
 	{
 		if(updateVect[i] == 2)
 		{
-			if (good_matches_idx < good_matches.size())
+			if (good_matches_idx < leftPoints.size())
 			{
-				prev_corners[i] = cv::Point2f(keypointsL[good_matches[good_matches_idx].trainIdx].pt.x, keypointsL[good_matches[good_matches_idx].trainIdx].pt.y);
+				prev_corners[i] = leftPoints[good_matches_idx];
 				prev_status[i] = 1;
 
-				z_all_l[i*2 + 0] = keypointsL[good_matches[good_matches_idx].trainIdx].pt.x;
-				z_all_l[i*2 + 1] = keypointsL[good_matches[good_matches_idx].trainIdx].pt.y;
+				z_all_l[i*2 + 0] = leftPoints[good_matches_idx].x;
+				z_all_l[i*2 + 1] = leftPoints[good_matches_idx].y;
 
-				z_all_r[i*2 + 0] = keypointsR[good_matches[good_matches_idx].queryIdx].pt.x;
-				z_all_r[i*2 + 1] = keypointsR[good_matches[good_matches_idx].queryIdx].pt.y;
+				z_all_r[i*2 + 0] = rightPoints[good_matches_idx].x;
+				z_all_r[i*2 + 1] = rightPoints[good_matches_idx].y;
 
 				good_matches_idx++;
 			} else {
@@ -263,6 +280,10 @@ static void initMorePoints(
 			}
 		}
 	}
+
+	// get sub pixel accurate points
+	cornerSubPix( img_l, prev_corners, winSize, zeroZone, criteria );
+
 }
 
 bool compareMatch(const DMatch &first, const DMatch &second)
