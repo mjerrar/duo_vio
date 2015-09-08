@@ -89,7 +89,7 @@ void handle_points_klt(
 
 	img_l.copyTo(prev_img);
 
-	bool init_new_points_with_KLT = false;
+	bool init_new_points_with_KLT = true;
 
 	if (!img_r.empty())
 	{
@@ -308,6 +308,7 @@ static void initMorePoints_KLT(
 		double minDistSqr,
 		double minScore)
 {
+	printf("updatevect size: %d\n", updateVect.size());
 	unsigned int targetNewPoints = 0;
 	// count the features that need to be initialized
 	for (int i = 0; i < updateVect.size(); i++)
@@ -394,7 +395,7 @@ static void initMorePoints_KLT(
 		if (targetNumPoints > numPoints && curPoints.size() < numPointsPerGridCell)
 		{
 			//special handling for gridCells at image border
-			int to = -halfpatchSize, bo = halfpatchSize, lo = -halfpatchSize, ro = halfpatchSize;
+			int to = halfpatchSize, bo = -halfpatchSize, lo = halfpatchSize, ro = -halfpatchSize;
 			if (gx == 0) lo = halfpatchSize+1;
 			if (gy == 0) to = halfpatchSize+1;
 			if (gx == gridSizeX-1) ro = -(halfpatchSize+1);
@@ -474,7 +475,7 @@ static void initMorePoints_KLT(
 	std::vector<unsigned char> statusRight;
 	std::vector<cv::Point2f> newPoints_right;
 	std::vector<float> error;
-	cv::calcOpticalFlowPyrLK(img_l, img_r, newPoints, newPoints_right, statusRight, error, cv::Size(64,64), 3);
+	cv::calcOpticalFlowPyrLK(img_l, img_r, newPoints, newPoints_right, statusRight, error, cv::Size(13,13), 4);
 
 	int newPoints_idx = 0;
 	for (int i = 0; i < updateVect.size(); i++)
