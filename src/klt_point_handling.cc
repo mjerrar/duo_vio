@@ -18,8 +18,10 @@ static cv::Mat prev_img;
 static std::vector<cv::Point2f> prev_corners;
 static std::vector<cv::Point2f> prev_corners_right;
 static std::vector<unsigned char> prev_status(100, 0);
-static FastFeatureDetector detector(50);
-static BriefDescriptorExtractor extractor(64); //this is really 16 x 8 matches since they are binary matches packed into bytes
+static cv::OrbFeatureDetector detector;
+static cv::OrbDescriptorExtractor extractor;
+
+static Rect left_roi = Rect(100, 70, 550, 350); // Field of view of the right camera in the left camera
 
 //local functions
 static void initMorePoints(const cv::Mat &img_l, const cv::Mat &img_r, std::vector<int> &updateVect, vector<double> &z_all_l, vector<double> &z_all_r);
@@ -134,15 +136,76 @@ static void initMorePoints(
 	if(!targetNumPoints)
 		return;
 
-	std::vector<cv::KeyPoint> keypointsL, keypointsR;
+	std::vector<cv::KeyPoint> keypointsL, keypointsR, goodKeypointsL;
 	cv::Mat descriptorsL, descriptorsR;
 
+//	detector.detect(cv::Mat(img_l, left_roi), keypointsL);
+//		for (int i = 0; i < keypointsL.size(); i++)
+//		{
+//			keypointsL[i].pt.x += left_roi.x;
+//			keypointsL[i].pt.y += left_roi.y;
+//		}
 	detector.detect(img_l, keypointsL);
+	unsigned int dist = 20; // distance in pixels the feature needs to be away from any existing features
+	int new_pt_x, new_pt_y, existing_pt_x, existing_pt_y;
+	bool far_enough;
 	sort(keypointsL.begin(), keypointsL.end(), compareKeypoints);
-	keypointsL.erase(keypointsL.begin() + min((unsigned int) updateVect.size()*10, (unsigned int) keypointsL.size()), keypointsL.end());
+
+	int iterations = 0;
+	int maxIterations = 10;
+	while (goodKeypointsL.size() < targetNumPoints && iterations < maxIterations)
+	{
+		for (int i = 0; i< keypointsL.size(); i++)
+		{
+			new_pt_x = keypointsL[i].pt.x;
+			new_pt_y = keypointsL[i].pt.y;
+
+			far_enough = true;
+			// check if the new feature is close to an existing one
+			for (int j = 0; j < prev_corners.size(); j++)
+			{
+				existing_pt_x = prev_corners[j].x;
+				existing_pt_y = prev_corners[j].y;
+				if(abs(existing_pt_x - new_pt_x) < dist && abs(existing_pt_y - new_pt_y) < dist)
+				{
+					//				printf("Discarding new point %d at (%d, %d) because it's too close to existing point %d at (%d, %d)\n", j, new_pt_x, new_pt_y, j, existing_pt_x, existing_pt_y);
+					far_enough = false;
+					break;
+				}
+			}
+
+			if (far_enough)
+			{
+				// check if the new feature is too close to a new one
+				for (int j = 0; j < goodKeypointsL.size(); j++)
+				{
+					existing_pt_x = goodKeypointsL[j].pt.x;
+					existing_pt_y = goodKeypointsL[j].pt.y;
+					if(abs(existing_pt_x - new_pt_x) < dist && abs(existing_pt_y - new_pt_y) < dist)
+					{
+						//					printf("Discarding new point %d at (%d, %d) because it's too close to another new point %d at (%d, %d)\n", j, new_pt_x, new_pt_y, j+1, existing_pt_x, existing_pt_y);
+						far_enough = false;
+						break;
+					}
+				}
+
+				if (far_enough)
+				{
+					goodKeypointsL.push_back(keypointsL[i]);
+					//				printf("Found good feature %d at (%d, %d)\n", goodKeypointsL.size(), new_pt_x, new_pt_y);
+					if(goodKeypointsL.size() == targetNumPoints)
+						break;
+				}
+			}
+		}
+		dist = dist/2;
+		iterations++;
+	}
+	printf("performed %d iterations\n", iterations);
+
 	detector.detect(img_r, keypointsR);
 
-	extractor.compute(img_l, keypointsL, descriptorsL);
+	extractor.compute(img_l, goodKeypointsL, descriptorsL);
 	extractor.compute(img_r, keypointsR, descriptorsR);
 
 	if ( descriptorsL.empty() )
@@ -170,7 +233,7 @@ static void initMorePoints(
 	std::vector< DMatch > matches;
 	matcher.match( descriptorsR, descriptorsL, matches );
 
-	//	printf("Got %d matches\n", (int) matches.size());
+//	printf("Got %d matches\n", (int) matches.size());
 
 	// sort the matches by distance (i.e. quality)
 	sort(matches.begin(), matches.end(), compareMatch);
@@ -180,109 +243,51 @@ static void initMorePoints(
 
 //	printf("Min dist: %f, max dist: %f\n", min_dist, max_dist);
 
-	std::vector< DMatch > good_matches;
-
-	unsigned int dist = 10; // distance in pixels the feature needs to be away from any existing features
-	int new_pt_x, new_pt_y, existing_pt_x, existing_pt_y;
-	bool far_enough;
-
-	for( int i = 0; i < matches.size(); i++ )
-	{
-		if( 1 || matches[i].distance <= max(max_dist/2, 0.02) )
-		{
-			new_pt_x = keypointsL[matches[i].trainIdx].pt.x;
-			new_pt_y = keypointsL[matches[i].trainIdx].pt.y;
-
-			far_enough = true;
-			// check if the new feature is close to an existing one
-			for (int j = 0; j < prev_corners.size(); j++)
-			{
-				existing_pt_x = prev_corners[j].x;
-				existing_pt_y = prev_corners[j].y;
-				if(abs(existing_pt_x - new_pt_x) < dist && abs(existing_pt_y - new_pt_y) < dist)
-				{
-					//					printf("Discarding new point %d at (%d, %d) because it's too close to existing point %d at (%d, %d)\n", j, new_pt_x, new_pt_y, j, existing_pt_x, existing_pt_y);
-					far_enough = false;
-					break;
-				}
-			}
-
-			if (far_enough)
-			{
-				// check if the new featuer is too close to a new one
-				for (int j = 0; j < good_matches.size(); j++)
-				{
-					existing_pt_x = keypointsL[matches[j].trainIdx].pt.x;
-					existing_pt_y = keypointsL[matches[j].trainIdx].pt.y;
-					if(abs(existing_pt_x - new_pt_x) < dist && abs(existing_pt_y - new_pt_y) < dist)
-					{
-						//						printf("Discarding new point %d at (%d, %d) because it's too close to another new point %d at (%d, %d)\n", j, new_pt_x, new_pt_y, j+1, existing_pt_x, existing_pt_y);
-						far_enough = false;
-						break;
-					}
-				}
-
-				if (far_enough)
-				{
-					good_matches.push_back(matches[i]);
-					//					printf("Found good feature %d at (%d, %d)\n", good_matches.size(), new_pt_x, new_pt_y);
-					if(good_matches.size() == targetNumPoints)
-						break;
-				}
-			}
-		} else {
-			break; // all following matches will also fail because matches are sorted
-		}
-	}
-
 	if (prev_corners.size() < updateVect.size())
 		prev_corners.resize(updateVect.size());
 
-	if (good_matches.size() != targetNumPoints)
-		printf("Number of good matches: %d, desired: %d\n", (int) good_matches.size(), targetNumPoints);
+	if (matches.size() != targetNumPoints)
+		printf("Number of good matches: %d, desired: %d\n", (int) matches.size(), targetNumPoints);
 
 	std::vector<cv::Point2f> leftPoints, rightPoints;
-	for (int i = 0; i < good_matches.size(); i++)
+	if (matches.size())
 	{
-		leftPoints.push_back(keypointsL[good_matches[i].trainIdx].pt);
-		rightPoints.push_back(keypointsR[good_matches[i].queryIdx].pt);
+		for (int i = 0; i < matches.size(); i++)
+		{
+			leftPoints.push_back(goodKeypointsL[matches[i].trainIdx].pt);
+			rightPoints.push_back(keypointsR[matches[i].queryIdx].pt);
+		}
+
+		// get sub pixel accurate points
+		Size winSize = Size( 5, 5 );
+		Size zeroZone = Size( -1, -1 );
+		TermCriteria criteria = TermCriteria( CV_TERMCRIT_EPS + CV_TERMCRIT_ITER, 40, 0.001 );
+		cornerSubPix( img_l, leftPoints, winSize, zeroZone, criteria );
+		cornerSubPix( img_r, rightPoints, winSize, zeroZone, criteria );
 	}
 
-	// get sub pixel accurate points
-	Size winSize = Size( 5, 5 );
-	Size zeroZone = Size( -1, -1 );
-	TermCriteria criteria = TermCriteria( CV_TERMCRIT_EPS + CV_TERMCRIT_ITER, 40, 0.001 );
-	cornerSubPix( img_l, leftPoints, winSize, zeroZone, criteria );
-	cornerSubPix( img_r, rightPoints, winSize, zeroZone, criteria );
-
-
-
-
-	int good_matches_idx = 0;
+	int matches_idx = 0;
 	for (int i = 0; i < updateVect.size(); i++)
 	{
 		if(updateVect[i] == 2)
 		{
-			if (good_matches_idx < leftPoints.size())
+			if (matches_idx < leftPoints.size())
 			{
-				prev_corners[i] = leftPoints[good_matches_idx];
+				prev_corners[i] = leftPoints[matches_idx];
 				prev_status[i] = 1;
 
-				z_all_l[i*2 + 0] = leftPoints[good_matches_idx].x;
-				z_all_l[i*2 + 1] = leftPoints[good_matches_idx].y;
+				z_all_l[i*2 + 0] = leftPoints[matches_idx].x;
+				z_all_l[i*2 + 1] = leftPoints[matches_idx].y;
 
-				z_all_r[i*2 + 0] = rightPoints[good_matches_idx].x;
-				z_all_r[i*2 + 1] = rightPoints[good_matches_idx].y;
+				z_all_r[i*2 + 0] = rightPoints[matches_idx].x;
+				z_all_r[i*2 + 1] = rightPoints[matches_idx].y;
 
-				good_matches_idx++;
+				matches_idx++;
 			} else {
 				updateVect[i] = 0;
 			}
 		}
 	}
-
-	// get sub pixel accurate points
-	cornerSubPix( img_l, prev_corners, winSize, zeroZone, criteria );
 
 }
 
@@ -329,7 +334,6 @@ static void initMorePoints_KLT(
 		double minDistSqr,
 		double minScore)
 {
-	printf("updatevect size: %d\n", updateVect.size());
 	unsigned int targetNewPoints = 0;
 	// count the features that need to be initialized
 	for (int i = 0; i < updateVect.size(); i++)
@@ -341,7 +345,13 @@ static void initMorePoints_KLT(
 	if (!targetNewPoints)
 		return;
 
-	printf("Using KLT tracker to get %d new points\n", targetNewPoints);
+	if (prev_corners.size() < updateVect.size())
+			prev_corners.resize(updateVect.size());
+	//	printf("updateVect: %d\n", updateVect.size());
+	//	printf("z_all_l: %d\n", z_all_l.size());
+	//	printf("z_all_r: %d\n", z_all_r.size());
+	//	printf("prev_corners: %d\n", prev_corners.size());
+
 	// count the existing points
 	unsigned int existingPoints = 0;
 	for (int i = 0; i < prev_status.size(); i++)
@@ -473,8 +483,7 @@ static void initMorePoints_KLT(
 		}
 	}
 
-	if (prev_corners.size() < updateVect.size())
-			prev_corners.resize(updateVect.size());	//now just add all newly added points to the filter data structures
+	//now just add all newly added points to the filter data structures
 
 	size_t j = 0;
 	for (size_t i = 0; i < newPoints.size(); i++)
