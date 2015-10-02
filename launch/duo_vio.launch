@@ -2,44 +2,9 @@
 
   <arg name="exposure_duo" default="100" />
   <arg name="gain_duo" default="100" />
-  <arg name="FPS_duo" default="45" />
-  <arg name="resolution_width_duo" default="480" />
-  <arg name="resolution_height_duo" default="320" />
-  
-  <arg name="im_noise" default="0.01" />
-  <arg name="acc_noise" default="1" />
-  <arg name="gyro_noise" default="0.1" />
-  <arg name="gyro_bias_noise" default="0.001" />
-  <arg name="pressure_noise" default="1" />
-  <arg name="sigma_init" default="0.00001" />
-  <arg name="gravity_alignment_noise" default="1" />
-
-  <arg name="Kp_xy" default="1" />
-  <arg name="Ki_xy" default="0" />
-  <arg name="Kd_xy" default="1.4" />
-  <arg name="Kp_z" default="1" />
-  <arg name="Ki_z" default="0" />
-  <arg name="Kd_z" default="1.4" />
-  <arg name="Kp_yaw" default="1" />
-  <arg name="Kd_yaw" default="1" />
-  <arg name="i_lim" default="10" />
-  
-  <arg name="use_pressure" default="0" />
-  <arg name="use_magnetometer" default="0" />
-  <arg name="use_ext_pose" default="0" />
-  <arg name="fixed_anchor" default="1" />
-  <arg name="use_controller_to_predict" default="0" />
-  <arg name="max_ekf_iterations" default="1" />
-  <arg name="gravity_align" default="0" />
-
-  <arg name="camera_name" default="101" /> <!-- the camera name is equal to the last 3 digits of the odroid's IP -->
-  <arg name="lense_type" default="FS3028B13M8" />
-
-  <arg name="show_tracker_images" default="1" />
-  <arg name="debug_publish_freq" default="10" />
-  <arg name="publish_on_debug_topics" default="1" />
-
-  <arg name="use_vicon_for_control_arg" default="0" />
+  <arg name="FPS_duo" default="100" />
+  <arg name="resolution_width_duo" default="320" />
+  <arg name="resolution_height_duo" default="240" />
 
   <!-- duo camera node -->
   <include file="$(find duo3d_ros)/launch/duo.launch">
@@ -52,44 +17,8 @@
 
  <!-- visual odometry node --> 
  <include file="$(find vio_ros)/launch/vio.launch">
-
-    <arg name="acc_noise" value="$(arg acc_noise)" />
-    <arg name="gyro_noise" value="$(arg gyro_noise)" />
-    <arg name="gyro_bias_noise" value="$(arg gyro_bias_noise)" />
-    <arg name="im_noise" value="$(arg im_noise)" />
-
-    <arg name="use_pressure" value="$(arg use_pressure)" />
-    <arg name="use_magnetometer" value="$(arg use_magnetometer)" />
-    <arg name="use_controller_to_predict" value="$(arg use_controller_to_predict)" />
-    <arg name="use_ext_pose" value="$(arg use_ext_pose)" />
-    <arg name="fixed_anchor" value="$(arg fixed_anchor)" />
-    <arg name="max_ekf_iterations" value="$(arg max_ekf_iterations)" />
-    <arg name="gravity_align" value="$(arg gravity_align)" />
-
-    <arg name="pressure_noise" value="$(arg pressure_noise)" />
-    <arg name="sigma_init" value="$(arg sigma_init)" />
-    <arg name="gravity_alignment_noise" value="$(arg gravity_alignment_noise)" />
-
-    <arg name="Kp_xy" value="$(arg Kp_xy)" />
-    <arg name="Ki_xy" value="$(arg Ki_xy)" />
-    <arg name="Kd_xy" value="$(arg Kd_xy)" />
-    <arg name="Kp_z" value="$(arg Kp_z)" />
-    <arg name="Ki_z" value="$(arg Ki_z)" />
-    <arg name="Kd_z" value="$(arg Kd_z)" />
-    <arg name="Kp_yaw" value="$(arg Kp_yaw)" />
-    <arg name="Kd_yaw" value="$(arg Kd_yaw)" />
-    <arg name="i_lim" value="$(arg i_lim)" />
-
-    <arg name="show_tracker_images" value="$(arg show_tracker_images)" />
-
-    <arg name="debug_publish_freq" value="$(arg debug_publish_freq)" />
-    <arg name="publish_on_debug_topics" value="$(arg publish_on_debug_topics)" />
-    <arg name="use_vicon_for_control" value="$(arg use_vicon_for_control_arg)" />
-
     <arg name="resolution_width_duo" value="$(arg resolution_width_duo)" />
     <arg name="resolution_height_duo" value="$(arg resolution_height_duo)" />
-    <arg name="camera_name" value="$(arg camera_name)" />
-    <arg name="lense_type" value="$(arg lense_type)" />
     <arg name="FPS_duo" value="$(arg FPS_duo)" />
   </include>
 

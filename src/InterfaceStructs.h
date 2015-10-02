@@ -9,6 +9,7 @@
 #define VIO_ROS_SRC_INTERFACESTRUCTS_H_
 
 #include <yaml-cpp/yaml.h>
+#include <ros/console.h>
 
 
 // VIOParameters
@@ -18,13 +19,9 @@ struct VIOParameters
 	int num_points_per_anchor;
 	int num_anchors;
 	int max_ekf_iterations;
-	bool use_pressure;
-	bool use_magnetometer;
-	bool use_ext_pose;
-	bool use_controller_to_predict;
-	bool fixed_anchor;
 	bool fixed_feature;
-	bool gravity_align;
+	bool delayed_initialization;
+	bool mono;
 };
 
 // ControllerGains
@@ -42,18 +39,24 @@ struct ControllerGains
 	double i_lim;
 };
 
+// ProcessNoise
+// =========================================================
+struct ProcessNoise
+{
+	double qv;
+	double qw;
+	double qao;
+	double qwo;
+	double qR_ci;
+};
+
 // NoiseParamters
 // =========================================================
 struct NoiseParameters
 {
-	double process_noise[4];
+	ProcessNoise process_noise;
 	double image_noise[2];
-	double pressure_noise;
 	double sigmaInit;
-	double ext_pos_noise;
-	double ext_att_noise;
-	double gravity_alignment_noise;
-	double controller_model_noise;
 };
 
 // VIOMeasurements
@@ -62,14 +65,34 @@ struct VIOMeasurements
 {
 	double gyr_duo[3];
 	double acc_duo[3];
-	double mag_duo[3];
-	double bar_fmu;
-	double mag_fmu[3];
-	double gyr_fmu[3];
-	double acc_fmu[3];
-	double att_fmu[4];
-	double pos_ext[3];
-	double att_ext[3];
+};
+
+// IMUOffset
+// =========================================================
+struct IMUState
+{
+	double pos[3];
+	double att[4];
+	double gyro_bias[3];
+	double acc_bias[3];
+};
+
+// RobotState
+// =========================================================
+struct RobotState
+{
+	double pos[3];
+	double att[4];
+	double vel[3];
+	IMUState IMU;
+};
+
+// AnchorPose
+// =========================================================
+struct AnchorPose
+{
+	double pos[3];
+	double att[4];
 };
 
 // ReferenceCommand
@@ -90,7 +113,7 @@ struct CameraParameters //  parameters of one camera
 	double PrincipalPoint[2];
 };
 
-struct StereoParameters // parameters of both cameras plus stereo calibration
+struct DUOParameters // parameters of both cameras plus stereo calibration
 {
 	CameraParameters CameraParameters1;
 	CameraParameters CameraParameters2;
@@ -98,11 +121,17 @@ struct StereoParameters // parameters of both cameras plus stereo calibration
 	double r_lr[3];
 	double R_lr[9];
 	double R_rl[9];
+	double R_ci[9];
+	double t_ci[3];
+	double gyro_bias[3];
+	double acc_bias[3];
+	double time_shift;
+
 };
 
-inline StereoParameters parseYaml(const YAML::Node& node)
+inline DUOParameters parseYaml(const YAML::Node& node)
 {
-	StereoParameters v;
+	DUOParameters v;
 
 	YAML::Node r_lr = node["r_lr"];
 
@@ -125,6 +154,73 @@ inline StereoParameters parseYaml(const YAML::Node& node)
 		YAML::Node row = R_rl[i];
 		for (std::size_t j = 0; j < row.size(); j++) // matlab is column major
 			v.R_rl[i + j*3] = row[j].as<double>();
+	}
+
+	if(const YAML::Node R_ci = node["R_ci"]) {
+		for (std::size_t i = 0; i < R_ci.size(); i++)
+		{
+			YAML::Node row = R_ci[i];
+			for (std::size_t j = 0; j < row.size(); j++) // matlab is column major
+				v.R_ci[i + j*3] = row[j].as<double>();
+		}
+	} else {
+		ROS_WARN("Did not find R_ci, using default");
+		for (std::size_t i = 0; i < 3; i++)
+		{
+			for (std::size_t j = 0; j < 3; j++)
+			{
+				if (i == j)
+					v.R_ci[i + j*3] = 1.0;
+				else
+					v.R_ci[i + j*3] = 0.0;
+			}
+		}
+	}
+
+	if(const YAML::Node t_ci = node["t_ci"]) {
+		for (std::size_t i = 0; i < t_ci.size(); i++)
+		{
+			v.r_lr[i] = t_ci[i][0].as<double>();
+		}
+	} else {
+		ROS_WARN("Did not find t_ci, using default");
+		for (std::size_t i = 0; i < 3; i++)
+		{
+			v.r_lr[i] = 0.0;
+		}
+	}
+
+	if(const YAML::Node gyro_bias = node["gyro_bias"]) {
+		for (std::size_t i = 0; i < gyro_bias.size(); i++)
+		{
+			v.gyro_bias[i] = gyro_bias[i][0].as<double>();
+		}
+	} else {
+		ROS_WARN("Did not find gyro_bias, using default");
+		for (std::size_t i = 0; i < 3; i++)
+		{
+			v.gyro_bias[i] = 0.0;
+		}
+	}
+
+	if(const YAML::Node acc_bias = node["acc_bias"]) {
+		for (std::size_t i = 0; i < acc_bias.size(); i++)
+		{
+			v.acc_bias[i] = acc_bias[i][0].as<double>();
+		}
+	} else {
+		ROS_WARN("Did not find acc_bias, using default");
+		for (std::size_t i = 0; i < 3; i++)
+		{
+			v.acc_bias[i] = 0.0;
+		}
+	}
+
+	if(const YAML::Node time_shift = node["time_shift"]) {
+		v.time_shift = time_shift.as<double>();
+	} else {
+		ROS_WARN("Did not find time_shift, using default");
+		v.time_shift = 0.0;
 	}
 
 
