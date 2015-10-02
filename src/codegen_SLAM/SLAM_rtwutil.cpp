@@ -5,7 +5,7 @@
 // File: SLAM_rtwutil.cpp
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 06-Sep-2015 10:04:04
+// C/C++ source code generated on  : 02-Oct-2015 15:34:55
 //
 
 // Include Files
@@ -13,7 +13,6 @@
 #include "SLAM.h"
 #include "SLAM_rtwutil.h"
 #include <ros/console.h>
-#include <stdio.h>
 
 // Function Definitions
 
@@ -52,17 +51,17 @@ double rt_hypotd_snf(double u0, double u1)
 double rt_powd_snf(double u0, double u1)
 {
   double y;
-  double d1;
-  double d2;
+  double d4;
+  double d5;
   if (rtIsNaN(u0) || rtIsNaN(u1)) {
     y = rtNaN;
   } else {
-    d1 = fabs(u0);
-    d2 = fabs(u1);
+    d4 = fabs(u0);
+    d5 = fabs(u1);
     if (rtIsInf(u1)) {
-      if (d1 == 1.0) {
+      if (d4 == 1.0) {
         y = rtNaN;
-      } else if (d1 > 1.0) {
+      } else if (d4 > 1.0) {
         if (u1 > 0.0) {
           y = rtInf;
         } else {
@@ -73,9 +72,9 @@ double rt_powd_snf(double u0, double u1)
       } else {
         y = rtInf;
       }
-    } else if (d2 == 0.0) {
+    } else if (d5 == 0.0) {
       y = 1.0;
-    } else if (d2 == 1.0) {
+    } else if (d5 == 1.0) {
       if (u1 > 0.0) {
         y = u0;
       } else {
@@ -90,28 +89,6 @@ double rt_powd_snf(double u0, double u1)
     } else {
       y = pow(u0, u1);
     }
-  }
-
-  return y;
-}
-
-//
-// Arguments    : double u
-// Return Type  : double
-//
-double rt_roundd_snf(double u)
-{
-  double y;
-  if (fabs(u) < 4.503599627370496E+15) {
-    if (u >= 0.5) {
-      y = floor(u + 0.5);
-    } else if (u > -0.5) {
-      y = u * 0.0;
-    } else {
-      y = ceil(u - 0.5);
-    }
-  } else {
-    y = u;
   }
 
   return y;

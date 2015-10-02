@@ -5,7 +5,7 @@
 // File: colon.h
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 06-Sep-2015 10:04:04
+// C/C++ source code generated on  : 02-Oct-2015 15:34:55
 //
 #ifndef __COLON_H__
 #define __COLON_H__
@@ -15,13 +15,12 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
-#include "rt_defines.h"
 #include "rt_nonfinite.h"
 #include "rtwtypes.h"
 #include "SLAM_types.h"
 
 // Function Declarations
-extern void eml_signed_integer_colon(int b, int y_data[], int y_size[2]);
+extern void eml_signed_integer_colon(int b, emxArray_int32_T *y);
 
 #endif
 

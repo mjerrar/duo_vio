@@ -2,32 +2,31 @@
 // Academic License - for use in teaching, academic research, and meeting
 // course requirements at degree granting institutions only.  Not for
 // government, commercial, or other organizational use.
-// File: kron.h
+// File: getNumFeaturesOfType.h
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 06-Sep-2015 10:04:04
+// C/C++ source code generated on  : 02-Oct-2015 15:34:55
 //
-#ifndef __KRON_H__
-#define __KRON_H__
+#ifndef __GETNUMFEATURESOFTYPE_H__
+#define __GETNUMFEATURESOFTYPE_H__
 
 // Include Files
 #include <math.h>
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
-#include "rt_defines.h"
 #include "rt_nonfinite.h"
 #include "rtwtypes.h"
 #include "SLAM_types.h"
 
 // Function Declarations
-extern void kron(const double A_data[], const int A_size[2], const double B[4],
-                 double K_data[], int K_size[2]);
+extern double getNumFeaturesOfType(const emxArray_struct_T
+  *anchor_state_feature_states, double type);
 
 #endif
 
 //
-// File trailer for kron.h
+// File trailer for getNumFeaturesOfType.h
 //
 // [EOF]
 //

@@ -2,31 +2,31 @@
 // Academic License - for use in teaching, academic research, and meeting
 // course requirements at degree granting institutions only.  Not for
 // government, commercial, or other organizational use.
-// File: predictMeasurement_left.h
+// File: anyActiveAnchorFeatures.h
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 06-Sep-2015 10:04:04
+// C/C++ source code generated on  : 02-Oct-2015 15:34:55
 //
-#ifndef __PREDICTMEASUREMENT_LEFT_H__
-#define __PREDICTMEASUREMENT_LEFT_H__
+#ifndef __ANYACTIVEANCHORFEATURES_H__
+#define __ANYACTIVEANCHORFEATURES_H__
 
 // Include Files
 #include <math.h>
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
-#include "rt_defines.h"
 #include "rt_nonfinite.h"
 #include "rtwtypes.h"
 #include "SLAM_types.h"
 
 // Function Declarations
-extern void predictMeasurement_left(const double fp_l[3], double px_n[2]);
+extern boolean_T anyActiveAnchorFeatures(const emxArray_struct_T
+  *anchor_state_feature_states);
 
 #endif
 
 //
-// File trailer for predictMeasurement_left.h
+// File trailer for anyActiveAnchorFeatures.h
 //
 // [EOF]
 //

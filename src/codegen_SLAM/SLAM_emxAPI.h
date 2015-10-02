@@ -5,7 +5,7 @@
 // File: SLAM_emxAPI.h
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 06-Sep-2015 10:04:04
+// C/C++ source code generated on  : 02-Oct-2015 15:34:55
 //
 #ifndef __SLAM_EMXAPI_H__
 #define __SLAM_EMXAPI_H__
@@ -15,19 +15,28 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
-#include "rt_defines.h"
 #include "rt_nonfinite.h"
 #include "rtwtypes.h"
 #include "SLAM_types.h"
 
 // Function Declarations
+extern emxArray_AnchorPose *emxCreateND_AnchorPose(int b_numDimensions, int
+  *b_size);
 extern emxArray_real_T *emxCreateND_real_T(int b_numDimensions, int *b_size);
+extern emxArray_AnchorPose *emxCreateWrapperND_AnchorPose(AnchorPose *b_data,
+  int b_numDimensions, int *b_size);
 extern emxArray_real_T *emxCreateWrapperND_real_T(double *b_data, int
   b_numDimensions, int *b_size);
+extern emxArray_AnchorPose *emxCreateWrapper_AnchorPose(AnchorPose *b_data, int
+  rows, int cols);
 extern emxArray_real_T *emxCreateWrapper_real_T(double *b_data, int rows, int
   cols);
+extern emxArray_AnchorPose *emxCreate_AnchorPose(int rows, int cols);
 extern emxArray_real_T *emxCreate_real_T(int rows, int cols);
+extern void emxDestroyArray_AnchorPose(emxArray_AnchorPose *emxArray);
 extern void emxDestroyArray_real_T(emxArray_real_T *emxArray);
+extern void emxInitArray_AnchorPose(emxArray_AnchorPose **pEmxArray, int
+  b_numDimensions);
 extern void emxInitArray_real_T(emxArray_real_T **pEmxArray, int b_numDimensions);
 
 #endif

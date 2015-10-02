@@ -5,7 +5,7 @@
 // File: getH_R_res.h
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 06-Sep-2015 10:04:04
+// C/C++ source code generated on  : 02-Oct-2015 15:34:55
 //
 #ifndef __GETH_R_RES_H__
 #define __GETH_R_RES_H__
@@ -15,23 +15,17 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
-#include "rt_defines.h"
 #include "rt_nonfinite.h"
 #include "rtwtypes.h"
 #include "SLAM_types.h"
 
 // Function Declarations
-extern void getH_R_res(const emxArray_real_T *b_xt, double errorStateSize,
-  double stateSize, const double z_all_l[48], const double indMeas_data[], const
-  int indMeas_size[1], const emxArray_real_T *scaled_map, const emxArray_real_T *
-  anchorIdx, const emxArray_real_T *featureAnchorIdx, const emxArray_real_T
-  *b_m_vect, const double noiseParameters_image_noise[2], double
-  noiseParameters_pressure_noise, double noiseParameters_ext_pos_noise, double
-  noiseParameters_ext_att_noise, double c_noiseParameters_gravity_align, const
-  VIOMeasurements *measurements, double b_height_offset_pressure, const
-  VIOParameters b_VIOParameters, double r_data[], int r_size[1], emxArray_real_T
-  *H, double h_u_data[], int h_u_size[1], double R_data[], int R_size[2],
-  boolean_T invalidFeatures_data[], int invalidFeatures_size[1]);
+extern void getH_R_res(const double xt_robot_state_pos[3], const double
+  xt_robot_state_att[4], const emxArray_b_struct_T *xt_anchor_states, const
+  double z_all_l[80], const boolean_T b_status[40], const double
+  cameraparams_FocalLength[2], const double cameraparams_PrincipalPoint[2],
+  const double noiseParameters_image_noise[2], emxArray_real_T *r,
+  emxArray_real_T *H, emxArray_real_T *R);
 
 #endif
 

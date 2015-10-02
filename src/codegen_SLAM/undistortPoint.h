@@ -5,7 +5,7 @@
 // File: undistortPoint.h
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 06-Sep-2015 10:04:04
+// C/C++ source code generated on  : 02-Oct-2015 15:34:55
 //
 #ifndef __UNDISTORTPOINT_H__
 #define __UNDISTORTPOINT_H__
@@ -15,15 +15,15 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
-#include "rt_defines.h"
 #include "rt_nonfinite.h"
 #include "rtwtypes.h"
 #include "SLAM_types.h"
 
 // Function Declarations
-extern void undistortPoint(const double pt_d[2], const double
-  c_cameraParameters_RadialDistor[3], const double cameraParameters_FocalLength
-  [2], const double cameraParameters_PrincipalPoint[2], double pt_u[2]);
+extern void undistortPoint(const double pt_d_data[], const int pt_d_size[1],
+  const double cameraparams_FocalLength[2], const double
+  cameraparams_PrincipalPoint[2], const double cameraparams_RadialDistortion[3],
+  double pt_u_data[], int pt_u_size[1]);
 
 #endif
 

@@ -5,7 +5,7 @@
 // File: SLAM_data.h
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 06-Sep-2015 10:04:04
+// C/C++ source code generated on  : 02-Oct-2015 15:34:55
 //
 #ifndef __SLAM_DATA_H__
 #define __SLAM_DATA_H__
@@ -15,7 +15,6 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
-#include "rt_defines.h"
 #include "rt_nonfinite.h"
 #include "rtwtypes.h"
 #include "SLAM_types.h"
@@ -23,7 +22,12 @@
 // Variable Declarations
 extern double numStates;
 extern double numStatesxt;
+extern double numPointsPerAnchor;
+extern double numAnchors;
+extern double numTrackFeatures;
 extern double minFeatureThreshold;
+extern emxArray_boolean_T *triangulation_success;
+extern double debug_level;
 
 #endif
 

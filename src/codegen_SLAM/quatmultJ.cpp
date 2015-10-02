@@ -5,15 +5,15 @@
 // File: quatmultJ.cpp
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 06-Sep-2015 10:04:04
+// C/C++ source code generated on  : 02-Oct-2015 15:34:55
 //
 
 // Include Files
 #include "rt_nonfinite.h"
 #include "SLAM.h"
 #include "quatmultJ.h"
+#include "norm.h"
 #include <ros/console.h>
-#include <stdio.h>
 
 // Function Definitions
 
@@ -27,8 +27,9 @@ void quatmultJ(const double q[4], const double p[4], double qp[4])
 {
   double b_p[16];
   double b_q[4];
-  int i0;
-  int i1;
+  int i6;
+  int i7;
+  double B;
   b_p[0] = p[3];
   b_p[4] = -p[2];
   b_p[8] = p[1];
@@ -49,11 +50,16 @@ void quatmultJ(const double q[4], const double p[4], double qp[4])
   b_q[1] = q[1];
   b_q[2] = q[2];
   b_q[3] = q[3];
-  for (i0 = 0; i0 < 4; i0++) {
-    qp[i0] = 0.0;
-    for (i1 = 0; i1 < 4; i1++) {
-      qp[i0] += b_p[i0 + (i1 << 2)] * b_q[i1];
+  for (i6 = 0; i6 < 4; i6++) {
+    qp[i6] = 0.0;
+    for (i7 = 0; i7 < 4; i7++) {
+      qp[i6] += b_p[i6 + (i7 << 2)] * b_q[i7];
     }
+  }
+
+  B = b_norm(qp);
+  for (i6 = 0; i6 < 4; i6++) {
+    qp[i6] /= B;
   }
 }
 

@@ -5,7 +5,7 @@
 // File: initializePoint.h
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 06-Sep-2015 10:04:04
+// C/C++ source code generated on  : 02-Oct-2015 15:34:55
 //
 #ifndef __INITIALIZEPOINT_H__
 #define __INITIALIZEPOINT_H__
@@ -15,21 +15,17 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
-#include "rt_defines.h"
 #include "rt_nonfinite.h"
 #include "rtwtypes.h"
 #include "SLAM_types.h"
 
 // Function Declarations
-extern double d_eml_xnrm2(int n, const double x[30], int ix0);
-extern void initializePoint(const double c_cameraparams_CameraParameters[3],
-  const double d_cameraparams_CameraParameters[2], const double
+extern void initializePoint(const double z_u_l[2], const double z_u_r[2], const
+  double c_cameraparams_CameraParameters[2], const double
+  d_cameraparams_CameraParameters[2], const double
   e_cameraparams_CameraParameters[2], const double
-  f_cameraparams_CameraParameters[3], const double
-  g_cameraparams_CameraParameters[2], const double
-  h_cameraparams_CameraParameters[2], const double cameraparams_r_lr[3], const
-  double cameraparams_R_lr[9], const double z_l[2], const double z_r[2], double
-  fp[3], double m_out[3]);
+  f_cameraparams_CameraParameters[2], const double cameraparams_r_lr[3], const
+  double cameraparams_R_lr[9], double fp[3], double b_m[6], boolean_T *success);
 
 #endif
 

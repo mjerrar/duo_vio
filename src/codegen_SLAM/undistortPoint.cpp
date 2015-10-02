@@ -5,57 +5,112 @@
 // File: undistortPoint.cpp
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 06-Sep-2015 10:04:04
+// C/C++ source code generated on  : 02-Oct-2015 15:34:55
 //
 
 // Include Files
 #include "rt_nonfinite.h"
 #include "SLAM.h"
 #include "undistortPoint.h"
-#include "predictMeasurement_stereo.h"
-#include "get_r_u.h"
+#include "predictMeasurementStereoDistorted.h"
 #include "SLAM_rtwutil.h"
 #include <ros/console.h>
-#include <stdio.h>
 
 // Function Definitions
 
 //
-// undistortPoint Undistort a distorted pixel point
-//    pt_d is a distorted pixel point (or a column vector of distorted points)
-//    from a camera with camera parameters cameraParameters.
-//    pt_u is a undistorted pixel point (or a column vector of undistorted points)
-//    in normalized pixel coordinates, i.e.
-//    the principal point is at (0, 0), the focal length is (1, 1)
-// Arguments    : const double pt_d[2]
-//                const double c_cameraParameters_RadialDistor[3]
-//                const double cameraParameters_FocalLength[2]
-//                const double cameraParameters_PrincipalPoint[2]
-//                double pt_u[2]
+// UNDISTORTPOINT Undistort a point (or points) that are from a camera with
+// the calibration cameraparams
+//    Undistort a point or set of points from one camera. Depending on the
+//    camera model used to calibrate the camera, the appropriate undistortion
+//    is applied
+// Arguments    : const double pt_d_data[]
+//                const int pt_d_size[1]
+//                const double cameraparams_FocalLength[2]
+//                const double cameraparams_PrincipalPoint[2]
+//                const double cameraparams_RadialDistortion[3]
+//                double pt_u_data[]
+//                int pt_u_size[1]
 // Return Type  : void
 //
-void undistortPoint(const double pt_d[2], const double
-                    c_cameraParameters_RadialDistor[3], const double
-                    cameraParameters_FocalLength[2], const double
-                    cameraParameters_PrincipalPoint[2], double pt_u[2])
+void undistortPoint(const double pt_d_data[], const int pt_d_size[1], const
+                    double cameraparams_FocalLength[2], const double
+                    cameraparams_PrincipalPoint[2], const double
+                    cameraparams_RadialDistortion[3], double pt_u_data[], int
+                    pt_u_size[1])
 {
-  double pt_d_n_idx_0;
-  double pt_d_n_idx_1;
-  double r_u;
+  int loop_ub;
+  int i8;
+  double fx;
+  double fy;
+  double Cx;
+  double Cy;
+  double k1;
+  double k2;
+  double k3;
+  double d1;
+  int i;
+  double pt_d_n[2];
+  double r_d_sq;
+  double r_u_sq;
+  boolean_T exitg1;
+  double a;
+  double b_a;
+  double diff;
   double coeff;
-  pt_d_n_idx_0 = (pt_d[0] - cameraParameters_PrincipalPoint[0]) /
-    cameraParameters_FocalLength[0];
-  pt_d_n_idx_1 = (pt_d[1] - cameraParameters_PrincipalPoint[1]) /
-    cameraParameters_FocalLength[1];
-  r_u = get_r_u(c_cameraParameters_RadialDistor[0],
-                c_cameraParameters_RadialDistor[1],
-                c_cameraParameters_RadialDistor[2], sqrt(pt_d_n_idx_0 *
-    pt_d_n_idx_0 + pt_d_n_idx_1 * pt_d_n_idx_1));
-  coeff = ((1.0 + c_cameraParameters_RadialDistor[0] * (r_u * r_u)) +
-           c_cameraParameters_RadialDistor[1] * rt_powd_snf(r_u, 4.0)) +
-    c_cameraParameters_RadialDistor[2] * rt_powd_snf(r_u, 6.0);
-  pt_u[0] = pt_d_n_idx_0 / coeff;
-  pt_u[1] = pt_d_n_idx_1 / coeff;
+
+  // % Plumb Bob
+  pt_u_size[0] = pt_d_size[0];
+  loop_ub = pt_d_size[0];
+  for (i8 = 0; i8 < loop_ub; i8++) {
+    pt_u_data[i8] = pt_d_data[i8];
+  }
+
+  fx = cameraparams_FocalLength[0];
+  fy = cameraparams_FocalLength[1];
+  Cx = cameraparams_PrincipalPoint[0];
+  Cy = cameraparams_PrincipalPoint[1];
+  k1 = cameraparams_RadialDistortion[0];
+  k2 = cameraparams_RadialDistortion[1];
+  k3 = cameraparams_RadialDistortion[2];
+  d1 = (double)pt_d_size[0] / 2.0;
+  for (i = 0; i < (int)d1; i++) {
+    pt_d_n[0] = (pt_d_data[i << 1] - Cx) / fx;
+    pt_d_n[1] = (pt_d_data[(i << 1) + 1] - Cy) / fy;
+    r_d_sq = pt_d_n[0] * pt_d_n[0] + pt_d_n[1] * pt_d_n[1];
+
+    // get_r_u Get undistorted radius from distorted radius
+    //    Get the pixel radius of the undistorted pixels from a distorted pixel
+    //    radius and distortion parameters
+    r_u_sq = r_d_sq;
+    loop_ub = 0;
+    exitg1 = false;
+    while ((!exitg1) && (loop_ub < 100)) {
+      a = ((1.0 + k1 * r_u_sq) + k2 * (r_u_sq * r_u_sq)) + k3 * rt_powd_snf
+        (r_u_sq, 3.0);
+      b_a = (1.0 + k1 * r_u_sq) + k2 * (r_u_sq * r_u_sq) * k3 * rt_powd_snf
+        (r_u_sq, 3.0);
+      diff = (r_u_sq * (a * a) - r_d_sq) / (b_a * b_a + 2.0 * r_u_sq * (((1.0 +
+        2.0 * k1 * r_u_sq) + 2.0 * k2 * (r_u_sq * r_u_sq)) + 2.0 * k3 *
+        rt_powd_snf(r_u_sq, 3.0)));
+      r_u_sq -= diff;
+      if ((diff < 1.0E-6) && (diff > -1.0E-6)) {
+        exitg1 = true;
+      } else {
+        loop_ub++;
+      }
+    }
+
+    coeff = ((1.0 + k1 * r_u_sq) + k2 * (r_u_sq * r_u_sq)) + k3 * rt_powd_snf
+      (r_u_sq, 3.0);
+    for (i8 = 0; i8 < 2; i8++) {
+      pt_d_n[i8] /= coeff;
+    }
+
+    loop_ub = i << 1;
+    pt_u_data[loop_ub] = pt_d_n[0] * fx + Cx;
+    pt_u_data[1 + loop_ub] = pt_d_n[1] * fy + Cy;
+  }
 }
 
 //

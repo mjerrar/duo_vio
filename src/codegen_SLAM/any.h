@@ -5,7 +5,7 @@
 // File: any.h
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 06-Sep-2015 10:04:04
+// C/C++ source code generated on  : 02-Oct-2015 15:34:55
 //
 #ifndef __ANY_H__
 #define __ANY_H__
@@ -15,17 +15,14 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
-#include "rt_defines.h"
 #include "rt_nonfinite.h"
 #include "rtwtypes.h"
 #include "SLAM_types.h"
 
 // Function Declarations
-extern boolean_T any(const boolean_T x[24]);
-extern void b_any(const emxArray_boolean_T *x, boolean_T y[24]);
-extern boolean_T c_any(const boolean_T x[3]);
-extern boolean_T d_any(const emxArray_boolean_T *x);
-extern boolean_T e_any(const emxArray_boolean_T *x);
+extern boolean_T any(const boolean_T x[40]);
+extern boolean_T b_any(const boolean_T x[3]);
+extern boolean_T c_any(const emxArray_real_T *x);
 
 #endif
 

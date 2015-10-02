@@ -5,7 +5,7 @@
 // File: mrdivide.h
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 06-Sep-2015 10:04:04
+// C/C++ source code generated on  : 02-Oct-2015 15:34:55
 //
 #ifndef __MRDIVIDE_H__
 #define __MRDIVIDE_H__
@@ -15,15 +15,14 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
-#include "rt_defines.h"
 #include "rt_nonfinite.h"
 #include "rtwtypes.h"
 #include "SLAM_types.h"
 
 // Function Declarations
 extern void b_mrdivide(const double A[2], const double B[4], double y[2]);
-extern void mrdivide(const emxArray_real_T *A, const double B_data[], const int
-                     B_size[2], emxArray_real_T *y);
+extern void mrdivide(const emxArray_real_T *A, const emxArray_real_T *B,
+                     emxArray_real_T *y);
 
 #endif
 

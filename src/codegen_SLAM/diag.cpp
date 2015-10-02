@@ -5,7 +5,7 @@
 // File: diag.cpp
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 06-Sep-2015 10:04:04
+// C/C++ source code generated on  : 02-Oct-2015 15:34:55
 //
 
 // Include Files
@@ -13,21 +13,20 @@
 #include "SLAM.h"
 #include "diag.h"
 #include <ros/console.h>
-#include <stdio.h>
 
 // Function Definitions
 
 //
-// Arguments    : const double v[9]
-//                double d[81]
+// Arguments    : const double v[15]
+//                double d[225]
 // Return Type  : void
 //
-void diag(const double v[9], double d[81])
+void diag(const double v[15], double d[225])
 {
   int j;
-  memset(&d[0], 0, 81U * sizeof(double));
-  for (j = 0; j < 9; j++) {
-    d[j + 9 * j] = v[j];
+  memset(&d[0], 0, 225U * sizeof(double));
+  for (j = 0; j < 15; j++) {
+    d[j + 15 * j] = v[j];
   }
 }
 

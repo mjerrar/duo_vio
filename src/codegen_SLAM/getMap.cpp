@@ -5,7 +5,7 @@
 // File: getMap.cpp
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 06-Sep-2015 10:04:04
+// C/C++ source code generated on  : 02-Oct-2015 15:34:55
 //
 
 // Include Files
@@ -13,13 +13,14 @@
 #include "SLAM.h"
 #include "getMap.h"
 #include "SLAM_emxutil.h"
+#include "SLAM_data.h"
 #include <ros/console.h>
-#include <stdio.h>
 
 // Function Definitions
 
 //
-// GETMAP Get the feature points from the current state estimate
+// GETMAP Get the feature points from the current state estimate in the world
+// frame
 //
 //  INPUT ARGUMENTS:
 //  - x:                    The current state estimate including anchor poses and inverse depths
@@ -38,116 +39,70 @@
 //  - anchorInd:            A vector describing which anchor each feature belongs to
 //  - featureAnchorInd:     A vector describing the index of each feature in its
 //                          anchor
-// Arguments    : const emxArray_real_T *x
-//                const emxArray_real_T *b_anchorFeatures
-//                const emxArray_real_T *b_m_vect
-//                double numTrackFeatures
-//                double stateSize
-//                double numStatesPerAnchorxt
-//                emxArray_real_T *map
-//                emxArray_real_T *anchorInd
-//                emxArray_real_T *featureAnchorInd
+// Arguments    : const double xt_origin_pos[3]
+//                const double xt_origin_att[4]
+//                const emxArray_b_struct_T *xt_anchor_states
+//                emxArray_real_T *b_map
 // Return Type  : void
 //
-void getMap(const emxArray_real_T *x, const emxArray_real_T *b_anchorFeatures,
-            const emxArray_real_T *b_m_vect, double numTrackFeatures, double
-            stateSize, double numStatesPerAnchorxt, emxArray_real_T *map,
-            emxArray_real_T *anchorInd, emxArray_real_T *featureAnchorInd)
+void getMap(const double xt_origin_pos[3], const double xt_origin_att[4], const
+            emxArray_b_struct_T *xt_anchor_states, emxArray_real_T *b_map)
 {
-  int i10;
-  int ii;
+  double R_ow[9];
+  int i4;
+  int loop_ub;
   int anchorIdx;
-  int idx;
-  signed char ii_data[24];
-  boolean_T exitg1;
-  boolean_T guard1 = false;
-  int ii_size_idx_0;
-  signed char featureIdxVect_data[24];
-  double b_stateSize;
+  double d0;
+  int i5;
   double anchorPos[3];
-  double a;
-  double b_a;
-  double c_a;
-  double d_a;
-  double e_a;
-  double f_a;
-  double g_a;
-  double h_a;
-  double i_a;
-  double j_a;
-  double k_a;
+  double b_xt_anchor_states[9];
   double anchorRot[9];
-  i10 = map->size[0] * map->size[1];
-  map->size[0] = 3;
-  map->size[1] = (int)numTrackFeatures;
-  emxEnsureCapacity((emxArray__common *)map, i10, (int)sizeof(double));
-  ii = 3 * (int)numTrackFeatures;
-  for (i10 = 0; i10 < ii; i10++) {
-    map->data[i10] = rtNaN;
+  int c_xt_anchor_states;
+
+  //  if ~all(size(q) == [4, 1])
+  //      error('q does not have the size of a quaternion')
+  //  end
+  //  if abs(norm(q) - 1) > 1e-3
+  //      error('The provided quaternion is not a valid rotation quaternion because it does not have norm 1') 
+  //  end
+  R_ow[0] = ((xt_origin_att[0] * xt_origin_att[0] - xt_origin_att[1] *
+              xt_origin_att[1]) - xt_origin_att[2] * xt_origin_att[2]) +
+    xt_origin_att[3] * xt_origin_att[3];
+  R_ow[3] = 2.0 * (xt_origin_att[0] * xt_origin_att[1] + xt_origin_att[2] *
+                   xt_origin_att[3]);
+  R_ow[6] = 2.0 * (xt_origin_att[0] * xt_origin_att[2] - xt_origin_att[1] *
+                   xt_origin_att[3]);
+  R_ow[1] = 2.0 * (xt_origin_att[0] * xt_origin_att[1] - xt_origin_att[2] *
+                   xt_origin_att[3]);
+  R_ow[4] = ((-(xt_origin_att[0] * xt_origin_att[0]) + xt_origin_att[1] *
+              xt_origin_att[1]) - xt_origin_att[2] * xt_origin_att[2]) +
+    xt_origin_att[3] * xt_origin_att[3];
+  R_ow[7] = 2.0 * (xt_origin_att[1] * xt_origin_att[2] + xt_origin_att[0] *
+                   xt_origin_att[3]);
+  R_ow[2] = 2.0 * (xt_origin_att[0] * xt_origin_att[2] + xt_origin_att[1] *
+                   xt_origin_att[3]);
+  R_ow[5] = 2.0 * (xt_origin_att[1] * xt_origin_att[2] - xt_origin_att[0] *
+                   xt_origin_att[3]);
+  R_ow[8] = ((-(xt_origin_att[0] * xt_origin_att[0]) - xt_origin_att[1] *
+              xt_origin_att[1]) + xt_origin_att[2] * xt_origin_att[2]) +
+    xt_origin_att[3] * xt_origin_att[3];
+  i4 = b_map->size[0] * b_map->size[1];
+  b_map->size[0] = 3;
+  b_map->size[1] = (int)numTrackFeatures;
+  emxEnsureCapacity((emxArray__common *)b_map, i4, (int)sizeof(double));
+  loop_ub = 3 * (int)numTrackFeatures;
+  for (i4 = 0; i4 < loop_ub; i4++) {
+    b_map->data[i4] = rtNaN;
   }
 
-  i10 = anchorInd->size[0];
-  anchorInd->size[0] = (int)numTrackFeatures;
-  emxEnsureCapacity((emxArray__common *)anchorInd, i10, (int)sizeof(double));
-  ii = (int)numTrackFeatures;
-  for (i10 = 0; i10 < ii; i10++) {
-    anchorInd->data[i10] = 0.0;
-  }
-
-  i10 = featureAnchorInd->size[0];
-  featureAnchorInd->size[0] = (int)numTrackFeatures;
-  emxEnsureCapacity((emxArray__common *)featureAnchorInd, i10, (int)sizeof
-                    (double));
-  ii = (int)numTrackFeatures;
-  for (i10 = 0; i10 < ii; i10++) {
-    featureAnchorInd->data[i10] = 0.0;
-  }
-
-  for (anchorIdx = 0; anchorIdx < b_anchorFeatures->size[1]; anchorIdx++) {
-    idx = 0;
-    ii = 1;
-    exitg1 = false;
-    while ((!exitg1) && (ii < 25)) {
-      guard1 = false;
-      if (b_anchorFeatures->data[(ii + b_anchorFeatures->size[0] * anchorIdx) -
-          1] != 0.0) {
-        idx++;
-        ii_data[idx - 1] = (signed char)ii;
-        if (idx >= 24) {
-          exitg1 = true;
-        } else {
-          guard1 = true;
-        }
-      } else {
-        guard1 = true;
+  for (anchorIdx = 0; anchorIdx < (int)numAnchors; anchorIdx++) {
+    for (i4 = 0; i4 < 3; i4++) {
+      d0 = 0.0;
+      for (i5 = 0; i5 < 3; i5++) {
+        d0 += R_ow[i5 + 3 * i4] * xt_anchor_states->data[anchorIdx].pos[i5];
       }
 
-      if (guard1) {
-        ii++;
-      }
-    }
-
-    if (1 > idx) {
-      ii_size_idx_0 = 0;
-    } else {
-      ii_size_idx_0 = idx;
-    }
-
-    if (1 > idx) {
-      ii = 0;
-    } else {
-      ii = idx;
-    }
-
-    for (i10 = 0; i10 < ii; i10++) {
-      featureIdxVect_data[i10] = ii_data[i10];
-    }
-
-    //  the transpose prevents going into the loop if find returns empty
-    b_stateSize = stateSize + ((1.0 + (double)anchorIdx) - 1.0) *
-      numStatesPerAnchorxt;
-    for (i10 = 0; i10 < 3; i10++) {
-      anchorPos[i10] = x->data[(int)(b_stateSize + (1.0 + (double)i10)) - 1];
+      anchorPos[i4] = xt_origin_pos[i4] + d0;
     }
 
     //  if ~all(size(q) == [4, 1])
@@ -156,88 +111,68 @@ void getMap(const emxArray_real_T *x, const emxArray_real_T *b_anchorFeatures,
     //  if abs(norm(q) - 1) > 1e-3
     //      error('The provided quaternion is not a valid rotation quaternion because it does not have norm 1') 
     //  end
-    b_stateSize = x->data[(int)((stateSize + ((1.0 + (double)anchorIdx) - 1.0) *
-      numStatesPerAnchorxt) + 4.0) - 1];
-    a = x->data[(int)((stateSize + ((1.0 + (double)anchorIdx) - 1.0) *
-                       numStatesPerAnchorxt) + 5.0) - 1];
-    b_a = x->data[(int)((stateSize + ((1.0 + (double)anchorIdx) - 1.0) *
-                         numStatesPerAnchorxt) + 6.0) - 1];
-    c_a = x->data[(int)((stateSize + ((1.0 + (double)anchorIdx) - 1.0) *
-                         numStatesPerAnchorxt) + 7.0) - 1];
-    d_a = x->data[(int)((stateSize + ((1.0 + (double)anchorIdx) - 1.0) *
-                         numStatesPerAnchorxt) + 4.0) - 1];
-    e_a = x->data[(int)((stateSize + ((1.0 + (double)anchorIdx) - 1.0) *
-                         numStatesPerAnchorxt) + 5.0) - 1];
-    f_a = x->data[(int)((stateSize + ((1.0 + (double)anchorIdx) - 1.0) *
-                         numStatesPerAnchorxt) + 6.0) - 1];
-    g_a = x->data[(int)((stateSize + ((1.0 + (double)anchorIdx) - 1.0) *
-                         numStatesPerAnchorxt) + 7.0) - 1];
-    h_a = x->data[(int)((stateSize + ((1.0 + (double)anchorIdx) - 1.0) *
-                         numStatesPerAnchorxt) + 4.0) - 1];
-    i_a = x->data[(int)((stateSize + ((1.0 + (double)anchorIdx) - 1.0) *
-                         numStatesPerAnchorxt) + 5.0) - 1];
-    j_a = x->data[(int)((stateSize + ((1.0 + (double)anchorIdx) - 1.0) *
-                         numStatesPerAnchorxt) + 6.0) - 1];
-    k_a = x->data[(int)((stateSize + ((1.0 + (double)anchorIdx) - 1.0) *
-                         numStatesPerAnchorxt) + 7.0) - 1];
-    anchorRot[0] = ((b_stateSize * b_stateSize - a * a) - b_a * b_a) + c_a * c_a;
-    anchorRot[3] = 2.0 * (x->data[(int)((stateSize + ((1.0 + (double)anchorIdx)
-      - 1.0) * numStatesPerAnchorxt) + 4.0) - 1] * x->data[(int)((stateSize +
-      ((1.0 + (double)anchorIdx) - 1.0) * numStatesPerAnchorxt) + 5.0) - 1] +
-                          x->data[(int)((stateSize + ((1.0 + (double)anchorIdx)
-      - 1.0) * numStatesPerAnchorxt) + 6.0) - 1] * x->data[(int)((stateSize +
-      ((1.0 + (double)anchorIdx) - 1.0) * numStatesPerAnchorxt) + 7.0) - 1]);
-    anchorRot[6] = 2.0 * (x->data[(int)((stateSize + ((1.0 + (double)anchorIdx)
-      - 1.0) * numStatesPerAnchorxt) + 4.0) - 1] * x->data[(int)((stateSize +
-      ((1.0 + (double)anchorIdx) - 1.0) * numStatesPerAnchorxt) + 6.0) - 1] -
-                          x->data[(int)((stateSize + ((1.0 + (double)anchorIdx)
-      - 1.0) * numStatesPerAnchorxt) + 5.0) - 1] * x->data[(int)((stateSize +
-      ((1.0 + (double)anchorIdx) - 1.0) * numStatesPerAnchorxt) + 7.0) - 1]);
-    anchorRot[1] = 2.0 * (x->data[(int)((stateSize + ((1.0 + (double)anchorIdx)
-      - 1.0) * numStatesPerAnchorxt) + 4.0) - 1] * x->data[(int)((stateSize +
-      ((1.0 + (double)anchorIdx) - 1.0) * numStatesPerAnchorxt) + 5.0) - 1] -
-                          x->data[(int)((stateSize + ((1.0 + (double)anchorIdx)
-      - 1.0) * numStatesPerAnchorxt) + 6.0) - 1] * x->data[(int)((stateSize +
-      ((1.0 + (double)anchorIdx) - 1.0) * numStatesPerAnchorxt) + 7.0) - 1]);
-    anchorRot[4] = ((-(d_a * d_a) + e_a * e_a) - f_a * f_a) + g_a * g_a;
-    anchorRot[7] = 2.0 * (x->data[(int)((stateSize + ((1.0 + (double)anchorIdx)
-      - 1.0) * numStatesPerAnchorxt) + 5.0) - 1] * x->data[(int)((stateSize +
-      ((1.0 + (double)anchorIdx) - 1.0) * numStatesPerAnchorxt) + 6.0) - 1] +
-                          x->data[(int)((stateSize + ((1.0 + (double)anchorIdx)
-      - 1.0) * numStatesPerAnchorxt) + 4.0) - 1] * x->data[(int)((stateSize +
-      ((1.0 + (double)anchorIdx) - 1.0) * numStatesPerAnchorxt) + 7.0) - 1]);
-    anchorRot[2] = 2.0 * (x->data[(int)((stateSize + ((1.0 + (double)anchorIdx)
-      - 1.0) * numStatesPerAnchorxt) + 4.0) - 1] * x->data[(int)((stateSize +
-      ((1.0 + (double)anchorIdx) - 1.0) * numStatesPerAnchorxt) + 6.0) - 1] +
-                          x->data[(int)((stateSize + ((1.0 + (double)anchorIdx)
-      - 1.0) * numStatesPerAnchorxt) + 5.0) - 1] * x->data[(int)((stateSize +
-      ((1.0 + (double)anchorIdx) - 1.0) * numStatesPerAnchorxt) + 7.0) - 1]);
-    anchorRot[5] = 2.0 * (x->data[(int)((stateSize + ((1.0 + (double)anchorIdx)
-      - 1.0) * numStatesPerAnchorxt) + 5.0) - 1] * x->data[(int)((stateSize +
-      ((1.0 + (double)anchorIdx) - 1.0) * numStatesPerAnchorxt) + 6.0) - 1] -
-                          x->data[(int)((stateSize + ((1.0 + (double)anchorIdx)
-      - 1.0) * numStatesPerAnchorxt) + 4.0) - 1] * x->data[(int)((stateSize +
-      ((1.0 + (double)anchorIdx) - 1.0) * numStatesPerAnchorxt) + 7.0) - 1]);
-    anchorRot[8] = ((-(h_a * h_a) - i_a * i_a) + j_a * j_a) + k_a * k_a;
-    for (ii = 0; ii < ii_size_idx_0; ii++) {
-      if (b_anchorFeatures->data[(featureIdxVect_data[ii] +
-           b_anchorFeatures->size[0] * anchorIdx) - 1] == 1.0) {
-        //  if this is not a lost feature
-        b_stateSize = x->data[(int)(((stateSize + ((1.0 + (double)anchorIdx) -
-          1.0) * numStatesPerAnchorxt) + 7.0) + (1.0 + (double)ii)) - 1];
-        for (i10 = 0; i10 < 3; i10++) {
-          a = 0.0;
-          for (idx = 0; idx < 3; idx++) {
-            a += anchorRot[idx + 3 * i10] * b_m_vect->data[idx + b_m_vect->size
-              [0] * (featureIdxVect_data[ii] - 1)];
+    b_xt_anchor_states[0] = ((xt_anchor_states->data[anchorIdx].att[0] *
+      xt_anchor_states->data[anchorIdx].att[0] - xt_anchor_states->
+      data[anchorIdx].att[1] * xt_anchor_states->data[anchorIdx].att[1]) -
+      xt_anchor_states->data[anchorIdx].att[2] * xt_anchor_states->
+      data[anchorIdx].att[2]) + xt_anchor_states->data[anchorIdx].att[3] *
+      xt_anchor_states->data[anchorIdx].att[3];
+    b_xt_anchor_states[3] = 2.0 * (xt_anchor_states->data[anchorIdx].att[0] *
+      xt_anchor_states->data[anchorIdx].att[1] + xt_anchor_states->
+      data[anchorIdx].att[2] * xt_anchor_states->data[anchorIdx].att[3]);
+    b_xt_anchor_states[6] = 2.0 * (xt_anchor_states->data[anchorIdx].att[0] *
+      xt_anchor_states->data[anchorIdx].att[2] - xt_anchor_states->
+      data[anchorIdx].att[1] * xt_anchor_states->data[anchorIdx].att[3]);
+    b_xt_anchor_states[1] = 2.0 * (xt_anchor_states->data[anchorIdx].att[0] *
+      xt_anchor_states->data[anchorIdx].att[1] - xt_anchor_states->
+      data[anchorIdx].att[2] * xt_anchor_states->data[anchorIdx].att[3]);
+    b_xt_anchor_states[4] = ((-(xt_anchor_states->data[anchorIdx].att[0] *
+      xt_anchor_states->data[anchorIdx].att[0]) + xt_anchor_states->
+      data[anchorIdx].att[1] * xt_anchor_states->data[anchorIdx].att[1]) -
+      xt_anchor_states->data[anchorIdx].att[2] * xt_anchor_states->
+      data[anchorIdx].att[2]) + xt_anchor_states->data[anchorIdx].att[3] *
+      xt_anchor_states->data[anchorIdx].att[3];
+    b_xt_anchor_states[7] = 2.0 * (xt_anchor_states->data[anchorIdx].att[1] *
+      xt_anchor_states->data[anchorIdx].att[2] + xt_anchor_states->
+      data[anchorIdx].att[0] * xt_anchor_states->data[anchorIdx].att[3]);
+    b_xt_anchor_states[2] = 2.0 * (xt_anchor_states->data[anchorIdx].att[0] *
+      xt_anchor_states->data[anchorIdx].att[2] + xt_anchor_states->
+      data[anchorIdx].att[1] * xt_anchor_states->data[anchorIdx].att[3]);
+    b_xt_anchor_states[5] = 2.0 * (xt_anchor_states->data[anchorIdx].att[1] *
+      xt_anchor_states->data[anchorIdx].att[2] - xt_anchor_states->
+      data[anchorIdx].att[0] * xt_anchor_states->data[anchorIdx].att[3]);
+    b_xt_anchor_states[8] = ((-(xt_anchor_states->data[anchorIdx].att[0] *
+      xt_anchor_states->data[anchorIdx].att[0]) - xt_anchor_states->
+      data[anchorIdx].att[1] * xt_anchor_states->data[anchorIdx].att[1]) +
+      xt_anchor_states->data[anchorIdx].att[2] * xt_anchor_states->
+      data[anchorIdx].att[2]) + xt_anchor_states->data[anchorIdx].att[3] *
+      xt_anchor_states->data[anchorIdx].att[3];
+    for (i4 = 0; i4 < 3; i4++) {
+      for (i5 = 0; i5 < 3; i5++) {
+        anchorRot[i4 + 3 * i5] = 0.0;
+        for (loop_ub = 0; loop_ub < 3; loop_ub++) {
+          anchorRot[i4 + 3 * i5] += b_xt_anchor_states[i4 + 3 * loop_ub] *
+            R_ow[loop_ub + 3 * i5];
+        }
+      }
+    }
+
+    for (loop_ub = 0; loop_ub < (int)numPointsPerAnchor; loop_ub++) {
+      if (xt_anchor_states->data[anchorIdx].feature_states->data[loop_ub].status
+          != 0.0) {
+        c_xt_anchor_states = (int)xt_anchor_states->data[anchorIdx].
+          feature_states->data[loop_ub].status_idx;
+        for (i4 = 0; i4 < 3; i4++) {
+          d0 = 0.0;
+          for (i5 = 0; i5 < 3; i5++) {
+            d0 += anchorRot[i5 + 3 * i4] * xt_anchor_states->data[anchorIdx].
+              feature_states->data[loop_ub].m[i5];
           }
 
-          map->data[i10 + map->size[0] * (featureIdxVect_data[ii] - 1)] =
-            anchorPos[i10] + a / b_stateSize;
+          b_map->data[i4 + b_map->size[0] * (c_xt_anchor_states - 1)] =
+            anchorPos[i4] + d0 / xt_anchor_states->data[anchorIdx].
+            feature_states->data[loop_ub].inverse_depth;
         }
-
-        anchorInd->data[featureIdxVect_data[ii] - 1] = 1.0 + (double)anchorIdx;
-        featureAnchorInd->data[featureIdxVect_data[ii] - 1] = 1.0 + (double)ii;
       }
     }
   }

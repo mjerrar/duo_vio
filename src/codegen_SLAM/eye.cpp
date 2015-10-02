@@ -5,7 +5,7 @@
 // File: eye.cpp
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 06-Sep-2015 10:04:04
+// C/C++ source code generated on  : 02-Oct-2015 15:34:55
 //
 
 // Include Files
@@ -14,7 +14,6 @@
 #include "eye.h"
 #include "SLAM_emxutil.h"
 #include <ros/console.h>
-#include <stdio.h>
 
 // Function Definitions
 
@@ -74,19 +73,6 @@ void c_eye(const double varargin_1[2], emxArray_real_T *I)
     for (k = 0; k + 1 <= (int)minval; k++) {
       I->data[k + I->size[0] * k] = 1.0;
     }
-  }
-}
-
-//
-// Arguments    : double I[144]
-// Return Type  : void
-//
-void d_eye(double I[144])
-{
-  int k;
-  memset(&I[0], 0, 144U * sizeof(double));
-  for (k = 0; k < 12; k++) {
-    I[k + 12 * k] = 1.0;
   }
 }
 

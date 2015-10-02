@@ -5,7 +5,7 @@
 // File: SLAM.h
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 06-Sep-2015 10:04:04
+// C/C++ source code generated on  : 02-Oct-2015 15:34:55
 //
 #ifndef __SLAM_H__
 #define __SLAM_H__
@@ -15,20 +15,18 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
-#include "rt_defines.h"
 #include "rt_nonfinite.h"
 #include "rtwtypes.h"
 #include "SLAM_types.h"
 
 // Function Declarations
-extern void SLAM(double updateVect[24], const double z_all_l[48], const double
-                 z_all_r[48], double dt, const VIOMeasurements *measurements,
-                 ReferenceCommand *ref, const VIOParameters *b_VIOParameters,
-                 const StereoParameters *cameraParameters, const NoiseParameters
-                 *noiseParameters, const ControllerGains *b_ControllerGains,
-                 boolean_T resetFlag, emxArray_real_T *h_u_apo_out,
-                 emxArray_real_T *xt_out, emxArray_real_T *P_apo_out,
-                 emxArray_real_T *map_out, double u_out[4]);
+extern void SLAM(int updateVect[40], const double z_all_l[80], const double
+                 z_all_r[80], double dt, const VIOMeasurements *measurements,
+                 const DUOParameters *cameraParameters, const NoiseParameters
+                 *noiseParameters, const VIOParameters *b_VIOParameters,
+                 boolean_T vision, RobotState *xt_out, emxArray_real_T *h_u_out,
+                 emxArray_real_T *map_out, emxArray_AnchorPose *anchor_poses_out,
+                 double delayedStatus_out[40]);
 extern void SLAM_free();
 extern void SLAM_init();
 extern void initialized_not_empty_init();

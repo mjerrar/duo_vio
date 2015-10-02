@@ -5,7 +5,7 @@
 // File: SLAM_data.cpp
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 06-Sep-2015 10:04:04
+// C/C++ source code generated on  : 02-Oct-2015 15:34:55
 //
 
 // Include Files
@@ -13,12 +13,16 @@
 #include "SLAM.h"
 #include "SLAM_data.h"
 #include <ros/console.h>
-#include <stdio.h>
 
 // Variable Definitions
 double numStates;
 double numStatesxt;
+double numPointsPerAnchor;
+double numAnchors;
+double numTrackFeatures;
 double minFeatureThreshold;
+emxArray_boolean_T *triangulation_success;
+double debug_level;
 
 //
 // File trailer for SLAM_data.cpp

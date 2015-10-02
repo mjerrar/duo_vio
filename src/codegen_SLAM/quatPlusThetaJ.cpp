@@ -5,7 +5,7 @@
 // File: quatPlusThetaJ.cpp
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 06-Sep-2015 10:04:04
+// C/C++ source code generated on  : 02-Oct-2015 15:34:55
 //
 
 // Include Files
@@ -14,7 +14,6 @@
 #include "quatPlusThetaJ.h"
 #include "norm.h"
 #include <ros/console.h>
-#include <stdio.h>
 
 // Function Definitions
 
