@@ -2,14 +2,15 @@ cmake_minimum_required(VERSION 2.8.3)
 project(vio_ros)
 
 set(CMAKE_CXX_FLAGS "-std=c++0x ${CMAKE_CXX_FLAGS} -Wno-format-security")
-set(CMAKE_BUILD_TYPE Release)
+set(CMAKE_BUILD_TYPE Debug)
 
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
 find_package(
   catkin REQUIRED
-  message_filters 
+  message_filters
+  std_msgs
   sensor_msgs
   geometry_msgs
   tf
@@ -52,11 +53,10 @@ find_package(
 ##   * add every package in MSG_DEP_SET to generate_messages(DEPENDENCIES ...)
 
 ## Generate messages in the 'msg' folder
-# add_message_files(
-#   FILES
-#   Message1.msg
-#   Message2.msg
-# )
+add_message_files(
+  FILES
+  vio_vis.msg
+)
 
 ## Generate services in the 'srv' folder
 # add_service_files(
@@ -73,10 +73,12 @@ find_package(
 # )
 
 ## Generate added messages and services with any dependencies listed here
-# generate_messages(
-#   DEPENDENCIES
-#   std_msgs  # Or other packages containing msgs
-# )
+generate_messages(
+  DEPENDENCIES
+  geometry_msgs
+  std_msgs
+  sensor_msgs
+)
 
 generate_dynamic_reconfigure_options(
   cfg/vio_ros.cfg
@@ -94,7 +96,7 @@ generate_dynamic_reconfigure_options(
 catkin_package(
 #  INCLUDE_DIRS include
 #  LIBRARIES vio_ros
-  CATKIN_DEPENDS sensor_msgs message_filters geometry_msgs tf cv_bridge
+  CATKIN_DEPENDS sensor_msgs message_filters geometry_msgs tf cv_bridge rospy message_runtime
 #  DEPENDS system_lib
 )
 
