@@ -16,7 +16,7 @@ static const int DUO_QUEUE_SIZE = 30;
 
 Localization::Localization()
 : nh_("~"),
-  SLAM_reset_flag(0),
+  SLAM_reset_flag(1),
   received_IMU_data(false),
   change_reference(false),
   vicon_pos(3, 0.0),
@@ -49,8 +49,7 @@ Localization::Localization()
 	ros::Duration(0.5).sleep();
 	vio_vis_reset_pub.publish(std_msgs::Empty());
 
-	duo_processed_pub = nh_.advertise<std_msgs::Int32>("/duo3d/msg_processed", 1);
-	duo_processed_msg.data = DUO_QUEUE_SIZE;
+	duo_processed_pub = nh_.advertise<std_msgs::UInt32>("/duo3d/msg_processed", 1000);
 
 	// Load parameters from launch file
 	nh_.param<bool>("show_camera_image_", show_camera_image_, false);
@@ -60,9 +59,26 @@ Localization::Localization()
 	nh_.param<double>("noise/gyro_bias_noise", noiseParams.process_noise.qwo, 0.0);
 	nh_.param<double>("noise/acc_bias_noise", noiseParams.process_noise.qao, 0.0);
 	nh_.param<double>("noise/R_ci_noise", noiseParams.process_noise.qR_ci, 0.0);
-	nh_.param<double>("noise/sigma_init", noiseParams.sigmaInit, 0.0);
-	nh_.param<double>("noise/im_noise", noiseParams.image_noise[0], 1.0);
-	nh_.param<double>("noise/im_noise", noiseParams.image_noise[1], 1.0);
+	nh_.param<double>("noise/inv_depth_initial_unc", noiseParams.inv_depth_initial_unc, 0.0);
+	nh_.param<double>("noise/im_noise", noiseParams.image_noise, 1.0);
+
+	std::vector<double> tmp;
+	if (nh_.getParam("noise/gyro_bias_initial_unc", tmp))
+	{
+		for (int i = 0; i < tmp.size(); i++)
+			noiseParams.gyro_bias_initial_unc[i] = tmp[i];
+
+	} else {
+		ROS_WARN("Did not find the parameter noise/gyro_bias_initial_unc");
+	}
+	if (nh_.getParam("noise/acc_bias_initial_unc", tmp))
+	{
+		for (int i = 0; i < tmp.size(); i++)
+			noiseParams.acc_bias_initial_unc[i] = tmp[i];
+
+	} else {
+		ROS_WARN("Did not find the parameter noise/acc_bias_initial_unc");
+	}
 
 	nh_.param<int>("vio_params/num_points_per_anchor", vioParams.num_points_per_anchor, 0);
 	nh_.param<int>("vio_params/num_anchors", vioParams.num_anchors, 0);
@@ -70,6 +86,7 @@ Localization::Localization()
 	nh_.param<bool>("vio_params/delayed_initiazation", vioParams.delayed_initialization, false);
 	nh_.param<bool>("vio_params/mono", vioParams.mono, false);
 	nh_.param<bool>("vio_params/fixed_feature", vioParams.fixed_feature, false);
+	nh_.param<bool>("vio_params/RANSAC", vioParams.RANSAC, true);
 
 	nh_.param<double>("control/Kp_xy", controllerGains.Kp_xy, 1);
 	nh_.param<double>("control/Ki_xy", controllerGains.Ki_xy, 0);
@@ -157,16 +174,24 @@ Localization::~Localization()
 
 void Localization::duo3dCb(const duo3d_ros::Duo3d& msg)
 {
+//	ROS_INFO("Received message %d", msg.header.seq);
 	// upon reset, catch up with the duo messages before resetting SLAM
 	if (SLAM_reset_flag)
 	{
 		if(clear_queue_counter < DUO_QUEUE_SIZE)
 		{
 			clear_queue_counter++;
-			duo_processed_pub.publish(duo_processed_msg);
+			std_msgs::UInt32 id_msg;
+			id_msg.data = msg.header.seq;
+			duo_processed_pub.publish( id_msg);
 			return;
 		} else {
 			clear_queue_counter = 0;
+			SLAM_reset_flag = false;
+			std_msgs::UInt32 id_msg;
+			id_msg.data = msg.header.seq;
+			duo_processed_pub.publish( id_msg);
+			return;
 		}
 	}
 
@@ -213,8 +238,9 @@ void Localization::duo3dCb(const duo3d_ros::Duo3d& msg)
 	if (toc_total_clock - tic_total_clock > max_clicks_)
 		max_clicks_ = toc_total_clock - tic_total_clock;
 
-	duo_processed_pub.publish(duo_processed_msg);
-
+	std_msgs::UInt32 id_msg;
+	id_msg.data = msg.header.seq;
+	duo_processed_pub.publish( id_msg);
 }
 
 void Localization::joystickCb(const sensor_msgs::Joy::ConstPtr& msg)
@@ -305,17 +331,18 @@ void Localization::dynamicReconfigureCb(vio_ros::vio_rosConfig &config, uint32_t
 	controllerGains.Kd_yaw = config.Kd_yaw;
 	controllerGains.i_lim = config.i_lim;
 
-	noiseParams.image_noise[0] = config.im_noise;
-	noiseParams.image_noise[1] = config.im_noise;
+	noiseParams.image_noise = config.im_noise;
 	noiseParams.process_noise.qv = config.acc_noise;
 	noiseParams.process_noise.qv = config.gyro_noise;
 	noiseParams.process_noise.qwo = config.gyro_bias_noise;
-	noiseParams.sigmaInit = config.sigma_init;
+	noiseParams.inv_depth_initial_unc = config.inv_depth_initial_unc;
 
-	vioParams.max_ekf_iterations = config.max_ekf_iterations;
 	vioParams.fixed_feature = config.fixed_feature;
+	vioParams.max_ekf_iterations = config.max_ekf_iterations;
+	vioParams.delayed_initialization = config.delayed_initialization;
+	vioParams.mono = config.mono;
 
-	show_camera_image_ = config.show_tracker_images;
+//	show_camera_image_ = config.show_tracker_images;
 
 }
 

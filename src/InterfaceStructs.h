@@ -22,6 +22,7 @@ struct VIOParameters
 	bool fixed_feature;
 	bool delayed_initialization;
 	bool mono;
+	bool RANSAC;
 };
 
 // ControllerGains
@@ -55,8 +56,10 @@ struct ProcessNoise
 struct NoiseParameters
 {
 	ProcessNoise process_noise;
-	double image_noise[2];
-	double sigmaInit;
+	double image_noise;
+	double inv_depth_initial_unc;
+	double gyro_bias_initial_unc[3];
+	double acc_bias_initial_unc[3];
 };
 
 // VIOMeasurements

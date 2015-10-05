@@ -44,7 +44,7 @@
 #include "std_msgs/MultiArrayDimension.h"
 
 #include "std_msgs/Float32MultiArray.h"
-#include "std_msgs/Int32.h"
+#include "std_msgs/UInt32.h"
 
 #include "onboard_localization/PositionReference.h"
 
@@ -85,7 +85,6 @@ private:
 
 	ros::Publisher controller_pub;
 	ros::Publisher duo_processed_pub;
-	std_msgs::Int32 duo_processed_msg;
 	dynamic_reconfigure::Server<vio_ros::vio_rosConfig> dynamic_reconfigure_server;
 
 	ros::Time prev_time_;

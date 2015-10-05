@@ -14,9 +14,11 @@
   <arg name="im_noise" default="1" />
   <arg name="acc_noise" default="0.1" />
   <arg name="gyro_noise" default="0.01" />
-  <arg name="gyro_bias_noise" default="0.000001" />
+  <arg name="gyro_bias_noise" default="0.00000" />
   <arg name="acc_bias_noise" default="0.0001" />
-  <arg name="sigma_init" default="0.001" />
+  <arg name="inv_depth_initial" default="0.001" />
+  <arg name="gyro_bias_initial" default="[0, 0, 0]" />
+  <arg name="acc_bias_initial" default="[0, 0, 0]" />
 
   <!-- vio parameters -->
   <arg name="fixed_feature" default="0" />
@@ -38,14 +40,16 @@
   <arg name="show_camera_image" default="1" />
   <arg name="debug_publish_freq" default="30" />
 
-  <node name="vio_ros_node" pkg="vio_ros" type="vio_ros_node" output="screen">
+  <node name="vio_ros_node" pkg="vio_ros" type="vio_ros_node" output="screen" launch-prefix="gdb -ex run --args">
     <!-- noise parameters -->
     <param name="noise/acc_noise" type="double" value="$(arg acc_noise)" />
     <param name="noise/acc_bias_noise" type="double" value="$(arg acc_bias_noise)" />
     <param name="noise/gyro_noise" type="double" value="$(arg gyro_noise)" />
     <param name="noise/gyro_bias_noise" type="double" value="$(arg gyro_bias_noise)" />
     <param name="noise/im_noise" type="double" value="$(arg im_noise)" />
-    <param name="noise/sigma_init" type="double" value="$(arg sigma_init)" />
+    <param name="noise/inv_depth_initial_unc" type="double" value="$(arg inv_depth_initial)" />
+    <rosparam param="noise/gyro_bias_initial_unc" subst_value="True">$(arg gyro_bias_initial) </rosparam>
+    <rosparam param="noise/acc_bias_initial_unc" subst_value="True">$(arg acc_bias_initial) </rosparam>
 
     <!-- vio parameters -->
     <param name="vio_params/fixed_feature" type="bool" value="$(arg fixed_feature)" />
