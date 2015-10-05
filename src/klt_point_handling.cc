@@ -125,6 +125,10 @@ static void initMorePoints(
 		vector<double> &z_all_l,
 		vector<double> &z_all_r)
 {
+	if (!img_l.data)
+		throw "Left image is invalid";
+	if (!img_r.data)
+		throw "Right image is invalid";
 
 	unsigned int targetNumPoints = 0;
 	// count the features that need to be initialized
@@ -165,7 +169,7 @@ static void initMorePoints(
 		for (int y = 0; y < numBinsY; y++)
 		{
 			int neededFeatures = max(0, targetFeaturesPerBin - featuresPerBin[x][y]);
-			printf("needed features: %d\n", neededFeatures);
+//			printf("needed features: %d\n", neededFeatures);
 			if (neededFeatures)
 			{
 				int col_from = x*binWidth;
@@ -173,7 +177,7 @@ static void initMorePoints(
 				int row_from = y*binHeight;
 				int row_to   = min((y+1)*binHeight, img_l.rows);
 
-				printf("bin (%d %d) x: (%d %d), y: (%d %d)\n", x, y, col_from, col_to, row_from, row_to);
+//				printf("bin (%d %d) x: (%d %d), y: (%d %d)\n", x, y, col_from, col_to, row_from, row_to);
 
 				std::vector<cv::KeyPoint> keypoints, goodKeypointsBin;
 				detector.detect(img_l.rowRange(row_from, row_to).colRange(col_from, col_to), keypoints);
@@ -187,7 +191,7 @@ static void initMorePoints(
 					keypoints[i].pt.y += row_from;
 				}
 
-				printf("detected %d keypoints\n", keypoints.size());
+//				printf("detected %d keypoints\n", keypoints.size());
 
 				// check if the new features are far enough from existing points
 				int newPtIdx = 0;
@@ -231,7 +235,7 @@ static void initMorePoints(
 						}
 					}
 				}
-				printf("found %d good keypoints in this bin\n", goodKeypointsBin.size());
+//				printf("found %d good keypoints in this bin\n", goodKeypointsBin.size());
 				// insert the good points into the vector containing the new points of the whole image
 				goodKeypointsL.insert(goodKeypointsL.end(), goodKeypointsBin.begin(), goodKeypointsBin.end());
 				// save the unused keypoints for later
@@ -245,7 +249,7 @@ static void initMorePoints(
 
 	if (goodKeypointsL.size() < targetNumPoints)
 	{
-		printf("need %d more features, have %d unused ones to try\n", targetNumPoints-goodKeypointsL.size(), unusedKeypoints.size());
+//		printf("need %d more features, have %d unused ones to try\n", targetNumPoints-goodKeypointsL.size(), unusedKeypoints.size());
 		// try to insert new points that were not used in the bins
 		sort(unusedKeypoints.begin(), unusedKeypoints.end(), compareKeypoints);
 
@@ -291,7 +295,7 @@ static void initMorePoints(
 				}
 			}
 		}
-		printf("%d new features with %d requested after adding from unused ones\n", goodKeypointsL.size(), targetNumPoints);
+//		printf("%d new features with %d requested after adding from unused ones\n", goodKeypointsL.size(), targetNumPoints);
 	}
 
 	if (goodKeypointsL.empty())
@@ -305,6 +309,7 @@ static void initMorePoints(
 	}
 
 	std::vector<cv::Point2f> leftPoints, rightPoints;
+
 	if (!stereoMatchOpticalFlow(img_l, img_r, goodKeypointsL, leftPoints, rightPoints))
 	{
 		for (int i = 0; i < updateVect.size(); i++)
@@ -314,6 +319,8 @@ static void initMorePoints(
 		}
 		return;
 	}
+	if (leftPoints.size() != rightPoints.size())
+			printf("Left and right points have different sizes: left %d, right %d\n", (int) leftPoints.size(), (int) rightPoints.size());
 
 	if (leftPoints.size() != targetNumPoints)
 		printf("Number of good matches: %d, desired: %d\n", (int) leftPoints.size(), targetNumPoints);
@@ -409,6 +416,7 @@ bool stereoMatchOpticalFlow(const cv::Mat &img_l, const cv::Mat &img_r, std::vec
 
 	std::vector<unsigned char> statusRight;
 	std::vector<float> error;
+
 	cv::calcOpticalFlowPyrLK(img_l, img_r, leftPoints_flow, rightPoints_flow, statusRight, error, cv::Size(13,13), 4);
 
 	for (int i = 0; i < leftPoints_flow.size(); i++)
