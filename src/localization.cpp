@@ -1,16 +1,15 @@
 #include "localization.h"
 #include "SLAM.h"
-
 #include "klt_point_handling.h"
 
-#include <geometry_msgs/PoseStamped.h>
-#include <geometry_msgs/Twist.h>
-#include <cv_bridge/cv_bridge.h>
-#include <geometry_msgs/Point32.h>
 #include <math.h>
 #include <stdio.h>
-#include <visualization_msgs/Marker.h>
 #include <time.h>
+
+#include <cv_bridge/cv_bridge.h>
+#include <geometry_msgs/PoseStamped.h>
+#include <geometry_msgs/Point32.h>
+#include <visualization_msgs/Marker.h>
 
 static const int DUO_QUEUE_SIZE = 30;
 
@@ -46,7 +45,7 @@ Localization::Localization()
 	// visualization topics
 	vio_vis_pub = nh_.advertise<vio_ros::vio_vis>("/vio_vis/vio_vis", 1);
 	vio_vis_reset_pub = nh_.advertise<std_msgs::Empty>("/vio_vis/reset", 1);
-	ros::Duration(0.5).sleep();
+	ros::Duration(0.5).sleep(); // otherwise the following message might not be received
 	vio_vis_reset_pub.publish(std_msgs::Empty());
 
 	duo_processed_pub = nh_.advertise<std_msgs::UInt32>("/duo3d/msg_processed", 1000);
