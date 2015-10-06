@@ -11,20 +11,21 @@
   <arg name="vision_subsample" default="4" />
 
   <!-- noise parameters -->
-  <arg name="im_noise" default="1" />
+  <arg name="image_noise" default="1" />
   <arg name="acc_noise" default="0.1" />
   <arg name="gyro_noise" default="0.01" />
   <arg name="gyro_bias_noise" default="0.00000" />
-  <arg name="acc_bias_noise" default="0.0001" />
-  <arg name="inv_depth_initial" default="0.001" />
-  <arg name="gyro_bias_initial" default="[0, 0, 0]" />
-  <arg name="acc_bias_initial" default="[0, 0, 0]" />
+  <arg name="acc_bias_noise" default="0.000" />
+  <arg name="inv_depth_initial_unc" default="0.001" />
+  <arg name="gyro_bias_initial_unc" default="[0, 0, 0]" />
+  <arg name="acc_bias_initial_unc" default="[0, 0, 0]" />
 
   <!-- vio parameters -->
   <arg name="fixed_feature" default="0" />
   <arg name="max_ekf_iterations" default="3" />
   <arg name="delayed_initiazation" default="0" />
   <arg name="mono" default="0" />
+  <arg name="RANSAC" default="1" />
 
   <!-- controller gains -->
   <arg name="Kp_xy" default="1" />
@@ -38,50 +39,51 @@
   <arg name="i_lim" default="10" />
 
   <arg name="show_camera_image" default="1" />
-  <arg name="debug_publish_freq" default="30" />
+  <arg name="visualization_freq" default="30" />
 
-  <node name="vio_ros_node" pkg="vio_ros" type="vio_ros_node" output="screen" launch-prefix="gdb -ex run --args">
+  <node name="vio_ros_node" pkg="vio_ros" type="vio_ros_node" output="screen">
     <!-- noise parameters -->
-    <param name="noise/acc_noise" type="double" value="$(arg acc_noise)" />
-    <param name="noise/acc_bias_noise" type="double" value="$(arg acc_bias_noise)" />
-    <param name="noise/gyro_noise" type="double" value="$(arg gyro_noise)" />
-    <param name="noise/gyro_bias_noise" type="double" value="$(arg gyro_bias_noise)" />
-    <param name="noise/im_noise" type="double" value="$(arg im_noise)" />
-    <param name="noise/inv_depth_initial_unc" type="double" value="$(arg inv_depth_initial)" />
-    <rosparam param="noise/gyro_bias_initial_unc" subst_value="True">$(arg gyro_bias_initial) </rosparam>
-    <rosparam param="noise/acc_bias_initial_unc" subst_value="True">$(arg acc_bias_initial) </rosparam>
+    <param name="noise_acc" type="double" value="$(arg acc_noise)" />
+    <param name="noise_acc_bias" type="double" value="$(arg acc_bias_noise)" />
+    <param name="noise_gyro" type="double" value="$(arg gyro_noise)" />
+    <param name="noise_gyro_bias" type="double" value="$(arg gyro_bias_noise)" />
+    <param name="noise_image" type="double" value="$(arg image_noise)" />
+    <param name="noise_inv_depth_initial_unc" type="double" value="$(arg inv_depth_initial_unc)" />
+    <rosparam param="noise_gyro_bias_initial_unc" subst_value="True">$(arg gyro_bias_initial_unc) </rosparam>
+    <rosparam param="noise_acc_bias_initial_unc" subst_value="True">$(arg acc_bias_initial_unc) </rosparam>
 
     <!-- vio parameters -->
-    <param name="vio_params/fixed_feature" type="bool" value="$(arg fixed_feature)" />
-    <param name="vio_params/max_ekf_iterations" type="int" value="$(arg max_ekf_iterations)" />
-    <param name="vio_params/delayed_initiazation" type="bool" value="$(arg delayed_initiazation)" />
-    <param name="vio_params/mono" type="bool" value="$(arg mono)" />
+    <param name="vio_fixed_feature" type="bool" value="$(arg fixed_feature)" />
+    <param name="vio_max_ekf_iterations" type="int" value="$(arg max_ekf_iterations)" />
+    <param name="vio_delayed_initiazation" type="bool" value="$(arg delayed_initiazation)" />
+    <param name="vio_mono" type="bool" value="$(arg mono)" />
+    <param name="vio_RANSAC" type="bool" value="$(arg RANSAC)" />
     <!-- note that these parameters are not free. The total number of points num_anchors*num_points_per_anchor must equal the total number of points with wich SLAM was codered in Matlab. -->
-    <param name="vio_params/num_points_per_anchor" type="int" value="8" />
-    <param name="vio_params/num_anchors" type="int" value="5" />
+    <param name="vio_num_points_per_anchor" type="int" value="8" />
+    <param name="vio_num_anchors" type="int" value="5" />
 
     <!-- controller gains -->
-    <param name="control/Kp_xy" type="double" value="$(arg Kp_xy)" />
-    <param name="control/Ki_xy" type="double" value="$(arg Ki_xy)" />
-    <param name="control/Kd_xy" type="double" value="$(arg Kd_xy)" />
-    <param name="control/Kp_z" type="double" value="$(arg Kp_z)" />
-    <param name="control/Ki_z" type="double" value="$(arg Ki_z)" />
-    <param name="control/Kd_z" type="double" value="$(arg Kd_z)" />
-    <param name="control/Kp_yaw" type="double" value="$(arg Kp_yaw)" />
-    <param name="control/Kd_yaw" type="double" value="$(arg Kd_yaw)" />
-    <param name="control/i_lim" type="double" value="$(arg i_lim)" />
+    <param name="ctrl_Kp_xy" type="double" value="$(arg Kp_xy)" />
+    <param name="ctrl_Ki_xy" type="double" value="$(arg Ki_xy)" />
+    <param name="ctrl_Kd_xy" type="double" value="$(arg Kd_xy)" />
+    <param name="ctrl_Kp_z" type="double" value="$(arg Kp_z)" />
+    <param name="ctrl_Ki_z" type="double" value="$(arg Ki_z)" />
+    <param name="ctrl_Kd_z" type="double" value="$(arg Kd_z)" />
+    <param name="ctrl_Kp_yaw" type="double" value="$(arg Kp_yaw)" />
+    <param name="ctrl_Kd_yaw" type="double" value="$(arg Kd_yaw)" />
+    <param name="ctrl_i_lim" type="double" value="$(arg i_lim)" />
 
     <!-- camera settings -->
-    <param name="cam/FPS_duo" type="double" value="$(arg FPS_duo)" />
-    <param name="cam/camera_name" type="string" value="$(arg camera_name)" />
-    <param name="cam/lense_type" type="string" value="$(arg lense_type)" />
-    <param name="cam/resolution_width" type="int" value="$(arg resolution_width_duo)" />
-    <param name="cam/resolution_height" type="int" value="$(arg resolution_height_duo)" />
-    <param name="cam/vision_subsample" type="int" value="$(arg vision_subsample)" />
+    <param name="cam_FPS_duo" type="double" value="$(arg FPS_duo)" />
+    <param name="cam_camera_name" type="string" value="$(arg camera_name)" />
+    <param name="cam_lense_type" type="string" value="$(arg lense_type)" />
+    <param name="cam_resolution_width" type="int" value="$(arg resolution_width_duo)" />
+    <param name="cam_resolution_height" type="int" value="$(arg resolution_height_duo)" />
+    <param name="cam_vision_subsample" type="int" value="$(arg vision_subsample)" />
 
     <!-- other parameters -->
     <param name="show_camera_image" type="bool" value="$(arg show_camera_image)" />
-    <param name="debug_publish_freq" type="double" value="$(arg debug_publish_freq)" />
+    <param name="visualization_freq" type="double" value="$(arg visualization_freq)" />
     <remap from="/imu" to="/duo3d_camera/cam_imu"/>
     <remap from="/left_image" to="/duo3d_camera/left/image_raw"/>
     <remap from="/right_image" to="/duo3d_camera/right/image_raw"/>

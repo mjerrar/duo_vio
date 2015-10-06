@@ -184,6 +184,8 @@ class Visualizer(pg.QtCore.QThread):
         return
 
     def img_cb(self, img, feature_tracks, pred_feature_tracks, status_vect):
+        if not img.data:  # if image is empty, do not update the plot
+            return
 
         image = CvBridge().imgmsg_to_cv2(img, 'mono8')
         image_color = cv2.cvtColor(image, cv2.COLOR_GRAY2BGR)
@@ -226,7 +228,7 @@ class Visualizer(pg.QtCore.QThread):
         self.robot_path.poses = []
         self.robot_path_pub.publish(self.robot_path)
 
-        plot_idx = 1
+        plot_idx = 0
         return
 
 

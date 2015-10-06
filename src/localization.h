@@ -61,17 +61,16 @@ private:
 
 	int vis_publish_delay;
 	bool SLAM_reset_flag;
-	bool received_IMU_data;
 	int display_tracks_cnt;
 	int max_clicks_;
 	int clear_queue_counter;
 	double fps_duo;
-	ros::Time last_debug_publish;
 	int vio_cnt;
 	int vision_subsample;
 
 	cv::Mat darkCurrentL;
 	cv::Mat darkCurrentR;
+	bool use_dark_current;
 
 	DUOParameters cameraParams;
 	NoiseParameters noiseParams;
@@ -93,6 +92,7 @@ private:
 
 	unsigned int num_points_;
 	bool show_camera_image_;
+	int image_visualization_delay;
 	RobotState robot_state;
 	emxArray_real_T *h_u_apo;
 	emxArray_real_T *map;
@@ -102,12 +102,12 @@ private:
 	void joystickCb(const sensor_msgs::Joy::ConstPtr& msg);
 	void positionReferenceCb(const onboard_localization::PositionReference& msg);
 
-	void update(double dt, const duo3d_ros::Duo3d &msg, bool debug_publish);
+	void update(double dt, const duo3d_ros::Duo3d &msg, bool debug_publish, bool show_image);
 
 	void getIMUData(const sensor_msgs::Imu& imu, VIOMeasurements& meas);
 
 	ros::Publisher vis_pub_;
-	void updateVis(RobotState &robot_state, emxArray_AnchorPose *anchor_poses, double *map, std::vector<int> &updateVect, const duo3d_ros::Duo3d &duo_msg, std::vector<double> &z_l);
+	void updateVis(RobotState &robot_state, emxArray_AnchorPose *anchor_poses, double *map, std::vector<int> &updateVect, const duo3d_ros::Duo3d &duo_msg, std::vector<double> &z_l, bool show_image);
 
 	ReferenceCommand referenceCommand;
 	bool change_reference;

@@ -17,13 +17,13 @@ static const int DUO_QUEUE_SIZE = 30;
 Localization::Localization()
 : nh_("~"),
   SLAM_reset_flag(1),
-  received_IMU_data(false),
   change_reference(false),
   vicon_pos(3, 0.0),
   vicon_quaternion(4, 0.0),
   max_clicks_(0),
   clear_queue_counter(0),
-  vio_cnt(0)
+  vio_cnt(0),
+  image_visualization_delay(0)
 {
 	emxInitArray_real_T(&h_u_apo,1);
 	emxInitArray_real_T(&map,2);
@@ -52,22 +52,19 @@ Localization::Localization()
 	duo_processed_pub = nh_.advertise<std_msgs::UInt32>("/duo3d/msg_processed", 1000);
 
 	// Load parameters from launch file
-	nh_.param<bool>("show_camera_image_", show_camera_image_, false);
-
-	nh_.param<double>("noise/acc_noise", noiseParams.process_noise.qv, 0.0);
-	nh_.param<double>("noise/gyro_noise", noiseParams.process_noise.qw, 0.0);
-	nh_.param<double>("noise/gyro_bias_noise", noiseParams.process_noise.qwo, 0.0);
-	nh_.param<double>("noise/acc_bias_noise", noiseParams.process_noise.qao, 0.0);
-	nh_.param<double>("noise/R_ci_noise", noiseParams.process_noise.qR_ci, 0.0);
-	nh_.param<double>("noise/inv_depth_initial_unc", noiseParams.inv_depth_initial_unc, 0.0);
-	nh_.param<double>("noise/im_noise", noiseParams.image_noise, 1.0);
+	nh_.param<double>("noise_acc", noiseParams.process_noise.qv, 0.0);
+	nh_.param<double>("noise_gyro", noiseParams.process_noise.qw, 0.0);
+	nh_.param<double>("noise_gyro_bias", noiseParams.process_noise.qwo, 0.0);
+	nh_.param<double>("noise_acc_bias", noiseParams.process_noise.qao, 0.0);
+	nh_.param<double>("noise_R_ci", noiseParams.process_noise.qR_ci, 0.0);
+	nh_.param<double>("noise_inv_depth_initial_unc", noiseParams.inv_depth_initial_unc, 0.0);
+	nh_.param<double>("noise_image", noiseParams.image_noise, 0);
 
 	std::vector<double> tmp;
-	if (nh_.getParam("noise/gyro_bias_initial_unc", tmp))
+	if (nh_.getParam("noise_gyro_bias_initial_unc", tmp))
 	{
 		for (int i = 0; i < tmp.size(); i++)
 			noiseParams.gyro_bias_initial_unc[i] = tmp[i];
-
 	} else {
 		ROS_WARN("Did not find the parameter noise/gyro_bias_initial_unc");
 	}
@@ -75,83 +72,82 @@ Localization::Localization()
 	{
 		for (int i = 0; i < tmp.size(); i++)
 			noiseParams.acc_bias_initial_unc[i] = tmp[i];
-
 	} else {
 		ROS_WARN("Did not find the parameter noise/acc_bias_initial_unc");
 	}
 
-	nh_.param<int>("vio_params/num_points_per_anchor", vioParams.num_points_per_anchor, 0);
-	nh_.param<int>("vio_params/num_anchors", vioParams.num_anchors, 0);
-	nh_.param<int>("vio_params/max_ekf_iterations", vioParams.max_ekf_iterations, 0);
-	nh_.param<bool>("vio_params/delayed_initiazation", vioParams.delayed_initialization, false);
-	nh_.param<bool>("vio_params/mono", vioParams.mono, false);
-	nh_.param<bool>("vio_params/fixed_feature", vioParams.fixed_feature, false);
-	nh_.param<bool>("vio_params/RANSAC", vioParams.RANSAC, true);
+	nh_.param<int> ("vio_num_points_per_anchor", vioParams.num_points_per_anchor, 0);
+	nh_.param<int> ("vio_num_anchors", vioParams.num_anchors, 0);
+	nh_.param<int> ("vio_max_ekf_iterations", vioParams.max_ekf_iterations, 0);
+	nh_.param<bool>("vio_delayed_initiazation", vioParams.delayed_initialization, false);
+	nh_.param<bool>("vio_mono", vioParams.mono, false);
+	nh_.param<bool>("vio_fixed_feature", vioParams.fixed_feature, false);
+	nh_.param<bool>("vio_RANSAC", vioParams.RANSAC, true);
 
-	nh_.param<double>("control/Kp_xy", controllerGains.Kp_xy, 1);
-	nh_.param<double>("control/Ki_xy", controllerGains.Ki_xy, 0);
-	nh_.param<double>("control/Kd_xy", controllerGains.Kd_xy, 1);
-	nh_.param<double>("control/Kp_z", controllerGains.Kp_xy, 1);
-	nh_.param<double>("control/Ki_z", controllerGains.Ki_z, 0);
-	nh_.param<double>("control/Kd_z", controllerGains.Kd_z, 1);
-	nh_.param<double>("control/Kp_yaw", controllerGains.Kp_yaw, 1);
-	nh_.param<double>("control/Kd_yaw", controllerGains.Kd_yaw, 1);
-	nh_.param<double>("control/i_lim", controllerGains.i_lim, 1);
+	nh_.param<double>("ctrl_Kp_xy", controllerGains.Kp_xy, 0);
+	nh_.param<double>("ctrl_Ki_xy", controllerGains.Ki_xy, 0);
+	nh_.param<double>("ctrl_Kd_xy", controllerGains.Kd_xy, 0);
+	nh_.param<double>("ctrl_Kp_z", controllerGains.Kp_xy, 0);
+	nh_.param<double>("ctrl_Ki_z", controllerGains.Ki_z, 0);
+	nh_.param<double>("ctrl_Kd_z", controllerGains.Kd_z, 0);
+	nh_.param<double>("ctrl_Kp_yaw", controllerGains.Kp_yaw, 0);
+	nh_.param<double>("ctrl_Kd_yaw", controllerGains.Kd_yaw, 0);
+	nh_.param<double>("ctrl_i_lim", controllerGains.i_lim, 0);
 
-	std::string camera_name; nh_.param<std::string>("cam/camera_name", camera_name, "NoName");
-	std::string lense_type; nh_.param<std::string>("cam/lense_type", lense_type, "NoType");
-	int resolution_width; nh_.param<int>("cam/resolution_width", resolution_width, 0);
-	int resolution_height; nh_.param<int>("cam/resolution_height", resolution_height, 0);
+	std::string camera_name; nh_.param<std::string>("cam_camera_name", camera_name, "NoName");
+	std::string lense_type; nh_.param<std::string>("cam_lense_type", lense_type, "NoType");
+	int resolution_width; nh_.param<int>("cam_resolution_width", resolution_width, 0);
+	int resolution_height; nh_.param<int>("cam_resolution_height", resolution_height, 0);
 
 	std::stringstream res; res << resolution_height << "x" << resolution_width;
-	std::string path = ros::package::getPath("vio_ros") + "/calib/" + camera_name + "/" + lense_type + "/" + res.str() + "/cameraParams.yaml";
+	std::string calib_path = ros::package::getPath("vio_ros") + "/calib/" + camera_name + "/" + lense_type + "/" + res.str() + "/cameraParams.yaml";
 
-	ROS_INFO("Reading camera calibration from %s", path.c_str());
-	YAML::Node YamlNode = YAML::LoadFile(path);
+	ROS_INFO("Reading camera calibration from %s", calib_path.c_str());
+	YAML::Node YamlNode = YAML::LoadFile(calib_path);
 	if (YamlNode.IsNull())
 	{
-		throw std::string("Failed to open camera calibration %s", path.c_str());
+		throw std::string("Failed to open camera calibration %s", calib_path.c_str());
 	}
 	cameraParams = parseYaml(YamlNode);
 
-	nh_.param<double>("cam/FPS_duo", fps_duo, 60.0);
+	nh_.param<double>("cam/FPS_duo", fps_duo, 0);
 	nh_.param<int>("cam/vision_subsample", vision_subsample, 1);
 
-	double debug_publish_freq;
-	nh_.param<double>("cam/debug_publish_freq", debug_publish_freq, 1);
-	vis_publish_delay = fps_duo/vision_subsample/debug_publish_freq;
+	double visualization_freq;
+	nh_.param<double>("visualization_freq", visualization_freq, 1);
+	vis_publish_delay = fps_duo/vision_subsample/visualization_freq;
 	vis_publish_delay = !vis_publish_delay ? 1 : vis_publish_delay;
+	nh_.param<bool>("show_camera_image", show_camera_image_, false);
+	nh_.param<int>("image_visualization_freq", image_visualization_delay, 1);
+	image_visualization_delay = !image_visualization_delay ? 1 : image_visualization_delay;
 
 	std::string dark_current_l_path = ros::package::getPath("vio_ros") + "/calib/" + camera_name + "/" + lense_type + "/" + res.str() + "/darkCurrentL.bmp";
 	darkCurrentL = cv::imread(dark_current_l_path, CV_LOAD_IMAGE_GRAYSCALE);
 
-	bool load_default_dark_current = false;
 	if (!darkCurrentL.data)
 	{
 		ROS_WARN("Failed to open left dark current image %s!", dark_current_l_path.c_str());
-		load_default_dark_current = true;
+		use_dark_current = false;
 	} else if (darkCurrentL.rows != resolution_height || darkCurrentL.cols != resolution_width)
 	{
 		ROS_WARN("Left dark current image has the wrong dimensions %s!", dark_current_l_path.c_str());
-		load_default_dark_current = true;
+		use_dark_current = false;
 	}
-	if (load_default_dark_current)
-		darkCurrentL = cv::Mat::zeros(resolution_height, resolution_width, CV_8U);
 
-	std::string dark_current_r_path = ros::package::getPath("vio_ros") + "/calib/" + camera_name + "/" + lense_type + "/" + res.str() + "/darkCurrentR.bmp";
-	darkCurrentR = cv::imread(dark_current_r_path, CV_LOAD_IMAGE_GRAYSCALE);
-	load_default_dark_current = false;
-	if (!darkCurrentR.data)
+	if (use_dark_current)
 	{
-		ROS_WARN("Failed to open right dark current image %s!", dark_current_r_path.c_str());
-		load_default_dark_current = true;
-	} else if (darkCurrentR.rows != resolution_height || darkCurrentR.cols != resolution_width)
-	{
-		ROS_WARN("Right dark current image has the wrong dimensions %s!", dark_current_r_path.c_str());
-		load_default_dark_current = true;
+		std::string dark_current_r_path = ros::package::getPath("vio_ros") + "/calib/" + camera_name + "/" + lense_type + "/" + res.str() + "/darkCurrentR.bmp";
+		darkCurrentR = cv::imread(dark_current_r_path, CV_LOAD_IMAGE_GRAYSCALE);
+		if (!darkCurrentR.data)
+		{
+			ROS_WARN("Failed to open right dark current image %s!", dark_current_r_path.c_str());
+			use_dark_current = false;
+		} else if (darkCurrentR.rows != resolution_height || darkCurrentR.cols != resolution_width)
+		{
+			ROS_WARN("Right dark current image has the wrong dimensions %s!", dark_current_r_path.c_str());
+			use_dark_current = false;
+		}
 	}
-	if (load_default_dark_current)
-		darkCurrentR = cv::Mat::zeros(resolution_height, resolution_width, CV_8U);
 
 	dynamic_reconfigure::Server<vio_ros::vio_rosConfig>::CallbackType f = boost::bind(&Localization::dynamicReconfigureCb, this, _1, _2);
 	dynamic_reconfigure_server.setCallback(f);
@@ -202,27 +198,16 @@ void Localization::duo3dCb(const duo3d_ros::Duo3d& msg)
 	if (prev_time_.isZero())
 	{
 		prev_time_ = msg.header.stamp;
-		dt = 1/fps_duo;
+		dt = vision_subsample/fps_duo;
 	} else {
 		dt = (msg.header.stamp - prev_time_).toSec();
 		prev_time_ = msg.header.stamp;
 	}
 
-	bool vis_publish = (vio_cnt % vis_publish_delay) != 0;
-	bool debug_display_tracks = false;
+	bool vis_publish = (vio_cnt % vis_publish_delay) == 0;
+	bool show_image = false;
 
-	if (vis_publish)
-	{
-		if (display_tracks_cnt > 10)
-		{
-			debug_display_tracks = true;
-			display_tracks_cnt = 0;
-		} else {
-			display_tracks_cnt++;
-		}
-	}
-
-	update(dt, msg, 1);
+	update(dt, msg, vis_publish, show_image);
 
 	double time_measurement = (ros::Time::now() - tic_total).toSec();
 
@@ -321,26 +306,28 @@ void Localization::joystickCb(const sensor_msgs::Joy::ConstPtr& msg)
 
 void Localization::dynamicReconfigureCb(vio_ros::vio_rosConfig &config, uint32_t level)
 {
-	controllerGains.Kp_xy = config.Kp_xy;
-	controllerGains.Ki_xy = config.Ki_xy;
-	controllerGains.Kd_xy = config.Kd_xy;
-	controllerGains.Kp_z = config.Kp_z;
-	controllerGains.Ki_z = config.Ki_z;
-	controllerGains.Kd_z = config.Kd_z;
-	controllerGains.Kp_yaw = config.Kp_yaw;
-	controllerGains.Kd_yaw = config.Kd_yaw;
-	controllerGains.i_lim = config.i_lim;
+	controllerGains.Kp_xy  = config.ctrl_Kp_xy;
+	controllerGains.Ki_xy  = config.ctrl_Ki_xy;
+	controllerGains.Kd_xy  = config.ctrl_Kd_xy;
+	controllerGains.Kp_z   = config.ctrl_Kp_z;
+	controllerGains.Ki_z   = config.ctrl_Ki_z;
+	controllerGains.Kd_z   = config.ctrl_Kd_z;
+	controllerGains.Kp_yaw = config.ctrl_Kp_yaw;
+	controllerGains.Kd_yaw = config.ctrl_Kd_yaw;
+	controllerGains.i_lim  = config.ctrl_i_lim;
 
-	noiseParams.image_noise = config.im_noise;
-	noiseParams.process_noise.qv = config.acc_noise;
-	noiseParams.process_noise.qv = config.gyro_noise;
-	noiseParams.process_noise.qwo = config.gyro_bias_noise;
-	noiseParams.inv_depth_initial_unc = config.inv_depth_initial_unc;
+	noiseParams.image_noise           = config.noise_image;
+	noiseParams.process_noise.qv      = config.noise_acc;
+	noiseParams.process_noise.qw      = config.noise_gyro;
+	noiseParams.process_noise.qwo     = config.noise_gyro_bias;
+	noiseParams.process_noise.qao     = config.noise_acc_bias;
+	noiseParams.inv_depth_initial_unc = config.noise_inv_depth_initial_unc;
 
-	vioParams.fixed_feature = config.fixed_feature;
-	vioParams.max_ekf_iterations = config.max_ekf_iterations;
-	vioParams.delayed_initialization = config.delayed_initialization;
-	vioParams.mono = config.mono;
+	vioParams.fixed_feature          = config.vio_fixed_feature;
+	vioParams.max_ekf_iterations     = config.vio_max_ekf_iterations;
+	vioParams.delayed_initialization = config.vio_delayed_initialization;
+	vioParams.mono                   = config.vio_mono;
+	vioParams.RANSAC                 = config.vio_RANSAC;
 
 //	show_camera_image_ = config.show_tracker_images;
 
@@ -384,7 +371,7 @@ void Localization::positionReferenceCb(const onboard_localization::PositionRefer
 	}
 }
 
-void Localization::update(double dt, const duo3d_ros::Duo3d &msg, bool update_vis)
+void Localization::update(double dt, const duo3d_ros::Duo3d &msg, bool update_vis, bool show_image)
 {
 	std::vector<double> z_all_l(num_points_*2, 0.0);
 	std::vector<double> z_all_r(num_points_*2, 0.0);
@@ -397,6 +384,7 @@ void Localization::update(double dt, const duo3d_ros::Duo3d &msg, bool update_vi
 	//*********************************************************************
 	// SLAM prediction
 	//*********************************************************************
+
 	SLAM(&update_vec_[0],
 			&z_all_l[0],
 			&z_all_r[0],
@@ -405,7 +393,7 @@ void Localization::update(double dt, const duo3d_ros::Duo3d &msg, bool update_vi
 			&cameraParams,
 			&noiseParams,
 			&vioParams,
-			0,
+			0, // predict
 			&robot_state,
 			h_u_apo,
 			map,
@@ -439,7 +427,16 @@ void Localization::update(double dt, const duo3d_ros::Duo3d &msg, bool update_vi
 		ros::Time tic_total = tic;
 
 		//	clock_t bef = clock();
-		handle_points_klt(left_image->image, right_image->image, z_all_l, z_all_r, update_vec_);
+		cv::Mat left, right;
+		if (use_dark_current)
+		{
+			left = left_image->image - darkCurrentL;
+			right = right_image->image - darkCurrentR;
+		} else {
+			left = left_image->image;
+			right = right_image->image;
+		}
+		handle_points_klt(left, right, z_all_l, z_all_r, update_vec_);
 
 		//	clock_t aft = clock();
 		//	printf("KLT  took %d clicks, %.3f msec\n", int(aft - bef), 1000*float(aft - bef)/CLOCKS_PER_SEC);
@@ -455,7 +452,7 @@ void Localization::update(double dt, const duo3d_ros::Duo3d &msg, bool update_vi
 				&cameraParams,
 				&noiseParams,
 				&vioParams,
-				1,
+				1, // vision update
 				&robot_state,
 				h_u_apo,
 				map,
@@ -464,7 +461,10 @@ void Localization::update(double dt, const duo3d_ros::Duo3d &msg, bool update_vi
 
 		if (update_vis)
 		{
-			updateVis(robot_state, anchor_poses, map->data, update_vec_, msg, z_all_l);
+			show_image = display_tracks_cnt % image_visualization_delay == 0;
+			display_tracks_cnt++;
+
+			updateVis(robot_state, anchor_poses, map->data, update_vec_, msg, z_all_l, show_image);
 		}
 	}
 
@@ -508,7 +508,12 @@ void Localization::getViconPosition(void)
 
 }
 
-void Localization::updateVis(RobotState &robot_state, emxArray_AnchorPose *anchor_poses, double *map, std::vector<int> &updateVect, const duo3d_ros::Duo3d &duo_msg, std::vector<double> &z_l)
+void Localization::updateVis(RobotState &robot_state,
+		emxArray_AnchorPose *anchor_poses,
+		double *map, std::vector<int> &updateVect,
+		const duo3d_ros::Duo3d &duo_msg,
+		std::vector<double> &z_l,
+		bool show_image)
 {
 	vio_ros::vio_vis msg;
 
@@ -553,7 +558,9 @@ void Localization::updateVis(RobotState &robot_state, emxArray_AnchorPose *ancho
 		}
 	}
 
-	msg.image = duo_msg.left_image;
+	if (show_image)
+		msg.image = duo_msg.left_image;
+
 	msg.gyro_bias.data.push_back(robot_state.IMU.gyro_bias[0]);
 	msg.gyro_bias.data.push_back(robot_state.IMU.gyro_bias[1]);
 	msg.gyro_bias.data.push_back(robot_state.IMU.gyro_bias[2]);
