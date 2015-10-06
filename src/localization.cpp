@@ -125,11 +125,19 @@ Localization::Localization()
 	std::string calib_path = ros::package::getPath("vio_ros") + "/calib/" + camera_name + "/" + lense_type + "/" + res.str() + "/cameraParams.yaml";
 
 	ROS_INFO("Reading camera calibration from %s", calib_path.c_str());
-	YAML::Node YamlNode = YAML::LoadFile(calib_path);
-	if (YamlNode.IsNull())
-		throw std::string("Failed to open camera calibration %s", calib_path.c_str());
 
-	cameraParams = parseYaml(YamlNode);
+	try {
+		YAML::Node YamlNode = YAML::LoadFile(calib_path);
+		if (YamlNode.IsNull())
+		{
+			ROS_FATAL("Failed to open camera calibration %s", calib_path.c_str());
+			exit(-1);
+		}
+		cameraParams = parseYaml(YamlNode);
+	} catch (YAML::BadFile &e) {
+		ROS_FATAL("Failed to open camera calibration %s\nException: %s", calib_path.c_str(), e.what());
+		exit(-1);
+	}
 
 	if(!nh_.getParam("cam_FPS_duo", fps_duo))
 		ROS_WARN("Failed to load parameter cam_FPS_duo");

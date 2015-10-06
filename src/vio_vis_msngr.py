@@ -21,9 +21,9 @@ class Visualizer(pg.QtCore.QThread):
     newData = pg.QtCore.Signal(object)  # threading signal, used to send plot data to the main thread
 
     def run(self):
-        self.robot_pose_pub = rospy.Publisher("vio_vis/rviz/robot_pose", Marker, queue_size=100)
-        self.robot_path_pub = rospy.Publisher("vio_vis/rviz/robot_path", Path, queue_size=100)
-        self.map_pub = rospy.Publisher("vio_vis/rviz/point_cloud", PointCloud, queue_size=100)
+        self.robot_pose_pub = rospy.Publisher("vio_vis/rviz/robot_pose", Marker, queue_size=1)
+        self.robot_path_pub = rospy.Publisher("vio_vis/rviz/robot_path", Path, queue_size=1)
+        self.map_pub = rospy.Publisher("vio_vis/rviz/point_cloud", PointCloud, queue_size=1)
         self.image_pub = rospy.Publisher("vio_vis/rviz/img", Image, queue_size=1)
         # self.image_cloud_pub = rospy.Publisher("vio_vis/rviz/img_cloud", PointCloud, queue_size=1)
         self.robot_path = Path()
