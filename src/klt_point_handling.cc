@@ -37,6 +37,12 @@ void handle_points_klt(
 		vector<double> &z_all_r,
 		vector<int> &updateVect)
 {
+	if (!img_l.data)
+		throw "Left image is invalid";
+	if (!img_r.data)
+		throw "Right image is invalid";
+	if (z_all_l.size() != z_all_r.size())
+		printf("z_all_l and z_all_r do not have the same size: %d and %d\n", z_all_l.size(), z_all_r.size());
 //	clock_t t1 = clock();
 
 	unsigned int numPoints = updateVect.size();
@@ -110,6 +116,8 @@ static void initMorePoints(
 		throw "Left image is invalid";
 	if (!img_r.data)
 		throw "Right image is invalid";
+	if (z_all_l.size() != z_all_r.size())
+		printf("z_all_l and z_all_r do not have the same size: %d and %d\n", z_all_l.size(), z_all_r.size());
 
 	unsigned int targetNumPoints = 0;
 	// count the features that need to be initialized
@@ -289,6 +297,8 @@ static void initMorePoints(
 		return;
 	}
 
+	if (z_all_l.size() != z_all_r.size())
+		printf("z_all_l and z_all_r do not have the same size: %d and %d\n", z_all_l.size(), z_all_r.size());
 	std::vector<cv::Point2f> leftPoints, rightPoints;
 
 	if (!stereoMatchOpticalFlow(img_l, img_r, goodKeypointsL, leftPoints, rightPoints))
@@ -305,6 +315,9 @@ static void initMorePoints(
 
 	if (leftPoints.size() != targetNumPoints)
 		printf("Number of good matches: %d, desired: %d\n", (int) leftPoints.size(), targetNumPoints);
+
+	if (z_all_l.size() != z_all_r.size())
+		printf("z_all_l and z_all_r do not have the same size: %d and %d\n", z_all_l.size(), z_all_r.size());
 
 	if (prev_corners.size() < updateVect.size())
 			prev_corners.resize(updateVect.size());
@@ -381,6 +394,11 @@ bool stereoMatch(const cv::Mat &img_l, const cv::Mat &img_r, std::vector<cv::Key
 
 bool stereoMatchOpticalFlow(const cv::Mat &img_l, const cv::Mat &img_r, std::vector<cv::KeyPoint> &keypointsL, std::vector<cv::Point2f> &leftPoints, std::vector<cv::Point2f> &rightPoints)
 {
+	if (!img_l.data)
+		throw "Left image is invalid";
+	if (!img_r.data)
+		throw "Right image is invalid";
+
 	if (keypointsL.empty())
 		return false;
 
