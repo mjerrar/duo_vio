@@ -5,7 +5,7 @@
 // File: SLAM_emxutil.cpp
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 02-Oct-2015 15:34:55
+// C/C++ source code generated on  : 05-Oct-2015 20:16:23
 //
 
 // Include Files
@@ -13,9 +13,13 @@
 #include "SLAM.h"
 #include "SLAM_emxutil.h"
 #include <ros/console.h>
+#include <stdio.h>
 
 // Function Declarations
 static void b_emxCopyMatrix_real_T(double dst[4], const double src[4]);
+static void b_emxFree_struct_T(emxArray_struct_T **pEmxArray);
+static void b_emxInit_struct_T(emxArray_struct_T **pEmxArray, int
+  b_numDimensions);
 static void c_emxCopyMatrix_real_T(double dst[6], const double src[6]);
 static void emxCopyMatrix_real_T(double dst[3], const double src[3]);
 static void emxCopy_struct_T(emxArray_struct_T **dst, emxArray_struct_T * const *
@@ -40,6 +44,46 @@ static void b_emxCopyMatrix_real_T(double dst[4], const double src[4])
   int i;
   for (i = 0; i < 4; i++) {
     dst[i] = src[i];
+  }
+}
+
+//
+// Arguments    : emxArray_struct_T **pEmxArray
+// Return Type  : void
+//
+static void b_emxFree_struct_T(emxArray_struct_T **pEmxArray)
+{
+  if (*pEmxArray != (emxArray_struct_T *)NULL) {
+    if (((*pEmxArray)->data != (d_struct_T *)NULL) && (*pEmxArray)->canFreeData)
+    {
+      free((void *)(*pEmxArray)->data);
+    }
+
+    free((void *)(*pEmxArray)->size);
+    free((void *)*pEmxArray);
+    *pEmxArray = (emxArray_struct_T *)NULL;
+  }
+}
+
+//
+// Arguments    : emxArray_struct_T **pEmxArray
+//                int b_numDimensions
+// Return Type  : void
+//
+static void b_emxInit_struct_T(emxArray_struct_T **pEmxArray, int
+  b_numDimensions)
+{
+  emxArray_struct_T *emxArray;
+  int i;
+  *pEmxArray = (emxArray_struct_T *)malloc(sizeof(emxArray_struct_T));
+  emxArray = *pEmxArray;
+  emxArray->data = (d_struct_T *)NULL;
+  emxArray->numDimensions = b_numDimensions;
+  emxArray->size = (int *)malloc((unsigned int)(sizeof(int) * b_numDimensions));
+  emxArray->allocatedSize = 0;
+  emxArray->canFreeData = true;
+  for (i = 0; i < b_numDimensions; i++) {
+    emxArray->size[i] = 0;
   }
 }
 
@@ -189,24 +233,6 @@ void b_emxFreeStruct_struct_T(f_struct_T *pStruct)
 }
 
 //
-// Arguments    : emxArray_struct_T **pEmxArray
-// Return Type  : void
-//
-void b_emxFree_struct_T(emxArray_struct_T **pEmxArray)
-{
-  if (*pEmxArray != (emxArray_struct_T *)NULL) {
-    if (((*pEmxArray)->data != (d_struct_T *)NULL) && (*pEmxArray)->canFreeData)
-    {
-      free((void *)(*pEmxArray)->data);
-    }
-
-    free((void *)(*pEmxArray)->size);
-    free((void *)*pEmxArray);
-    *pEmxArray = (emxArray_struct_T *)NULL;
-  }
-}
-
-//
 // Arguments    : e_struct_T *pStruct
 // Return Type  : void
 //
@@ -248,27 +274,6 @@ void b_emxInit_real_T(emxArray_real_T **pEmxArray, int b_numDimensions)
   *pEmxArray = (emxArray_real_T *)malloc(sizeof(emxArray_real_T));
   emxArray = *pEmxArray;
   emxArray->data = (double *)NULL;
-  emxArray->numDimensions = b_numDimensions;
-  emxArray->size = (int *)malloc((unsigned int)(sizeof(int) * b_numDimensions));
-  emxArray->allocatedSize = 0;
-  emxArray->canFreeData = true;
-  for (i = 0; i < b_numDimensions; i++) {
-    emxArray->size[i] = 0;
-  }
-}
-
-//
-// Arguments    : emxArray_struct_T **pEmxArray
-//                int b_numDimensions
-// Return Type  : void
-//
-void b_emxInit_struct_T(emxArray_struct_T **pEmxArray, int b_numDimensions)
-{
-  emxArray_struct_T *emxArray;
-  int i;
-  *pEmxArray = (emxArray_struct_T *)malloc(sizeof(emxArray_struct_T));
-  emxArray = *pEmxArray;
-  emxArray->data = (d_struct_T *)NULL;
   emxArray->numDimensions = b_numDimensions;
   emxArray->size = (int *)malloc((unsigned int)(sizeof(int) * b_numDimensions));
   emxArray->allocatedSize = 0;

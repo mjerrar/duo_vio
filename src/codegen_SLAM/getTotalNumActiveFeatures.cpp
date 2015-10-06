@@ -5,7 +5,7 @@
 // File: getTotalNumActiveFeatures.cpp
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 02-Oct-2015 15:34:55
+// C/C++ source code generated on  : 05-Oct-2015 20:16:23
 //
 
 // Include Files
@@ -15,6 +15,7 @@
 #include "getNumFeaturesOfType.h"
 #include "SLAM_data.h"
 #include <ros/console.h>
+#include <stdio.h>
 
 // Function Definitions
 
@@ -26,12 +27,12 @@
 double getTotalNumActiveFeatures(const emxArray_b_struct_T *xt_anchor_states)
 {
   double n;
-  int i21;
+  int i20;
   int anchorIdx;
   double b_n;
   n = 0.0;
-  i21 = (int)numAnchors;
-  for (anchorIdx = 0; anchorIdx < i21; anchorIdx++) {
+  i20 = (int)numAnchors;
+  for (anchorIdx = 0; anchorIdx < i20; anchorIdx++) {
     // getNumActiveFeatures Get the number of active features of an anchor
     b_n = getNumFeaturesOfType(xt_anchor_states->data[anchorIdx].feature_states,
       1.0);

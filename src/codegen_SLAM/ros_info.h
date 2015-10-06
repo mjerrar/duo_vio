@@ -5,7 +5,7 @@
 // File: ros_info.h
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 02-Oct-2015 15:34:55
+// C/C++ source code generated on  : 05-Oct-2015 20:16:23
 //
 #ifndef __ROS_INFO_H__
 #define __ROS_INFO_H__
@@ -21,16 +21,8 @@
 
 // Function Declarations
 extern void b_ros_info(double varargin_1, double varargin_2, double varargin_3);
-extern void c_ros_info(double varargin_1, double varargin_2, double varargin_3);
+extern void c_ros_info(double varargin_1);
 extern void d_ros_info(double varargin_1, double varargin_2, double varargin_3);
-extern void e_ros_info(int varargin_1, int varargin_2);
-extern void f_ros_info(double varargin_1);
-extern void g_ros_info(double varargin_1);
-extern void h_ros_info(int varargin_1, int varargin_2, int varargin_3);
-extern void i_ros_info(double varargin_1, double varargin_2, double varargin_3);
-extern void j_ros_info(double varargin_1, double varargin_2, double varargin_3);
-extern void k_ros_info();
-extern void l_ros_info(double varargin_1);
 extern void ros_info(double varargin_1, double varargin_2, double varargin_3);
 
 #endif

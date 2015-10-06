@@ -5,7 +5,7 @@
 // File: SLAM_rtwutil.cpp
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 02-Oct-2015 15:34:55
+// C/C++ source code generated on  : 05-Oct-2015 20:16:23
 //
 
 // Include Files
@@ -13,6 +13,7 @@
 #include "SLAM.h"
 #include "SLAM_rtwutil.h"
 #include <ros/console.h>
+#include <stdio.h>
 
 // Function Definitions
 

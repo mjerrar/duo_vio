@@ -5,7 +5,7 @@
 // File: getScaledMap.cpp
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 02-Oct-2015 15:34:55
+// C/C++ source code generated on  : 05-Oct-2015 20:16:23
 //
 
 // Include Files
@@ -15,6 +15,7 @@
 #include "SLAM_emxutil.h"
 #include "SLAM_data.h"
 #include <ros/console.h>
+#include <stdio.h>
 
 // Function Definitions
 
@@ -49,12 +50,12 @@ void getScaledMap(f_struct_T *b_xt)
   e_struct_T d_xt;
   e_struct_T e_xt;
   double anchorPos[3];
-  int i38;
+  int i34;
   double anchorRot[9];
   int featureIdx;
   double f_xt[3];
   double d8;
-  int i39;
+  int i35;
 
   //  if ~all(size(q) == [4, 1])
   //      error('q does not have the size of a quaternion')
@@ -91,8 +92,8 @@ void getScaledMap(f_struct_T *b_xt)
   b_emxInitStruct_struct_T(&d_xt);
   b_emxInitStruct_struct_T(&e_xt);
   while (anchorIdx <= (int)numAnchors - 1) {
-    for (i38 = 0; i38 < 3; i38++) {
-      anchorPos[i38] = b_xt->anchor_states->data[anchorIdx].pos[i38];
+    for (i34 = 0; i34 < 3; i34++) {
+      anchorPos[i34] = b_xt->anchor_states->data[anchorIdx].pos[i34];
     }
 
     //  if ~all(size(q) == [4, 1])
@@ -155,24 +156,24 @@ void getScaledMap(f_struct_T *b_xt)
         emxCopyStruct_struct_T(&c_xt, &b_xt->anchor_states->data[anchorIdx]);
         emxCopyStruct_struct_T(&d_xt, &b_xt->anchor_states->data[anchorIdx]);
         emxCopyStruct_struct_T(&e_xt, &b_xt->anchor_states->data[anchorIdx]);
-        for (i38 = 0; i38 < 3; i38++) {
+        for (i34 = 0; i34 < 3; i34++) {
           d8 = 0.0;
-          for (i39 = 0; i39 < 3; i39++) {
-            d8 += anchorRot[i39 + 3 * i38] * d_xt.feature_states->
-              data[featureIdx].m[i39];
+          for (i35 = 0; i35 < 3; i35++) {
+            d8 += anchorRot[i35 + 3 * i34] * d_xt.feature_states->
+              data[featureIdx].m[i35];
           }
 
-          f_xt[i38] = (c_xt.feature_states->data[featureIdx].inverse_depth *
-                       anchorPos[i38] + d8) - b_xt->robot_state.pos[i38] *
+          f_xt[i34] = (c_xt.feature_states->data[featureIdx].inverse_depth *
+                       anchorPos[i34] + d8) - b_xt->robot_state.pos[i34] *
             e_xt.feature_states->data[featureIdx].inverse_depth;
         }
 
-        for (i38 = 0; i38 < 3; i38++) {
+        for (i34 = 0; i34 < 3; i34++) {
           b_xt->anchor_states->data[anchorIdx].feature_states->data[featureIdx].
-            scaled_map_point[i38] = 0.0;
-          for (i39 = 0; i39 < 3; i39++) {
+            scaled_map_point[i34] = 0.0;
+          for (i35 = 0; i35 < 3; i35++) {
             b_xt->anchor_states->data[anchorIdx].feature_states->data[featureIdx]
-              .scaled_map_point[i38] += R_cw[i38 + 3 * i39] * f_xt[i39];
+              .scaled_map_point[i34] += R_cw[i34 + 3 * i35] * f_xt[i35];
           }
         }
       }

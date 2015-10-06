@@ -5,7 +5,7 @@
 // File: SLAM_types.h
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 02-Oct-2015 15:34:55
+// C/C++ source code generated on  : 05-Oct-2015 20:16:23
 //
 #ifndef __SLAM_TYPES_H__
 #define __SLAM_TYPES_H__
@@ -15,6 +15,7 @@
 
 // Type Definitions
 #include "../InterfaceStructs.h"
+#include <stdio.h>
 
 typedef struct {
   double pos[3];

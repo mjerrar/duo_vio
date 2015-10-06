@@ -2,13 +2,13 @@
 // Academic License - for use in teaching, academic research, and meeting
 // course requirements at degree granting institutions only.  Not for
 // government, commercial, or other organizational use.
-// File: det.h
+// File: fileManager.h
 //
 // MATLAB Coder version            : 2.8
 // C/C++ source code generated on  : 05-Oct-2015 20:16:23
 //
-#ifndef __DET_H__
-#define __DET_H__
+#ifndef __FILEMANAGER_H__
+#define __FILEMANAGER_H__
 
 // Include Files
 #include <math.h>
@@ -20,12 +20,12 @@
 #include "SLAM_types.h"
 
 // Function Declarations
-extern double det(const double x[36]);
+extern void fileManager(FILE * *f, boolean_T *a);
 
 #endif
 
 //
-// File trailer for det.h
+// File trailer for fileManager.h
 //
 // [EOF]
 //

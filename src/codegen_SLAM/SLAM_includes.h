@@ -7,6 +7,8 @@
 #include "diag.h"
 #include "eml_sort.h"
 #include "eye.h"
+#include "fileManager.h"
+#include "fprintf.h"
 #include "getAnchorPoses.h"
 #include "getH_R_res.h"
 #include "getMap.h"

@@ -5,7 +5,7 @@
 // File: predictMeasurementStereo.cpp
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 02-Oct-2015 15:34:55
+// C/C++ source code generated on  : 05-Oct-2015 20:16:23
 //
 
 // Include Files
@@ -13,6 +13,7 @@
 #include "SLAM.h"
 #include "predictMeasurementStereo.h"
 #include <ros/console.h>
+#include <stdio.h>
 
 // Function Definitions
 
@@ -43,7 +44,7 @@ void predictMeasurementStereo(const double fp_l[3], const double
   int i;
   double fp_r[3];
   double d2;
-  int i15;
+  int i18;
 
   // predictMeasurementLeft Predict the measurement of a feature given in the left 
   // camera frame
@@ -60,8 +61,8 @@ void predictMeasurementStereo(const double fp_l[3], const double
     d_stereoParams_CameraParameters[1];
   for (i = 0; i < 3; i++) {
     d2 = 0.0;
-    for (i15 = 0; i15 < 3; i15++) {
-      d2 += stereoParams_R_rl[i + 3 * i15] * fp_l[i15];
+    for (i18 = 0; i18 < 3; i18++) {
+      d2 += stereoParams_R_rl[i + 3 * i18] * fp_l[i18];
     }
 
     fp_r[i] = d2 - stereoParams_r_lr[i];

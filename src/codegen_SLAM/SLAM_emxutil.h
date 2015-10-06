@@ -5,7 +5,7 @@
 // File: SLAM_emxutil.h
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 02-Oct-2015 15:34:55
+// C/C++ source code generated on  : 05-Oct-2015 20:16:23
 //
 #ifndef __SLAM_EMXUTIL_H__
 #define __SLAM_EMXUTIL_H__
@@ -21,12 +21,9 @@
 
 // Function Declarations
 extern void b_emxFreeStruct_struct_T(f_struct_T *pStruct);
-extern void b_emxFree_struct_T(emxArray_struct_T **pEmxArray);
 extern void b_emxInitStruct_struct_T(e_struct_T *pStruct);
 extern void b_emxInit_int32_T(emxArray_int32_T **pEmxArray, int b_numDimensions);
 extern void b_emxInit_real_T(emxArray_real_T **pEmxArray, int b_numDimensions);
-extern void b_emxInit_struct_T(emxArray_struct_T **pEmxArray, int
-  b_numDimensions);
 extern void c_emxFree_struct_T(emxArray_c_struct_T **pEmxArray);
 extern void c_emxInit_struct_T(emxArray_c_struct_T **pEmxArray, int
   b_numDimensions);

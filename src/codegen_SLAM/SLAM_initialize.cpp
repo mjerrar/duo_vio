@@ -5,7 +5,7 @@
 // File: SLAM_initialize.cpp
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 02-Oct-2015 15:34:55
+// C/C++ source code generated on  : 05-Oct-2015 20:16:23
 //
 
 // Include Files
@@ -15,6 +15,7 @@
 #include "SLAM_emxutil.h"
 #include "SLAM_data.h"
 #include <ros/console.h>
+#include <stdio.h>
 
 // Named Constants
 #define b_numStates                    (21.0)
@@ -22,8 +23,8 @@
 #define b_numPointsPerAnchor           (8.0)
 #define b_numAnchors                   (5.0)
 #define b_numTrackFeatures             (40.0)
-#define b_minFeatureThreshold          (4.0)
 #define b_debug_level                  (2.0)
+#define b_minFeatureThreshold          (4.0)
 
 // Function Definitions
 
@@ -36,7 +37,6 @@ void SLAM_initialize()
   int i0;
   rt_InitInfAndNaN(8U);
   emxInit_boolean_T(&triangulation_success, 1);
-  debug_level = b_debug_level;
   i0 = triangulation_success->size[0];
   triangulation_success->size[0] = 16;
   emxEnsureCapacity((emxArray__common *)triangulation_success, i0, (int)sizeof
@@ -46,6 +46,7 @@ void SLAM_initialize()
   }
 
   minFeatureThreshold = b_minFeatureThreshold;
+  debug_level = b_debug_level;
   numTrackFeatures = b_numTrackFeatures;
   numAnchors = b_numAnchors;
   numPointsPerAnchor = b_numPointsPerAnchor;

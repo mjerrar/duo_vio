@@ -5,7 +5,7 @@
 // File: undistortPoint.cpp
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 02-Oct-2015 15:34:55
+// C/C++ source code generated on  : 05-Oct-2015 20:16:23
 //
 
 // Include Files
@@ -15,6 +15,7 @@
 #include "predictMeasurementStereoDistorted.h"
 #include "SLAM_rtwutil.h"
 #include <ros/console.h>
+#include <stdio.h>
 
 // Function Definitions
 
@@ -40,7 +41,7 @@ void undistortPoint(const double pt_d_data[], const int pt_d_size[1], const
                     pt_u_size[1])
 {
   int loop_ub;
-  int i8;
+  int i12;
   double fx;
   double fy;
   double Cx;
@@ -62,8 +63,8 @@ void undistortPoint(const double pt_d_data[], const int pt_d_size[1], const
   // % Plumb Bob
   pt_u_size[0] = pt_d_size[0];
   loop_ub = pt_d_size[0];
-  for (i8 = 0; i8 < loop_ub; i8++) {
-    pt_u_data[i8] = pt_d_data[i8];
+  for (i12 = 0; i12 < loop_ub; i12++) {
+    pt_u_data[i12] = pt_d_data[i12];
   }
 
   fx = cameraparams_FocalLength[0];
@@ -103,8 +104,8 @@ void undistortPoint(const double pt_d_data[], const int pt_d_size[1], const
 
     coeff = ((1.0 + k1 * r_u_sq) + k2 * (r_u_sq * r_u_sq)) + k3 * rt_powd_snf
       (r_u_sq, 3.0);
-    for (i8 = 0; i8 < 2; i8++) {
-      pt_d_n[i8] /= coeff;
+    for (i12 = 0; i12 < 2; i12++) {
+      pt_d_n[i12] /= coeff;
     }
 
     loop_ub = i << 1;

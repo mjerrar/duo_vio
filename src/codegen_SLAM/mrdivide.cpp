@@ -5,7 +5,7 @@
 // File: mrdivide.cpp
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 02-Oct-2015 15:34:55
+// C/C++ source code generated on  : 05-Oct-2015 20:16:23
 //
 
 // Include Files
@@ -17,6 +17,7 @@
 #include "initializePoint.h"
 #include "SLAM_rtwutil.h"
 #include <ros/console.h>
+#include <stdio.h>
 
 // Function Declarations
 static double b_eml_xnrm2(int n, const emxArray_real_T *x, int ix0);
@@ -78,7 +79,7 @@ static void eml_lusolve(const emxArray_real_T *A, emxArray_real_T *B)
 {
   emxArray_real_T *b_A;
   int n;
-  int i40;
+  int i36;
   int iy;
   emxArray_int32_T *ipiv;
   int j;
@@ -94,13 +95,13 @@ static void eml_lusolve(const emxArray_real_T *A, emxArray_real_T *B)
   int nb;
   emxInit_real_T(&b_A, 2);
   n = A->size[1];
-  i40 = b_A->size[0] * b_A->size[1];
+  i36 = b_A->size[0] * b_A->size[1];
   b_A->size[0] = A->size[0];
   b_A->size[1] = A->size[1];
-  emxEnsureCapacity((emxArray__common *)b_A, i40, (int)sizeof(double));
+  emxEnsureCapacity((emxArray__common *)b_A, i36, (int)sizeof(double));
   iy = A->size[0] * A->size[1];
-  for (i40 = 0; i40 < iy; i40++) {
-    b_A->data[i40] = A->data[i40];
+  for (i36 = 0; i36 < iy; i36++) {
+    b_A->data[i36] = A->data[i36];
   }
 
   emxInit_int32_T(&ipiv, 2);
@@ -109,12 +110,12 @@ static void eml_lusolve(const emxArray_real_T *A, emxArray_real_T *B)
   if (A->size[1] < 1) {
   } else {
     if (A->size[1] - 1 <= A->size[1]) {
-      i40 = A->size[1] - 1;
+      i36 = A->size[1] - 1;
     } else {
-      i40 = A->size[1];
+      i36 = A->size[1];
     }
 
-    for (j = 0; j + 1 <= i40; j++) {
+    for (j = 0; j + 1 <= i36; j++) {
       mmj = n - j;
       c = j * (n + 1);
       if (mmj < 1) {
@@ -297,7 +298,7 @@ static void eml_xgeqp3(emxArray_real_T *A, emxArray_real_T *tau,
   int b_m;
   int n;
   int mn;
-  int i41;
+  int i37;
   emxArray_real_T *work;
   int k;
   emxArray_real_T *vn1;
@@ -326,30 +327,30 @@ static void eml_xgeqp3(emxArray_real_T *A, emxArray_real_T *tau,
     mn = A->size[1];
   }
 
-  i41 = tau->size[0];
+  i37 = tau->size[0];
   tau->size[0] = mn;
-  emxEnsureCapacity((emxArray__common *)tau, i41, (int)sizeof(double));
+  emxEnsureCapacity((emxArray__common *)tau, i37, (int)sizeof(double));
   eml_signed_integer_colon(A->size[1], jpvt);
   if ((A->size[0] == 0) || (A->size[1] == 0)) {
   } else {
     b_emxInit_real_T(&work, 1);
     k = A->size[1];
-    i41 = work->size[0];
+    i37 = work->size[0];
     work->size[0] = k;
-    emxEnsureCapacity((emxArray__common *)work, i41, (int)sizeof(double));
-    for (i41 = 0; i41 < k; i41++) {
-      work->data[i41] = 0.0;
+    emxEnsureCapacity((emxArray__common *)work, i37, (int)sizeof(double));
+    for (i37 = 0; i37 < k; i37++) {
+      work->data[i37] = 0.0;
     }
 
     b_emxInit_real_T(&vn1, 1);
     b_emxInit_real_T(&vn2, 1);
     k = A->size[1];
-    i41 = vn1->size[0];
+    i37 = vn1->size[0];
     vn1->size[0] = k;
-    emxEnsureCapacity((emxArray__common *)vn1, i41, (int)sizeof(double));
-    i41 = vn2->size[0];
+    emxEnsureCapacity((emxArray__common *)vn1, i37, (int)sizeof(double));
+    i37 = vn2->size[0];
     vn2->size[0] = k;
-    emxEnsureCapacity((emxArray__common *)vn2, i41, (int)sizeof(double));
+    emxEnsureCapacity((emxArray__common *)vn2, i37, (int)sizeof(double));
     k = 1;
     for (nmi = 0; nmi + 1 <= n; nmi++) {
       vn1->data[nmi] = eml_xnrm2(b_m, A, k);
@@ -457,9 +458,9 @@ static void eml_xgeqp3(emxArray_real_T *A, emxArray_real_T *tau,
             }
 
             iy = 0;
-            i41 = i_ip1 + b_m * (lastc - 1);
+            i37 = i_ip1 + b_m * (lastc - 1);
             pvt = i_ip1;
-            while ((b_m > 0) && (pvt <= i41)) {
+            while ((b_m > 0) && (pvt <= i37)) {
               ix = i_i;
               smax = 0.0;
               k = pvt + lastv;
@@ -481,8 +482,8 @@ static void eml_xgeqp3(emxArray_real_T *A, emxArray_real_T *tau,
               if (work->data[pvt] != 0.0) {
                 smax = work->data[pvt] * -tau->data[i];
                 ix = i_i;
-                i41 = lastv + i_ip1;
-                for (k = i_ip1; k <= i41; k++) {
+                i37 = lastv + i_ip1;
+                for (k = i_ip1; k <= i37; k++) {
                   A->data[k - 1] += A->data[ix] * smax;
                   ix++;
                 }
@@ -601,10 +602,10 @@ static double eml_xnrm2(int n, const emxArray_real_T *x, int ix0)
 //
 static void eml_xscal(int n, double a, emxArray_real_T *x, int ix0)
 {
-  int i42;
+  int i38;
   int k;
-  i42 = (ix0 + n) - 1;
-  for (k = ix0; k <= i42; k++) {
+  i38 = (ix0 + n) - 1;
+  for (k = ix0; k <= i38; k++) {
     x->data[k - 1] *= a;
   }
 }
@@ -650,7 +651,7 @@ void mrdivide(const emxArray_real_T *A, const emxArray_real_T *B,
   emxArray_int32_T *jpvt;
   unsigned int unnamed_idx_0;
   unsigned int unnamed_idx_1;
-  int i13;
+  int i16;
   int i;
   int minmn;
   int maxmn;
@@ -668,49 +669,49 @@ void mrdivide(const emxArray_real_T *A, const emxArray_real_T *B,
         == 0))) {
     unnamed_idx_0 = (unsigned int)A->size[0];
     unnamed_idx_1 = (unsigned int)B->size[0];
-    i13 = y->size[0] * y->size[1];
+    i16 = y->size[0] * y->size[1];
     y->size[0] = (int)unnamed_idx_0;
-    emxEnsureCapacity((emxArray__common *)y, i13, (int)sizeof(double));
-    i13 = y->size[0] * y->size[1];
+    emxEnsureCapacity((emxArray__common *)y, i16, (int)sizeof(double));
+    i16 = y->size[0] * y->size[1];
     y->size[1] = (int)unnamed_idx_1;
-    emxEnsureCapacity((emxArray__common *)y, i13, (int)sizeof(double));
+    emxEnsureCapacity((emxArray__common *)y, i16, (int)sizeof(double));
     i = (int)unnamed_idx_0 * (int)unnamed_idx_1;
-    for (i13 = 0; i13 < i; i13++) {
-      y->data[i13] = 0.0;
+    for (i16 = 0; i16 < i; i16++) {
+      y->data[i16] = 0.0;
     }
   } else if (B->size[0] == B->size[1]) {
-    i13 = y->size[0] * y->size[1];
+    i16 = y->size[0] * y->size[1];
     y->size[0] = A->size[0];
     y->size[1] = A->size[1];
-    emxEnsureCapacity((emxArray__common *)y, i13, (int)sizeof(double));
+    emxEnsureCapacity((emxArray__common *)y, i16, (int)sizeof(double));
     i = A->size[0] * A->size[1];
-    for (i13 = 0; i13 < i; i13++) {
-      y->data[i13] = A->data[i13];
+    for (i16 = 0; i16 < i; i16++) {
+      y->data[i16] = A->data[i16];
     }
 
     eml_lusolve(B, y);
   } else {
-    i13 = b_B->size[0] * b_B->size[1];
+    i16 = b_B->size[0] * b_B->size[1];
     b_B->size[0] = A->size[1];
     b_B->size[1] = A->size[0];
-    emxEnsureCapacity((emxArray__common *)b_B, i13, (int)sizeof(double));
+    emxEnsureCapacity((emxArray__common *)b_B, i16, (int)sizeof(double));
     i = A->size[0];
-    for (i13 = 0; i13 < i; i13++) {
+    for (i16 = 0; i16 < i; i16++) {
       minmn = A->size[1];
       for (maxmn = 0; maxmn < minmn; maxmn++) {
-        b_B->data[maxmn + b_B->size[0] * i13] = A->data[i13 + A->size[0] * maxmn];
+        b_B->data[maxmn + b_B->size[0] * i16] = A->data[i16 + A->size[0] * maxmn];
       }
     }
 
-    i13 = b_A->size[0] * b_A->size[1];
+    i16 = b_A->size[0] * b_A->size[1];
     b_A->size[0] = B->size[1];
     b_A->size[1] = B->size[0];
-    emxEnsureCapacity((emxArray__common *)b_A, i13, (int)sizeof(double));
+    emxEnsureCapacity((emxArray__common *)b_A, i16, (int)sizeof(double));
     i = B->size[0];
-    for (i13 = 0; i13 < i; i13++) {
+    for (i16 = 0; i16 < i; i16++) {
       minmn = B->size[1];
       for (maxmn = 0; maxmn < minmn; maxmn++) {
-        b_A->data[maxmn + b_A->size[0] * i13] = B->data[i13 + B->size[0] * maxmn];
+        b_A->data[maxmn + b_A->size[0] * i16] = B->data[i16 + B->size[0] * maxmn];
       }
     }
 
@@ -742,15 +743,15 @@ void mrdivide(const emxArray_real_T *A, const emxArray_real_T *B,
 
     minmn = b_A->size[1];
     maxmn = b_B->size[1];
-    i13 = Y->size[0] * Y->size[1];
+    i16 = Y->size[0] * Y->size[1];
     Y->size[0] = minmn;
-    emxEnsureCapacity((emxArray__common *)Y, i13, (int)sizeof(double));
-    i13 = Y->size[0] * Y->size[1];
+    emxEnsureCapacity((emxArray__common *)Y, i16, (int)sizeof(double));
+    i16 = Y->size[0] * Y->size[1];
     Y->size[1] = maxmn;
-    emxEnsureCapacity((emxArray__common *)Y, i13, (int)sizeof(double));
+    emxEnsureCapacity((emxArray__common *)Y, i16, (int)sizeof(double));
     i = minmn * maxmn;
-    for (i13 = 0; i13 < i; i13++) {
-      Y->data[i13] = 0.0;
+    for (i16 = 0; i16 < i; i16++) {
+      Y->data[i16] = 0.0;
     }
 
     for (minmn = 0; minmn + 1 <= mn; minmn++) {
@@ -791,15 +792,15 @@ void mrdivide(const emxArray_real_T *A, const emxArray_real_T *B,
       }
     }
 
-    i13 = y->size[0] * y->size[1];
+    i16 = y->size[0] * y->size[1];
     y->size[0] = Y->size[1];
     y->size[1] = Y->size[0];
-    emxEnsureCapacity((emxArray__common *)y, i13, (int)sizeof(double));
+    emxEnsureCapacity((emxArray__common *)y, i16, (int)sizeof(double));
     i = Y->size[0];
-    for (i13 = 0; i13 < i; i13++) {
+    for (i16 = 0; i16 < i; i16++) {
       minmn = Y->size[1];
       for (maxmn = 0; maxmn < minmn; maxmn++) {
-        y->data[maxmn + y->size[0] * i13] = Y->data[i13 + Y->size[0] * maxmn];
+        y->data[maxmn + y->size[0] * i16] = Y->data[i16 + Y->size[0] * maxmn];
       }
     }
   }

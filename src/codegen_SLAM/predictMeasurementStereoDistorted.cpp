@@ -5,7 +5,7 @@
 // File: predictMeasurementStereoDistorted.cpp
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 02-Oct-2015 15:34:55
+// C/C++ source code generated on  : 05-Oct-2015 20:16:23
 //
 
 // Include Files
@@ -14,6 +14,7 @@
 #include "predictMeasurementStereoDistorted.h"
 #include "SLAM_rtwutil.h"
 #include <ros/console.h>
+#include <stdio.h>
 
 // Function Declarations
 static void predictMeasurementDistortedPB(const double fp[3], const double
@@ -86,18 +87,18 @@ void c_predictMeasurementStereoDisto(const double fp_l[3], const double
   double stereoParams_R_rl[9], double h_d_l[2], double h_d_r[2])
 {
   double b_stereoParams_R_rl[3];
-  int i28;
+  int i24;
   double d3;
-  int i29;
+  int i25;
   predictMeasurementDistortedPB(fp_l, c_stereoParams_CameraParameters,
     d_stereoParams_CameraParameters, e_stereoParams_CameraParameters, h_d_l);
-  for (i28 = 0; i28 < 3; i28++) {
+  for (i24 = 0; i24 < 3; i24++) {
     d3 = 0.0;
-    for (i29 = 0; i29 < 3; i29++) {
-      d3 += stereoParams_R_rl[i28 + 3 * i29] * fp_l[i29];
+    for (i25 = 0; i25 < 3; i25++) {
+      d3 += stereoParams_R_rl[i24 + 3 * i25] * fp_l[i25];
     }
 
-    b_stereoParams_R_rl[i28] = d3 - stereoParams_r_lr[i28];
+    b_stereoParams_R_rl[i24] = d3 - stereoParams_r_lr[i24];
   }
 
   predictMeasurementDistortedPB(b_stereoParams_R_rl,

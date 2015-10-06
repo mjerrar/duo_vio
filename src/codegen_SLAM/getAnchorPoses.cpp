@@ -5,7 +5,7 @@
 // File: getAnchorPoses.cpp
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 02-Oct-2015 15:34:55
+// C/C++ source code generated on  : 05-Oct-2015 20:16:23
 //
 
 // Include Files
@@ -16,6 +16,7 @@
 #include "SLAM_emxutil.h"
 #include "SLAM_data.h"
 #include <ros/console.h>
+#include <stdio.h>
 
 // Function Definitions
 

@@ -5,7 +5,7 @@
 // File: eml_sort.cpp
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 02-Oct-2015 15:34:55
+// C/C++ source code generated on  : 05-Oct-2015 20:16:23
 //
 
 // Include Files
@@ -14,6 +14,7 @@
 #include "eml_sort.h"
 #include "SLAM_emxutil.h"
 #include <ros/console.h>
+#include <stdio.h>
 
 // Function Declarations
 static void b_eml_sort(emxArray_real_T *x, int dim, emxArray_int32_T *idx);
@@ -33,21 +34,21 @@ static void merge_block(emxArray_int32_T *idx, emxArray_real_T *x, int offset,
 //
 static void b_eml_sort(emxArray_real_T *x, int dim, emxArray_int32_T *idx)
 {
-  int i35;
+  int i31;
   emxArray_real_T *vwork;
   int vstride;
   int unnamed_idx_0;
   int j;
   emxArray_int32_T *iidx;
   if (dim <= 1) {
-    i35 = x->size[0];
+    i31 = x->size[0];
   } else {
-    i35 = 1;
+    i31 = 1;
   }
 
   b_emxInit_real_T(&vwork, 1);
   vstride = vwork->size[0];
-  vwork->size[0] = i35;
+  vwork->size[0] = i31;
   emxEnsureCapacity((emxArray__common *)vwork, vstride, (int)sizeof(double));
   unnamed_idx_0 = x->size[0];
   vstride = idx->size[0];
@@ -63,12 +64,12 @@ static void b_eml_sort(emxArray_real_T *x, int dim, emxArray_int32_T *idx)
   j = 0;
   b_emxInit_int32_T(&iidx, 1);
   while (j + 1 <= vstride) {
-    for (unnamed_idx_0 = 0; unnamed_idx_0 + 1 <= i35; unnamed_idx_0++) {
+    for (unnamed_idx_0 = 0; unnamed_idx_0 + 1 <= i31; unnamed_idx_0++) {
       vwork->data[unnamed_idx_0] = x->data[j + unnamed_idx_0 * vstride];
     }
 
     eml_sort_idx(vwork, iidx);
-    for (unnamed_idx_0 = 0; unnamed_idx_0 + 1 <= i35; unnamed_idx_0++) {
+    for (unnamed_idx_0 = 0; unnamed_idx_0 + 1 <= i31; unnamed_idx_0++) {
       x->data[j + unnamed_idx_0 * vstride] = vwork->data[unnamed_idx_0];
       idx->data[j + unnamed_idx_0 * vstride] = iidx->data[unnamed_idx_0];
     }

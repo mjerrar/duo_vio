@@ -5,7 +5,7 @@
 // File: getH_R_res.cpp
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 02-Oct-2015 15:34:55
+// C/C++ source code generated on  : 05-Oct-2015 20:16:23
 //
 
 // Include Files
@@ -15,6 +15,7 @@
 #include "SLAM_emxutil.h"
 #include "SLAM_data.h"
 #include <ros/console.h>
+#include <stdio.h>
 
 // Function Definitions
 
@@ -48,7 +49,7 @@
 //                const boolean_T b_status[40]
 //                const double cameraparams_FocalLength[2]
 //                const double cameraparams_PrincipalPoint[2]
-//                const double noiseParameters_image_noise[2]
+//                double noiseParameters_image_noise
 //                emxArray_real_T *r
 //                emxArray_real_T *H
 //                emxArray_real_T *R
@@ -58,16 +59,16 @@ void getH_R_res(const double xt_robot_state_pos[3], const double
                 xt_robot_state_att[4], const emxArray_b_struct_T
                 *xt_anchor_states, const double z_all_l[80], const boolean_T
                 b_status[40], const double cameraparams_FocalLength[2], const
-                double cameraparams_PrincipalPoint[2], const double
-                noiseParameters_image_noise[2], emxArray_real_T *r,
-                emxArray_real_T *H, emxArray_real_T *R)
+                double cameraparams_PrincipalPoint[2], double
+                noiseParameters_image_noise, emxArray_real_T *r, emxArray_real_T
+                *H, emxArray_real_T *R)
 {
   double fx;
   double fy;
   int n;
-  int kidx;
+  int j;
   double R_cw[9];
-  int ar;
+  int br;
   emxArray_real_T *b_h_u;
   double res_idx;
   int anchorIdx;
@@ -77,31 +78,29 @@ void getH_R_res(const double xt_robot_state_pos[3], const double
   emxArray_real_T *b;
   double anchorRot[9];
   int featureIdx;
-  double b_xt_anchor_states;
+  double varargin_2;
   double h_c_n_l[2];
   double b_res_idx;
   double h_u_To_h_ci_l[6];
   double h_ci_l_To_R_cw[9];
-  int i2;
-  int br;
+  int ar;
+  int ib;
   double y[3];
-  double c_xt_anchor_states[3];
+  double b_xt_anchor_states[3];
   double h_ci_l_To_rho[3];
   double b_R_cw[9];
   double dv0[9];
   double c_R_cw[9];
   int iv0[2];
-  int b_j1;
-  double v[2];
+  int cr;
+  unsigned int unnamed_idx_1;
   int ic;
   int ia;
-  emxArray_real_T *I;
-  double d[4];
   fx = cameraparams_FocalLength[0];
   fy = cameraparams_FocalLength[1];
   n = 0;
-  for (kidx = 0; kidx < 40; kidx++) {
-    if (b_status[kidx]) {
+  for (j = 0; j < 40; j++) {
+    if (b_status[j]) {
       n++;
     }
   }
@@ -136,31 +135,31 @@ void getH_R_res(const double xt_robot_state_pos[3], const double
               xt_robot_state_att[1] * xt_robot_state_att[1]) +
              xt_robot_state_att[2] * xt_robot_state_att[2]) +
     xt_robot_state_att[3] * xt_robot_state_att[3];
-  ar = H->size[0] * H->size[1];
+  br = H->size[0] * H->size[1];
   H->size[0] = (int)((double)n * 2.0);
   H->size[1] = (int)(numStates + numAnchors * (6.0 + numPointsPerAnchor));
-  emxEnsureCapacity((emxArray__common *)H, ar, (int)sizeof(double));
-  kidx = (int)((double)n * 2.0) * (int)(numStates + numAnchors * (6.0 +
+  emxEnsureCapacity((emxArray__common *)H, br, (int)sizeof(double));
+  j = (int)((double)n * 2.0) * (int)(numStates + numAnchors * (6.0 +
     numPointsPerAnchor));
-  for (ar = 0; ar < kidx; ar++) {
-    H->data[ar] = 0.0;
+  for (br = 0; br < j; br++) {
+    H->data[br] = 0.0;
   }
 
-  ar = r->size[0];
+  br = r->size[0];
   r->size[0] = (int)((double)n * 2.0);
-  emxEnsureCapacity((emxArray__common *)r, ar, (int)sizeof(double));
-  kidx = (int)((double)n * 2.0);
-  for (ar = 0; ar < kidx; ar++) {
-    r->data[ar] = 0.0;
+  emxEnsureCapacity((emxArray__common *)r, br, (int)sizeof(double));
+  j = (int)((double)n * 2.0);
+  for (br = 0; br < j; br++) {
+    r->data[br] = 0.0;
   }
 
   b_emxInit_real_T(&b_h_u, 1);
-  ar = b_h_u->size[0];
+  br = b_h_u->size[0];
   b_h_u->size[0] = (int)((double)n * 2.0);
-  emxEnsureCapacity((emxArray__common *)b_h_u, ar, (int)sizeof(double));
-  kidx = (int)((double)n * 2.0);
-  for (ar = 0; ar < kidx; ar++) {
-    b_h_u->data[ar] = 0.0;
+  emxEnsureCapacity((emxArray__common *)b_h_u, br, (int)sizeof(double));
+  j = (int)((double)n * 2.0);
+  for (br = 0; br < j; br++) {
+    b_h_u->data[br] = 0.0;
   }
 
   res_idx = 1.0;
@@ -232,11 +231,11 @@ void getH_R_res(const double xt_robot_state_pos[3], const double
         // camera frame
         //    Get the normalized pixel coordinates where a feature given in the left camera 
         //    frame
-        b_xt_anchor_states = xt_anchor_states->data[anchorIdx]
-          .feature_states->data[featureIdx].scaled_map_point[2];
-        for (ar = 0; ar < 2; ar++) {
-          h_c_n_l[ar] = xt_anchor_states->data[anchorIdx].feature_states->
-            data[featureIdx].scaled_map_point[ar] / b_xt_anchor_states;
+        varargin_2 = xt_anchor_states->data[anchorIdx].feature_states->
+          data[featureIdx].scaled_map_point[2];
+        for (br = 0; br < 2; br++) {
+          h_c_n_l[br] = xt_anchor_states->data[anchorIdx].feature_states->
+            data[featureIdx].scaled_map_point[br] / varargin_2;
         }
 
         //  normalized feature in camera frame
@@ -246,12 +245,11 @@ void getH_R_res(const double xt_robot_state_pos[3], const double
         b_h_u->data[(int)(b_res_idx + 2.0) - 1] = h_c_n_l[1] *
           cameraparams_FocalLength[1] + cameraparams_PrincipalPoint[1];
         b_res_idx = (res_idx - 1.0) * 2.0;
-        b_xt_anchor_states = (xt_anchor_states->data[anchorIdx]
-                              .feature_states->data[featureIdx].status_idx - 1.0)
-          * 2.0;
-        for (ar = 0; ar < 2; ar++) {
-          r->data[(int)(b_res_idx + (1.0 + (double)ar)) - 1] = z_all_l[(int)
-            (b_xt_anchor_states + (1.0 + (double)ar)) - 1];
+        varargin_2 = (xt_anchor_states->data[anchorIdx].feature_states->
+                      data[featureIdx].status_idx - 1.0) * 2.0;
+        for (br = 0; br < 2; br++) {
+          r->data[(int)(b_res_idx + (1.0 + (double)br)) - 1] = z_all_l[(int)
+            (varargin_2 + (1.0 + (double)br)) - 1];
         }
 
         h_u_To_h_ci_l[0] = fx / xt_anchor_states->data[anchorIdx].
@@ -290,78 +288,77 @@ void getH_R_res(const double xt_robot_state_pos[3], const double
                                 feature_states->data[featureIdx].inverse_depth <
              0.0)) {
           //  delayed initialization or feature behind anchor
-          i2 = (int)(numStates - 6.0);
-          ar = H_robot->size[0] * H_robot->size[1];
+          ar = (int)(numStates - 6.0);
+          br = H_robot->size[0] * H_robot->size[1];
           H_robot->size[0] = 3;
           H_robot->size[1] = 6 + (int)(numStates - 6.0);
-          emxEnsureCapacity((emxArray__common *)H_robot, ar, (int)sizeof(double));
-          for (ar = 0; ar < 3; ar++) {
-            for (br = 0; br < 3; br++) {
-              H_robot->data[br + H_robot->size[0] * ar] = 0.0;
+          emxEnsureCapacity((emxArray__common *)H_robot, br, (int)sizeof(double));
+          for (br = 0; br < 3; br++) {
+            for (ib = 0; ib < 3; ib++) {
+              H_robot->data[ib + H_robot->size[0] * br] = 0.0;
             }
           }
 
-          for (ar = 0; ar < 3; ar++) {
-            for (br = 0; br < 3; br++) {
-              H_robot->data[br + H_robot->size[0] * (ar + 3)] = 0.0 *
-                h_ci_l_To_R_cw[br + 3 * ar];
+          for (br = 0; br < 3; br++) {
+            for (ib = 0; ib < 3; ib++) {
+              H_robot->data[ib + H_robot->size[0] * (br + 3)] = 0.0 *
+                h_ci_l_To_R_cw[ib + 3 * br];
             }
           }
 
-          for (ar = 0; ar < i2; ar++) {
-            for (br = 0; br < 3; br++) {
-              H_robot->data[br + H_robot->size[0] * (ar + 6)] = 0.0;
+          for (br = 0; br < ar; br++) {
+            for (ib = 0; ib < 3; ib++) {
+              H_robot->data[ib + H_robot->size[0] * (br + 6)] = 0.0;
             }
           }
         } else {
-          b_xt_anchor_states = -xt_anchor_states->data[anchorIdx].
-            feature_states->data[featureIdx].inverse_depth;
-          i2 = (int)(numStates - 6.0);
-          ar = H_robot->size[0] * H_robot->size[1];
+          varargin_2 = -xt_anchor_states->data[anchorIdx].feature_states->
+            data[featureIdx].inverse_depth;
+          ar = (int)(numStates - 6.0);
+          br = H_robot->size[0] * H_robot->size[1];
           H_robot->size[0] = 3;
           H_robot->size[1] = 6 + (int)(numStates - 6.0);
-          emxEnsureCapacity((emxArray__common *)H_robot, ar, (int)sizeof(double));
-          for (ar = 0; ar < 3; ar++) {
-            for (br = 0; br < 3; br++) {
-              H_robot->data[br + H_robot->size[0] * ar] = b_xt_anchor_states *
-                R_cw[br + 3 * ar];
+          emxEnsureCapacity((emxArray__common *)H_robot, br, (int)sizeof(double));
+          for (br = 0; br < 3; br++) {
+            for (ib = 0; ib < 3; ib++) {
+              H_robot->data[ib + H_robot->size[0] * br] = varargin_2 * R_cw[ib +
+                3 * br];
             }
           }
 
-          for (ar = 0; ar < 3; ar++) {
-            for (br = 0; br < 3; br++) {
-              H_robot->data[br + H_robot->size[0] * (ar + 3)] =
-                h_ci_l_To_R_cw[br + 3 * ar];
+          for (br = 0; br < 3; br++) {
+            for (ib = 0; ib < 3; ib++) {
+              H_robot->data[ib + H_robot->size[0] * (br + 3)] =
+                h_ci_l_To_R_cw[ib + 3 * br];
             }
           }
 
-          for (ar = 0; ar < i2; ar++) {
-            for (br = 0; br < 3; br++) {
-              H_robot->data[br + H_robot->size[0] * (ar + 6)] = 0.0;
+          for (br = 0; br < ar; br++) {
+            for (ib = 0; ib < 3; ib++) {
+              H_robot->data[ib + H_robot->size[0] * (br + 6)] = 0.0;
             }
           }
         }
 
         //             %% anchor state derivatives
-        for (ar = 0; ar < 3; ar++) {
-          y[ar] = 0.0;
-          for (br = 0; br < 3; br++) {
-            b_xt_anchor_states = y[ar] + anchorRot[br + 3 * ar] *
-              xt_anchor_states->data[anchorIdx].feature_states->data[featureIdx]
-              .m[br];
-            y[ar] = b_xt_anchor_states;
+        for (br = 0; br < 3; br++) {
+          y[br] = 0.0;
+          for (ib = 0; ib < 3; ib++) {
+            varargin_2 = y[br] + anchorRot[ib + 3 * br] * xt_anchor_states->
+              data[anchorIdx].feature_states->data[featureIdx].m[ib];
+            y[br] = varargin_2;
           }
         }
 
-        for (ar = 0; ar < 3; ar++) {
-          c_xt_anchor_states[ar] = xt_anchor_states->data[anchorIdx].pos[ar] -
-            xt_robot_state_pos[ar];
+        for (br = 0; br < 3; br++) {
+          b_xt_anchor_states[br] = xt_anchor_states->data[anchorIdx].pos[br] -
+            xt_robot_state_pos[br];
         }
 
-        for (ar = 0; ar < 3; ar++) {
-          h_ci_l_To_rho[ar] = 0.0;
-          for (br = 0; br < 3; br++) {
-            h_ci_l_To_rho[ar] += R_cw[ar + 3 * br] * c_xt_anchor_states[br];
+        for (br = 0; br < 3; br++) {
+          h_ci_l_To_rho[br] = 0.0;
+          for (ib = 0; ib < 3; ib++) {
+            h_ci_l_To_rho[br] += R_cw[br + 3 * ib] * b_xt_anchor_states[ib];
           }
         }
 
@@ -370,34 +367,34 @@ void getH_R_res(const double xt_robot_state_pos[3], const double
                                 feature_states->data[featureIdx].inverse_depth <
              0.0)) {
           //  delayed initialization or feature behind anchor
-          i2 = (int)(numPointsPerAnchor - (1.0 + (double)featureIdx));
-          ar = H_map->size[0] * H_map->size[1];
+          ar = (int)(numPointsPerAnchor - (1.0 + (double)featureIdx));
+          br = H_map->size[0] * H_map->size[1];
           H_map->size[0] = 3;
-          H_map->size[1] = ((int)((6.0 + (1.0 + (double)featureIdx)) - 1.0) + i2)
+          H_map->size[1] = ((int)((6.0 + (1.0 + (double)featureIdx)) - 1.0) + ar)
             + 1;
-          emxEnsureCapacity((emxArray__common *)H_map, ar, (int)sizeof(double));
-          kidx = (int)((6.0 + (1.0 + (double)featureIdx)) - 1.0);
-          for (ar = 0; ar < kidx; ar++) {
-            for (br = 0; br < 3; br++) {
-              H_map->data[br + H_map->size[0] * ar] = 0.0;
+          emxEnsureCapacity((emxArray__common *)H_map, br, (int)sizeof(double));
+          j = (int)((6.0 + (1.0 + (double)featureIdx)) - 1.0);
+          for (br = 0; br < j; br++) {
+            for (ib = 0; ib < 3; ib++) {
+              H_map->data[ib + H_map->size[0] * br] = 0.0;
             }
           }
 
-          for (ar = 0; ar < 3; ar++) {
-            H_map->data[ar + H_map->size[0] * (int)((6.0 + (1.0 + (double)
-              featureIdx)) - 1.0)] = h_ci_l_To_rho[ar];
+          for (br = 0; br < 3; br++) {
+            H_map->data[br + H_map->size[0] * (int)((6.0 + (1.0 + (double)
+              featureIdx)) - 1.0)] = h_ci_l_To_rho[br];
           }
 
-          for (ar = 0; ar < i2; ar++) {
-            for (br = 0; br < 3; br++) {
-              H_map->data[br + H_map->size[0] * ((ar + (int)((6.0 + (1.0 +
+          for (br = 0; br < ar; br++) {
+            for (ib = 0; ib < 3; ib++) {
+              H_map->data[ib + H_map->size[0] * ((br + (int)((6.0 + (1.0 +
                 (double)featureIdx)) - 1.0)) + 1)] = 0.0;
             }
           }
         } else {
-          for (ar = 0; ar < 3; ar++) {
-            for (br = 0; br < 3; br++) {
-              b_R_cw[br + 3 * ar] = -R_cw[br + 3 * ar];
+          for (br = 0; br < 3; br++) {
+            for (ib = 0; ib < 3; ib++) {
+              b_R_cw[ib + 3 * br] = -R_cw[ib + 3 * br];
             }
           }
 
@@ -410,123 +407,123 @@ void getH_R_res(const double xt_robot_state_pos[3], const double
           dv0[2] = -y[1];
           dv0[5] = y[0];
           dv0[8] = 0.0;
-          i2 = (int)(numPointsPerAnchor - (1.0 + (double)featureIdx));
-          for (ar = 0; ar < 3; ar++) {
-            for (br = 0; br < 3; br++) {
-              c_R_cw[ar + 3 * br] = 0.0;
-              for (kidx = 0; kidx < 3; kidx++) {
-                c_R_cw[ar + 3 * br] += b_R_cw[ar + 3 * kidx] * dv0[kidx + 3 * br];
+          ar = (int)(numPointsPerAnchor - (1.0 + (double)featureIdx));
+          for (br = 0; br < 3; br++) {
+            for (ib = 0; ib < 3; ib++) {
+              c_R_cw[br + 3 * ib] = 0.0;
+              for (j = 0; j < 3; j++) {
+                c_R_cw[br + 3 * ib] += b_R_cw[br + 3 * j] * dv0[j + 3 * ib];
               }
             }
           }
 
-          ar = H_map->size[0] * H_map->size[1];
+          br = H_map->size[0] * H_map->size[1];
           H_map->size[0] = 3;
-          H_map->size[1] = ((int)((1.0 + (double)featureIdx) - 1.0) + i2) + 7;
-          emxEnsureCapacity((emxArray__common *)H_map, ar, (int)sizeof(double));
-          for (ar = 0; ar < 3; ar++) {
-            for (br = 0; br < 3; br++) {
-              H_map->data[br + H_map->size[0] * ar] = xt_anchor_states->
+          H_map->size[1] = ((int)((1.0 + (double)featureIdx) - 1.0) + ar) + 7;
+          emxEnsureCapacity((emxArray__common *)H_map, br, (int)sizeof(double));
+          for (br = 0; br < 3; br++) {
+            for (ib = 0; ib < 3; ib++) {
+              H_map->data[ib + H_map->size[0] * br] = xt_anchor_states->
                 data[anchorIdx].feature_states->data[featureIdx].inverse_depth *
-                R_cw[br + 3 * ar];
+                R_cw[ib + 3 * br];
             }
           }
 
-          for (ar = 0; ar < 3; ar++) {
-            for (br = 0; br < 3; br++) {
-              H_map->data[br + H_map->size[0] * (ar + 3)] = c_R_cw[br + 3 * ar];
+          for (br = 0; br < 3; br++) {
+            for (ib = 0; ib < 3; ib++) {
+              H_map->data[ib + H_map->size[0] * (br + 3)] = c_R_cw[ib + 3 * br];
             }
           }
 
-          kidx = (int)((1.0 + (double)featureIdx) - 1.0);
-          for (ar = 0; ar < kidx; ar++) {
-            for (br = 0; br < 3; br++) {
-              H_map->data[br + H_map->size[0] * (ar + 6)] = 0.0;
+          j = (int)((1.0 + (double)featureIdx) - 1.0);
+          for (br = 0; br < j; br++) {
+            for (ib = 0; ib < 3; ib++) {
+              H_map->data[ib + H_map->size[0] * (br + 6)] = 0.0;
             }
           }
 
-          for (ar = 0; ar < 3; ar++) {
-            H_map->data[ar + H_map->size[0] * (6 + (int)((1.0 + (double)
-              featureIdx) - 1.0))] = h_ci_l_To_rho[ar];
+          for (br = 0; br < 3; br++) {
+            H_map->data[br + H_map->size[0] * (6 + (int)((1.0 + (double)
+              featureIdx) - 1.0))] = h_ci_l_To_rho[br];
           }
 
-          for (ar = 0; ar < i2; ar++) {
-            for (br = 0; br < 3; br++) {
-              H_map->data[br + H_map->size[0] * ((ar + (int)((1.0 + (double)
+          for (br = 0; br < ar; br++) {
+            for (ib = 0; ib < 3; ib++) {
+              H_map->data[ib + H_map->size[0] * ((br + (int)((1.0 + (double)
                 featureIdx) - 1.0)) + 7)] = 0.0;
             }
           }
         }
 
         b_res_idx = (res_idx - 1.0) * 2.0;
-        for (ar = 0; ar < 2; ar++) {
-          iv0[ar] = (int)(b_res_idx + (1.0 + (double)ar)) - 1;
+        for (br = 0; br < 2; br++) {
+          iv0[br] = (int)(b_res_idx + (1.0 + (double)br)) - 1;
         }
 
-        i2 = (int)(((1.0 + (double)anchorIdx) - 1.0) * (6.0 + numPointsPerAnchor));
-        b_j1 = (int)((numAnchors - (1.0 + (double)anchorIdx)) * (6.0 +
-          numPointsPerAnchor));
-        ar = b->size[0] * b->size[1];
+        ar = (int)(((1.0 + (double)anchorIdx) - 1.0) * (6.0 + numPointsPerAnchor));
+        cr = (int)((numAnchors - (1.0 + (double)anchorIdx)) * (6.0 +
+                    numPointsPerAnchor));
+        br = b->size[0] * b->size[1];
         b->size[0] = 3;
-        b->size[1] = ((H_robot->size[1] + i2) + H_map->size[1]) + b_j1;
-        emxEnsureCapacity((emxArray__common *)b, ar, (int)sizeof(double));
-        kidx = H_robot->size[1];
-        for (ar = 0; ar < kidx; ar++) {
-          for (br = 0; br < 3; br++) {
-            b->data[br + b->size[0] * ar] = H_robot->data[br + H_robot->size[0] *
-              ar];
+        b->size[1] = ((H_robot->size[1] + ar) + H_map->size[1]) + cr;
+        emxEnsureCapacity((emxArray__common *)b, br, (int)sizeof(double));
+        j = H_robot->size[1];
+        for (br = 0; br < j; br++) {
+          for (ib = 0; ib < 3; ib++) {
+            b->data[ib + b->size[0] * br] = H_robot->data[ib + H_robot->size[0] *
+              br];
           }
         }
 
-        for (ar = 0; ar < i2; ar++) {
-          for (br = 0; br < 3; br++) {
-            b->data[br + b->size[0] * (ar + H_robot->size[1])] = 0.0;
+        for (br = 0; br < ar; br++) {
+          for (ib = 0; ib < 3; ib++) {
+            b->data[ib + b->size[0] * (br + H_robot->size[1])] = 0.0;
           }
         }
 
-        kidx = H_map->size[1];
-        for (ar = 0; ar < kidx; ar++) {
-          for (br = 0; br < 3; br++) {
-            b->data[br + b->size[0] * ((ar + H_robot->size[1]) + i2)] =
-              H_map->data[br + H_map->size[0] * ar];
+        j = H_map->size[1];
+        for (br = 0; br < j; br++) {
+          for (ib = 0; ib < 3; ib++) {
+            b->data[ib + b->size[0] * ((br + H_robot->size[1]) + ar)] =
+              H_map->data[ib + H_map->size[0] * br];
           }
         }
 
-        for (ar = 0; ar < b_j1; ar++) {
-          for (br = 0; br < 3; br++) {
-            b->data[br + b->size[0] * (((ar + H_robot->size[1]) + i2) +
+        for (br = 0; br < cr; br++) {
+          for (ib = 0; ib < 3; ib++) {
+            b->data[ib + b->size[0] * (((br + H_robot->size[1]) + ar) +
               H_map->size[1])] = 0.0;
           }
         }
 
-        v[1] = b->size[1];
-        ar = C->size[0] * C->size[1];
+        unnamed_idx_1 = (unsigned int)b->size[1];
+        br = C->size[0] * C->size[1];
         C->size[0] = 2;
-        emxEnsureCapacity((emxArray__common *)C, ar, (int)sizeof(double));
-        ar = C->size[0] * C->size[1];
-        C->size[1] = (int)v[1];
-        emxEnsureCapacity((emxArray__common *)C, ar, (int)sizeof(double));
-        kidx = (int)v[1] << 1;
-        for (ar = 0; ar < kidx; ar++) {
-          C->data[ar] = 0.0;
+        emxEnsureCapacity((emxArray__common *)C, br, (int)sizeof(double));
+        br = C->size[0] * C->size[1];
+        C->size[1] = (int)unnamed_idx_1;
+        emxEnsureCapacity((emxArray__common *)C, br, (int)sizeof(double));
+        j = (int)unnamed_idx_1 << 1;
+        for (br = 0; br < j; br++) {
+          C->data[br] = 0.0;
         }
 
-        kidx = (b->size[1] - 1) << 1;
-        for (b_j1 = 0; b_j1 <= kidx; b_j1 += 2) {
-          for (ic = b_j1; ic + 1 <= b_j1 + 2; ic++) {
+        j = (b->size[1] - 1) << 1;
+        for (cr = 0; cr <= j; cr += 2) {
+          for (ic = cr; ic + 1 <= cr + 2; ic++) {
             C->data[ic] = 0.0;
           }
         }
 
         br = 0;
-        for (b_j1 = 0; b_j1 <= kidx; b_j1 += 2) {
+        for (cr = 0; cr <= j; cr += 2) {
           ar = 0;
-          for (i2 = br; i2 + 1 <= br + 3; i2++) {
-            if (b->data[i2] != 0.0) {
+          for (ib = br; ib + 1 <= br + 3; ib++) {
+            if (b->data[ib] != 0.0) {
               ia = ar;
-              for (ic = b_j1; ic + 1 <= b_j1 + 2; ic++) {
+              for (ic = cr; ic + 1 <= cr + 2; ic++) {
                 ia++;
-                C->data[ic] += b->data[i2] * h_u_To_h_ci_l[ia - 1];
+                C->data[ic] += b->data[ib] * h_u_To_h_ci_l[ia - 1];
               }
             }
 
@@ -536,10 +533,10 @@ void getH_R_res(const double xt_robot_state_pos[3], const double
           br += 3;
         }
 
-        kidx = C->size[1];
-        for (ar = 0; ar < kidx; ar++) {
-          for (br = 0; br < 2; br++) {
-            H->data[iv0[br] + H->size[0] * ar] = C->data[br + C->size[0] * ar];
+        j = C->size[1];
+        for (br = 0; br < j; br++) {
+          for (ib = 0; ib < 2; ib++) {
+            H->data[iv0[ib] + H->size[0] * br] = C->data[ib + C->size[0] * br];
           }
         }
 
@@ -554,61 +551,31 @@ void getH_R_res(const double xt_robot_state_pos[3], const double
   emxFree_real_T(&C);
   emxFree_real_T(&H_map);
   emxFree_real_T(&H_robot);
-  ar = r->size[0];
-  emxEnsureCapacity((emxArray__common *)r, ar, (int)sizeof(double));
-  kidx = r->size[0];
-  for (ar = 0; ar < kidx; ar++) {
-    r->data[ar] -= b_h_u->data[ar];
+  br = r->size[0];
+  emxEnsureCapacity((emxArray__common *)r, br, (int)sizeof(double));
+  j = r->size[0];
+  for (br = 0; br < j; br++) {
+    r->data[br] -= b_h_u->data[br];
   }
 
   emxFree_real_T(&b_h_u);
-  emxInit_real_T(&I, 2);
-  ar = I->size[0] * I->size[1];
-  I->size[0] = n;
-  I->size[1] = n;
-  emxEnsureCapacity((emxArray__common *)I, ar, (int)sizeof(double));
-  kidx = n * n;
-  for (ar = 0; ar < kidx; ar++) {
-    I->data[ar] = 0.0;
+  varargin_2 = (double)n * 2.0;
+  br = R->size[0] * R->size[1];
+  R->size[0] = (int)varargin_2;
+  emxEnsureCapacity((emxArray__common *)R, br, (int)sizeof(double));
+  br = R->size[0] * R->size[1];
+  R->size[1] = (int)varargin_2;
+  emxEnsureCapacity((emxArray__common *)R, br, (int)sizeof(double));
+  j = (int)varargin_2 * (int)varargin_2;
+  for (br = 0; br < j; br++) {
+    R->data[br] = 0.0;
   }
 
-  if (n > 0) {
-    for (kidx = 0; kidx + 1 <= n; kidx++) {
-      I->data[kidx + I->size[0] * kidx] = 1.0;
-    }
+  for (j = 0; j + 1 <= (int)varargin_2; j++) {
+    R->data[j + R->size[0] * j] = noiseParameters_image_noise;
   }
 
-  v[0] = noiseParameters_image_noise[0] * noiseParameters_image_noise[0];
-  v[1] = noiseParameters_image_noise[1] * noiseParameters_image_noise[1];
-  for (ar = 0; ar < 4; ar++) {
-    d[ar] = 0.0;
-  }
-
-  for (kidx = 0; kidx < 2; kidx++) {
-    d[kidx + (kidx << 1)] = v[kidx];
-  }
-
-  kidx = I->size[0] << 1;
-  i2 = I->size[1] << 1;
-  ar = R->size[0] * R->size[1];
-  R->size[0] = kidx;
-  R->size[1] = i2;
-  emxEnsureCapacity((emxArray__common *)R, ar, (int)sizeof(double));
-  kidx = -1;
-  for (b_j1 = 1; b_j1 <= I->size[1]; b_j1++) {
-    for (br = 0; br < 2; br++) {
-      for (ar = 1; ar <= I->size[0]; ar++) {
-        for (i2 = 0; i2 < 2; i2++) {
-          kidx++;
-          R->data[kidx] = I->data[(ar + I->size[0] * (b_j1 - 1)) - 1] * d[i2 +
-            (br << 1)];
-        }
-      }
-    }
-  }
-
-  emxFree_real_T(&I);
-
+  //  R = kron(eye(numMeas), diag([(noiseParameters.image_noise)^2, (noiseParameters.image_noise)^2])); 
   //  figure(3); plot(r, '.-');
 }
 

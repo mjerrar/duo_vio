@@ -5,7 +5,7 @@
 // File: initializePoint.cpp
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 02-Oct-2015 15:34:55
+// C/C++ source code generated on  : 05-Oct-2015 20:16:23
 //
 
 // Include Files
@@ -15,6 +15,7 @@
 #include "norm.h"
 #include "SLAM_rtwutil.h"
 #include <ros/console.h>
+#include <stdio.h>
 
 // Function Declarations
 static void b_eml_xgeqp3(double A[30], double tau[5], int jpvt[5]);
@@ -31,7 +32,7 @@ static double c_eml_xnrm2(int n, const double x[30], int ix0);
 static void b_eml_xgeqp3(double A[30], double tau[5], int jpvt[5])
 {
   double work[5];
-  int i43;
+  int i39;
   double vn1[5];
   double vn2[5];
   int k;
@@ -50,9 +51,9 @@ static void b_eml_xgeqp3(double A[30], double tau[5], int jpvt[5])
   int lastc;
   boolean_T exitg2;
   int32_T exitg1;
-  for (i43 = 0; i43 < 5; i43++) {
-    jpvt[i43] = 1 + i43;
-    work[i43] = 0.0;
+  for (i39 = 0; i39 < 5; i39++) {
+    jpvt[i39] = 1 + i39;
+    work[i39] = 0.0;
   }
 
   k = 1;
@@ -124,8 +125,8 @@ static void b_eml_xgeqp3(double A[30], double tau[5], int jpvt[5])
         itemp = 0;
         do {
           itemp++;
-          i43 = i_i - i;
-          for (k = i_i + 1; k + 1 <= i43 + 6; k++) {
+          i39 = i_i - i;
+          for (k = i_i + 1; k + 1 <= i39 + 6; k++) {
             A[k] *= 9.9792015476736E+291;
           }
 
@@ -140,8 +141,8 @@ static void b_eml_xgeqp3(double A[30], double tau[5], int jpvt[5])
 
         temp2 = (smax - absxk) / smax;
         absxk = 1.0 / (absxk - smax);
-        i43 = i_i - i;
-        for (k = i_i + 1; k + 1 <= i43 + 6; k++) {
+        i39 = i_i - i;
+        for (k = i_i + 1; k + 1 <= i39 + 6; k++) {
           A[k] *= absxk;
         }
 
@@ -153,8 +154,8 @@ static void b_eml_xgeqp3(double A[30], double tau[5], int jpvt[5])
       } else {
         temp2 = (smax - A[i_i]) / smax;
         absxk = 1.0 / (A[i_i] - smax);
-        i43 = i_i - i;
-        for (k = i_i + 1; k + 1 <= i43 + 6; k++) {
+        i39 = i_i - i;
+        for (k = i_i + 1; k + 1 <= i39 + 6; k++) {
           A[k] *= absxk;
         }
 
@@ -212,8 +213,8 @@ static void b_eml_xgeqp3(double A[30], double tau[5], int jpvt[5])
           }
 
           iy = 0;
-          i43 = i_ip1 + 6 * (lastc - 1);
-          for (itemp = i_ip1; itemp <= i43; itemp += 6) {
+          i39 = i_ip1 + 6 * (lastc - 1);
+          for (itemp = i_ip1; itemp <= i39; itemp += 6) {
             ix = i_i;
             smax = 0.0;
             pvt = (itemp + lastv) - 1;
@@ -235,8 +236,8 @@ static void b_eml_xgeqp3(double A[30], double tau[5], int jpvt[5])
             if (work[pvt] != 0.0) {
               smax = work[pvt] * -tau[i];
               ix = i_i;
-              i43 = lastv + itemp;
-              for (k = itemp; k + 1 <= i43; k++) {
+              i39 = lastv + itemp;
+              for (k = itemp; k + 1 <= i39; k++) {
                 A[k] += A[ix] * smax;
                 ix++;
               }

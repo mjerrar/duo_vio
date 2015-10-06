@@ -5,7 +5,7 @@
 // File: det.cpp
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 02-Oct-2015 15:34:55
+// C/C++ source code generated on  : 05-Oct-2015 20:16:23
 //
 
 // Include Files
@@ -13,6 +13,7 @@
 #include "SLAM.h"
 #include "det.h"
 #include <ros/console.h>
+#include <stdio.h>
 
 // Function Definitions
 
@@ -25,7 +26,7 @@ double det(const double x[36])
   double y;
   double A[36];
   signed char ipiv[6];
-  int i25;
+  int i23;
   int j;
   int c;
   int iy;
@@ -37,8 +38,8 @@ double det(const double x[36])
   int ijA;
   boolean_T isodd;
   memcpy(&A[0], &x[0], 36U * sizeof(double));
-  for (i25 = 0; i25 < 6; i25++) {
-    ipiv[i25] = (signed char)(1 + i25);
+  for (i23 = 0; i23 < 6; i23++) {
+    ipiv[i23] = (signed char)(1 + i23);
   }
 
   for (j = 0; j < 5; j++) {
@@ -69,8 +70,8 @@ double det(const double x[36])
         }
       }
 
-      i25 = (c - j) + 6;
-      for (iy = c + 1; iy + 1 <= i25; iy++) {
+      i23 = (c - j) + 6;
+      for (iy = c + 1; iy + 1 <= i23; iy++) {
         A[iy] /= A[c];
       }
     }
@@ -81,8 +82,8 @@ double det(const double x[36])
       smax = A[jy];
       if (A[jy] != 0.0) {
         ix = c + 1;
-        i25 = (iy - j) + 12;
-        for (ijA = 7 + iy; ijA + 1 <= i25; ijA++) {
+        i23 = (iy - j) + 12;
+        for (ijA = 7 + iy; ijA + 1 <= i23; ijA++) {
           A[ijA] += A[ix] * -smax;
           ix++;
         }
