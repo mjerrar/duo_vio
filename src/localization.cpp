@@ -512,6 +512,8 @@ void Localization::getIMUData(const sensor_msgs::Imu& imu, VIOMeasurements& meas
 	meas.acc_duo[1] = -imu.linear_acceleration.y*9.81;
 	meas.acc_duo[2] = -imu.linear_acceleration.z*9.81;
 
+	ROS_INFO("IMU data: %f %f %f\n", meas.acc_duo[0], meas.acc_duo[1], meas.acc_duo[2]);
+
 	meas.gyr_duo[0] = +imu.angular_velocity.x;
 	meas.gyr_duo[1] = -imu.angular_velocity.y;
 	meas.gyr_duo[2] = +imu.angular_velocity.z;
