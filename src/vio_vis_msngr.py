@@ -261,6 +261,7 @@ if __name__ == "__main__":
     rospy.init_node("vio_vis")
 
     win = pg.GraphicsWindow()
+    win.setGeometry(992, 0, 927, 560)
     win.setWindowTitle('Estimated parameters')
     gyro_bias_plot = win.addPlot(title='Gyro bias')
     win.nextRow()
