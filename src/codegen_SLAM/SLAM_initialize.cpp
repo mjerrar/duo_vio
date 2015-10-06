@@ -5,7 +5,7 @@
 // File: SLAM_initialize.cpp
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 05-Oct-2015 20:16:23
+// C/C++ source code generated on  : 06-Oct-2015 15:29:53
 //
 
 // Include Files
@@ -35,14 +35,17 @@
 void SLAM_initialize()
 {
   int i0;
+  static const boolean_T c_triangulation_success[11] = { true, true, true, true,
+    true, true, true, true, true, false, true };
+
   rt_InitInfAndNaN(8U);
   emxInit_boolean_T(&triangulation_success, 1);
   i0 = triangulation_success->size[0];
-  triangulation_success->size[0] = 16;
+  triangulation_success->size[0] = 11;
   emxEnsureCapacity((emxArray__common *)triangulation_success, i0, (int)sizeof
                     (boolean_T));
-  for (i0 = 0; i0 < 16; i0++) {
-    triangulation_success->data[i0] = true;
+  for (i0 = 0; i0 < 11; i0++) {
+    triangulation_success->data[i0] = c_triangulation_success[i0];
   }
 
   minFeatureThreshold = b_minFeatureThreshold;

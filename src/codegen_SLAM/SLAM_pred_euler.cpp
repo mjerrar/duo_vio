@@ -5,13 +5,14 @@
 // File: SLAM_pred_euler.cpp
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 05-Oct-2015 20:16:23
+// C/C++ source code generated on  : 06-Oct-2015 15:29:53
 //
 
 // Include Files
 #include "rt_nonfinite.h"
 #include "SLAM.h"
 #include "SLAM_pred_euler.h"
+#include "fprintf.h"
 #include "quatmultJ.h"
 #include "quatPlusThetaJ.h"
 #include "SLAM_emxutil.h"
@@ -1058,6 +1059,18 @@ void SLAM_pred_euler(emxArray_real_T *P_apo, f_struct_T *x, double dt, double
   }
 
   //  velocity
+  for (i27 = 0; i27 < 3; i27++) {
+    d6 = 0.0;
+    for (cr = 0; cr < 3; cr++) {
+      d6 += R_cw[cr + 3 * i27] * a_c[cr];
+    }
+
+    t_ci[i27] = d6 - grav_origin[i27];
+  }
+
+  kb_fprintf(t_ci[0], t_ci[1], t_ci[2]);
+  mb_fprintf(a_c[0], a_c[1], a_c[2]);
+
   //  P_apr = (P_apr+P_apr')/2;
 }
 

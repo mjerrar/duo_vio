@@ -5,7 +5,7 @@
 // File: getH_R_res.cpp
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 05-Oct-2015 20:16:23
+// C/C++ source code generated on  : 06-Oct-2015 15:29:53
 //
 
 // Include Files
@@ -574,9 +574,6 @@ void getH_R_res(const double xt_robot_state_pos[3], const double
   for (j = 0; j + 1 <= (int)varargin_2; j++) {
     R->data[j + R->size[0] * j] = noiseParameters_image_noise;
   }
-
-  //  R = kron(eye(numMeas), diag([(noiseParameters.image_noise)^2, (noiseParameters.image_noise)^2])); 
-  //  figure(3); plot(r, '.-');
 }
 
 //

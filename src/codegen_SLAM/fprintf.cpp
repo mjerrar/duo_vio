@@ -5,7 +5,7 @@
 // File: fprintf.cpp
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 05-Oct-2015 20:16:23
+// C/C++ source code generated on  : 06-Oct-2015 15:29:53
 //
 
 // Include Files
@@ -31,7 +31,9 @@ static double i_fprintf(double varargin_1);
 static double jb_fprintf(const char varargin_1_data[], const int
   varargin_1_size[2]);
 static double k_fprintf(double varargin_1);
+static double lb_fprintf(double varargin_1, double varargin_2, double varargin_3);
 static double m_fprintf(double varargin_1);
+static double nb_fprintf(double varargin_1, double varargin_2, double varargin_3);
 static double o_fprintf(double varargin_1, double varargin_2, double varargin_3);
 static double q_fprintf(double varargin_1, double varargin_2, double varargin_3);
 static double s_fprintf(double varargin_1);
@@ -332,6 +334,34 @@ static double k_fprintf(double varargin_1)
 
 //
 // Arguments    : double varargin_1
+//                double varargin_2
+//                double varargin_3
+// Return Type  : double
+//
+static double lb_fprintf(double varargin_1, double varargin_2, double varargin_3)
+{
+  int nbytesint;
+  FILE * b_NULL;
+  boolean_T autoflush;
+  FILE * filestar;
+  static const char cfmt[24] = { 'a', 'c', 'c', 'e', 'l', 'e', 'r', 'a', 't',
+    'i', 'o', 'n', ':', ' ', '%', 'f', ' ', '%', 'f', ' ', '%', 'f', '\x0a',
+    '\x00' };
+
+  nbytesint = 0;
+  b_NULL = NULL;
+  fileManager(&filestar, &autoflush);
+  if (filestar == b_NULL) {
+  } else {
+    nbytesint = fprintf(filestar, cfmt, varargin_1, varargin_2, varargin_3);
+    fflush(filestar);
+  }
+
+  return nbytesint;
+}
+
+//
+// Arguments    : double varargin_1
 // Return Type  : double
 //
 static double m_fprintf(double varargin_1)
@@ -349,6 +379,33 @@ static double m_fprintf(double varargin_1)
   if (filestar == b_NULL) {
   } else {
     nbytesint = fprintf(filestar, cfmt, varargin_1);
+    fflush(filestar);
+  }
+
+  return nbytesint;
+}
+
+//
+// Arguments    : double varargin_1
+//                double varargin_2
+//                double varargin_3
+// Return Type  : double
+//
+static double nb_fprintf(double varargin_1, double varargin_2, double varargin_3)
+{
+  int nbytesint;
+  FILE * b_NULL;
+  boolean_T autoflush;
+  FILE * filestar;
+  static const char cfmt[19] = { 'g', 'r', 'a', 'v', 'i', 't', 'y', ':', ' ',
+    '%', 'f', ' ', '%', 'f', ' ', '%', 'f', '\x0a', '\x00' };
+
+  nbytesint = 0;
+  b_NULL = NULL;
+  fileManager(&filestar, &autoflush);
+  if (filestar == b_NULL) {
+  } else {
+    nbytesint = fprintf(filestar, cfmt, varargin_1, varargin_2, varargin_3);
     fflush(filestar);
   }
 
@@ -609,11 +666,33 @@ void j_fprintf(double formatSpec)
 
 //
 // Arguments    : double formatSpec
+//                double varargin_1
+//                double varargin_2
+// Return Type  : void
+//
+void kb_fprintf(double formatSpec, double varargin_1, double varargin_2)
+{
+  lb_fprintf(formatSpec, varargin_1, varargin_2);
+}
+
+//
+// Arguments    : double formatSpec
 // Return Type  : void
 //
 void l_fprintf(double formatSpec)
 {
   m_fprintf(formatSpec);
+}
+
+//
+// Arguments    : double formatSpec
+//                double varargin_1
+//                double varargin_2
+// Return Type  : void
+//
+void mb_fprintf(double formatSpec, double varargin_1, double varargin_2)
+{
+  nb_fprintf(formatSpec, varargin_1, varargin_2);
 }
 
 //

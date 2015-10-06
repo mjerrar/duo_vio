@@ -5,7 +5,7 @@
 // File: det.h
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 05-Oct-2015 20:16:23
+// C/C++ source code generated on  : 06-Oct-2015 15:29:53
 //
 #ifndef __DET_H__
 #define __DET_H__

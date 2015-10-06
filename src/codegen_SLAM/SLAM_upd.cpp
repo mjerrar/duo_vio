@@ -5,7 +5,7 @@
 // File: SLAM_upd.cpp
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 05-Oct-2015 20:16:23
+// C/C++ source code generated on  : 06-Oct-2015 15:29:53
 //
 
 // Include Files
@@ -1846,286 +1846,517 @@ void SLAM_upd(emxArray_real_T *P_apr, f_struct_T *b_xt, const double
         }
 
         ROS_ERROR(cv18, br + 1);
-      }
-
-      //          ros_info('Setting anchor %i as origin', int32(xt.origin.anchor_idx)) 
-      for (i28 = 0; i28 < 3; i28++) {
-        new_origin_pos_rel[i28] = b_xt->anchor_states->data[br].pos[i28];
-      }
-
-      //  in old origin frame
-      //  if ~all(size(q) == [4, 1])
-      //      error('q does not have the size of a quaternion')
-      //  end
-      //  if abs(norm(q) - 1) > 1e-3
-      //      error('The provided quaternion is not a valid rotation quaternion because it does not have norm 1') 
-      //  end
-      new_origin_att_rel[0] = ((b_xt->anchor_states->data[br].att[0] *
-        b_xt->anchor_states->data[br].att[0] - b_xt->anchor_states->data[br]
-        .att[1] * b_xt->anchor_states->data[br].att[1]) - b_xt->
-        anchor_states->data[br].att[2] * b_xt->anchor_states->data[br].att[2]) +
-        b_xt->anchor_states->data[br].att[3] * b_xt->anchor_states->data[br]
-        .att[3];
-      new_origin_att_rel[3] = 2.0 * (b_xt->anchor_states->data[br].att[0] *
-        b_xt->anchor_states->data[br].att[1] + b_xt->anchor_states->data[br]
-        .att[2] * b_xt->anchor_states->data[br].att[3]);
-      new_origin_att_rel[6] = 2.0 * (b_xt->anchor_states->data[br].att[0] *
-        b_xt->anchor_states->data[br].att[2] - b_xt->anchor_states->data[br]
-        .att[1] * b_xt->anchor_states->data[br].att[3]);
-      new_origin_att_rel[1] = 2.0 * (b_xt->anchor_states->data[br].att[0] *
-        b_xt->anchor_states->data[br].att[1] - b_xt->anchor_states->data[br]
-        .att[2] * b_xt->anchor_states->data[br].att[3]);
-      new_origin_att_rel[4] = ((-(b_xt->anchor_states->data[br].att[0] *
-        b_xt->anchor_states->data[br].att[0]) + b_xt->anchor_states->data[br].
-        att[1] * b_xt->anchor_states->data[br].att[1]) - b_xt->
-        anchor_states->data[br].att[2] * b_xt->anchor_states->data[br].att[2]) +
-        b_xt->anchor_states->data[br].att[3] * b_xt->anchor_states->data[br]
-        .att[3];
-      new_origin_att_rel[7] = 2.0 * (b_xt->anchor_states->data[br].att[1] *
-        b_xt->anchor_states->data[br].att[2] + b_xt->anchor_states->data[br]
-        .att[0] * b_xt->anchor_states->data[br].att[3]);
-      new_origin_att_rel[2] = 2.0 * (b_xt->anchor_states->data[br].att[0] *
-        b_xt->anchor_states->data[br].att[2] + b_xt->anchor_states->data[br]
-        .att[1] * b_xt->anchor_states->data[br].att[3]);
-      new_origin_att_rel[5] = 2.0 * (b_xt->anchor_states->data[br].att[1] *
-        b_xt->anchor_states->data[br].att[2] - b_xt->anchor_states->data[br]
-        .att[0] * b_xt->anchor_states->data[br].att[3]);
-      new_origin_att_rel[8] = ((-(b_xt->anchor_states->data[br].att[0] *
-        b_xt->anchor_states->data[br].att[0]) - b_xt->anchor_states->data[br].
-        att[1] * b_xt->anchor_states->data[br].att[1]) + b_xt->
-        anchor_states->data[br].att[2] * b_xt->anchor_states->data[br].att[2]) +
-        b_xt->anchor_states->data[br].att[3] * b_xt->anchor_states->data[br]
-        .att[3];
-
-      //  in old origin frame, = R_o{k+1}o{k}
-      for (i28 = 0; i28 < 2; i28++) {
-        b_P_apr[i28] = P_apr->size[i28];
-      }
-
-      c_eye(b_P_apr, J);
-
-      //  robot position and orientation
-      eye(f_xt);
-      for (i28 = 0; i28 < 3; i28++) {
-        for (i29 = 0; i29 < 3; i29++) {
-          J->data[i29 + J->size[0] * i28] = new_origin_att_rel[i29 + 3 * i28];
+      } else {
+        //          ros_info('Setting anchor %i as origin', int32(xt.origin.anchor_idx)) 
+        for (i28 = 0; i28 < 3; i28++) {
+          new_origin_pos_rel[i28] = b_xt->anchor_states->data[br].pos[i28];
         }
-      }
 
-      for (i28 = 0; i28 < 3; i28++) {
-        for (i29 = 0; i29 < 3; i29++) {
-          J->data[i29 + J->size[0] * (i28 + 3)] = 0.0;
+        //  in old origin frame
+        //  if ~all(size(q) == [4, 1])
+        //      error('q does not have the size of a quaternion')
+        //  end
+        //  if abs(norm(q) - 1) > 1e-3
+        //      error('The provided quaternion is not a valid rotation quaternion because it does not have norm 1') 
+        //  end
+        new_origin_att_rel[0] = ((b_xt->anchor_states->data[br].att[0] *
+          b_xt->anchor_states->data[br].att[0] - b_xt->anchor_states->data[br].
+          att[1] * b_xt->anchor_states->data[br].att[1]) - b_xt->
+          anchor_states->data[br].att[2] * b_xt->anchor_states->data[br].att[2])
+          + b_xt->anchor_states->data[br].att[3] * b_xt->anchor_states->data[br]
+          .att[3];
+        new_origin_att_rel[3] = 2.0 * (b_xt->anchor_states->data[br].att[0] *
+          b_xt->anchor_states->data[br].att[1] + b_xt->anchor_states->data[br].
+          att[2] * b_xt->anchor_states->data[br].att[3]);
+        new_origin_att_rel[6] = 2.0 * (b_xt->anchor_states->data[br].att[0] *
+          b_xt->anchor_states->data[br].att[2] - b_xt->anchor_states->data[br].
+          att[1] * b_xt->anchor_states->data[br].att[3]);
+        new_origin_att_rel[1] = 2.0 * (b_xt->anchor_states->data[br].att[0] *
+          b_xt->anchor_states->data[br].att[1] - b_xt->anchor_states->data[br].
+          att[2] * b_xt->anchor_states->data[br].att[3]);
+        new_origin_att_rel[4] = ((-(b_xt->anchor_states->data[br].att[0] *
+          b_xt->anchor_states->data[br].att[0]) + b_xt->anchor_states->data[br].
+          att[1] * b_xt->anchor_states->data[br].att[1]) - b_xt->
+          anchor_states->data[br].att[2] * b_xt->anchor_states->data[br].att[2])
+          + b_xt->anchor_states->data[br].att[3] * b_xt->anchor_states->data[br]
+          .att[3];
+        new_origin_att_rel[7] = 2.0 * (b_xt->anchor_states->data[br].att[1] *
+          b_xt->anchor_states->data[br].att[2] + b_xt->anchor_states->data[br].
+          att[0] * b_xt->anchor_states->data[br].att[3]);
+        new_origin_att_rel[2] = 2.0 * (b_xt->anchor_states->data[br].att[0] *
+          b_xt->anchor_states->data[br].att[2] + b_xt->anchor_states->data[br].
+          att[1] * b_xt->anchor_states->data[br].att[3]);
+        new_origin_att_rel[5] = 2.0 * (b_xt->anchor_states->data[br].att[1] *
+          b_xt->anchor_states->data[br].att[2] - b_xt->anchor_states->data[br].
+          att[0] * b_xt->anchor_states->data[br].att[3]);
+        new_origin_att_rel[8] = ((-(b_xt->anchor_states->data[br].att[0] *
+          b_xt->anchor_states->data[br].att[0]) - b_xt->anchor_states->data[br].
+          att[1] * b_xt->anchor_states->data[br].att[1]) + b_xt->
+          anchor_states->data[br].att[2] * b_xt->anchor_states->data[br].att[2])
+          + b_xt->anchor_states->data[br].att[3] * b_xt->anchor_states->data[br]
+          .att[3];
+
+        //  in old origin frame, = R_o{k+1}o{k}
+        for (i28 = 0; i28 < 2; i28++) {
+          b_P_apr[i28] = P_apr->size[i28];
         }
-      }
 
-      for (i28 = 0; i28 < 3; i28++) {
-        for (i29 = 0; i29 < 3; i29++) {
-          J->data[(i29 + J->size[0] * i28) + 3] = 0.0;
+        c_eye(b_P_apr, J);
+
+        //  robot position and orientation
+        eye(f_xt);
+        for (i28 = 0; i28 < 3; i28++) {
+          for (i29 = 0; i29 < 3; i29++) {
+            J->data[i29 + J->size[0] * i28] = new_origin_att_rel[i29 + 3 * i28];
+          }
         }
-      }
 
-      for (i28 = 0; i28 < 3; i28++) {
-        for (i29 = 0; i29 < 3; i29++) {
-          J->data[(i29 + J->size[0] * (i28 + 3)) + 3] = f_xt[i29 + 3 * i28];
+        for (i28 = 0; i28 < 3; i28++) {
+          for (i29 = 0; i29 < 3; i29++) {
+            J->data[i29 + J->size[0] * (i28 + 3)] = 0.0;
+          }
         }
-      }
 
-      for (i28 = 0; i28 < 3; i28++) {
-        c_xt[i28] = b_xt->robot_state.pos[i28] - b_xt->anchor_states->data[br].
-          pos[i28];
-      }
-
-      for (i28 = 0; i28 < 3; i28++) {
-        m_l[i28] = 0.0;
-        for (i29 = 0; i29 < 3; i29++) {
-          m_l[i28] += new_origin_att_rel[i28 + 3 * i29] * c_xt[i29];
+        for (i28 = 0; i28 < 3; i28++) {
+          for (i29 = 0; i29 < 3; i29++) {
+            J->data[(i29 + J->size[0] * i28) + 3] = 0.0;
+          }
         }
-      }
 
-      for (i28 = 0; i28 < 3; i28++) {
-        for (i29 = 0; i29 < 3; i29++) {
-          J->data[i29 + J->size[0] * ((int)b_xt->anchor_states->data[br]
-            .P_idx[i28] - 1)] = -new_origin_att_rel[i29 + 3 * i28];
+        for (i28 = 0; i28 < 3; i28++) {
+          for (i29 = 0; i29 < 3; i29++) {
+            J->data[(i29 + J->size[0] * (i28 + 3)) + 3] = f_xt[i29 + 3 * i28];
+          }
         }
-      }
 
-      J->data[J->size[0] * ((int)b_xt->anchor_states->data[br].P_idx[3] - 1)] =
-        0.0;
-      J->data[J->size[0] * ((int)b_xt->anchor_states->data[br].P_idx[4] - 1)] =
-        -m_l[2];
-      J->data[J->size[0] * ((int)b_xt->anchor_states->data[br].P_idx[5] - 1)] =
-        m_l[1];
-      J->data[1 + J->size[0] * ((int)b_xt->anchor_states->data[br].P_idx[3] - 1)]
-        = m_l[2];
-      J->data[1 + J->size[0] * ((int)b_xt->anchor_states->data[br].P_idx[4] - 1)]
-        = 0.0;
-      J->data[1 + J->size[0] * ((int)b_xt->anchor_states->data[br].P_idx[5] - 1)]
-        = -m_l[0];
-      J->data[2 + J->size[0] * ((int)b_xt->anchor_states->data[br].P_idx[3] - 1)]
-        = -m_l[1];
-      J->data[2 + J->size[0] * ((int)b_xt->anchor_states->data[br].P_idx[4] - 1)]
-        = m_l[0];
-      J->data[2 + J->size[0] * ((int)b_xt->anchor_states->data[br].P_idx[5] - 1)]
-        = 0.0;
-      for (i28 = 0; i28 < 3; i28++) {
-        for (i29 = 0; i29 < 3; i29++) {
-          J->data[(i29 + J->size[0] * ((int)b_xt->anchor_states->data[br]
-                    .P_idx[i28] - 1)) + 3] = 0.0;
+        for (i28 = 0; i28 < 3; i28++) {
+          c_xt[i28] = b_xt->robot_state.pos[i28] - b_xt->anchor_states->data[br]
+            .pos[i28];
         }
-      }
 
-      for (i28 = 0; i28 < 3; i28++) {
-        for (i29 = 0; i29 < 3; i29++) {
-          J->data[(i29 + J->size[0] * ((int)b_xt->anchor_states->data[br]
-                    .P_idx[i28 + 3] - 1)) + 3] = -new_origin_att_rel[i28 + 3 *
-            i29];
+        for (i28 = 0; i28 < 3; i28++) {
+          m_l[i28] = 0.0;
+          for (i29 = 0; i29 < 3; i29++) {
+            m_l[i28] += new_origin_att_rel[i28 + 3 * i29] * c_xt[i29];
+          }
         }
-      }
 
-      //  robot velocity
-      for (i28 = 0; i28 < 3; i28++) {
-        for (i29 = 0; i29 < 3; i29++) {
-          J->data[(i29 + J->size[0] * (6 + i28)) + 6] = new_origin_att_rel[i29 +
-            3 * i28];
+        for (i28 = 0; i28 < 3; i28++) {
+          for (i29 = 0; i29 < 3; i29++) {
+            J->data[i29 + J->size[0] * ((int)b_xt->anchor_states->data[br]
+              .P_idx[i28] - 1)] = -new_origin_att_rel[i29 + 3 * i28];
+          }
         }
-      }
 
-      //  velocity
-      //  origin rotation
-      for (i28 = 0; i28 < 3; i28++) {
-        for (i29 = 0; i29 < 3; i29++) {
-          J->data[(i29 + J->size[0] * (15 + i28)) + 15] = new_origin_att_rel[i29
-            + 3 * i28];
+        J->data[J->size[0] * ((int)b_xt->anchor_states->data[br].P_idx[3] - 1)] =
+          0.0;
+        J->data[J->size[0] * ((int)b_xt->anchor_states->data[br].P_idx[4] - 1)] =
+          -m_l[2];
+        J->data[J->size[0] * ((int)b_xt->anchor_states->data[br].P_idx[5] - 1)] =
+          m_l[1];
+        J->data[1 + J->size[0] * ((int)b_xt->anchor_states->data[br].P_idx[3] -
+          1)] = m_l[2];
+        J->data[1 + J->size[0] * ((int)b_xt->anchor_states->data[br].P_idx[4] -
+          1)] = 0.0;
+        J->data[1 + J->size[0] * ((int)b_xt->anchor_states->data[br].P_idx[5] -
+          1)] = -m_l[0];
+        J->data[2 + J->size[0] * ((int)b_xt->anchor_states->data[br].P_idx[3] -
+          1)] = -m_l[1];
+        J->data[2 + J->size[0] * ((int)b_xt->anchor_states->data[br].P_idx[4] -
+          1)] = m_l[0];
+        J->data[2 + J->size[0] * ((int)b_xt->anchor_states->data[br].P_idx[5] -
+          1)] = 0.0;
+        for (i28 = 0; i28 < 3; i28++) {
+          for (i29 = 0; i29 < 3; i29++) {
+            J->data[(i29 + J->size[0] * ((int)b_xt->anchor_states->data[br].
+                      P_idx[i28] - 1)) + 3] = 0.0;
+          }
         }
-      }
 
-      //  origin rotation
-      for (anchorIdx = 0; anchorIdx < (int)numAnchors; anchorIdx++) {
-        if (1.0 + (double)anchorIdx == br + 1) {
-          //  remove yaw uncertainty, but not pitch or roll
-          for (i28 = 0; i28 < 6; i28++) {
-            for (i29 = 0; i29 < 6; i29++) {
-              J->data[((int)b_xt->anchor_states->data[anchorIdx].P_idx[i29] +
-                       J->size[0] * ((int)b_xt->anchor_states->data[anchorIdx].
-                        P_idx[i28] - 1)) - 1] = 0.0;
+        for (i28 = 0; i28 < 3; i28++) {
+          for (i29 = 0; i29 < 3; i29++) {
+            J->data[(i29 + J->size[0] * ((int)b_xt->anchor_states->data[br].
+                      P_idx[i28 + 3] - 1)) + 3] = -new_origin_att_rel[i28 + 3 *
+              i29];
+          }
+        }
+
+        //  robot velocity
+        for (i28 = 0; i28 < 3; i28++) {
+          for (i29 = 0; i29 < 3; i29++) {
+            J->data[(i29 + J->size[0] * (6 + i28)) + 6] = new_origin_att_rel[i29
+              + 3 * i28];
+          }
+        }
+
+        //  velocity
+        //  origin rotation
+        for (i28 = 0; i28 < 3; i28++) {
+          for (i29 = 0; i29 < 3; i29++) {
+            J->data[(i29 + J->size[0] * (15 + i28)) + 15] =
+              new_origin_att_rel[i29 + 3 * i28];
+          }
+        }
+
+        //  origin rotation
+        for (anchorIdx = 0; anchorIdx < (int)numAnchors; anchorIdx++) {
+          if (1.0 + (double)anchorIdx == br + 1) {
+            //  remove yaw uncertainty, but not pitch or roll
+            for (i28 = 0; i28 < 6; i28++) {
+              for (i29 = 0; i29 < 6; i29++) {
+                J->data[((int)b_xt->anchor_states->data[anchorIdx].P_idx[i29] +
+                         J->size[0] * ((int)b_xt->anchor_states->data[anchorIdx]
+                          .P_idx[i28] - 1)) - 1] = 0.0;
+              }
+            }
+
+            //  TODO: allow roll/pitch uncertainty
+          } else {
+            eye(f_xt);
+            for (i28 = 0; i28 < 3; i28++) {
+              for (i29 = 0; i29 < 3; i29++) {
+                J->data[((int)b_xt->anchor_states->data[anchorIdx].P_idx[i29] +
+                         J->size[0] * ((int)b_xt->anchor_states->data[anchorIdx]
+                          .P_idx[i28] - 1)) - 1] = new_origin_att_rel[i29 + 3 *
+                  i28];
+              }
+            }
+
+            for (i28 = 0; i28 < 3; i28++) {
+              for (i29 = 0; i29 < 3; i29++) {
+                J->data[((int)b_xt->anchor_states->data[anchorIdx].P_idx[i29] +
+                         J->size[0] * ((int)b_xt->anchor_states->data[anchorIdx]
+                          .P_idx[i28 + 3] - 1)) - 1] = 0.0;
+              }
+            }
+
+            for (i28 = 0; i28 < 3; i28++) {
+              for (i29 = 0; i29 < 3; i29++) {
+                J->data[((int)b_xt->anchor_states->data[anchorIdx].P_idx[i29 + 3]
+                         + J->size[0] * ((int)b_xt->anchor_states->
+                          data[anchorIdx].P_idx[i28] - 1)) - 1] = 0.0;
+              }
+            }
+
+            for (i28 = 0; i28 < 3; i28++) {
+              for (i29 = 0; i29 < 3; i29++) {
+                J->data[((int)b_xt->anchor_states->data[anchorIdx].P_idx[i29 + 3]
+                         + J->size[0] * ((int)b_xt->anchor_states->
+                          data[anchorIdx].P_idx[i28 + 3] - 1)) - 1] = f_xt[i29 +
+                  3 * i28];
+              }
+            }
+
+            for (i28 = 0; i28 < 3; i28++) {
+              c_xt[i28] = b_xt->anchor_states->data[anchorIdx].pos[i28] -
+                new_origin_pos_rel[i28];
+            }
+
+            for (i28 = 0; i28 < 3; i28++) {
+              m_l[i28] = 0.0;
+              for (i29 = 0; i29 < 3; i29++) {
+                m_l[i28] += new_origin_att_rel[i28 + 3 * i29] * c_xt[i29];
+              }
+            }
+
+            for (i28 = 0; i28 < 3; i28++) {
+              for (i29 = 0; i29 < 3; i29++) {
+                J->data[((int)b_xt->anchor_states->data[anchorIdx].P_idx[i29] +
+                         J->size[0] * ((int)b_xt->anchor_states->data[br]
+                          .P_idx[i28] - 1)) - 1] = -new_origin_att_rel[i29 + 3 *
+                  i28];
+              }
+            }
+
+            J->data[((int)b_xt->anchor_states->data[anchorIdx].P_idx[0] +
+                     J->size[0] * ((int)b_xt->anchor_states->data[br].P_idx[3] -
+                      1)) - 1] = 0.0;
+            J->data[((int)b_xt->anchor_states->data[anchorIdx].P_idx[0] +
+                     J->size[0] * ((int)b_xt->anchor_states->data[br].P_idx[4] -
+                      1)) - 1] = -m_l[2];
+            J->data[((int)b_xt->anchor_states->data[anchorIdx].P_idx[0] +
+                     J->size[0] * ((int)b_xt->anchor_states->data[br].P_idx[5] -
+                      1)) - 1] = m_l[1];
+            J->data[((int)b_xt->anchor_states->data[anchorIdx].P_idx[1] +
+                     J->size[0] * ((int)b_xt->anchor_states->data[br].P_idx[3] -
+                      1)) - 1] = m_l[2];
+            J->data[((int)b_xt->anchor_states->data[anchorIdx].P_idx[1] +
+                     J->size[0] * ((int)b_xt->anchor_states->data[br].P_idx[4] -
+                      1)) - 1] = 0.0;
+            J->data[((int)b_xt->anchor_states->data[anchorIdx].P_idx[1] +
+                     J->size[0] * ((int)b_xt->anchor_states->data[br].P_idx[5] -
+                      1)) - 1] = -m_l[0];
+            J->data[((int)b_xt->anchor_states->data[anchorIdx].P_idx[2] +
+                     J->size[0] * ((int)b_xt->anchor_states->data[br].P_idx[3] -
+                      1)) - 1] = -m_l[1];
+            J->data[((int)b_xt->anchor_states->data[anchorIdx].P_idx[2] +
+                     J->size[0] * ((int)b_xt->anchor_states->data[br].P_idx[4] -
+                      1)) - 1] = m_l[0];
+            J->data[((int)b_xt->anchor_states->data[anchorIdx].P_idx[2] +
+                     J->size[0] * ((int)b_xt->anchor_states->data[br].P_idx[5] -
+                      1)) - 1] = 0.0;
+            for (i28 = 0; i28 < 3; i28++) {
+              for (i29 = 0; i29 < 3; i29++) {
+                J->data[((int)b_xt->anchor_states->data[anchorIdx].P_idx[i29 + 3]
+                         + J->size[0] * ((int)b_xt->anchor_states->data[br].
+                          P_idx[i28] - 1)) - 1] = 0.0;
+              }
+            }
+
+            for (i28 = 0; i28 < 3; i28++) {
+              for (i29 = 0; i29 < 3; i29++) {
+                J->data[((int)b_xt->anchor_states->data[anchorIdx].P_idx[i29 + 3]
+                         + J->size[0] * ((int)b_xt->anchor_states->data[br].
+                          P_idx[i28 + 3] - 1)) - 1] = -new_origin_att_rel[i28 +
+                  3 * i29];
+              }
             }
           }
 
-          //  TODO: allow roll/pitch uncertainty
-        } else {
-          eye(f_xt);
           for (i28 = 0; i28 < 3; i28++) {
-            for (i29 = 0; i29 < 3; i29++) {
-              J->data[((int)b_xt->anchor_states->data[anchorIdx].P_idx[i29] +
-                       J->size[0] * ((int)b_xt->anchor_states->data[anchorIdx].
-                        P_idx[i28] - 1)) - 1] = new_origin_att_rel[i29 + 3 * i28];
-            }
-          }
-
-          for (i28 = 0; i28 < 3; i28++) {
-            for (i29 = 0; i29 < 3; i29++) {
-              J->data[((int)b_xt->anchor_states->data[anchorIdx].P_idx[i29] +
-                       J->size[0] * ((int)b_xt->anchor_states->data[anchorIdx].
-                        P_idx[i28 + 3] - 1)) - 1] = 0.0;
-            }
-          }
-
-          for (i28 = 0; i28 < 3; i28++) {
-            for (i29 = 0; i29 < 3; i29++) {
-              J->data[((int)b_xt->anchor_states->data[anchorIdx].P_idx[i29 + 3]
-                       + J->size[0] * ((int)b_xt->anchor_states->data[anchorIdx]
-                        .P_idx[i28] - 1)) - 1] = 0.0;
-            }
-          }
-
-          for (i28 = 0; i28 < 3; i28++) {
-            for (i29 = 0; i29 < 3; i29++) {
-              J->data[((int)b_xt->anchor_states->data[anchorIdx].P_idx[i29 + 3]
-                       + J->size[0] * ((int)b_xt->anchor_states->data[anchorIdx]
-                        .P_idx[i28 + 3] - 1)) - 1] = f_xt[i29 + 3 * i28];
-            }
-          }
-
-          for (i28 = 0; i28 < 3; i28++) {
-            c_xt[i28] = b_xt->anchor_states->data[anchorIdx].pos[i28] -
+            m_l[i28] = b_xt->anchor_states->data[anchorIdx].pos[i28] -
               new_origin_pos_rel[i28];
           }
 
           for (i28 = 0; i28 < 3; i28++) {
-            m_l[i28] = 0.0;
-            for (i29 = 0; i29 < 3; i29++) {
-              m_l[i28] += new_origin_att_rel[i28 + 3 * i29] * c_xt[i29];
-            }
+            b_xt->anchor_states->data[anchorIdx].pos[i28] = 0.0;
           }
 
           for (i28 = 0; i28 < 3; i28++) {
+            b_xt->anchor_states->data[anchorIdx].pos[i28] = 0.0;
             for (i29 = 0; i29 < 3; i29++) {
-              J->data[((int)b_xt->anchor_states->data[anchorIdx].P_idx[i29] +
-                       J->size[0] * ((int)b_xt->anchor_states->data[br]
-                        .P_idx[i28] - 1)) - 1] = -new_origin_att_rel[i29 + 3 *
-                i28];
+              b_xt->anchor_states->data[anchorIdx].pos[i28] +=
+                new_origin_att_rel[i28 + 3 * i29] * m_l[i29];
             }
           }
 
-          J->data[((int)b_xt->anchor_states->data[anchorIdx].P_idx[0] + J->size
-                   [0] * ((int)b_xt->anchor_states->data[br].P_idx[3] - 1)) - 1]
-            = 0.0;
-          J->data[((int)b_xt->anchor_states->data[anchorIdx].P_idx[0] + J->size
-                   [0] * ((int)b_xt->anchor_states->data[br].P_idx[4] - 1)) - 1]
-            = -m_l[2];
-          J->data[((int)b_xt->anchor_states->data[anchorIdx].P_idx[0] + J->size
-                   [0] * ((int)b_xt->anchor_states->data[br].P_idx[5] - 1)) - 1]
-            = m_l[1];
-          J->data[((int)b_xt->anchor_states->data[anchorIdx].P_idx[1] + J->size
-                   [0] * ((int)b_xt->anchor_states->data[br].P_idx[3] - 1)) - 1]
-            = m_l[2];
-          J->data[((int)b_xt->anchor_states->data[anchorIdx].P_idx[1] + J->size
-                   [0] * ((int)b_xt->anchor_states->data[br].P_idx[4] - 1)) - 1]
-            = 0.0;
-          J->data[((int)b_xt->anchor_states->data[anchorIdx].P_idx[1] + J->size
-                   [0] * ((int)b_xt->anchor_states->data[br].P_idx[5] - 1)) - 1]
-            = -m_l[0];
-          J->data[((int)b_xt->anchor_states->data[anchorIdx].P_idx[2] + J->size
-                   [0] * ((int)b_xt->anchor_states->data[br].P_idx[3] - 1)) - 1]
-            = -m_l[1];
-          J->data[((int)b_xt->anchor_states->data[anchorIdx].P_idx[2] + J->size
-                   [0] * ((int)b_xt->anchor_states->data[br].P_idx[4] - 1)) - 1]
-            = m_l[0];
-          J->data[((int)b_xt->anchor_states->data[anchorIdx].P_idx[2] + J->size
-                   [0] * ((int)b_xt->anchor_states->data[br].P_idx[5] - 1)) - 1]
-            = 0.0;
+          //  if ~all(size(q) == [4, 1])
+          //      error('q does not have the size of a quaternion')
+          //  end
+          //  if abs(norm(q) - 1) > 1e-3
+          //      error('The provided quaternion is not a valid rotation quaternion because it does not have norm 1') 
+          //  end
+          g_xt[0] = ((b_xt->anchor_states->data[anchorIdx].att[0] *
+                      b_xt->anchor_states->data[anchorIdx].att[0] -
+                      b_xt->anchor_states->data[anchorIdx].att[1] *
+                      b_xt->anchor_states->data[anchorIdx].att[1]) -
+                     b_xt->anchor_states->data[anchorIdx].att[2] *
+                     b_xt->anchor_states->data[anchorIdx].att[2]) +
+            b_xt->anchor_states->data[anchorIdx].att[3] * b_xt->
+            anchor_states->data[anchorIdx].att[3];
+          g_xt[3] = 2.0 * (b_xt->anchor_states->data[anchorIdx].att[0] *
+                           b_xt->anchor_states->data[anchorIdx].att[1] +
+                           b_xt->anchor_states->data[anchorIdx].att[2] *
+                           b_xt->anchor_states->data[anchorIdx].att[3]);
+          g_xt[6] = 2.0 * (b_xt->anchor_states->data[anchorIdx].att[0] *
+                           b_xt->anchor_states->data[anchorIdx].att[2] -
+                           b_xt->anchor_states->data[anchorIdx].att[1] *
+                           b_xt->anchor_states->data[anchorIdx].att[3]);
+          g_xt[1] = 2.0 * (b_xt->anchor_states->data[anchorIdx].att[0] *
+                           b_xt->anchor_states->data[anchorIdx].att[1] -
+                           b_xt->anchor_states->data[anchorIdx].att[2] *
+                           b_xt->anchor_states->data[anchorIdx].att[3]);
+          g_xt[4] = ((-(b_xt->anchor_states->data[anchorIdx].att[0] *
+                        b_xt->anchor_states->data[anchorIdx].att[0]) +
+                      b_xt->anchor_states->data[anchorIdx].att[1] *
+                      b_xt->anchor_states->data[anchorIdx].att[1]) -
+                     b_xt->anchor_states->data[anchorIdx].att[2] *
+                     b_xt->anchor_states->data[anchorIdx].att[2]) +
+            b_xt->anchor_states->data[anchorIdx].att[3] * b_xt->
+            anchor_states->data[anchorIdx].att[3];
+          g_xt[7] = 2.0 * (b_xt->anchor_states->data[anchorIdx].att[1] *
+                           b_xt->anchor_states->data[anchorIdx].att[2] +
+                           b_xt->anchor_states->data[anchorIdx].att[0] *
+                           b_xt->anchor_states->data[anchorIdx].att[3]);
+          g_xt[2] = 2.0 * (b_xt->anchor_states->data[anchorIdx].att[0] *
+                           b_xt->anchor_states->data[anchorIdx].att[2] +
+                           b_xt->anchor_states->data[anchorIdx].att[1] *
+                           b_xt->anchor_states->data[anchorIdx].att[3]);
+          g_xt[5] = 2.0 * (b_xt->anchor_states->data[anchorIdx].att[1] *
+                           b_xt->anchor_states->data[anchorIdx].att[2] -
+                           b_xt->anchor_states->data[anchorIdx].att[0] *
+                           b_xt->anchor_states->data[anchorIdx].att[3]);
+          g_xt[8] = ((-(b_xt->anchor_states->data[anchorIdx].att[0] *
+                        b_xt->anchor_states->data[anchorIdx].att[0]) -
+                      b_xt->anchor_states->data[anchorIdx].att[1] *
+                      b_xt->anchor_states->data[anchorIdx].att[1]) +
+                     b_xt->anchor_states->data[anchorIdx].att[2] *
+                     b_xt->anchor_states->data[anchorIdx].att[2]) +
+            b_xt->anchor_states->data[anchorIdx].att[3] * b_xt->
+            anchor_states->data[anchorIdx].att[3];
           for (i28 = 0; i28 < 3; i28++) {
             for (i29 = 0; i29 < 3; i29++) {
-              J->data[((int)b_xt->anchor_states->data[anchorIdx].P_idx[i29 + 3]
-                       + J->size[0] * ((int)b_xt->anchor_states->data[br]
-                        .P_idx[i28] - 1)) - 1] = 0.0;
+              f_xt[i28 + 3 * i29] = 0.0;
+              for (i30 = 0; i30 < 3; i30++) {
+                f_xt[i28 + 3 * i29] += g_xt[i28 + 3 * i30] *
+                  new_origin_att_rel[i29 + 3 * i30];
+              }
             }
           }
 
-          for (i28 = 0; i28 < 3; i28++) {
-            for (i29 = 0; i29 < 3; i29++) {
-              J->data[((int)b_xt->anchor_states->data[anchorIdx].P_idx[i29 + 3]
-                       + J->size[0] * ((int)b_xt->anchor_states->data[br]
-                        .P_idx[i28 + 3] - 1)) - 1] = -new_origin_att_rel[i28 + 3
-                * i29];
+          QuatFromRotJ(f_xt, b_xt->anchor_states->data[anchorIdx].att);
+        }
+
+        if ((J->size[1] == 1) || (P_apr->size[0] == 1)) {
+          i28 = y->size[0] * y->size[1];
+          y->size[0] = J->size[0];
+          y->size[1] = P_apr->size[1];
+          emxEnsureCapacity((emxArray__common *)y, i28, (int)sizeof(double));
+          ib = J->size[0];
+          for (i28 = 0; i28 < ib; i28++) {
+            br = P_apr->size[1];
+            for (i29 = 0; i29 < br; i29++) {
+              y->data[i28 + y->size[0] * i29] = 0.0;
+              idx = J->size[1];
+              for (i30 = 0; i30 < idx; i30++) {
+                y->data[i28 + y->size[0] * i29] += J->data[i28 + J->size[0] *
+                  i30] * P_apr->data[i30 + P_apr->size[0] * i29];
+              }
+            }
+          }
+        } else {
+          k = J->size[1];
+          idx = J->size[0];
+          ixstart = P_apr->size[1];
+          c_m = J->size[0];
+          i28 = y->size[0] * y->size[1];
+          y->size[0] = idx;
+          emxEnsureCapacity((emxArray__common *)y, i28, (int)sizeof(double));
+          i28 = y->size[0] * y->size[1];
+          y->size[1] = ixstart;
+          emxEnsureCapacity((emxArray__common *)y, i28, (int)sizeof(double));
+          ib = idx * ixstart;
+          for (i28 = 0; i28 < ib; i28++) {
+            y->data[i28] = 0.0;
+          }
+
+          if ((J->size[0] == 0) || (P_apr->size[1] == 0)) {
+          } else {
+            idx = J->size[0] * (P_apr->size[1] - 1);
+            ixstart = 0;
+            while ((c_m > 0) && (ixstart <= idx)) {
+              i28 = ixstart + c_m;
+              for (ic = ixstart; ic + 1 <= i28; ic++) {
+                y->data[ic] = 0.0;
+              }
+
+              ixstart += c_m;
+            }
+
+            br = 0;
+            ixstart = 0;
+            while ((c_m > 0) && (ixstart <= idx)) {
+              ar = 0;
+              i28 = br + k;
+              for (ib = br; ib + 1 <= i28; ib++) {
+                if (P_apr->data[ib] != 0.0) {
+                  ia = ar;
+                  i29 = ixstart + c_m;
+                  for (ic = ixstart; ic + 1 <= i29; ic++) {
+                    ia++;
+                    y->data[ic] += P_apr->data[ib] * J->data[ia - 1];
+                  }
+                }
+
+                ar += c_m;
+              }
+
+              br += k;
+              ixstart += c_m;
+            }
+          }
+        }
+
+        i28 = b->size[0] * b->size[1];
+        b->size[0] = J->size[1];
+        b->size[1] = J->size[0];
+        emxEnsureCapacity((emxArray__common *)b, i28, (int)sizeof(double));
+        ib = J->size[0];
+        for (i28 = 0; i28 < ib; i28++) {
+          br = J->size[1];
+          for (i29 = 0; i29 < br; i29++) {
+            b->data[i29 + b->size[0] * i28] = J->data[i28 + J->size[0] * i29];
+          }
+        }
+
+        if ((y->size[1] == 1) || (b->size[0] == 1)) {
+          i28 = P_apr->size[0] * P_apr->size[1];
+          P_apr->size[0] = y->size[0];
+          P_apr->size[1] = b->size[1];
+          emxEnsureCapacity((emxArray__common *)P_apr, i28, (int)sizeof(double));
+          ib = y->size[0];
+          for (i28 = 0; i28 < ib; i28++) {
+            br = b->size[1];
+            for (i29 = 0; i29 < br; i29++) {
+              P_apr->data[i28 + P_apr->size[0] * i29] = 0.0;
+              idx = y->size[1];
+              for (i30 = 0; i30 < idx; i30++) {
+                P_apr->data[i28 + P_apr->size[0] * i29] += y->data[i28 + y->
+                  size[0] * i30] * b->data[i30 + b->size[0] * i29];
+              }
+            }
+          }
+        } else {
+          k = y->size[1];
+          idx = y->size[0];
+          ixstart = b->size[1];
+          c_m = y->size[0];
+          i28 = P_apr->size[0] * P_apr->size[1];
+          P_apr->size[0] = idx;
+          P_apr->size[1] = ixstart;
+          emxEnsureCapacity((emxArray__common *)P_apr, i28, (int)sizeof(double));
+          for (i28 = 0; i28 < ixstart; i28++) {
+            for (i29 = 0; i29 < idx; i29++) {
+              P_apr->data[i29 + P_apr->size[0] * i28] = 0.0;
+            }
+          }
+
+          if ((y->size[0] == 0) || (b->size[1] == 0)) {
+          } else {
+            idx = y->size[0] * (b->size[1] - 1);
+            ixstart = 0;
+            while ((c_m > 0) && (ixstart <= idx)) {
+              i28 = ixstart + c_m;
+              for (ic = ixstart; ic + 1 <= i28; ic++) {
+                P_apr->data[ic] = 0.0;
+              }
+
+              ixstart += c_m;
+            }
+
+            br = 0;
+            ixstart = 0;
+            while ((c_m > 0) && (ixstart <= idx)) {
+              ar = 0;
+              i28 = br + k;
+              for (ib = br; ib + 1 <= i28; ib++) {
+                if (b->data[ib] != 0.0) {
+                  ia = ar;
+                  i29 = ixstart + c_m;
+                  for (ic = ixstart; ic + 1 <= i29; ic++) {
+                    ia++;
+                    P_apr->data[ic] += b->data[ib] * y->data[ia - 1];
+                  }
+                }
+
+                ar += c_m;
+              }
+
+              br += k;
+              ixstart += c_m;
             }
           }
         }
 
         for (i28 = 0; i28 < 3; i28++) {
-          m_l[i28] = b_xt->anchor_states->data[anchorIdx].pos[i28] -
-            new_origin_pos_rel[i28];
+          c_xt[i28] = b_xt->robot_state.pos[i28] - new_origin_pos_rel[i28];
         }
 
         for (i28 = 0; i28 < 3; i28++) {
-          b_xt->anchor_states->data[anchorIdx].pos[i28] = 0.0;
-        }
-
-        for (i28 = 0; i28 < 3; i28++) {
-          b_xt->anchor_states->data[anchorIdx].pos[i28] = 0.0;
+          b_xt->robot_state.pos[i28] = 0.0;
           for (i29 = 0; i29 < 3; i29++) {
-            b_xt->anchor_states->data[anchorIdx].pos[i28] +=
-              new_origin_att_rel[i28 + 3 * i29] * m_l[i29];
+            b_xt->robot_state.pos[i28] += new_origin_att_rel[i28 + 3 * i29] *
+              c_xt[i29];
           }
         }
 
@@ -2135,364 +2366,137 @@ void SLAM_upd(emxArray_real_T *P_apr, f_struct_T *b_xt, const double
         //  if abs(norm(q) - 1) > 1e-3
         //      error('The provided quaternion is not a valid rotation quaternion because it does not have norm 1') 
         //  end
-        g_xt[0] = ((b_xt->anchor_states->data[anchorIdx].att[0] *
-                    b_xt->anchor_states->data[anchorIdx].att[0] -
-                    b_xt->anchor_states->data[anchorIdx].att[1] *
-                    b_xt->anchor_states->data[anchorIdx].att[1]) -
-                   b_xt->anchor_states->data[anchorIdx].att[2] *
-                   b_xt->anchor_states->data[anchorIdx].att[2]) +
-          b_xt->anchor_states->data[anchorIdx].att[3] * b_xt->
-          anchor_states->data[anchorIdx].att[3];
-        g_xt[3] = 2.0 * (b_xt->anchor_states->data[anchorIdx].att[0] *
-                         b_xt->anchor_states->data[anchorIdx].att[1] +
-                         b_xt->anchor_states->data[anchorIdx].att[2] *
-                         b_xt->anchor_states->data[anchorIdx].att[3]);
-        g_xt[6] = 2.0 * (b_xt->anchor_states->data[anchorIdx].att[0] *
-                         b_xt->anchor_states->data[anchorIdx].att[2] -
-                         b_xt->anchor_states->data[anchorIdx].att[1] *
-                         b_xt->anchor_states->data[anchorIdx].att[3]);
-        g_xt[1] = 2.0 * (b_xt->anchor_states->data[anchorIdx].att[0] *
-                         b_xt->anchor_states->data[anchorIdx].att[1] -
-                         b_xt->anchor_states->data[anchorIdx].att[2] *
-                         b_xt->anchor_states->data[anchorIdx].att[3]);
-        g_xt[4] = ((-(b_xt->anchor_states->data[anchorIdx].att[0] *
-                      b_xt->anchor_states->data[anchorIdx].att[0]) +
-                    b_xt->anchor_states->data[anchorIdx].att[1] *
-                    b_xt->anchor_states->data[anchorIdx].att[1]) -
-                   b_xt->anchor_states->data[anchorIdx].att[2] *
-                   b_xt->anchor_states->data[anchorIdx].att[2]) +
-          b_xt->anchor_states->data[anchorIdx].att[3] * b_xt->
-          anchor_states->data[anchorIdx].att[3];
-        g_xt[7] = 2.0 * (b_xt->anchor_states->data[anchorIdx].att[1] *
-                         b_xt->anchor_states->data[anchorIdx].att[2] +
-                         b_xt->anchor_states->data[anchorIdx].att[0] *
-                         b_xt->anchor_states->data[anchorIdx].att[3]);
-        g_xt[2] = 2.0 * (b_xt->anchor_states->data[anchorIdx].att[0] *
-                         b_xt->anchor_states->data[anchorIdx].att[2] +
-                         b_xt->anchor_states->data[anchorIdx].att[1] *
-                         b_xt->anchor_states->data[anchorIdx].att[3]);
-        g_xt[5] = 2.0 * (b_xt->anchor_states->data[anchorIdx].att[1] *
-                         b_xt->anchor_states->data[anchorIdx].att[2] -
-                         b_xt->anchor_states->data[anchorIdx].att[0] *
-                         b_xt->anchor_states->data[anchorIdx].att[3]);
-        g_xt[8] = ((-(b_xt->anchor_states->data[anchorIdx].att[0] *
-                      b_xt->anchor_states->data[anchorIdx].att[0]) -
-                    b_xt->anchor_states->data[anchorIdx].att[1] *
-                    b_xt->anchor_states->data[anchorIdx].att[1]) +
-                   b_xt->anchor_states->data[anchorIdx].att[2] *
-                   b_xt->anchor_states->data[anchorIdx].att[2]) +
-          b_xt->anchor_states->data[anchorIdx].att[3] * b_xt->
-          anchor_states->data[anchorIdx].att[3];
+        h_xt[0] = ((b_xt->robot_state.att[0] * b_xt->robot_state.att[0] -
+                    b_xt->robot_state.att[1] * b_xt->robot_state.att[1]) -
+                   b_xt->robot_state.att[2] * b_xt->robot_state.att[2]) +
+          b_xt->robot_state.att[3] * b_xt->robot_state.att[3];
+        h_xt[3] = 2.0 * (b_xt->robot_state.att[0] * b_xt->robot_state.att[1] +
+                         b_xt->robot_state.att[2] * b_xt->robot_state.att[3]);
+        h_xt[6] = 2.0 * (b_xt->robot_state.att[0] * b_xt->robot_state.att[2] -
+                         b_xt->robot_state.att[1] * b_xt->robot_state.att[3]);
+        h_xt[1] = 2.0 * (b_xt->robot_state.att[0] * b_xt->robot_state.att[1] -
+                         b_xt->robot_state.att[2] * b_xt->robot_state.att[3]);
+        h_xt[4] = ((-(b_xt->robot_state.att[0] * b_xt->robot_state.att[0]) +
+                    b_xt->robot_state.att[1] * b_xt->robot_state.att[1]) -
+                   b_xt->robot_state.att[2] * b_xt->robot_state.att[2]) +
+          b_xt->robot_state.att[3] * b_xt->robot_state.att[3];
+        h_xt[7] = 2.0 * (b_xt->robot_state.att[1] * b_xt->robot_state.att[2] +
+                         b_xt->robot_state.att[0] * b_xt->robot_state.att[3]);
+        h_xt[2] = 2.0 * (b_xt->robot_state.att[0] * b_xt->robot_state.att[2] +
+                         b_xt->robot_state.att[1] * b_xt->robot_state.att[3]);
+        h_xt[5] = 2.0 * (b_xt->robot_state.att[1] * b_xt->robot_state.att[2] -
+                         b_xt->robot_state.att[0] * b_xt->robot_state.att[3]);
+        h_xt[8] = ((-(b_xt->robot_state.att[0] * b_xt->robot_state.att[0]) -
+                    b_xt->robot_state.att[1] * b_xt->robot_state.att[1]) +
+                   b_xt->robot_state.att[2] * b_xt->robot_state.att[2]) +
+          b_xt->robot_state.att[3] * b_xt->robot_state.att[3];
         for (i28 = 0; i28 < 3; i28++) {
           for (i29 = 0; i29 < 3; i29++) {
             f_xt[i28 + 3 * i29] = 0.0;
             for (i30 = 0; i30 < 3; i30++) {
-              f_xt[i28 + 3 * i29] += g_xt[i28 + 3 * i30] *
+              f_xt[i28 + 3 * i29] += h_xt[i28 + 3 * i30] *
                 new_origin_att_rel[i29 + 3 * i30];
             }
           }
         }
 
-        QuatFromRotJ(f_xt, b_xt->anchor_states->data[anchorIdx].att);
-      }
+        QuatFromRotJ(f_xt, b_xt->robot_state.att);
+        for (i28 = 0; i28 < 3; i28++) {
+          c_xt[i28] = 0.0;
+          for (i29 = 0; i29 < 3; i29++) {
+            c_xt[i28] += new_origin_att_rel[i28 + 3 * i29] *
+              b_xt->robot_state.vel[i29];
+          }
+        }
 
-      if ((J->size[1] == 1) || (P_apr->size[0] == 1)) {
-        i28 = y->size[0] * y->size[1];
-        y->size[0] = J->size[0];
-        y->size[1] = P_apr->size[1];
-        emxEnsureCapacity((emxArray__common *)y, i28, (int)sizeof(double));
-        ib = J->size[0];
-        for (i28 = 0; i28 < ib; i28++) {
-          br = P_apr->size[1];
-          for (i29 = 0; i29 < br; i29++) {
-            y->data[i28 + y->size[0] * i29] = 0.0;
-            idx = J->size[1];
-            for (i30 = 0; i30 < idx; i30++) {
-              y->data[i28 + y->size[0] * i29] += J->data[i28 + J->size[0] * i30]
-                * P_apr->data[i30 + P_apr->size[0] * i29];
+        for (i28 = 0; i28 < 3; i28++) {
+          b_xt->robot_state.vel[i28] = c_xt[i28];
+        }
+
+        //  if ~all(size(q) == [4, 1])
+        //      error('q does not have the size of a quaternion')
+        //  end
+        //  if abs(norm(q) - 1) > 1e-3
+        //      error('The provided quaternion is not a valid rotation quaternion because it does not have norm 1') 
+        //  end
+        i_xt[0] = ((b_xt->origin.att[0] * b_xt->origin.att[0] - b_xt->
+                    origin.att[1] * b_xt->origin.att[1]) - b_xt->origin.att[2] *
+                   b_xt->origin.att[2]) + b_xt->origin.att[3] * b_xt->
+          origin.att[3];
+        i_xt[1] = 2.0 * (b_xt->origin.att[0] * b_xt->origin.att[1] +
+                         b_xt->origin.att[2] * b_xt->origin.att[3]);
+        i_xt[2] = 2.0 * (b_xt->origin.att[0] * b_xt->origin.att[2] -
+                         b_xt->origin.att[1] * b_xt->origin.att[3]);
+        i_xt[3] = 2.0 * (b_xt->origin.att[0] * b_xt->origin.att[1] -
+                         b_xt->origin.att[2] * b_xt->origin.att[3]);
+        i_xt[4] = ((-(b_xt->origin.att[0] * b_xt->origin.att[0]) +
+                    b_xt->origin.att[1] * b_xt->origin.att[1]) -
+                   b_xt->origin.att[2] * b_xt->origin.att[2]) + b_xt->
+          origin.att[3] * b_xt->origin.att[3];
+        i_xt[5] = 2.0 * (b_xt->origin.att[1] * b_xt->origin.att[2] +
+                         b_xt->origin.att[0] * b_xt->origin.att[3]);
+        i_xt[6] = 2.0 * (b_xt->origin.att[0] * b_xt->origin.att[2] +
+                         b_xt->origin.att[1] * b_xt->origin.att[3]);
+        i_xt[7] = 2.0 * (b_xt->origin.att[1] * b_xt->origin.att[2] -
+                         b_xt->origin.att[0] * b_xt->origin.att[3]);
+        i_xt[8] = ((-(b_xt->origin.att[0] * b_xt->origin.att[0]) -
+                    b_xt->origin.att[1] * b_xt->origin.att[1]) +
+                   b_xt->origin.att[2] * b_xt->origin.att[2]) + b_xt->
+          origin.att[3] * b_xt->origin.att[3];
+        for (i28 = 0; i28 < 3; i28++) {
+          d7 = 0.0;
+          for (i29 = 0; i29 < 3; i29++) {
+            d7 += i_xt[i28 + 3 * i29] * new_origin_pos_rel[i29];
+          }
+
+          b_xt->origin.pos[i28] += d7;
+        }
+
+        //  in world frame
+        //  if ~all(size(q) == [4, 1])
+        //      error('q does not have the size of a quaternion')
+        //  end
+        //  if abs(norm(q) - 1) > 1e-3
+        //      error('The provided quaternion is not a valid rotation quaternion because it does not have norm 1') 
+        //  end
+        j_xt[0] = ((b_xt->origin.att[0] * b_xt->origin.att[0] - b_xt->
+                    origin.att[1] * b_xt->origin.att[1]) - b_xt->origin.att[2] *
+                   b_xt->origin.att[2]) + b_xt->origin.att[3] * b_xt->
+          origin.att[3];
+        j_xt[3] = 2.0 * (b_xt->origin.att[0] * b_xt->origin.att[1] +
+                         b_xt->origin.att[2] * b_xt->origin.att[3]);
+        j_xt[6] = 2.0 * (b_xt->origin.att[0] * b_xt->origin.att[2] -
+                         b_xt->origin.att[1] * b_xt->origin.att[3]);
+        j_xt[1] = 2.0 * (b_xt->origin.att[0] * b_xt->origin.att[1] -
+                         b_xt->origin.att[2] * b_xt->origin.att[3]);
+        j_xt[4] = ((-(b_xt->origin.att[0] * b_xt->origin.att[0]) +
+                    b_xt->origin.att[1] * b_xt->origin.att[1]) -
+                   b_xt->origin.att[2] * b_xt->origin.att[2]) + b_xt->
+          origin.att[3] * b_xt->origin.att[3];
+        j_xt[7] = 2.0 * (b_xt->origin.att[1] * b_xt->origin.att[2] +
+                         b_xt->origin.att[0] * b_xt->origin.att[3]);
+        j_xt[2] = 2.0 * (b_xt->origin.att[0] * b_xt->origin.att[2] +
+                         b_xt->origin.att[1] * b_xt->origin.att[3]);
+        j_xt[5] = 2.0 * (b_xt->origin.att[1] * b_xt->origin.att[2] -
+                         b_xt->origin.att[0] * b_xt->origin.att[3]);
+        j_xt[8] = ((-(b_xt->origin.att[0] * b_xt->origin.att[0]) -
+                    b_xt->origin.att[1] * b_xt->origin.att[1]) +
+                   b_xt->origin.att[2] * b_xt->origin.att[2]) + b_xt->
+          origin.att[3] * b_xt->origin.att[3];
+        for (i28 = 0; i28 < 3; i28++) {
+          for (i29 = 0; i29 < 3; i29++) {
+            f_xt[i28 + 3 * i29] = 0.0;
+            for (i30 = 0; i30 < 3; i30++) {
+              f_xt[i28 + 3 * i29] += new_origin_att_rel[i28 + 3 * i30] *
+                j_xt[i30 + 3 * i29];
             }
           }
         }
-      } else {
-        k = J->size[1];
-        idx = J->size[0];
-        ixstart = P_apr->size[1];
-        c_m = J->size[0];
-        i28 = y->size[0] * y->size[1];
-        y->size[0] = idx;
-        emxEnsureCapacity((emxArray__common *)y, i28, (int)sizeof(double));
-        i28 = y->size[0] * y->size[1];
-        y->size[1] = ixstart;
-        emxEnsureCapacity((emxArray__common *)y, i28, (int)sizeof(double));
-        ib = idx * ixstart;
-        for (i28 = 0; i28 < ib; i28++) {
-          y->data[i28] = 0.0;
-        }
 
-        if ((J->size[0] == 0) || (P_apr->size[1] == 0)) {
-        } else {
-          idx = J->size[0] * (P_apr->size[1] - 1);
-          ixstart = 0;
-          while ((c_m > 0) && (ixstart <= idx)) {
-            i28 = ixstart + c_m;
-            for (ic = ixstart; ic + 1 <= i28; ic++) {
-              y->data[ic] = 0.0;
-            }
+        QuatFromRotJ(f_xt, b_xt->origin.att);
 
-            ixstart += c_m;
-          }
-
-          br = 0;
-          ixstart = 0;
-          while ((c_m > 0) && (ixstart <= idx)) {
-            ar = 0;
-            i28 = br + k;
-            for (ib = br; ib + 1 <= i28; ib++) {
-              if (P_apr->data[ib] != 0.0) {
-                ia = ar;
-                i29 = ixstart + c_m;
-                for (ic = ixstart; ic + 1 <= i29; ic++) {
-                  ia++;
-                  y->data[ic] += P_apr->data[ib] * J->data[ia - 1];
-                }
-              }
-
-              ar += c_m;
-            }
-
-            br += k;
-            ixstart += c_m;
-          }
-        }
+        //  in world frame
       }
-
-      i28 = b->size[0] * b->size[1];
-      b->size[0] = J->size[1];
-      b->size[1] = J->size[0];
-      emxEnsureCapacity((emxArray__common *)b, i28, (int)sizeof(double));
-      ib = J->size[0];
-      for (i28 = 0; i28 < ib; i28++) {
-        br = J->size[1];
-        for (i29 = 0; i29 < br; i29++) {
-          b->data[i29 + b->size[0] * i28] = J->data[i28 + J->size[0] * i29];
-        }
-      }
-
-      if ((y->size[1] == 1) || (b->size[0] == 1)) {
-        i28 = P_apr->size[0] * P_apr->size[1];
-        P_apr->size[0] = y->size[0];
-        P_apr->size[1] = b->size[1];
-        emxEnsureCapacity((emxArray__common *)P_apr, i28, (int)sizeof(double));
-        ib = y->size[0];
-        for (i28 = 0; i28 < ib; i28++) {
-          br = b->size[1];
-          for (i29 = 0; i29 < br; i29++) {
-            P_apr->data[i28 + P_apr->size[0] * i29] = 0.0;
-            idx = y->size[1];
-            for (i30 = 0; i30 < idx; i30++) {
-              P_apr->data[i28 + P_apr->size[0] * i29] += y->data[i28 + y->size[0]
-                * i30] * b->data[i30 + b->size[0] * i29];
-            }
-          }
-        }
-      } else {
-        k = y->size[1];
-        idx = y->size[0];
-        ixstart = b->size[1];
-        c_m = y->size[0];
-        i28 = P_apr->size[0] * P_apr->size[1];
-        P_apr->size[0] = idx;
-        P_apr->size[1] = ixstart;
-        emxEnsureCapacity((emxArray__common *)P_apr, i28, (int)sizeof(double));
-        for (i28 = 0; i28 < ixstart; i28++) {
-          for (i29 = 0; i29 < idx; i29++) {
-            P_apr->data[i29 + P_apr->size[0] * i28] = 0.0;
-          }
-        }
-
-        if ((y->size[0] == 0) || (b->size[1] == 0)) {
-        } else {
-          idx = y->size[0] * (b->size[1] - 1);
-          ixstart = 0;
-          while ((c_m > 0) && (ixstart <= idx)) {
-            i28 = ixstart + c_m;
-            for (ic = ixstart; ic + 1 <= i28; ic++) {
-              P_apr->data[ic] = 0.0;
-            }
-
-            ixstart += c_m;
-          }
-
-          br = 0;
-          ixstart = 0;
-          while ((c_m > 0) && (ixstart <= idx)) {
-            ar = 0;
-            i28 = br + k;
-            for (ib = br; ib + 1 <= i28; ib++) {
-              if (b->data[ib] != 0.0) {
-                ia = ar;
-                i29 = ixstart + c_m;
-                for (ic = ixstart; ic + 1 <= i29; ic++) {
-                  ia++;
-                  P_apr->data[ic] += b->data[ib] * y->data[ia - 1];
-                }
-              }
-
-              ar += c_m;
-            }
-
-            br += k;
-            ixstart += c_m;
-          }
-        }
-      }
-
-      for (i28 = 0; i28 < 3; i28++) {
-        c_xt[i28] = b_xt->robot_state.pos[i28] - new_origin_pos_rel[i28];
-      }
-
-      for (i28 = 0; i28 < 3; i28++) {
-        b_xt->robot_state.pos[i28] = 0.0;
-        for (i29 = 0; i29 < 3; i29++) {
-          b_xt->robot_state.pos[i28] += new_origin_att_rel[i28 + 3 * i29] *
-            c_xt[i29];
-        }
-      }
-
-      //  if ~all(size(q) == [4, 1])
-      //      error('q does not have the size of a quaternion')
-      //  end
-      //  if abs(norm(q) - 1) > 1e-3
-      //      error('The provided quaternion is not a valid rotation quaternion because it does not have norm 1') 
-      //  end
-      h_xt[0] = ((b_xt->robot_state.att[0] * b_xt->robot_state.att[0] -
-                  b_xt->robot_state.att[1] * b_xt->robot_state.att[1]) -
-                 b_xt->robot_state.att[2] * b_xt->robot_state.att[2]) +
-        b_xt->robot_state.att[3] * b_xt->robot_state.att[3];
-      h_xt[3] = 2.0 * (b_xt->robot_state.att[0] * b_xt->robot_state.att[1] +
-                       b_xt->robot_state.att[2] * b_xt->robot_state.att[3]);
-      h_xt[6] = 2.0 * (b_xt->robot_state.att[0] * b_xt->robot_state.att[2] -
-                       b_xt->robot_state.att[1] * b_xt->robot_state.att[3]);
-      h_xt[1] = 2.0 * (b_xt->robot_state.att[0] * b_xt->robot_state.att[1] -
-                       b_xt->robot_state.att[2] * b_xt->robot_state.att[3]);
-      h_xt[4] = ((-(b_xt->robot_state.att[0] * b_xt->robot_state.att[0]) +
-                  b_xt->robot_state.att[1] * b_xt->robot_state.att[1]) -
-                 b_xt->robot_state.att[2] * b_xt->robot_state.att[2]) +
-        b_xt->robot_state.att[3] * b_xt->robot_state.att[3];
-      h_xt[7] = 2.0 * (b_xt->robot_state.att[1] * b_xt->robot_state.att[2] +
-                       b_xt->robot_state.att[0] * b_xt->robot_state.att[3]);
-      h_xt[2] = 2.0 * (b_xt->robot_state.att[0] * b_xt->robot_state.att[2] +
-                       b_xt->robot_state.att[1] * b_xt->robot_state.att[3]);
-      h_xt[5] = 2.0 * (b_xt->robot_state.att[1] * b_xt->robot_state.att[2] -
-                       b_xt->robot_state.att[0] * b_xt->robot_state.att[3]);
-      h_xt[8] = ((-(b_xt->robot_state.att[0] * b_xt->robot_state.att[0]) -
-                  b_xt->robot_state.att[1] * b_xt->robot_state.att[1]) +
-                 b_xt->robot_state.att[2] * b_xt->robot_state.att[2]) +
-        b_xt->robot_state.att[3] * b_xt->robot_state.att[3];
-      for (i28 = 0; i28 < 3; i28++) {
-        for (i29 = 0; i29 < 3; i29++) {
-          f_xt[i28 + 3 * i29] = 0.0;
-          for (i30 = 0; i30 < 3; i30++) {
-            f_xt[i28 + 3 * i29] += h_xt[i28 + 3 * i30] * new_origin_att_rel[i29
-              + 3 * i30];
-          }
-        }
-      }
-
-      QuatFromRotJ(f_xt, b_xt->robot_state.att);
-      for (i28 = 0; i28 < 3; i28++) {
-        c_xt[i28] = 0.0;
-        for (i29 = 0; i29 < 3; i29++) {
-          c_xt[i28] += new_origin_att_rel[i28 + 3 * i29] * b_xt->
-            robot_state.vel[i29];
-        }
-      }
-
-      for (i28 = 0; i28 < 3; i28++) {
-        b_xt->robot_state.vel[i28] = c_xt[i28];
-      }
-
-      //  if ~all(size(q) == [4, 1])
-      //      error('q does not have the size of a quaternion')
-      //  end
-      //  if abs(norm(q) - 1) > 1e-3
-      //      error('The provided quaternion is not a valid rotation quaternion because it does not have norm 1') 
-      //  end
-      i_xt[0] = ((b_xt->origin.att[0] * b_xt->origin.att[0] - b_xt->origin.att[1]
-                  * b_xt->origin.att[1]) - b_xt->origin.att[2] *
-                 b_xt->origin.att[2]) + b_xt->origin.att[3] * b_xt->origin.att[3];
-      i_xt[1] = 2.0 * (b_xt->origin.att[0] * b_xt->origin.att[1] +
-                       b_xt->origin.att[2] * b_xt->origin.att[3]);
-      i_xt[2] = 2.0 * (b_xt->origin.att[0] * b_xt->origin.att[2] -
-                       b_xt->origin.att[1] * b_xt->origin.att[3]);
-      i_xt[3] = 2.0 * (b_xt->origin.att[0] * b_xt->origin.att[1] -
-                       b_xt->origin.att[2] * b_xt->origin.att[3]);
-      i_xt[4] = ((-(b_xt->origin.att[0] * b_xt->origin.att[0]) +
-                  b_xt->origin.att[1] * b_xt->origin.att[1]) - b_xt->origin.att
-                 [2] * b_xt->origin.att[2]) + b_xt->origin.att[3] *
-        b_xt->origin.att[3];
-      i_xt[5] = 2.0 * (b_xt->origin.att[1] * b_xt->origin.att[2] +
-                       b_xt->origin.att[0] * b_xt->origin.att[3]);
-      i_xt[6] = 2.0 * (b_xt->origin.att[0] * b_xt->origin.att[2] +
-                       b_xt->origin.att[1] * b_xt->origin.att[3]);
-      i_xt[7] = 2.0 * (b_xt->origin.att[1] * b_xt->origin.att[2] -
-                       b_xt->origin.att[0] * b_xt->origin.att[3]);
-      i_xt[8] = ((-(b_xt->origin.att[0] * b_xt->origin.att[0]) -
-                  b_xt->origin.att[1] * b_xt->origin.att[1]) + b_xt->origin.att
-                 [2] * b_xt->origin.att[2]) + b_xt->origin.att[3] *
-        b_xt->origin.att[3];
-      for (i28 = 0; i28 < 3; i28++) {
-        d7 = 0.0;
-        for (i29 = 0; i29 < 3; i29++) {
-          d7 += i_xt[i28 + 3 * i29] * new_origin_pos_rel[i29];
-        }
-
-        b_xt->origin.pos[i28] += d7;
-      }
-
-      //  in world frame
-      //  if ~all(size(q) == [4, 1])
-      //      error('q does not have the size of a quaternion')
-      //  end
-      //  if abs(norm(q) - 1) > 1e-3
-      //      error('The provided quaternion is not a valid rotation quaternion because it does not have norm 1') 
-      //  end
-      j_xt[0] = ((b_xt->origin.att[0] * b_xt->origin.att[0] - b_xt->origin.att[1]
-                  * b_xt->origin.att[1]) - b_xt->origin.att[2] *
-                 b_xt->origin.att[2]) + b_xt->origin.att[3] * b_xt->origin.att[3];
-      j_xt[3] = 2.0 * (b_xt->origin.att[0] * b_xt->origin.att[1] +
-                       b_xt->origin.att[2] * b_xt->origin.att[3]);
-      j_xt[6] = 2.0 * (b_xt->origin.att[0] * b_xt->origin.att[2] -
-                       b_xt->origin.att[1] * b_xt->origin.att[3]);
-      j_xt[1] = 2.0 * (b_xt->origin.att[0] * b_xt->origin.att[1] -
-                       b_xt->origin.att[2] * b_xt->origin.att[3]);
-      j_xt[4] = ((-(b_xt->origin.att[0] * b_xt->origin.att[0]) +
-                  b_xt->origin.att[1] * b_xt->origin.att[1]) - b_xt->origin.att
-                 [2] * b_xt->origin.att[2]) + b_xt->origin.att[3] *
-        b_xt->origin.att[3];
-      j_xt[7] = 2.0 * (b_xt->origin.att[1] * b_xt->origin.att[2] +
-                       b_xt->origin.att[0] * b_xt->origin.att[3]);
-      j_xt[2] = 2.0 * (b_xt->origin.att[0] * b_xt->origin.att[2] +
-                       b_xt->origin.att[1] * b_xt->origin.att[3]);
-      j_xt[5] = 2.0 * (b_xt->origin.att[1] * b_xt->origin.att[2] -
-                       b_xt->origin.att[0] * b_xt->origin.att[3]);
-      j_xt[8] = ((-(b_xt->origin.att[0] * b_xt->origin.att[0]) -
-                  b_xt->origin.att[1] * b_xt->origin.att[1]) + b_xt->origin.att
-                 [2] * b_xt->origin.att[2]) + b_xt->origin.att[3] *
-        b_xt->origin.att[3];
-      for (i28 = 0; i28 < 3; i28++) {
-        for (i29 = 0; i29 < 3; i29++) {
-          f_xt[i28 + 3 * i29] = 0.0;
-          for (i30 = 0; i30 < 3; i30++) {
-            f_xt[i28 + 3 * i29] += new_origin_att_rel[i28 + 3 * i30] * j_xt[i30
-              + 3 * i29];
-          }
-        }
-      }
-
-      QuatFromRotJ(f_xt, b_xt->origin.att);
-
-      //  in world frame
     }
   }
 
