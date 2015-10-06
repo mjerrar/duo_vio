@@ -48,16 +48,23 @@ Localization::Localization()
 	ros::Duration(0.5).sleep(); // otherwise the following message might not be received
 	vio_vis_reset_pub.publish(std_msgs::Empty());
 
-	duo_processed_pub = nh_.advertise<std_msgs::UInt32>("/duo3d/msg_processed", 1000);
+	duo_processed_pub = nh_.advertise<std_msgs::UInt32>("/duo3d/msg_processed", 1);
 
 	// Load parameters from launch file
-	nh_.param<double>("noise_acc", noiseParams.process_noise.qv, 0.0);
-	nh_.param<double>("noise_gyro", noiseParams.process_noise.qw, 0.0);
-	nh_.param<double>("noise_gyro_bias", noiseParams.process_noise.qwo, 0.0);
-	nh_.param<double>("noise_acc_bias", noiseParams.process_noise.qao, 0.0);
-	nh_.param<double>("noise_R_ci", noiseParams.process_noise.qR_ci, 0.0);
-	nh_.param<double>("noise_inv_depth_initial_unc", noiseParams.inv_depth_initial_unc, 0.0);
-	nh_.param<double>("noise_image", noiseParams.image_noise, 0);
+	if(!nh_.getParam("noise_acc", noiseParams.process_noise.qv))
+		ROS_WARN("Failed to load parameter noise_acc");
+	if(!nh_.getParam("noise_gyro", noiseParams.process_noise.qw))
+		ROS_WARN("Failed to load parameter noise_gyro");
+	if(!nh_.getParam("noise_gyro_bias", noiseParams.process_noise.qwo))
+		ROS_WARN("Failed to load parameter noise_gyro_bias");
+	if(!nh_.getParam("noise_acc_bias", noiseParams.process_noise.qao))
+		ROS_WARN("Failed to load parameter noise_acc_bias");
+	if(!nh_.getParam("noise_R_ci", noiseParams.process_noise.qR_ci))
+		ROS_WARN("Failed to load parameter noise_R_ci");
+	if(!nh_.getParam("noise_inv_depth_initial_unc", noiseParams.inv_depth_initial_unc))
+		ROS_WARN("Failed to load parameter noise_inv_depth_initial_unc");
+	if(!nh_.getParam("noise_image", noiseParams.image_noise))
+		ROS_WARN("Failed to load parameter noise_image");
 
 	std::vector<double> tmp;
 	if (nh_.getParam("noise_gyro_bias_initial_unc", tmp))
@@ -65,33 +72,49 @@ Localization::Localization()
 		for (int i = 0; i < tmp.size(); i++)
 			noiseParams.gyro_bias_initial_unc[i] = tmp[i];
 	} else {
-		ROS_WARN("Did not find the parameter noise/gyro_bias_initial_unc");
+		ROS_WARN("Failed to load parameter noise_gyro_bias_initial_unc");
 	}
-	if (nh_.getParam("noise/acc_bias_initial_unc", tmp))
+	if (nh_.getParam("noise_acc_bias_initial_unc", tmp))
 	{
 		for (int i = 0; i < tmp.size(); i++)
 			noiseParams.acc_bias_initial_unc[i] = tmp[i];
 	} else {
-		ROS_WARN("Did not find the parameter noise/acc_bias_initial_unc");
+		ROS_WARN("Failed to load parameter noise_acc_bias_initial_unc");
 	}
 
-	nh_.param<int> ("vio_num_points_per_anchor", vioParams.num_points_per_anchor, 0);
-	nh_.param<int> ("vio_num_anchors", vioParams.num_anchors, 0);
-	nh_.param<int> ("vio_max_ekf_iterations", vioParams.max_ekf_iterations, 0);
-	nh_.param<bool>("vio_delayed_initiazation", vioParams.delayed_initialization, false);
-	nh_.param<bool>("vio_mono", vioParams.mono, false);
-	nh_.param<bool>("vio_fixed_feature", vioParams.fixed_feature, false);
-	nh_.param<bool>("vio_RANSAC", vioParams.RANSAC, true);
+	if(!nh_.getParam("vio_num_points_per_anchor", vioParams.num_points_per_anchor))
+		ROS_WARN("Failed to load parameter vio_num_points_per_anchor");
+	if(!nh_.getParam ("vio_num_anchors", vioParams.num_anchors))
+		ROS_WARN("Failed to load parameter vio_num_anchors");
+	if(!nh_.getParam("vio_max_ekf_iterations", vioParams.max_ekf_iterations))
+		ROS_WARN("Failed to load parameter vio_max_ekf_iterations");
+	if(!nh_.getParam("vio_delayed_initiazation", vioParams.delayed_initialization))
+		ROS_WARN("Failed to load parameter vio_delayed_initiazation");
+	if(!nh_.getParam("vio_mono", vioParams.mono))
+		ROS_WARN("Failed to load parameter vio_mono");
+	if(!nh_.getParam("vio_fixed_feature", vioParams.fixed_feature))
+		ROS_WARN("Failed to load parameter vio_fixed_feature");
+	if(!nh_.getParam("vio_RANSAC", vioParams.RANSAC))
+		ROS_WARN("Failed to load parameter vio_RANSAC");
 
-	nh_.param<double>("ctrl_Kp_xy", controllerGains.Kp_xy, 0);
-	nh_.param<double>("ctrl_Ki_xy", controllerGains.Ki_xy, 0);
-	nh_.param<double>("ctrl_Kd_xy", controllerGains.Kd_xy, 0);
-	nh_.param<double>("ctrl_Kp_z", controllerGains.Kp_xy, 0);
-	nh_.param<double>("ctrl_Ki_z", controllerGains.Ki_z, 0);
-	nh_.param<double>("ctrl_Kd_z", controllerGains.Kd_z, 0);
-	nh_.param<double>("ctrl_Kp_yaw", controllerGains.Kp_yaw, 0);
-	nh_.param<double>("ctrl_Kd_yaw", controllerGains.Kd_yaw, 0);
-	nh_.param<double>("ctrl_i_lim", controllerGains.i_lim, 0);
+	if(!nh_.getParam("ctrl_Kp_xy", controllerGains.Kp_xy))
+		ROS_WARN("Failed to load parameter ctrl_Kp_xy");
+	if(!nh_.getParam("ctrl_Ki_xy", controllerGains.Ki_xy))
+		ROS_WARN("Failed to load parameter ctrl_Ki_xy");
+	if(!nh_.getParam("ctrl_Kd_xy", controllerGains.Kd_xy))
+		ROS_WARN("Failed to load parameter ctrl_Kd_xy");
+	if(!nh_.getParam("ctrl_Kp_z", controllerGains.Kp_xy))
+		ROS_WARN("Failed to load parameter ctrl_Kp_z");
+	if(!nh_.getParam("ctrl_Ki_z", controllerGains.Ki_z))
+		ROS_WARN("Failed to load parameter ctrl_Ki_z");
+	if(!nh_.getParam("ctrl_Kd_z", controllerGains.Kd_z))
+		ROS_WARN("Failed to load parameter ctrl_Kd_z");
+	if(!nh_.getParam("ctrl_Kp_yaw", controllerGains.Kp_yaw))
+		ROS_WARN("Failed to load parameter ctrl_Kp_yaw");
+	if(!nh_.getParam("ctrl_Kd_yaw", controllerGains.Kd_yaw))
+		ROS_WARN("Failed to load parameter ctrl_Kd_yaw");
+	if(!nh_.getParam("ctrl_i_lim", controllerGains.i_lim))
+		ROS_WARN("Failed to load parameter ctrl_i_lim");
 
 	std::string camera_name; nh_.param<std::string>("cam_camera_name", camera_name, "NoName");
 	std::string lense_type; nh_.param<std::string>("cam_lense_type", lense_type, "NoType");
@@ -104,20 +127,24 @@ Localization::Localization()
 	ROS_INFO("Reading camera calibration from %s", calib_path.c_str());
 	YAML::Node YamlNode = YAML::LoadFile(calib_path);
 	if (YamlNode.IsNull())
-	{
 		throw std::string("Failed to open camera calibration %s", calib_path.c_str());
-	}
+
 	cameraParams = parseYaml(YamlNode);
 
-	nh_.param<double>("cam/FPS_duo", fps_duo, 0);
-	nh_.param<int>("cam/vision_subsample", vision_subsample, 1);
+	if(!nh_.getParam("cam_FPS_duo", fps_duo))
+		ROS_WARN("Failed to load parameter cam_FPS_duo");
+	if(!nh_.getParam("cam_vision_subsample", vision_subsample))
+		ROS_WARN("Failed to load parameter cam_vision_subsample");
 
 	double visualization_freq;
-	nh_.param<double>("visualization_freq", visualization_freq, 1);
+	if(!nh_.getParam("visualization_freq", visualization_freq))
+		ROS_WARN("Failed to load parameter visualization_freq");
 	vis_publish_delay = fps_duo/vision_subsample/visualization_freq;
 	vis_publish_delay = !vis_publish_delay ? 1 : vis_publish_delay;
-	nh_.param<bool>("show_camera_image", show_camera_image_, false);
-	nh_.param<int>("image_visualization_freq", image_visualization_delay, 1);
+	if(!nh_.getParam("show_camera_image", show_camera_image_))
+		ROS_WARN("Failed to load parameter show_camera_image");
+	if(!nh_.getParam("image_visualization_delay", image_visualization_delay))
+		ROS_WARN("Failed to load parameter image_visualization_delay");
 	image_visualization_delay = !image_visualization_delay ? 1 : image_visualization_delay;
 
 	std::string dark_current_l_path = ros::package::getPath("vio_ros") + "/calib/" + camera_name + "/" + lense_type + "/" + res.str() + "/darkCurrentL.bmp";
