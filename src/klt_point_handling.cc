@@ -117,7 +117,7 @@ static void initMorePoints(
 	if (!img_r.data)
 		throw "Right image is invalid";
 	if (z_all_l.size() != z_all_r.size())
-		printf("z_all_l and z_all_r do not have the same size: %d and %d\n", z_all_l.size(), z_all_r.size());
+		printf("z_all_l and z_all_r do not have the same size: %d and %d at %d\n", z_all_l.size(), z_all_r.size(), __LINE__);
 
 	unsigned int targetNumPoints = 0;
 	// count the features that need to be initialized
@@ -298,7 +298,7 @@ static void initMorePoints(
 	}
 
 	if (z_all_l.size() != z_all_r.size())
-		printf("z_all_l and z_all_r do not have the same size: %d and %d\n", z_all_l.size(), z_all_r.size());
+		printf("z_all_l and z_all_r do not have the same size: %d and %d at %d\n", z_all_l.size(), z_all_r.size(), __LINE__);
 	std::vector<cv::Point2f> leftPoints, rightPoints;
 
 	if (!stereoMatchOpticalFlow(img_l, img_r, goodKeypointsL, leftPoints, rightPoints))
