@@ -5,7 +5,7 @@
 // File: diag.h
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 06-Oct-2015 15:29:53
+// C/C++ source code generated on  : 07-Oct-2015 10:22:33
 //
 #ifndef __DIAG_H__
 #define __DIAG_H__

@@ -5,7 +5,7 @@
 // File: multiplyIdx.h
 //
 // MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 06-Oct-2015 15:29:53
+// C/C++ source code generated on  : 07-Oct-2015 10:22:33
 //
 #ifndef __MULTIPLYIDX_H__
 #define __MULTIPLYIDX_H__
