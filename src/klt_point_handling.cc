@@ -145,7 +145,14 @@ static void initMorePoints(
 	int targetFeaturesPerBin = (updateVect.size()-1)/(numBinsX * numBinsY)+1; // total number of features that should be in each bin
 
 	int featuresPerBin[numBinsX][numBinsY];
-	memset( featuresPerBin, 0, numBinsX*numBinsY*sizeof(int) ); // set everything to 0
+//	memset( featuresPerBin, 0, numBinsX*numBinsY*sizeof(int) ); // set everything to 0
+	for (int x = 0; x < numBinsX; x++)
+	{
+		for (int y = 0; y < numBinsY; y++)
+		{
+			featuresPerBin[x][y] = 0;
+		}
+	}
 
 	// count the number of active features in each bin
 	for (int i = 0; i < prev_corners.size(); i++)
