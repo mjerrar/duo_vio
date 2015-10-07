@@ -206,6 +206,8 @@ static void initMorePoints(
 					bool far_enough = true;
 					for (int j = 0; j < prev_corners.size(); j++)
 					{
+						if (prev_status[j] == 0)
+							continue;
 						int existing_pt_x = prev_corners[j].x;
 						int existing_pt_y = prev_corners[j].y;
 						if(abs(existing_pt_x - new_pt_x) < dist && abs(existing_pt_y - new_pt_y) < dist)
@@ -266,11 +268,13 @@ static void initMorePoints(
 			bool far_enough = true;
 			for (int j = 0; j < prev_corners.size(); j++)
 			{
+				if (prev_status[j] == 0)
+					continue;
 				int existing_pt_x = prev_corners[j].x;
 				int existing_pt_y = prev_corners[j].y;
 				if(abs(existing_pt_x - new_pt_x) < dist && abs(existing_pt_y - new_pt_y) < dist)
 				{
-					//							printf("Discarding new point %d at (%d, %d) because it's too close to existing point %d at (%d, %d)\n", j, new_pt_x, new_pt_y, j, existing_pt_x, existing_pt_y);
+//					printf("Discarding new point %d at (%d, %d) because it's too close to existing point %d at (%d, %d)\n", j, new_pt_x, new_pt_y, j, existing_pt_x, existing_pt_y);
 					far_enough = false;
 					break;
 				}
