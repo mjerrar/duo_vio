@@ -144,6 +144,9 @@ Localization::Localization()
 	if(!nh_.getParam("cam_vision_subsample", vision_subsample))
 		ROS_WARN("Failed to load parameter cam_vision_subsample");
 
+	if (fps_duo != cameraParams.kalibr_params.update_rate)
+		ROS_WARN("The specified camera frame rate %.2f does not match the frame rate used for Kalibr calibration %.2f", fps_duo, cameraParams.kalibr_params.update_rate);
+
 	double visualization_freq;
 	if(!nh_.getParam("visualization_freq", visualization_freq))
 		ROS_WARN("Failed to load parameter visualization_freq");

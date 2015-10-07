@@ -108,12 +108,23 @@ struct ReferenceCommand
 
 // cameraParameters
 // =========================================================
-struct CameraParameters //  parameters of one camera
+struct CameraParameters // parameters of one camera
 {
 	double RadialDistortion[3];
 	double TangentialDistortion[2];
 	double FocalLength[2];
 	double PrincipalPoint[2];
+};
+
+// Kalibr_params
+// =========================================================
+struct Kalibr_params // parameters used in Kalibr
+{
+	double update_rate;
+	double accelerometer_noise_density;
+	double accelerometer_random_walk;
+	double gyroscope_noise_density;
+	double gyroscope_random_walk;
 };
 
 struct DUOParameters // parameters of both cameras plus stereo calibration
@@ -129,6 +140,8 @@ struct DUOParameters // parameters of both cameras plus stereo calibration
 	double gyro_bias[3];
 	double acc_bias[3];
 	double time_shift;
+
+	Kalibr_params kalibr_params;
 
 };
 
@@ -275,6 +288,26 @@ inline DUOParameters parseYaml(const YAML::Node& node)
 	for (std::size_t i = 0; i < PrincipalPoint.size(); i++)
 	{
 		v.CameraParameters2.PrincipalPoint[i] = PrincipalPoint[i].as<double>();
+	}
+
+	if(const YAML::Node n = node["Kalibr_params"]["update_rate"]) {
+		v.kalibr_params.update_rate = n.as<double>();
+	}
+
+	if(const YAML::Node n = node["Kalibr_params"]["accelerometer_noise_density"]) {
+		v.kalibr_params.accelerometer_noise_density = n.as<double>();
+	}
+
+	if(const YAML::Node n = node["Kalibr_params"]["accelerometer_random_walk"]) {
+		v.kalibr_params.accelerometer_random_walk = n.as<double>();
+	}
+
+	if(const YAML::Node n = node["Kalibr_params"]["gyroscope_noise_density"]) {
+		v.kalibr_params.gyroscope_noise_density = n.as<double>();
+	}
+
+	if(const YAML::Node n = node["Kalibr_params"]["gyroscope_random_walk"]) {
+		v.kalibr_params.gyroscope_random_walk = n.as<double>();
 	}
 
 	return v;
