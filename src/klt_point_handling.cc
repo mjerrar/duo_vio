@@ -41,9 +41,7 @@ void handle_points_klt(
 		throw "Left image is invalid";
 	if (!img_r.data)
 		throw "Right image is invalid";
-	if (z_all_l.size() != z_all_r.size())
-		printf("z_all_l and z_all_r do not have the same size: %d and %d at %d\n", z_all_l.size(), z_all_r.size(), __LINE__);
-//	clock_t t1 = clock();
+	//	clock_t t1 = clock();
 
 	unsigned int numPoints = updateVect.size();
 	z_all_l.resize(numPoints * 2);
@@ -51,9 +49,6 @@ void handle_points_klt(
 
 	z_all_r.resize(numPoints * 2);
 	std::fill(z_all_r.begin(), z_all_r.end(), -100.0);
-
-	if (z_all_l.size() != z_all_r.size())
-		printf("z_all_l and z_all_r do not have the same size: %d and %d at %d\n", z_all_l.size(), z_all_r.size(), __LINE__);
 
 	for (size_t i = 0; i < updateVect.size() && i <numPoints; ++i)
 	{
@@ -84,9 +79,14 @@ void handle_points_klt(
 
 				if (prev_status[i] == 1)
 				{
-					z_all_l[2*i+0] = prev_corners[i].x;
-					z_all_l[2*i+1] = prev_corners[i].y;
-					updateVect[i] = 1;
+					if (prev_corners[i].x < 0 || prev_corners[i].x > img_l.cols || prev_corners[i].y < 0 || prev_corners[i].y > img_l.rows)
+					{
+						updateVect[i] = 0;
+					} else {
+						z_all_l[2*i+0] = prev_corners[i].x;
+						z_all_l[2*i+1] = prev_corners[i].y;
+						updateVect[i] = 1;
+					}
 				} else {
 					if (updateVect[i] == 1) // be careful not to overwrite 2s in updateVect
 						updateVect[i] = 0;
@@ -100,8 +100,6 @@ void handle_points_klt(
 	if (!img_r.empty())
 	{
 		// initialize new points if needed
-		if (z_all_l.size() != z_all_r.size())
-			printf("z_all_l and z_all_r do not have the same size: %d and %d at %d\n", z_all_l.size(), z_all_r.size(), __LINE__);
 		initMorePoints(img_l, img_r, updateVect, z_all_l, z_all_r);
 	} else {
 		printf("Right image is empty!\n");
@@ -121,8 +119,6 @@ static void initMorePoints(
 		throw "Left image is invalid";
 	if (!img_r.data)
 		throw "Right image is invalid";
-	if (z_all_l.size() != z_all_r.size())
-		printf("z_all_l and z_all_r do not have the same size: %d and %d at %d\n", z_all_l.size(), z_all_r.size(), __LINE__);
 
 	unsigned int targetNumPoints = 0;
 	// count the features that need to be initialized
@@ -144,23 +140,29 @@ static void initMorePoints(
 	int binHeight = img_l.rows/numBinsY;
 	int targetFeaturesPerBin = (updateVect.size()-1)/(numBinsX * numBinsY)+1; // total number of features that should be in each bin
 
-	int featuresPerBin[numBinsX][numBinsY];
-//	memset( featuresPerBin, 0, numBinsX*numBinsY*sizeof(int) ); // set everything to 0
-	for (int x = 0; x < numBinsX; x++)
-	{
-		for (int y = 0; y < numBinsY; y++)
-		{
-			featuresPerBin[x][y] = 0;
-		}
-	}
+	std::vector< std::vector< int > > featuresPerBin ( numBinsX, std::vector<int> ( numBinsY, 0 ) );
 
 	// count the number of active features in each bin
 	for (int i = 0; i < prev_corners.size(); i++)
 	{
-		int binX = prev_corners[i].x / binWidth;
-		int binY = prev_corners[i].y / binHeight;
+		if (updateVect[i] == 1)
+		{
+			int binX = prev_corners[i].x / binWidth;
+			int binY = prev_corners[i].y / binHeight;
 
-		featuresPerBin[binX][binY]++;
+			if (binX >= numBinsX)
+			{
+				printf("Warning: writing to binX out of bounds: %d >= %d\n", binX, numBinsX);
+				continue;
+			}
+			if (binY >= numBinsY)
+			{
+				printf("Warning: writing to binY out of bounds: %d >= %d\n", binY, numBinsY);
+				continue;
+			}
+
+			featuresPerBin[binX][binY]++;
+		}
 	}
 
 	unsigned int dist = binWidth/targetFeaturesPerBin;
@@ -169,8 +171,6 @@ static void initMorePoints(
 	{
 		for (int y = 0; y < numBinsY; y++)
 		{
-			if (z_all_l.size() != z_all_r.size())
-					printf("z_all_l and z_all_r do not have the same size: %d and %d at %d. x %d y %d\n", z_all_l.size(), z_all_r.size(), __LINE__, x, y);
 			int neededFeatures = max(0, targetFeaturesPerBin - featuresPerBin[x][y]);
 //			printf("needed features: %d\n", neededFeatures);
 			if (neededFeatures)
@@ -260,8 +260,6 @@ static void initMorePoints(
 
 		for (int newPtIdx = 0; newPtIdx < unusedKeypoints.size(); newPtIdx++)
 		{
-			if (z_all_l.size() != z_all_r.size())
-					printf("z_all_l and z_all_r do not have the same size: %d and %d at %d. newPtIdx %d\n", z_all_l.size(), z_all_r.size(), __LINE__, newPtIdx);
 			int new_pt_x = unusedKeypoints[newPtIdx].pt.x;
 			int new_pt_y = unusedKeypoints[newPtIdx].pt.y;
 
@@ -313,8 +311,6 @@ static void initMorePoints(
 		return;
 	}
 
-	if (z_all_l.size() != z_all_r.size())
-		printf("z_all_l and z_all_r do not have the same size: %d and %d at %d\n", z_all_l.size(), z_all_r.size(), __LINE__);
 	std::vector<cv::Point2f> leftPoints, rightPoints;
 
 	if (!stereoMatchOpticalFlow(img_l, img_r, goodKeypointsL, leftPoints, rightPoints))
@@ -326,14 +322,11 @@ static void initMorePoints(
 		}
 		return;
 	}
-	if (leftPoints.size() != rightPoints.size())
+	if (leftPoints.size() != rightPoints.size()) // debug
 			printf("Left and right points have different sizes: left %d, right %d\n", (int) leftPoints.size(), (int) rightPoints.size());
 
 	if (leftPoints.size() != targetNumPoints)
 		printf("Number of good matches: %d, desired: %d\n", (int) leftPoints.size(), targetNumPoints);
-
-	if (z_all_l.size() != z_all_r.size())
-		printf("z_all_l and z_all_r do not have the same size: %d and %d at %d\n", z_all_l.size(), z_all_r.size(), __LINE__);
 
 	if (prev_corners.size() < updateVect.size())
 			prev_corners.resize(updateVect.size());
