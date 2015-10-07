@@ -162,6 +162,8 @@ static void initMorePoints(
 	{
 		for (int y = 0; y < numBinsY; y++)
 		{
+			if (z_all_l.size() != z_all_r.size())
+					printf("z_all_l and z_all_r do not have the same size: %d and %d at %d. x %d y %d\n", z_all_l.size(), z_all_r.size(), __LINE__, x, y);
 			int neededFeatures = max(0, targetFeaturesPerBin - featuresPerBin[x][y]);
 //			printf("needed features: %d\n", neededFeatures);
 			if (neededFeatures)
@@ -251,6 +253,8 @@ static void initMorePoints(
 
 		for (int newPtIdx = 0; newPtIdx < unusedKeypoints.size(); newPtIdx++)
 		{
+			if (z_all_l.size() != z_all_r.size())
+					printf("z_all_l and z_all_r do not have the same size: %d and %d at %d. newPtIdx %d\n", z_all_l.size(), z_all_r.size(), __LINE__, newPtIdx);
 			int new_pt_x = unusedKeypoints[newPtIdx].pt.x;
 			int new_pt_y = unusedKeypoints[newPtIdx].pt.y;
 
