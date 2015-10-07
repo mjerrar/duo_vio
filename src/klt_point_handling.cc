@@ -42,7 +42,7 @@ void handle_points_klt(
 	if (!img_r.data)
 		throw "Right image is invalid";
 	if (z_all_l.size() != z_all_r.size())
-		printf("z_all_l and z_all_r do not have the same size: %d and %d\n", z_all_l.size(), z_all_r.size());
+		printf("z_all_l and z_all_r do not have the same size: %d and %d at %d\n", z_all_l.size(), z_all_r.size(), __LINE__);
 //	clock_t t1 = clock();
 
 	unsigned int numPoints = updateVect.size();
@@ -51,6 +51,9 @@ void handle_points_klt(
 
 	z_all_r.resize(numPoints * 2);
 	std::fill(z_all_r.begin(), z_all_r.end(), -100.0);
+
+	if (z_all_l.size() != z_all_r.size())
+		printf("z_all_l and z_all_r do not have the same size: %d and %d at %d\n", z_all_l.size(), z_all_r.size(), __LINE__);
 
 	for (size_t i = 0; i < updateVect.size() && i <numPoints; ++i)
 	{
@@ -97,6 +100,8 @@ void handle_points_klt(
 	if (!img_r.empty())
 	{
 		// initialize new points if needed
+		if (z_all_l.size() != z_all_r.size())
+			printf("z_all_l and z_all_r do not have the same size: %d and %d at %d\n", z_all_l.size(), z_all_r.size(), __LINE__);
 		initMorePoints(img_l, img_r, updateVect, z_all_l, z_all_r);
 	} else {
 		printf("Right image is empty!\n");
@@ -317,7 +322,7 @@ static void initMorePoints(
 		printf("Number of good matches: %d, desired: %d\n", (int) leftPoints.size(), targetNumPoints);
 
 	if (z_all_l.size() != z_all_r.size())
-		printf("z_all_l and z_all_r do not have the same size: %d and %d\n", z_all_l.size(), z_all_r.size());
+		printf("z_all_l and z_all_r do not have the same size: %d and %d at %d\n", z_all_l.size(), z_all_r.size(), __LINE__);
 
 	if (prev_corners.size() < updateVect.size())
 			prev_corners.resize(updateVect.size());
