@@ -196,13 +196,13 @@ inline DUOParameters parseYaml(const YAML::Node& node)
 	if(const YAML::Node t_ci = node["t_ci"]) {
 		for (std::size_t i = 0; i < t_ci.size(); i++)
 		{
-			v.r_lr[i] = t_ci[i][0].as<double>();
+			v.t_ci[i] = t_ci[i][0].as<double>();
 		}
 	} else {
 		ROS_WARN("Did not find t_ci, using default");
 		for (std::size_t i = 0; i < 3; i++)
 		{
-			v.r_lr[i] = 0.0;
+			v.t_ci[i] = 0.0;
 		}
 	}
 
