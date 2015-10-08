@@ -229,6 +229,10 @@ class Visualizer(pg.QtCore.QThread):
         self.robot_path_pub.publish(self.robot_path)
 
         plot_idx = 0
+
+        # disable downsampling to avoid division by zero exception
+        gyro_bias_plot.setDownsampling(ds=1, auto=False)
+        acc_bias_plot.setDownsampling(ds=1, auto=False)
         return
 
 
@@ -237,12 +241,22 @@ def plotter(data):
 
     for i in range(0, 3):
         gyro_bias_data[i][plot_idx] = data['gyro'].data[i]
-        gyro_bias_curves[i].setData(gyro_bias_data[i][:plot_idx])
+        gyro_bias_curves[i].setData(gyro_bias_data[i][:plot_idx+1])
 
         acc_bias_data[i][plot_idx] = data['acc'].data[i]
-        acc_bias_curves[i].setData(acc_bias_data[i][:plot_idx])
+        acc_bias_curves[i].setData(acc_bias_data[i][:plot_idx+1])
     plot_idx += 1
+    if plot_idx == 2:  # turn on only now, otherwise there will be a division by zero exception
+        print("enabling subsample")
+        gyro_bias_plot.setDownsampling(mode='subsample', auto=True)
+        acc_bias_plot.setDownsampling(mode='subsample', auto=True)
     # pg.QtGui.QApplication.processEvents()
+
+    if plot_idx > 5000:  # reset the plot so it doesnt get too slow
+        plot_idx = 0
+        # disable downsampling to avoid division by zero exception
+        gyro_bias_plot.setDownsampling(ds=1, auto=False)
+        acc_bias_plot.setDownsampling(ds=1, auto=False)
 
     if plot_idx >= gyro_bias_data[0].shape[0]:
         print('resizing, size was {}'.format(gyro_bias_data[0].shape[0]))
@@ -266,8 +280,8 @@ if __name__ == "__main__":
     gyro_bias_plot = win.addPlot(title='Gyro bias')
     win.nextRow()
     acc_bias_plot = win.addPlot(title='Accelerometer bias')
-    gyro_bias_plot.setDownsampling(mode='subsample')
-    acc_bias_plot.setDownsampling(mode='subsample')
+    # gyro_bias_plot.setDownsampling(mode='subsample', auto=True)
+    # acc_bias_plot.setDownsampling(mode='subsample', auto=True)
     gyro_bias_plot.setClipToView(True)
     acc_bias_plot.setClipToView(True)
     acc_bias_plot.addLegend()
