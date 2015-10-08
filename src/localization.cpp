@@ -10,6 +10,7 @@
 #include <geometry_msgs/PoseStamped.h>
 #include <geometry_msgs/Point32.h>
 #include <visualization_msgs/Marker.h>
+#include "std_msgs/Float32.h"
 
 static const int DUO_QUEUE_SIZE = 30;
 
@@ -193,6 +194,10 @@ Localization::Localization()
 
 	update_vec_.assign(num_points_, 0);
 
+	// publishers to check timings
+	timing_SLAM_pub = nh_.advertise<std_msgs::Float32>("timing_SLAM",10);
+	timing_feature_tracking_pub = nh_.advertise<std_msgs::Float32>("timing_feature_tracking",10);
+	timing_total_pub = nh_.advertise<std_msgs::Float32>("timing_total",10);
 }
 
 Localization::~Localization()
@@ -207,6 +212,7 @@ Localization::~Localization()
 
 void Localization::duo3dCb(const duo3d_ros::Duo3d& msg)
 {
+	ros::Time tic_total = ros::Time::now();
 //	ROS_INFO("Received message %d", msg.header.seq);
 	// upon reset, catch up with the duo messages before resetting SLAM
 	if (SLAM_reset_flag)
@@ -228,7 +234,6 @@ void Localization::duo3dCb(const duo3d_ros::Duo3d& msg)
 		}
 	}
 
-	ros::Time tic_total = ros::Time::now();
 	clock_t tic_total_clock = clock();
 	double dt;
 	// Init time on first call
@@ -246,15 +251,6 @@ void Localization::duo3dCb(const duo3d_ros::Duo3d& msg)
 
 	update(dt, msg, vis_publish, show_image);
 
-	double time_measurement = (ros::Time::now() - tic_total).toSec();
-
-	if (0*vis_publish || time_measurement > vision_subsample/fps_duo)
-	{
-		if (time_measurement > vision_subsample/fps_duo)
-			ROS_WARN("Duration: %f ms. Theoretical max frequency: %.3f Hz\n", time_measurement, 1/time_measurement);
-		else
-			ROS_INFO("Duration: %f ms. Theoretical max frequency: %.3f Hz\n", time_measurement, 1/time_measurement);
-	}
 	clock_t toc_total_clock = clock();
 
 	if (toc_total_clock - tic_total_clock > max_clicks_)
@@ -263,6 +259,18 @@ void Localization::duo3dCb(const duo3d_ros::Duo3d& msg)
 	std_msgs::UInt32 id_msg;
 	id_msg.data = msg.header.seq;
 	duo_processed_pub.publish( id_msg);
+
+	double duration_total = (ros::Time::now() - tic_total).toSec();
+	std_msgs::Float32 duration_total_msg; duration_total_msg.data = duration_total;
+	timing_total_pub.publish(duration_total_msg);
+
+	if (0*vis_publish || duration_total > vision_subsample/fps_duo)
+	{
+		if (duration_total > vision_subsample/fps_duo)
+			ROS_WARN("Duration: %f ms. Theoretical max frequency: %.3f Hz\n", duration_total, 1/duration_total);
+		else
+			ROS_INFO("Duration: %f ms. Theoretical max frequency: %.3f Hz\n", duration_total, 1/duration_total);
+	}
 }
 
 void Localization::joystickCb(const sensor_msgs::Joy::ConstPtr& msg)
@@ -421,7 +429,7 @@ void Localization::update(double dt, const duo3d_ros::Duo3d &msg, bool update_vi
 	//*********************************************************************
 	// SLAM prediction
 	//*********************************************************************
-
+	ros::Time tic_SLAM = ros::Time::now();
 	SLAM(&update_vec_[0],
 			&z_all_l[0],
 			&z_all_r[0],
@@ -460,10 +468,8 @@ void Localization::update(double dt, const duo3d_ros::Duo3d &msg, bool update_vi
 		// Point tracking
 		//*********************************************************************
 
-		ros::Time tic = ros::Time::now();
-		ros::Time tic_total = tic;
+		ros::Time tic_feature_tracking = ros::Time::now();
 
-		//	clock_t bef = clock();
 		cv::Mat left, right;
 		if (use_dark_current)
 		{
@@ -474,6 +480,10 @@ void Localization::update(double dt, const duo3d_ros::Duo3d &msg, bool update_vi
 			right = right_image->image;
 		}
 		handle_points_klt(left, right, z_all_l, z_all_r, update_vec_);
+
+		double duration_feature_tracking = (ros::Time::now() - tic_feature_tracking).toSec();
+		std_msgs::Float32 duration_feature_tracking_msg; duration_feature_tracking_msg.data = duration_feature_tracking;
+		timing_feature_tracking_pub.publish(duration_feature_tracking_msg);
 
 		//	clock_t aft = clock();
 		//	printf("KLT  took %d clicks, %.3f msec\n", int(aft - bef), 1000*float(aft - bef)/CLOCKS_PER_SEC);
@@ -496,6 +506,10 @@ void Localization::update(double dt, const duo3d_ros::Duo3d &msg, bool update_vi
 				anchor_poses,
 				delayedStatus);
 
+		double duration_SLAM = (ros::Time::now() - tic_SLAM).toSec() - duration_feature_tracking;
+		std_msgs::Float32 duration_SLAM_msg; duration_SLAM_msg.data = duration_SLAM;
+		timing_SLAM_pub.publish(duration_SLAM_msg);
+
 		if (update_vis)
 		{
 			show_image = display_tracks_cnt % image_visualization_delay == 0;
@@ -503,6 +517,10 @@ void Localization::update(double dt, const duo3d_ros::Duo3d &msg, bool update_vi
 
 			updateVis(robot_state, anchor_poses, map->data, update_vec_, msg, z_all_l, show_image);
 		}
+	} else {
+		double duration_SLAM = (ros::Time::now() - tic_SLAM).toSec();
+		std_msgs::Float32 duration_SLAM_msg; duration_SLAM_msg.data = duration_SLAM;
+		timing_SLAM_pub.publish(duration_SLAM_msg);
 	}
 
 	//ROS_INFO("Time SLAM         : %6.2f ms", (ros::Time::now() - tic).toSec()*1000);

@@ -86,6 +86,10 @@ private:
 	ros::Publisher duo_processed_pub;
 	dynamic_reconfigure::Server<vio_ros::vio_rosConfig> dynamic_reconfigure_server;
 
+	ros::Publisher timing_SLAM_pub;
+	ros::Publisher timing_feature_tracking_pub;
+	ros::Publisher timing_total_pub;
+
 	ros::Time prev_time_;
 	std::vector<int> update_vec_;
 	geometry_msgs::Pose pose;
