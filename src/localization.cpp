@@ -12,7 +12,7 @@
 #include <visualization_msgs/Marker.h>
 #include "std_msgs/Float32.h"
 
-static const int DUO_QUEUE_SIZE = 30;
+static const int VIO_SENSOR_QUEUE_SIZE = 30;
 
 Localization::Localization()
 : nh_("~"),
@@ -34,7 +34,7 @@ Localization::Localization()
 	controllerGains = {};
 	vioParams = {};
 
-	duo_sub = nh_.subscribe("/duo3d_camera/combined", DUO_QUEUE_SIZE, &Localization::duo3dCb,this);
+	duo_sub = nh_.subscribe("/vio_sensor", VIO_SENSOR_QUEUE_SIZE, &Localization::vioSensorMsgCb,this);
 	joy_sub_ = nh_.subscribe("/joy",1, &Localization::joystickCb, this);
 //	position_reference_sub_ = nh_.subscribe("/onboard_localization/position_reference",1, &Localization::positionReferenceCb, this);
 //	controller_pub = nh_.advertise<onboard_localization::ControllerOut>("/onboard_localization/controller_output",10);
@@ -175,6 +175,11 @@ Localization::Localization()
 		ROS_WARN("Failed to load parameter cam_FPS_duo");
 	if(!nh_.getParam("cam_vision_subsample", vision_subsample))
 		ROS_WARN("Failed to load parameter cam_vision_subsample");
+	if (vision_subsample < 1)
+	{
+		auto_subsample = true;
+		ROS_INFO("Auto subsamlple: Using every VIO message with images to update, others to predict");
+	}
 
 	if (fps_duo != cameraParams.kalibr_params.update_rate)
 		ROS_WARN("The specified camera frame rate %.2f does not match the frame rate used for Kalibr calibration %.2f", fps_duo, cameraParams.kalibr_params.update_rate);
@@ -241,14 +246,14 @@ Localization::~Localization()
 	printf("Longest update duration: %.3f msec, %.3f Hz\n", float(max_clicks_)/CLOCKS_PER_SEC, CLOCKS_PER_SEC/float(max_clicks_));
 }
 
-void Localization::duo3dCb(const duo3d_ros::Duo3d& msg)
+void Localization::vioSensorMsgCb(const vio_ros::VioSensorMsg& msg)
 {
 	ros::Time tic_total = ros::Time::now();
 //	ROS_INFO("Received message %d", msg.header.seq);
 	// upon reset, catch up with the duo messages before resetting SLAM
 	if (SLAM_reset_flag)
 	{
-		if(clear_queue_counter < DUO_QUEUE_SIZE)
+		if(clear_queue_counter < VIO_SENSOR_QUEUE_SIZE)
 		{
 			clear_queue_counter++;
 			std_msgs::UInt32 id_msg;
@@ -447,7 +452,7 @@ void Localization::dynamicReconfigureCb(vio_ros::vio_rosConfig &config, uint32_t
 //	}
 //}
 
-void Localization::update(double dt, const duo3d_ros::Duo3d &msg, bool update_vis, bool show_image)
+void Localization::update(double dt, const vio_ros::VioSensorMsg &msg, bool update_vis, bool show_image)
 {
 	std::vector<FloatType> z_all_l(num_points_*2, 0.0);
 	std::vector<FloatType> z_all_r(num_points_*2, 0.0);
@@ -478,7 +483,7 @@ void Localization::update(double dt, const duo3d_ros::Duo3d &msg, bool update_vi
 			&anchor_poses[0],
 			delayedStatus);
 
-	if (vio_cnt % vision_subsample == 0)
+	if (auto_subsample || vio_cnt % vision_subsample == 0)
 	{
 		cv_bridge::CvImagePtr left_image;
 		cv_bridge::CvImagePtr right_image;
@@ -497,6 +502,7 @@ void Localization::update(double dt, const duo3d_ros::Duo3d &msg, bool update_vi
 		{
 			return;
 		}
+
 		//*********************************************************************
 		// Point tracking
 		//*********************************************************************
@@ -535,9 +541,6 @@ void Localization::update(double dt, const duo3d_ros::Duo3d &msg, bool update_vi
 		double duration_feature_tracking = (ros::Time::now() - tic_feature_tracking).toSec();
 		std_msgs::Float32 duration_feature_tracking_msg; duration_feature_tracking_msg.data = duration_feature_tracking;
 		timing_feature_tracking_pub.publish(duration_feature_tracking_msg);
-
-		//	clock_t aft = clock();
-		//	printf("KLT  took %d clicks, %.3f msec\n", int(aft - bef), 1000*float(aft - bef)/CLOCKS_PER_SEC);
 
 		//*********************************************************************
 		// SLAM update
@@ -619,7 +622,7 @@ void Localization::updateVis(RobotState &robot_state,
 		std::vector<AnchorPose> &anchor_poses,
 		std::vector<FloatType> &map,
 		std::vector<int> &updateVect,
-		const duo3d_ros::Duo3d &duo_msg,
+		const vio_ros::VioSensorMsg &sensor_msg,
 		std::vector<FloatType> &z_l,
 		bool show_image)
 {
@@ -667,7 +670,7 @@ void Localization::updateVis(RobotState &robot_state,
 	}
 
 	if (show_image)
-		msg.image = duo_msg.left_image;
+		msg.image = sensor_msg.left_image;
 
 	msg.gyro_bias.data.push_back(robot_state.IMU.gyro_bias[0]);
 	msg.gyro_bias.data.push_back(robot_state.IMU.gyro_bias[1]);

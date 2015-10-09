@@ -32,8 +32,8 @@
 #include <dynamic_reconfigure/server.h>
 #include <vio_ros/vio_rosConfig.h>
 
-#include <duo3d_ros/Duo3d.h>
 #include <vio_ros/vio_vis.h>
+#include <vio_ros/VioSensorMsg.h>
 
 #include <vector>
 #include <cstdio>
@@ -81,6 +81,7 @@ private:
 	ros::NodeHandle nh_;
 
 	ros::Subscriber duo_sub;
+	bool auto_subsample; // if true, predict with messages without image data, otherwise update
 	ros::Subscriber joy_sub_;
 	ros::Subscriber position_reference_sub_;
 
@@ -105,16 +106,16 @@ private:
 	std::vector<FloatType> map;
 	std::vector<AnchorPose> anchor_poses;
 
-	void duo3dCb(const duo3d_ros::Duo3d& msg);
+	void vioSensorMsgCb(const vio_ros::VioSensorMsg &msg);
 	void joystickCb(const sensor_msgs::Joy::ConstPtr& msg);
 //	void positionReferenceCb(const onboard_localization::PositionReference& msg);
 
-	void update(double dt, const duo3d_ros::Duo3d &msg, bool debug_publish, bool show_image);
+	void update(double dt, const vio_ros::VioSensorMsg &msg, bool debug_publish, bool show_image);
 
 	void getIMUData(const sensor_msgs::Imu& imu, VIOMeasurements& meas);
 
 	ros::Publisher vis_pub_;
-	void updateVis(RobotState &robot_state, std::vector<AnchorPose> &anchor_poses, std::vector<FloatType> &map, std::vector<int> &updateVect, const duo3d_ros::Duo3d &duo_msg, std::vector<FloatType> &z_l, bool show_image);
+	void updateVis(RobotState &robot_state, std::vector<AnchorPose> &anchor_poses, std::vector<FloatType> &map, std::vector<int> &updateVect, const vio_ros::VioSensorMsg &msg, std::vector<FloatType> &z_l, bool show_image);
 
 	ReferenceCommand referenceCommand;
 	bool change_reference;

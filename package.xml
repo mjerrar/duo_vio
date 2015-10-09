@@ -62,11 +62,10 @@
   <build_depend>cv_bridge</build_depend>
   <run_depend>cv_bridge</run_depend>
 
-  <build_depend>ROS_onboard_localization</build_depend>
-  <run_depend>ROS_onboard_localization</run_depend>
-
   <build_depend>rospy</build_depend>
   <run_depend>rospy</run_depend>
+
+  <build_depend>yaml-cpp</build_depend>
 
   <!-- The export tag contains other, unspecified, tags -->
   <export>
