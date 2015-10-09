@@ -10,6 +10,7 @@
 
 #include <yaml-cpp/yaml.h>
 #include <ros/console.h>
+#include "Precision.h"
 
 
 // VIOParameters
@@ -29,26 +30,26 @@ struct VIOParameters
 // =========================================================
 struct ControllerGains
 {
-	double Kp_xy;
-	double Ki_xy;
-	double Kd_xy;
-	double Kp_z;
-	double Ki_z;
-	double Kd_z;
-	double Kp_yaw;
-	double Kd_yaw;
-	double i_lim;
+	FloatType Kp_xy;
+	FloatType Ki_xy;
+	FloatType Kd_xy;
+	FloatType Kp_z;
+	FloatType Ki_z;
+	FloatType Kd_z;
+	FloatType Kp_yaw;
+	FloatType Kd_yaw;
+	FloatType i_lim;
 };
 
 // ProcessNoise
 // =========================================================
 struct ProcessNoise
 {
-	double qv;
-	double qw;
-	double qao;
-	double qwo;
-	double qR_ci;
+	FloatType qv;
+	FloatType qw;
+	FloatType qao;
+	FloatType qwo;
+	FloatType qR_ci;
 };
 
 // NoiseParamters
@@ -56,37 +57,37 @@ struct ProcessNoise
 struct NoiseParameters
 {
 	ProcessNoise process_noise;
-	double image_noise;
-	double inv_depth_initial_unc;
-	double gyro_bias_initial_unc[3];
-	double acc_bias_initial_unc[3];
+	FloatType image_noise;
+	FloatType inv_depth_initial_unc;
+	FloatType gyro_bias_initial_unc[3];
+	FloatType acc_bias_initial_unc[3];
 };
 
 // VIOMeasurements
 // =========================================================
 struct VIOMeasurements
 {
-	double gyr_duo[3];
-	double acc_duo[3];
+	FloatType gyr_duo[3];
+	FloatType acc_duo[3];
 };
 
 // IMUOffset
 // =========================================================
 struct IMUState
 {
-	double pos[3];
-	double att[4];
-	double gyro_bias[3];
-	double acc_bias[3];
+	FloatType pos[3];
+	FloatType att[4];
+	FloatType gyro_bias[3];
+	FloatType acc_bias[3];
 };
 
 // RobotState
 // =========================================================
 struct RobotState
 {
-	double pos[3];
-	double att[4];
-	double vel[3];
+	FloatType pos[3];
+	FloatType att[4];
+	FloatType vel[3];
 	IMUState IMU;
 };
 
@@ -94,37 +95,37 @@ struct RobotState
 // =========================================================
 struct AnchorPose
 {
-	double pos[3];
-	double att[4];
+	FloatType pos[3];
+	FloatType att[4];
 };
 
 // ReferenceCommand
 // =========================================================
 struct ReferenceCommand
 {
-	double position[4]; // x, y, z, yaw
-	double velocity[4];
+	FloatType position[4]; // x, y, z, yaw
+	FloatType velocity[4];
 };
 
 // cameraParameters
 // =========================================================
 struct CameraParameters // parameters of one camera
 {
-	double RadialDistortion[3];
-	double TangentialDistortion[2];
-	double FocalLength[2];
-	double PrincipalPoint[2];
+	FloatType RadialDistortion[3];
+	FloatType TangentialDistortion[2];
+	FloatType FocalLength[2];
+	FloatType PrincipalPoint[2];
 };
 
 // Kalibr_params
 // =========================================================
 struct Kalibr_params // parameters used in Kalibr
 {
-	double update_rate;
-	double accelerometer_noise_density;
-	double accelerometer_random_walk;
-	double gyroscope_noise_density;
-	double gyroscope_random_walk;
+	FloatType update_rate;
+	FloatType accelerometer_noise_density;
+	FloatType accelerometer_random_walk;
+	FloatType gyroscope_noise_density;
+	FloatType gyroscope_random_walk;
 };
 
 struct DUOParameters // parameters of both cameras plus stereo calibration
@@ -132,14 +133,14 @@ struct DUOParameters // parameters of both cameras plus stereo calibration
 	CameraParameters CameraParameters1;
 	CameraParameters CameraParameters2;
 
-	double r_lr[3];
-	double R_lr[9];
-	double R_rl[9];
-	double R_ci[9];
-	double t_ci[3];
-	double gyro_bias[3];
-	double acc_bias[3];
-	double time_shift;
+	FloatType r_lr[3];
+	FloatType R_lr[9];
+	FloatType R_rl[9];
+	FloatType R_ci[9];
+	FloatType t_ci[3];
+	FloatType gyro_bias[3];
+	FloatType acc_bias[3];
+	FloatType time_shift;
 
 	Kalibr_params kalibr_params;
 

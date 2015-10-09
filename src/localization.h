@@ -48,6 +48,8 @@
 
 #include "onboard_localization/PositionReference.h"
 
+#include "Precision.h"
+
 class Localization
 {
 public:
@@ -98,9 +100,10 @@ private:
 	bool show_camera_image_;
 	int image_visualization_delay;
 	RobotState robot_state;
-	emxArray_real_T *h_u_apo;
-	emxArray_real_T *map;
-	emxArray_AnchorPose *anchor_poses;
+
+	std::vector<FloatType> h_u_apo;
+	std::vector<FloatType> map;
+	std::vector<AnchorPose> anchor_poses;
 
 	void duo3dCb(const duo3d_ros::Duo3d& msg);
 	void joystickCb(const sensor_msgs::Joy::ConstPtr& msg);
@@ -111,7 +114,7 @@ private:
 	void getIMUData(const sensor_msgs::Imu& imu, VIOMeasurements& meas);
 
 	ros::Publisher vis_pub_;
-	void updateVis(RobotState &robot_state, emxArray_AnchorPose *anchor_poses, double *map, std::vector<int> &updateVect, const duo3d_ros::Duo3d &duo_msg, std::vector<double> &z_l, bool show_image);
+	void updateVis(RobotState &robot_state, std::vector<AnchorPose> &anchor_poses, std::vector<FloatType> &map, std::vector<int> &updateVect, const duo3d_ros::Duo3d &duo_msg, std::vector<FloatType> &z_l, bool show_image);
 
 	ReferenceCommand referenceCommand;
 	bool change_reference;

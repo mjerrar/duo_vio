@@ -25,9 +25,6 @@ Localization::Localization()
   vio_cnt(0),
   image_visualization_delay(0)
 {
-	emxInitArray_real_T(&h_u_apo,1);
-	emxInitArray_real_T(&map,2);
-	emxInitArray_AnchorPose(&anchor_poses, 2);
 	SLAM_initialize();
 
 	// initialize structs
@@ -52,33 +49,50 @@ Localization::Localization()
 	duo_processed_pub = nh_.advertise<std_msgs::UInt32>("/duo3d/msg_processed", 1);
 
 	// Load parameters from launch file
-	if(!nh_.getParam("noise_acc", noiseParams.process_noise.qv))
-		ROS_WARN("Failed to load parameter noise_acc");
-	if(!nh_.getParam("noise_gyro", noiseParams.process_noise.qw))
-		ROS_WARN("Failed to load parameter noise_gyro");
-	if(!nh_.getParam("noise_gyro_bias", noiseParams.process_noise.qwo))
-		ROS_WARN("Failed to load parameter noise_gyro_bias");
-	if(!nh_.getParam("noise_acc_bias", noiseParams.process_noise.qao))
-		ROS_WARN("Failed to load parameter noise_acc_bias");
-	if(!nh_.getParam("noise_R_ci", noiseParams.process_noise.qR_ci))
-		ROS_WARN("Failed to load parameter noise_R_ci");
-	if(!nh_.getParam("noise_inv_depth_initial_unc", noiseParams.inv_depth_initial_unc))
-		ROS_WARN("Failed to load parameter noise_inv_depth_initial_unc");
-	if(!nh_.getParam("noise_image", noiseParams.image_noise))
-		ROS_WARN("Failed to load parameter noise_image");
+	double tmp_scalar;
+	std::vector<double> tmp_vector;
 
-	std::vector<double> tmp;
-	if (nh_.getParam("noise_gyro_bias_initial_unc", tmp))
+	if(!nh_.getParam("noise_acc", tmp_scalar))
+		ROS_WARN("Failed to load parameter noise_acc");
+	else
+		noiseParams.process_noise.qv = tmp_scalar;
+	if(!nh_.getParam("noise_gyro", tmp_scalar))
+		ROS_WARN("Failed to load parameter noise_gyro");
+	else
+		noiseParams.process_noise.qw = tmp_scalar;
+	if(!nh_.getParam("noise_gyro_bias", tmp_scalar))
+		ROS_WARN("Failed to load parameter noise_gyro_bias");
+	else
+		noiseParams.process_noise.qwo = tmp_scalar;
+	if(!nh_.getParam("noise_acc_bias", tmp_scalar))
+		ROS_WARN("Failed to load parameter noise_acc_bias");
+	else
+		noiseParams.process_noise.qao = tmp_scalar;
+	if(!nh_.getParam("noise_R_ci", tmp_scalar))
+		ROS_WARN("Failed to load parameter noise_R_ci");
+	else
+		noiseParams.process_noise.qR_ci = tmp_scalar;
+	if(!nh_.getParam("noise_inv_depth_initial_unc", tmp_scalar))
+		ROS_WARN("Failed to load parameter noise_inv_depth_initial_unc");
+	else
+		noiseParams.inv_depth_initial_unc = tmp_scalar;
+	if(!nh_.getParam("noise_image", tmp_scalar))
+		ROS_WARN("Failed to load parameter noise_image");
+	else
+		noiseParams.image_noise = tmp_scalar;
+
+
+	if (nh_.getParam("noise_gyro_bias_initial_unc", tmp_vector))
 	{
-		for (int i = 0; i < tmp.size(); i++)
-			noiseParams.gyro_bias_initial_unc[i] = tmp[i];
+		for (int i = 0; i < tmp_vector.size(); i++)
+			noiseParams.gyro_bias_initial_unc[i] = tmp_vector[i];
 	} else {
 		ROS_WARN("Failed to load parameter noise_gyro_bias_initial_unc");
 	}
-	if (nh_.getParam("noise_acc_bias_initial_unc", tmp))
+	if (nh_.getParam("noise_acc_bias_initial_unc", tmp_vector))
 	{
-		for (int i = 0; i < tmp.size(); i++)
-			noiseParams.acc_bias_initial_unc[i] = tmp[i];
+		for (int i = 0; i < tmp_vector.size(); i++)
+			noiseParams.acc_bias_initial_unc[i] = tmp_vector[i];
 	} else {
 		ROS_WARN("Failed to load parameter noise_acc_bias_initial_unc");
 	}
@@ -98,24 +112,42 @@ Localization::Localization()
 	if(!nh_.getParam("vio_RANSAC", vioParams.RANSAC))
 		ROS_WARN("Failed to load parameter vio_RANSAC");
 
-	if(!nh_.getParam("ctrl_Kp_xy", controllerGains.Kp_xy))
+	if(!nh_.getParam("ctrl_Kp_xy", tmp_scalar))
 		ROS_WARN("Failed to load parameter ctrl_Kp_xy");
-	if(!nh_.getParam("ctrl_Ki_xy", controllerGains.Ki_xy))
+	else
+		controllerGains.Kp_xy = tmp_scalar;
+	if(!nh_.getParam("ctrl_Ki_xy", tmp_scalar))
 		ROS_WARN("Failed to load parameter ctrl_Ki_xy");
-	if(!nh_.getParam("ctrl_Kd_xy", controllerGains.Kd_xy))
+	else
+		controllerGains.Ki_xy = tmp_scalar;
+	if(!nh_.getParam("ctrl_Kd_xy", tmp_scalar))
 		ROS_WARN("Failed to load parameter ctrl_Kd_xy");
-	if(!nh_.getParam("ctrl_Kp_z", controllerGains.Kp_xy))
+	else
+		controllerGains.Kd_xy = tmp_scalar;
+	if(!nh_.getParam("ctrl_Kp_z", tmp_scalar))
 		ROS_WARN("Failed to load parameter ctrl_Kp_z");
-	if(!nh_.getParam("ctrl_Ki_z", controllerGains.Ki_z))
+	else
+		controllerGains.Kp_z = tmp_scalar;
+	if(!nh_.getParam("ctrl_Ki_z", tmp_scalar))
 		ROS_WARN("Failed to load parameter ctrl_Ki_z");
-	if(!nh_.getParam("ctrl_Kd_z", controllerGains.Kd_z))
+	else
+		controllerGains.Ki_z = tmp_scalar;
+	if(!nh_.getParam("ctrl_Kd_z", tmp_scalar))
 		ROS_WARN("Failed to load parameter ctrl_Kd_z");
-	if(!nh_.getParam("ctrl_Kp_yaw", controllerGains.Kp_yaw))
+	else
+		controllerGains.Kd_z = tmp_scalar;
+	if(!nh_.getParam("ctrl_Kp_yaw", tmp_scalar))
 		ROS_WARN("Failed to load parameter ctrl_Kp_yaw");
-	if(!nh_.getParam("ctrl_Kd_yaw", controllerGains.Kd_yaw))
+	else
+		controllerGains.Kp_yaw = tmp_scalar;
+	if(!nh_.getParam("ctrl_Kd_yaw", tmp_scalar))
 		ROS_WARN("Failed to load parameter ctrl_Kd_yaw");
-	if(!nh_.getParam("ctrl_i_lim", controllerGains.i_lim))
+	else
+		controllerGains.Kd_yaw = tmp_scalar;
+	if(!nh_.getParam("ctrl_i_lim", tmp_scalar))
 		ROS_WARN("Failed to load parameter ctrl_i_lim");
+	else
+		controllerGains.i_lim = tmp_scalar;
 
 	std::string camera_name; nh_.param<std::string>("cam_camera_name", camera_name, "NoName");
 	std::string lense_type; nh_.param<std::string>("cam_lense_type", lense_type, "NoType");
@@ -193,6 +225,9 @@ Localization::Localization()
 	num_points_ = vioParams.num_anchors*vioParams.num_points_per_anchor;
 
 	update_vec_.assign(num_points_, 0);
+	h_u_apo.resize(num_points_*4);
+	map.resize(num_points_*3);
+	anchor_poses.resize(vioParams.num_anchors);
 
 	// publishers to check timings
 	timing_SLAM_pub = nh_.advertise<std_msgs::Float32>("timing_SLAM",10);
@@ -202,9 +237,6 @@ Localization::Localization()
 
 Localization::~Localization()
 {
-	emxDestroyArray_real_T(h_u_apo);
-	emxDestroyArray_real_T(map);
-	emxDestroyArray_AnchorPose(anchor_poses);
 	SLAM_terminate();
 
 	printf("Longest update duration: %.3f msec, %.3f Hz\n", float(max_clicks_)/CLOCKS_PER_SEC, CLOCKS_PER_SEC/float(max_clicks_));
@@ -418,18 +450,20 @@ void Localization::positionReferenceCb(const onboard_localization::PositionRefer
 
 void Localization::update(double dt, const duo3d_ros::Duo3d &msg, bool update_vis, bool show_image)
 {
-	std::vector<double> z_all_l(num_points_*2, 0.0);
-	std::vector<double> z_all_r(num_points_*2, 0.0);
+	std::vector<FloatType> z_all_l(num_points_*2, 0.0);
+	std::vector<FloatType> z_all_r(num_points_*2, 0.0);
+	FloatType delayedStatus[num_points_];
+
 	VIOMeasurements meas;
 	getIMUData(msg.imu, meas);
 
 	double u_out[4];
-	double delayedStatus[40];
 
 	//*********************************************************************
 	// SLAM prediction
 	//*********************************************************************
 	ros::Time tic_SLAM = ros::Time::now();
+
 	SLAM(&update_vec_[0],
 			&z_all_l[0],
 			&z_all_r[0],
@@ -440,9 +474,9 @@ void Localization::update(double dt, const duo3d_ros::Duo3d &msg, bool update_vi
 			&vioParams,
 			0, // predict
 			&robot_state,
-			h_u_apo,
-			map,
-			anchor_poses,
+			&h_u_apo[0],
+			&map[0],
+			&anchor_poses[0],
 			delayedStatus);
 
 	if (vio_cnt % vision_subsample == 0)
@@ -479,7 +513,25 @@ void Localization::update(double dt, const duo3d_ros::Duo3d &msg, bool update_vi
 			left = left_image->image;
 			right = right_image->image;
 		}
+//#ifdef SINGLE_PRECISION
+//		// give doubles to the point handler
+//		std::vector<double> z_all_l_d, z_all_r_d;
+//		for (int i = 0; i < z_all_l.size(); i++)
+//		{
+//			z_all_l_d.push_back(z_all_l[i]);
+//			z_all_r_d.push_back(z_all_r[i]);
+//		}
+//		ros::Time tic_feature_tracking = ros::Time::now();
+//		handle_points_klt(left, right, z_all_l_d, z_all_r_d, update_vec_);
+//		double duration_feature_tracking = (ros::Time::now() - tic_feature_tracking).toSec();
+//		for (int i = 0; i < z_all_l.size(); i++)
+//		{
+//			z_all_l[i] = z_all_l_d[i];
+//			z_all_r[i] = z_all_r_d[i];
+//		}
+//#else
 		handle_points_klt(left, right, z_all_l, z_all_r, update_vec_);
+//#endif
 
 		double duration_feature_tracking = (ros::Time::now() - tic_feature_tracking).toSec();
 		std_msgs::Float32 duration_feature_tracking_msg; duration_feature_tracking_msg.data = duration_feature_tracking;
@@ -501,9 +553,9 @@ void Localization::update(double dt, const duo3d_ros::Duo3d &msg, bool update_vi
 				&vioParams,
 				1, // vision update
 				&robot_state,
-				h_u_apo,
-				map,
-				anchor_poses,
+				&h_u_apo[0],
+				&map[0],
+				&anchor_poses[0],
 				delayedStatus);
 
 		double duration_SLAM = (ros::Time::now() - tic_SLAM).toSec() - duration_feature_tracking;
@@ -515,7 +567,8 @@ void Localization::update(double dt, const duo3d_ros::Duo3d &msg, bool update_vi
 			show_image = display_tracks_cnt % image_visualization_delay == 0;
 			display_tracks_cnt++;
 
-			updateVis(robot_state, anchor_poses, map->data, update_vec_, msg, z_all_l, show_image);
+			updateVis(robot_state, anchor_poses, map, update_vec_, msg, z_all_l, show_image);
+
 		}
 	} else {
 		double duration_SLAM = (ros::Time::now() - tic_SLAM).toSec();
@@ -564,10 +617,11 @@ void Localization::getViconPosition(void)
 }
 
 void Localization::updateVis(RobotState &robot_state,
-		emxArray_AnchorPose *anchor_poses,
-		double *map, std::vector<int> &updateVect,
+		std::vector<AnchorPose> &anchor_poses,
+		std::vector<FloatType> &map,
+		std::vector<int> &updateVect,
 		const duo3d_ros::Duo3d &duo_msg,
-		std::vector<double> &z_l,
+		std::vector<FloatType> &z_l,
 		bool show_image)
 {
 	vio_ros::vio_vis msg;
@@ -584,14 +638,14 @@ void Localization::updateVis(RobotState &robot_state,
 	for (int i = 0; i < vioParams.num_anchors; i++)
 	{
 		geometry_msgs::Pose pose;
-		pose.position.x =  anchor_poses->data[i].pos[0];
-		pose.position.y =  anchor_poses->data[i].pos[1];
-		pose.position.z =  anchor_poses->data[i].pos[2];
+		pose.position.x =  anchor_poses[i].pos[0];
+		pose.position.y =  anchor_poses[i].pos[1];
+		pose.position.z =  anchor_poses[i].pos[2];
 
-		pose.orientation.x = anchor_poses->data[i].att[0];
-		pose.orientation.y = anchor_poses->data[i].att[1];
-		pose.orientation.z = anchor_poses->data[i].att[2];
-		pose.orientation.w = anchor_poses->data[i].att[3];
+		pose.orientation.x = anchor_poses[i].att[0];
+		pose.orientation.y = anchor_poses[i].att[1];
+		pose.orientation.z = anchor_poses[i].att[2];
+		pose.orientation.w = anchor_poses[i].att[3];
 
 		msg.anchor_poses.poses.push_back(pose);
 	}

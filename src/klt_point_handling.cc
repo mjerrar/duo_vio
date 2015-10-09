@@ -23,7 +23,7 @@ static cv::FastFeatureDetector detector;
 static cv::OrbDescriptorExtractor extractor;
 
 //local functions
-static void initMorePoints(const cv::Mat &img_l, const cv::Mat &img_r, std::vector<int> &updateVect, vector<double> &z_all_l, vector<double> &z_all_r);
+static void initMorePoints(const cv::Mat &img_l, const cv::Mat &img_r, std::vector<int> &updateVect, vector<FloatType> &z_all_l, vector<FloatType> &z_all_r);
 bool stereoMatch(const cv::Mat &img_l, const cv::Mat &img_r, std::vector<cv::KeyPoint> &keypointsL, std::vector<cv::Point2f> &leftPoints, std::vector<cv::Point2f> &rightPoints);
 bool stereoMatchOpticalFlow(const cv::Mat &img_l, const cv::Mat &img_r, std::vector<cv::KeyPoint> &keypointsL, std::vector<cv::Point2f> &leftPoints, std::vector<cv::Point2f> &rightPoints);
 bool compareMatch(const DMatch &first, const DMatch &second);
@@ -33,8 +33,8 @@ bool compareKeypoints(const KeyPoint &first, const KeyPoint &second);
 void handle_points_klt(
 		const cv::Mat &img_l,
 		const cv::Mat &img_r,
-		vector<double> &z_all_l,
-		vector<double> &z_all_r,
+		vector<FloatType> &z_all_l,
+		vector<FloatType> &z_all_r,
 		vector<int> &updateVect)
 {
 	if (!img_l.data)
@@ -112,8 +112,8 @@ static void initMorePoints(
 		const cv::Mat &img_l,
 		const cv::Mat &img_r,
 		vector<int> &updateVect,
-		vector<double> &z_all_l,
-		vector<double> &z_all_r)
+		vector<FloatType> &z_all_l,
+		vector<FloatType> &z_all_r)
 {
 	if (!img_l.data)
 		throw "Left image is invalid";
