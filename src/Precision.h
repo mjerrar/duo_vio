@@ -8,7 +8,7 @@
 #ifndef VIO_ROS_SRC_PRECISION_H_
 #define VIO_ROS_SRC_PRECISION_H_
 
-#define SINGLE_PRECISION // uncomment this line for single precision
+//#define SINGLE_PRECISION // uncomment this line for single precision
 
 #ifdef SINGLE_PRECISION
 typedef float FloatType;

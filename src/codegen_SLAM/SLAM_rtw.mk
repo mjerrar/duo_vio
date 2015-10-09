@@ -2,7 +2,7 @@
 ## Makefile generated for MATLAB file/project 'SLAM'. 
 ## 
 ## Makefile     : SLAM_rtw.mk
-## Generated on : Fri Oct 09 09:29:53 2015
+## Generated on : Fri Oct 09 14:25:56 2015
 ## MATLAB Coder version: 3.0 (R2015b)
 ## 
 ## Build Info:
@@ -31,8 +31,8 @@ MASTER_ANCHOR_DIR         =
 START_DIR                 = /home/nicolas/gitlab/SLAM/StereoSLAM_invDepth_NoRciTciAccOff
 ARCH                      = glnxa64
 RELATIVE_PATH_TO_ANCHOR   = .
-ANSI_OPTS                 = -ansi -pedantic -Wno-long-long -fwrapv
-CPP_ANSI_OPTS             = -std=c++98 -pedantic -Wno-long-long -fwrapv
+ANSI_OPTS                 = -std=c99 -pedantic -fwrapv
+CPP_ANSI_OPTS             =  -fwrapv
 
 ###########################################################################
 ## TOOLCHAIN SPECIFICATIONS

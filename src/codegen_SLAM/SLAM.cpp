@@ -5,7 +5,7 @@
 // File: SLAM.cpp
 //
 // MATLAB Coder version            : 3.0
-// C/C++ source code generated on  : 09-Oct-2015 09:29:00
+// C/C++ source code generated on  : 09-Oct-2015 14:25:26
 //
 
 // Include Files
@@ -44,52 +44,52 @@ struct emxArray_int32_T
 
 #endif                                 //struct_emxArray_int32_T
 
-#ifndef struct_emxArray_real32_T
-#define struct_emxArray_real32_T
+#ifndef struct_emxArray_real_T
+#define struct_emxArray_real_T
 
-struct emxArray_real32_T
+struct emxArray_real_T
 {
-  float *data;
+  double *data;
   int *size;
   int allocatedSize;
   int numDimensions;
   boolean_T canFreeData;
 };
 
-#endif                                 //struct_emxArray_real32_T
+#endif                                 //struct_emxArray_real_T
 
 typedef struct {
-  float pos[3];
-  float att[4];
-  float gyro_bias[3];
-  float acc_bias[3];
+  double pos[3];
+  double att[4];
+  double gyro_bias[3];
+  double acc_bias[3];
 } b_struct_T;
 
 typedef struct {
   b_struct_T IMU;
-  float pos[3];
-  float att[4];
-  float vel[3];
+  double pos[3];
+  double att[4];
+  double vel[3];
 } c_struct_T;
 
 typedef struct {
   int anchor_idx;
-  float pos[3];
-  float att[4];
+  double pos[3];
+  double att[4];
 } d_struct_T;
 
 typedef struct {
-  float inverse_depth;
-  float m[3];
-  float scaled_map_point[3];
+  double inverse_depth;
+  double m[3];
+  double scaled_map_point[3];
   int status;
   int status_idx;
   int P_idx;
 } e_struct_T;
 
 typedef struct {
-  float pos[3];
-  float att[4];
+  double pos[3];
+  double att[4];
   int P_idx[6];
   e_struct_T feature_states[8];
 } f_struct_T;
@@ -102,171 +102,197 @@ typedef struct {
 } g_struct_T;
 
 typedef struct {
-  float pos[3];
-  float att[4];
+  double pos[3];
+  double att[4];
 } struct_T;
 
 // Named Constants
-#define b_debug_level                  (2.0F)
+#define b_debug_level                  (2.0)
 
 // Variable Definitions
 static boolean_T initialized_not_empty;
 static g_struct_T xt;
-static float P[8281];
-static float h_u[160];
-static float map[120];
-static float delayedStatus[40];
-static float debug_level;
+static double P[8281];
+static double h_u[160];
+static double map[120];
+static double delayedStatus[40];
+static double debug_level;
 
 // Function Declarations
-static void OnePointRANSAC_EKF(g_struct_T *b_xt, float b_P[8281], const float
-  z_u_l[80], const float cameraparams_FocalLength[2], const float
-  cameraparams_PrincipalPoint[2], float noiseParameters_image_noise, int
+static void OnePointRANSAC_EKF(g_struct_T *b_xt, double b_P[8281], const double
+  z_u_l[80], const double cameraparams_FocalLength[2], const double
+  cameraparams_PrincipalPoint[2], double noiseParameters_image_noise, int
   c_VIOParameters_max_ekf_iterati, boolean_T c_VIOParameters_delayed_initial,
   boolean_T VIOParameters_RANSAC, int updateVect[40]);
-static void SLAM_upd(float P_apr[8281], g_struct_T *b_xt, const float
-                     c_cameraParams_CameraParameters[2], const float
-                     d_cameraParams_CameraParameters[2], const float
-                     e_cameraParams_CameraParameters[3], const float
-                     f_cameraParams_CameraParameters[2], const float
-                     g_cameraParams_CameraParameters[2], const float
-                     h_cameraParams_CameraParameters[3], const float
-                     cameraParams_r_lr[3], const float cameraParams_R_lr[9],
-                     const float cameraParams_R_rl[9], int updateVect[40], float
-                     z_all_l[80], float z_all_r[80], float
-                     noiseParameters_image_noise, float
+static void QuatFromRotJ(const double R[9], double Q[4]);
+static void SLAM_pred_euler(double P_apo[8281], g_struct_T *x, double dt, double
+  processNoise_qv, double processNoise_qw, double processNoise_qao, double
+  processNoise_qwo, double processNoise_qR_ci, const double
+  measurements_acc_duo[3], const double measurements_gyr_duo[3]);
+static void SLAM_upd(double P_apr[8281], g_struct_T *b_xt, const double
+                     c_cameraParams_CameraParameters[2], const double
+                     d_cameraParams_CameraParameters[2], const double
+                     e_cameraParams_CameraParameters[3], const double
+                     f_cameraParams_CameraParameters[2], const double
+                     g_cameraParams_CameraParameters[2], const double
+                     h_cameraParams_CameraParameters[3], const double
+                     cameraParams_r_lr[3], const double cameraParams_R_lr[9],
+                     const double cameraParams_R_rl[9], int updateVect[40],
+                     double z_all_l[80], double z_all_r[80], double
+                     noiseParameters_image_noise, double
                      c_noiseParameters_inv_depth_ini, const VIOParameters
-                     b_VIOParameters, float h_u_apo[160], float b_map[120],
-                     float b_delayedStatus[40]);
+                     b_VIOParameters, double h_u_apo[160], double b_map[120],
+                     double b_delayedStatus[40]);
 static boolean_T any(const boolean_T x[40]);
 static boolean_T anyActiveAnchorFeatures(const e_struct_T
   anchor_state_feature_states[8]);
 static boolean_T b_any(const boolean_T x[3]);
+static void b_diag(const double v[15], double d[225]);
+static void b_eye(double I[441]);
 static double b_fprintf();
-static void b_merge(emxArray_int32_T *idx, emxArray_real32_T *x, int offset, int
-                    np, int nq, emxArray_int32_T *iwork, emxArray_real32_T
-                    *xwork);
-static float b_norm(const float x[4]);
+static void b_merge(emxArray_int32_T *idx, emxArray_real_T *x, int offset, int
+                    np, int nq, emxArray_int32_T *iwork, emxArray_real_T *xwork);
+static void b_mrdivide(const double A[2], const double B[4], double y[2]);
+static double b_norm(const double x[4]);
 static void b_ros_error();
 static void b_ros_info(int varargin_1, int varargin_2, int varargin_3);
-static void b_sort(float x[8], int idx[8]);
-static void b_xgeqp3(float A[30], float tau[5], int jpvt[5]);
-static float b_xnrm2(int n, const emxArray_real32_T *x, int ix0);
-static boolean_T c_any(const float x[5]);
-static double c_fprintf(float varargin_1);
-static float c_norm(const float x[2]);
+static void b_sort(double x[8], int idx[8]);
+static void b_xgeqp3(double A[30], double tau[5], int jpvt[5]);
+static double b_xnrm2(int n, const emxArray_real_T *x, int ix0);
+static boolean_T c_any(const double x[5]);
+static void c_eye(double I[8281]);
+static double c_fprintf(double varargin_1);
+static double c_norm(const double x[2]);
+static void c_predictMeasurementStereoDisto(const double fp_l[3], const double
+  c_stereoParams_CameraParameters[2], const double
+  d_stereoParams_CameraParameters[2], const double
+  e_stereoParams_CameraParameters[3], const double
+  f_stereoParams_CameraParameters[2], const double
+  g_stereoParams_CameraParameters[2], const double
+  h_stereoParams_CameraParameters[3], const double stereoParams_r_lr[3], const
+  double stereoParams_R_rl[9], double h_d_l[2], double h_d_r[2]);
 static void c_ros_info(int varargin_1, int varargin_2, int varargin_3);
-static void c_sort(emxArray_real32_T *x, emxArray_int32_T *idx);
-static float c_xnrm2(int n, const float x[30], int ix0);
+static void c_sort(emxArray_real_T *x, emxArray_int32_T *idx);
+static double c_xnrm2(int n, const double x[30], int ix0);
 static void cast(const struct_T x[5], AnchorPose y[5]);
-static void cross(const float a[3], const float b[3], float c[3]);
-static double d_fprintf(float varargin_1);
+static void cross(const double a[3], const double b[3], double c[3]);
+static void d_eye(double I[8281]);
+static double d_fprintf(double varargin_1);
 static void d_ros_info(int varargin_1, int varargin_2);
-static void d_sort(emxArray_real32_T *x, int dim, emxArray_int32_T *idx);
-static float det(const float x[36]);
-static void diag(const float v[3], float d[9]);
-static double e_fprintf(float varargin_1);
+static void d_sort(emxArray_real_T *x, int dim, emxArray_int32_T *idx);
+static double det(const double x[36]);
+static void diag(const double v[3], double d[9]);
+static double e_fprintf(double varargin_1);
 static void e_ros_info(int varargin_1);
 static void eml_signed_integer_colon(int b, emxArray_int32_T *y);
 static void emxEnsureCapacity(emxArray__common *emxArray, int oldNumel, int
   elementSize);
 static void emxFree_int32_T(emxArray_int32_T **pEmxArray);
-static void emxFree_real32_T(emxArray_real32_T **pEmxArray);
+static void emxFree_real_T(emxArray_real_T **pEmxArray);
 static void emxInit_int32_T(emxArray_int32_T **pEmxArray, int b_numDimensions);
 static void emxInit_int32_T1(emxArray_int32_T **pEmxArray, int b_numDimensions);
-static void emxInit_real32_T(emxArray_real32_T **pEmxArray, int b_numDimensions);
-static void emxInit_real32_T1(emxArray_real32_T **pEmxArray, int b_numDimensions);
-static double f_fprintf(float varargin_1);
+static void emxInit_real_T(emxArray_real_T **pEmxArray, int b_numDimensions);
+static void emxInit_real_T1(emxArray_real_T **pEmxArray, int b_numDimensions);
+static void eye(double I[9]);
+static double f_fprintf(double varargin_1);
 static void f_ros_info(int varargin_1);
 static void fileManager(FILE * *f, boolean_T *a);
-static double g_fprintf(float varargin_1);
+static double g_fprintf(double varargin_1);
 static void g_ros_info(int varargin_1, int varargin_2, int varargin_3);
-static void getAnchorPoses(const float xt_origin_pos[3], const float
+static void getAnchorPoses(const double xt_origin_pos[3], const double
   xt_origin_att[4], const f_struct_T xt_anchor_states[5], struct_T anchor_poses
   [5]);
-static void getH_R_res(const float xt_robot_state_pos[3], const float
-  xt_robot_state_att[4], const f_struct_T xt_anchor_states[5], const float
-  z_all_l[80], const boolean_T b_status[40], const float
-  cameraparams_FocalLength[2], const float cameraparams_PrincipalPoint[2], float
-  noiseParameters_image_noise, emxArray_real32_T *r, emxArray_real32_T *H,
-  emxArray_real32_T *R);
-static void getMap(const float xt_origin_pos[3], const float xt_origin_att[4],
-                   const f_struct_T xt_anchor_states[5], float b_map[120]);
-static float getNumValidFeatures(const e_struct_T anchor_state_feature_states[8]);
+static void getH_R_res(const double xt_robot_state_pos[3], const double
+  xt_robot_state_att[4], const f_struct_T xt_anchor_states[5], const double
+  z_all_l[80], const boolean_T b_status[40], const double
+  cameraparams_FocalLength[2], const double cameraparams_PrincipalPoint[2],
+  double noiseParameters_image_noise, emxArray_real_T *r, emxArray_real_T *H,
+  emxArray_real_T *R);
+static void getMap(const double xt_origin_pos[3], const double xt_origin_att[4],
+                   const f_struct_T xt_anchor_states[5], double b_map[120]);
+static double getNumValidFeatures(const e_struct_T anchor_state_feature_states[8]);
 static void getScaledMap(g_struct_T *b_xt);
-static float getTotalNumActiveFeatures(const f_struct_T xt_anchor_states[5]);
-static float getTotalNumDelayedFeatures(const f_struct_T xt_anchor_states[5]);
-static void getWorldState(const float xt_robot_state_IMU_pos[3], const float
-  xt_robot_state_IMU_att[4], const float xt_robot_state_IMU_gyro_bias[3], const
-  float xt_robot_state_IMU_acc_bias[3], const float xt_robot_state_pos[3], const
-  float xt_robot_state_att[4], const float xt_origin_pos[3], const float
-  xt_origin_att[4], float world_state_pos[3], float world_state_att[4], float
-  world_state_vel[3], float world_state_IMU_gyro_bias[3], float
-  world_state_IMU_acc_bias[3], float world_state_IMU_pos[3], float
+static double getTotalNumActiveFeatures(const f_struct_T xt_anchor_states[5]);
+static double getTotalNumDelayedFeatures(const f_struct_T xt_anchor_states[5]);
+static void getWorldState(const double xt_robot_state_IMU_pos[3], const double
+  xt_robot_state_IMU_att[4], const double xt_robot_state_IMU_gyro_bias[3], const
+  double xt_robot_state_IMU_acc_bias[3], const double xt_robot_state_pos[3],
+  const double xt_robot_state_att[4], const double xt_origin_pos[3], const
+  double xt_origin_att[4], double world_state_pos[3], double world_state_att[4],
+  double world_state_vel[3], double world_state_IMU_gyro_bias[3], double
+  world_state_IMU_acc_bias[3], double world_state_IMU_pos[3], double
   world_state_IMU_att[4]);
-static double h_fprintf(float varargin_1, float varargin_2, float varargin_3);
-static void h_ros_info(int varargin_1, float varargin_2, float varargin_3);
-static double i_fprintf(float varargin_1, float varargin_2, float varargin_3);
+static double h_fprintf(double varargin_1, double varargin_2, double varargin_3);
+static void h_ros_info(int varargin_1, double varargin_2, double varargin_3);
+static double i_fprintf(double varargin_1, double varargin_2, double varargin_3);
 static void i_ros_info(int varargin_1);
-static void initializePoint(const float z_u_l[2], const float z_u_r[2], const
-  float c_cameraparams_CameraParameters[2], const float
-  d_cameraparams_CameraParameters[2], const float
-  e_cameraparams_CameraParameters[2], const float
-  f_cameraparams_CameraParameters[2], const float cameraparams_r_lr[3], const
-  float cameraparams_R_lr[9], float fp[3], float b_m[6], boolean_T *success);
-static double j_fprintf(float varargin_1);
-static double k_fprintf(float varargin_1);
+static void initializePoint(const double z_u_l[2], const double z_u_r[2], const
+  double c_cameraparams_CameraParameters[2], const double
+  d_cameraparams_CameraParameters[2], const double
+  e_cameraparams_CameraParameters[2], const double
+  f_cameraparams_CameraParameters[2], const double cameraparams_r_lr[3], const
+  double cameraparams_R_lr[9], double fp[3], double b_m[6], boolean_T *success);
+static double j_fprintf(double varargin_1);
+static double k_fprintf(double varargin_1);
 static double l_fprintf(int varargin_1);
-static void lusolve(const emxArray_real32_T *A, emxArray_real32_T *B);
+static void lusolve(const emxArray_real_T *A, emxArray_real_T *B);
 static double m_fprintf(int varargin_1);
-static float median(const float x_data[], const int x_size[1]);
-static void merge(int idx[8], float x[8], int offset, int np, int nq, int iwork
-                  [8], float xwork[8]);
-static void merge_block(emxArray_int32_T *idx, emxArray_real32_T *x, int offset,
-  int n, int preSortLevel, emxArray_int32_T *iwork, emxArray_real32_T *xwork);
-static int mul_s32_s32_s32_sat(int a, int b);
-static void mul_wide_s32(int in0, int in1, unsigned int *ptrOutBitsHi, unsigned
-  int *ptrOutBitsLo);
-static void multiplyIdx(const float idx_data[], const int idx_size[1], float
+static double median(const double x_data[], const int x_size[1]);
+static void merge(int idx[8], double x[8], int offset, int np, int nq, int
+                  iwork[8], double xwork[8]);
+static void merge_block(emxArray_int32_T *idx, emxArray_real_T *x, int offset,
+  int n, int preSortLevel, emxArray_int32_T *iwork, emxArray_real_T *xwork);
+static void mrdivide(const emxArray_real_T *A, const emxArray_real_T *B,
+                     emxArray_real_T *y);
+static void multiplyIdx(const double idx_data[], const int idx_size[1], double
   idx_mult_data[], int idx_mult_size[1]);
 static double n_fprintf(int varargin_1);
-static float norm(const float x[3]);
+static double norm(const double x[3]);
 static double o_fprintf(const char varargin_1_data[], const int varargin_1_size
   [2]);
 static double p_fprintf(const char varargin_1_data[], const int varargin_1_size
   [2]);
-static void predictMeasurementStereo(const float fp_l[3], const float
-  c_stereoParams_CameraParameters[2], const float
-  d_stereoParams_CameraParameters[2], const float
-  e_stereoParams_CameraParameters[2], const float
-  f_stereoParams_CameraParameters[2], const float stereoParams_r_lr[3], const
-  float stereoParams_R_rl[9], float h_cin_l[2], float h_cin_r[2]);
-static void printParams(float c_noiseParameters_process_noise, float
-  d_noiseParameters_process_noise, float e_noiseParameters_process_noise, float
-  f_noiseParameters_process_noise, float g_noiseParameters_process_noise, const
-  float c_noiseParameters_gyro_bias_ini[3], const float
-  c_noiseParameters_acc_bias_init[3], float noiseParameters_image_noise, float
+static void predictMeasurementDistortedPB(const double fp[3], const double
+  cameraParams_FocalLength[2], const double cameraParams_PrincipalPoint[2],
+  const double cameraParams_RadialDistortion[3], double h_d[2]);
+static void predictMeasurementMono(const double fp[3], const double
+  cameraparams_FocalLength[2], const double cameraparams_PrincipalPoint[2],
+  double px[2]);
+static void predictMeasurementStereo(const double fp_l[3], const double
+  c_stereoParams_CameraParameters[2], const double
+  d_stereoParams_CameraParameters[2], const double
+  e_stereoParams_CameraParameters[2], const double
+  f_stereoParams_CameraParameters[2], const double stereoParams_r_lr[3], const
+  double stereoParams_R_rl[9], double h_cin_l[2], double h_cin_r[2]);
+static void printParams(double c_noiseParameters_process_noise, double
+  d_noiseParameters_process_noise, double e_noiseParameters_process_noise,
+  double f_noiseParameters_process_noise, double g_noiseParameters_process_noise,
+  const double c_noiseParameters_gyro_bias_ini[3], const double
+  c_noiseParameters_acc_bias_init[3], double noiseParameters_image_noise, double
   c_noiseParameters_inv_depth_ini, int c_VIOParameters_num_points_per_, int
   VIOParameters_num_anchors, int c_VIOParameters_max_ekf_iterati, boolean_T
   VIOParameters_fixed_feature, boolean_T c_VIOParameters_delayed_initial,
   boolean_T VIOParameters_mono, boolean_T VIOParameters_RANSAC);
 static double q_fprintf(const char varargin_1_data[], const int varargin_1_size
   [2]);
-static void quatmultJ(const float q[4], const float p[4], float qp[4]);
+static void quatPlusThetaJ(const double dtheta[3], double dq[4]);
+static void quatmultJ(const double q[4], const double p[4], double qp[4]);
 static double r_fprintf(const char varargin_1_data[], const int varargin_1_size
   [2]);
-static void rdivide(const float x[3], float y, float z[3]);
+static void rdivide(const double x[3], double y, double z[3]);
 static void ros_error();
 static void ros_info(int varargin_1, int varargin_2, int varargin_3);
-static float rt_hypotf_snf(float u0, float u1);
-static float rt_powf_snf(float u0, float u1);
-static float rt_roundf_snf(float u);
-static void sort(float x[8], int idx[8]);
-static void sortIdx(emxArray_real32_T *x, emxArray_int32_T *idx);
-static void xgeqp3(emxArray_real32_T *A, emxArray_real32_T *tau,
-                   emxArray_int32_T *jpvt);
-static float xnrm2(int n, const emxArray_real32_T *x, int ix0);
-static void xscal(int n, float a, emxArray_real32_T *x, int ix0);
+static double rt_powd_snf(double u0, double u1);
+static void sort(double x[8], int idx[8]);
+static void sortIdx(emxArray_real_T *x, emxArray_int32_T *idx);
+static void undistortPoint(const double pt_d_data[], const int pt_d_size[1],
+  const double cameraparams_FocalLength[2], const double
+  cameraparams_PrincipalPoint[2], const double cameraparams_RadialDistortion[3],
+  double pt_u_data[], int pt_u_size[1]);
+static void xgeqp3(emxArray_real_T *A, emxArray_real_T *tau, emxArray_int32_T
+                   *jpvt);
+static double xnrm2(int n, const emxArray_real_T *x, int ix0);
+static void xscal(int n, double a, emxArray_real_T *x, int ix0);
 
 // Function Definitions
 
@@ -274,437 +300,115 @@ static void xscal(int n, float a, emxArray_real32_T *x, int ix0);
 // OnePointRANSAC_EKF Perform a 1-point RANSAC outlier rejection and update
 // the state
 // Arguments    : g_struct_T *b_xt
-//                float b_P[8281]
-//                const float z_u_l[80]
-//                const float cameraparams_FocalLength[2]
-//                const float cameraparams_PrincipalPoint[2]
-//                float noiseParameters_image_noise
+//                double b_P[8281]
+//                const double z_u_l[80]
+//                const double cameraparams_FocalLength[2]
+//                const double cameraparams_PrincipalPoint[2]
+//                double noiseParameters_image_noise
 //                int c_VIOParameters_max_ekf_iterati
 //                boolean_T c_VIOParameters_delayed_initial
 //                boolean_T VIOParameters_RANSAC
 //                int updateVect[40]
 // Return Type  : void
 //
-static void OnePointRANSAC_EKF(g_struct_T *b_xt, float b_P[8281], const float
-  z_u_l[80], const float cameraparams_FocalLength[2], const float
-  cameraparams_PrincipalPoint[2], float noiseParameters_image_noise, int
+static void OnePointRANSAC_EKF(g_struct_T *b_xt, double b_P[8281], const double
+  z_u_l[80], const double cameraparams_FocalLength[2], const double
+  cameraparams_PrincipalPoint[2], double noiseParameters_image_noise, int
   c_VIOParameters_max_ekf_iterati, boolean_T c_VIOParameters_delayed_initial,
   boolean_T VIOParameters_RANSAC, int updateVect[40])
 {
-  int ib;
+  int ii;
   boolean_T activeFeatures[40];
   boolean_T delayedFeatures[40];
   int anchorIdx;
   int featureIdx;
   boolean_T LI_inlier_status[40];
-  emxArray_real32_T *S;
-  emxArray_real32_T *K;
-  emxArray_real32_T *r;
-  emxArray_real32_T *H;
-  emxArray_real32_T *out;
-  emxArray_real32_T *c;
-  emxArray_real32_T *b_c;
-  emxArray_real32_T *Y;
-  emxArray_real32_T *A;
-  emxArray_real32_T *tau;
-  emxArray_int32_T *jpvt;
-  emxArray_real32_T *B;
+  emxArray_real_T *S;
+  emxArray_real_T *K;
+  emxArray_real_T *r;
+  emxArray_real_T *H;
+  emxArray_real_T *R;
   int idx;
   signed char ii_data[40];
-  int br;
   boolean_T exitg2;
   boolean_T guard2 = false;
   int loop_ub;
-  int i24;
-  signed char i_data[40];
+  int i40;
   signed char hyp_ind_data[40];
-  float num_hyp;
+  double num_hyp;
   int hyp_it;
-  emxArray_real32_T *c_c;
-  emxArray_real32_T *d_c;
-  emxArray_real32_T *e_c;
+  emxArray_real_T *C;
+  emxArray_real_T *y;
+  emxArray_real_T *b_y;
+  emxArray_real_T *b_C;
   boolean_T LI_inlier_status_i[40];
   boolean_T hyp_status[40];
   unsigned int H_idx_0;
   int b_m;
-  int ar;
-  int i25;
-  int f_c;
+  int br;
+  int i41;
   int ic;
+  int ar;
+  int ib;
   int ia;
-  unsigned int unnamed_idx_1;
-  float tol;
+  double a[2];
+  double x_apo[91];
+  double b_x_apo;
+  double dv17[4];
+  double c_xt[4];
+  double R_cw[9];
+  double r_wc[3];
+  double anchorPos[3];
+  double c_x_apo[3];
+  double dv18[4];
+  double anchorRot[9];
+  double rho;
+  long i42;
+  double z_u[2];
+  double b_rho[3];
+  double d9;
+  double b_r[2];
+  double dv19[2];
   int k;
-  float x_apo[91];
-  float b_x_apo;
-  float theta;
-  float dq[4];
-  float c_xt[4];
-  float R_cw[9];
-  float r_wc[3];
-  float anchorPos[3];
-  float fp_scaled[3];
-  float anchorRot[9];
-  float rho;
-  float b_rho[3];
-  float h_c_n_l[2];
-  float z_u[2];
-  float g_c[2];
-  emxArray_real32_T *h_c;
-  static float i_c[8281];
-  float fv14[8281];
-  static const signed char iv14[8281] = { 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1
-  };
-
-  float fv15[8281];
+  emxArray_real_T *c_y;
+  emxArray_real_T *d_y;
+  emxArray_real_T *b_S;
+  double dv20[4];
+  static double e_y[8281];
+  static double dv21[8281];
+  static double dv22[8281];
+  static double dv23[8281];
   boolean_T b_activeFeatures;
   boolean_T exitg1;
   boolean_T guard1 = false;
-  emxArray_real32_T *b_K;
-  emxArray_real32_T *b_H;
+  int ii_size_idx_0;
+  emxArray_real_T *b_K;
+  emxArray_real_T *b_H;
   int it;
-  emxArray_real32_T *j_c;
-  emxArray_real32_T *k_c;
-  emxArray_real32_T *l_c;
-  emxArray_real32_T *m_c;
-  emxArray_real32_T *n_c;
-  emxArray_real32_T *c_H;
-  emxArray_real32_T *d_H;
-  emxArray_real32_T *e_H;
-  signed char o_c[2];
-  signed char p_c[2];
-  signed char q_c[2];
-  float x_apo_data[91];
-  float b_x_apo_data;
-  float c_data[8281];
-  float fv16[8281];
-  emxArray_real32_T *r_c;
-  emxArray_real32_T *s_c;
-  emxArray_real32_T *t_c;
-  float fv17[8281];
+  emxArray_real_T *c_C;
+  emxArray_real_T *d_C;
+  emxArray_real_T *f_y;
+  emxArray_real_T *g_y;
+  emxArray_real_T *h_y;
+  emxArray_real_T *e_C;
+  emxArray_real_T *c_H;
+  emxArray_real_T *d_H;
+  emxArray_real_T *e_H;
+  double x_apo_data[91];
+  double b_x_apo_data;
+  double dv24[4];
+  emxArray_real_T *f_C;
+  double dv25[8281];
+  emxArray_real_T *i_y;
+  emxArray_real_T *g_C;
+  emxArray_real_T *j_y;
+  emxArray_real_T *h_C;
+  double dv26[8281];
 
   //  HI mahalanobis gate
-  for (ib = 0; ib < 40; ib++) {
-    activeFeatures[ib] = false;
-    delayedFeatures[ib] = false;
+  for (ii = 0; ii < 40; ii++) {
+    activeFeatures[ii] = false;
+    delayedFeatures[ii] = false;
   }
 
   for (anchorIdx = 0; anchorIdx < 5; anchorIdx++) {
@@ -723,38 +427,31 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, float b_P[8281], const float
     }
   }
 
-  for (ib = 0; ib < 40; ib++) {
-    LI_inlier_status[ib] = false;
-    activeFeatures[ib] = (activeFeatures[ib] && (updateVect[ib] == 1));
-    delayedFeatures[ib] = (delayedFeatures[ib] && (updateVect[ib] == 1));
+  for (ii = 0; ii < 40; ii++) {
+    LI_inlier_status[ii] = false;
+    activeFeatures[ii] = (activeFeatures[ii] && (updateVect[ii] == 1));
+    delayedFeatures[ii] = (delayedFeatures[ii] && (updateVect[ii] == 1));
   }
 
   // % B 1-point hypotheses generation and evaluation
-  emxInit_real32_T1(&S, 2);
-  emxInit_real32_T1(&K, 2);
-  emxInit_real32_T(&r, 1);
-  emxInit_real32_T1(&H, 2);
-  emxInit_real32_T(&out, 1);
-  emxInit_real32_T1(&c, 2);
-  emxInit_real32_T1(&b_c, 2);
-  emxInit_real32_T1(&Y, 2);
-  emxInit_real32_T1(&A, 2);
-  emxInit_real32_T(&tau, 1);
-  emxInit_int32_T1(&jpvt, 2);
-  emxInit_real32_T1(&B, 2);
+  emxInit_real_T1(&S, 2);
+  emxInit_real_T1(&K, 2);
+  emxInit_real_T(&r, 1);
+  emxInit_real_T1(&H, 2);
+  emxInit_real_T1(&R, 2);
   if (VIOParameters_RANSAC) {
     //  build the map according to the current estimate
     getScaledMap(b_xt);
 
     //  randomly permute the active feature indices for 1-point RANSAC
     idx = 0;
-    br = 1;
+    ii = 1;
     exitg2 = false;
-    while ((!exitg2) && (br < 41)) {
+    while ((!exitg2) && (ii < 41)) {
       guard2 = false;
-      if (activeFeatures[br - 1]) {
+      if (activeFeatures[ii - 1]) {
         idx++;
-        ii_data[idx - 1] = (signed char)br;
+        ii_data[idx - 1] = (signed char)ii;
         if (idx >= 40) {
           exitg2 = true;
         } else {
@@ -765,7 +462,7 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, float b_P[8281], const float
       }
 
       if (guard2) {
-        br++;
+        ii++;
       }
     }
 
@@ -775,37 +472,26 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, float b_P[8281], const float
       loop_ub = idx;
     }
 
-    if (1 > idx) {
-      br = 0;
-    } else {
-      br = idx;
-    }
-
-    for (i24 = 0; i24 < loop_ub; i24++) {
-      i_data[i24] = ii_data[i24];
-    }
-
-    i24 = out->size[0];
-    out->size[0] = br;
-    emxEnsureCapacity((emxArray__common *)out, i24, (int)sizeof(float));
-    for (i24 = 0; i24 < br; i24++) {
-      out->data[i24] = i_data[i24];
-    }
-
-    for (i24 = 0; i24 < br; i24++) {
-      hyp_ind_data[i24] = i_data[i24];
+    for (i40 = 0; i40 < loop_ub; i40++) {
+      hyp_ind_data[i40] = ii_data[i40];
     }
 
     //  hyp_ind = hyp_ind(randperm(length(hyp_ind)));
-    num_hyp = (float)out->size[0];
+    if (1 > idx) {
+      num_hyp = 0.0;
+    } else {
+      num_hyp = idx;
+    }
+
     hyp_it = 1;
-    emxInit_real32_T1(&c_c, 2);
-    emxInit_real32_T1(&d_c, 2);
-    emxInit_real32_T1(&e_c, 2);
+    emxInit_real_T1(&C, 2);
+    emxInit_real_T1(&y, 2);
+    emxInit_real_T1(&b_y, 2);
+    emxInit_real_T1(&b_C, 2);
     while ((hyp_it < num_hyp) && (hyp_it < loop_ub)) {
-      for (ib = 0; ib < 40; ib++) {
-        LI_inlier_status_i[ib] = false;
-        hyp_status[ib] = false;
+      for (ii = 0; ii < 40; ii++) {
+        LI_inlier_status_i[ii] = false;
+        hyp_status[ii] = false;
       }
 
       hyp_status[hyp_ind_data[hyp_it - 1] - 1] = true;
@@ -814,31 +500,31 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, float b_P[8281], const float
       getH_R_res(b_xt->robot_state.pos, b_xt->robot_state.att,
                  b_xt->anchor_states, z_u_l, hyp_status,
                  cameraparams_FocalLength, cameraparams_PrincipalPoint,
-                 noiseParameters_image_noise, r, H, S);
+                 noiseParameters_image_noise, r, H, R);
       H_idx_0 = (unsigned int)H->size[0];
-      i24 = c_c->size[0] * c_c->size[1];
-      c_c->size[0] = (int)H_idx_0;
-      c_c->size[1] = 91;
-      emxEnsureCapacity((emxArray__common *)c_c, i24, (int)sizeof(float));
+      i40 = y->size[0] * y->size[1];
+      y->size[0] = (int)H_idx_0;
+      y->size[1] = 91;
+      emxEnsureCapacity((emxArray__common *)y, i40, (int)sizeof(double));
       b_m = H->size[0];
-      i24 = c_c->size[0] * c_c->size[1];
-      c_c->size[1] = 91;
-      emxEnsureCapacity((emxArray__common *)c_c, i24, (int)sizeof(float));
-      for (i24 = 0; i24 < 91; i24++) {
-        ar = c_c->size[0];
-        for (i25 = 0; i25 < ar; i25++) {
-          c_c->data[i25 + c_c->size[0] * i24] = 0.0F;
+      i40 = y->size[0] * y->size[1];
+      y->size[1] = 91;
+      emxEnsureCapacity((emxArray__common *)y, i40, (int)sizeof(double));
+      for (i40 = 0; i40 < 91; i40++) {
+        br = y->size[0];
+        for (i41 = 0; i41 < br; i41++) {
+          y->data[i41 + y->size[0] * i40] = 0.0;
         }
       }
 
       if (H->size[0] == 0) {
       } else {
-        f_c = H->size[0] * 90;
+        ii = H->size[0] * 90;
         idx = 0;
-        while ((b_m > 0) && (idx <= f_c)) {
-          i24 = idx + b_m;
-          for (ic = idx; ic + 1 <= i24; ic++) {
-            c_c->data[ic] = 0.0F;
+        while ((b_m > 0) && (idx <= ii)) {
+          i40 = idx + b_m;
+          for (ic = idx; ic + 1 <= i40; ic++) {
+            y->data[ic] = 0.0;
           }
 
           idx += b_m;
@@ -846,15 +532,15 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, float b_P[8281], const float
 
         br = 0;
         idx = 0;
-        while ((b_m > 0) && (idx <= f_c)) {
+        while ((b_m > 0) && (idx <= ii)) {
           ar = 0;
           for (ib = br; ib + 1 <= br + 91; ib++) {
-            if (b_P[ib] != 0.0F) {
+            if (b_P[ib] != 0.0) {
               ia = ar;
-              i24 = idx + b_m;
-              for (ic = idx; ic + 1 <= i24; ic++) {
+              i40 = idx + b_m;
+              for (ic = idx; ic + 1 <= i40; ic++) {
                 ia++;
-                c_c->data[ic] += b_P[ib] * H->data[ia - 1];
+                y->data[ic] += b_P[ib] * H->data[ia - 1];
               }
             }
 
@@ -866,42 +552,42 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, float b_P[8281], const float
         }
       }
 
-      i24 = K->size[0] * K->size[1];
+      i40 = K->size[0] * K->size[1];
       K->size[0] = 91;
       K->size[1] = H->size[0];
-      emxEnsureCapacity((emxArray__common *)K, i24, (int)sizeof(float));
-      ar = H->size[0];
-      for (i24 = 0; i24 < ar; i24++) {
-        for (i25 = 0; i25 < 91; i25++) {
-          K->data[i25 + K->size[0] * i24] = H->data[i24 + H->size[0] * i25];
+      emxEnsureCapacity((emxArray__common *)K, i40, (int)sizeof(double));
+      br = H->size[0];
+      for (i40 = 0; i40 < br; i40++) {
+        for (i41 = 0; i41 < 91; i41++) {
+          K->data[i41 + K->size[0] * i40] = H->data[i40 + H->size[0] * i41];
         }
       }
 
-      H_idx_0 = (unsigned int)c_c->size[0];
-      unnamed_idx_1 = (unsigned int)K->size[1];
-      i24 = d_c->size[0] * d_c->size[1];
-      d_c->size[0] = (int)H_idx_0;
-      d_c->size[1] = (int)unnamed_idx_1;
-      emxEnsureCapacity((emxArray__common *)d_c, i24, (int)sizeof(float));
-      b_m = c_c->size[0];
-      i24 = d_c->size[0] * d_c->size[1];
-      emxEnsureCapacity((emxArray__common *)d_c, i24, (int)sizeof(float));
-      ar = d_c->size[1];
-      for (i24 = 0; i24 < ar; i24++) {
-        ib = d_c->size[0];
-        for (i25 = 0; i25 < ib; i25++) {
-          d_c->data[i25 + d_c->size[0] * i24] = 0.0F;
+      a[0] = (unsigned int)y->size[0];
+      a[1] = (unsigned int)K->size[1];
+      i40 = C->size[0] * C->size[1];
+      C->size[0] = (int)a[0];
+      C->size[1] = (int)a[1];
+      emxEnsureCapacity((emxArray__common *)C, i40, (int)sizeof(double));
+      b_m = y->size[0];
+      i40 = C->size[0] * C->size[1];
+      emxEnsureCapacity((emxArray__common *)C, i40, (int)sizeof(double));
+      br = C->size[1];
+      for (i40 = 0; i40 < br; i40++) {
+        ii = C->size[0];
+        for (i41 = 0; i41 < ii; i41++) {
+          C->data[i41 + C->size[0] * i40] = 0.0;
         }
       }
 
-      if ((c_c->size[0] == 0) || (K->size[1] == 0)) {
+      if ((y->size[0] == 0) || (K->size[1] == 0)) {
       } else {
-        f_c = c_c->size[0] * (K->size[1] - 1);
+        ii = y->size[0] * (K->size[1] - 1);
         idx = 0;
-        while ((b_m > 0) && (idx <= f_c)) {
-          i24 = idx + b_m;
-          for (ic = idx; ic + 1 <= i24; ic++) {
-            d_c->data[ic] = 0.0F;
+        while ((b_m > 0) && (idx <= ii)) {
+          i40 = idx + b_m;
+          for (ic = idx; ic + 1 <= i40; ic++) {
+            C->data[ic] = 0.0;
           }
 
           idx += b_m;
@@ -909,15 +595,15 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, float b_P[8281], const float
 
         br = 0;
         idx = 0;
-        while ((b_m > 0) && (idx <= f_c)) {
+        while ((b_m > 0) && (idx <= ii)) {
           ar = 0;
           for (ib = br; ib + 1 <= br + 91; ib++) {
-            if (K->data[ib] != 0.0F) {
+            if (K->data[ib] != 0.0) {
               ia = ar;
-              i24 = idx + b_m;
-              for (ic = idx; ic + 1 <= i24; ic++) {
+              i40 = idx + b_m;
+              for (ic = idx; ic + 1 <= i40; ic++) {
                 ia++;
-                d_c->data[ic] += K->data[ib] * c_c->data[ia - 1];
+                C->data[ic] += K->data[ib] * y->data[ia - 1];
               }
             }
 
@@ -929,57 +615,48 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, float b_P[8281], const float
         }
       }
 
-      i24 = S->size[0] * S->size[1];
-      S->size[0] = d_c->size[0];
-      S->size[1] = d_c->size[1];
-      emxEnsureCapacity((emxArray__common *)S, i24, (int)sizeof(float));
-      ar = d_c->size[0] * d_c->size[1];
-      for (i24 = 0; i24 < ar; i24++) {
-        S->data[i24] += d_c->data[i24];
-      }
-
-      i24 = K->size[0] * K->size[1];
+      i40 = K->size[0] * K->size[1];
       K->size[0] = 91;
       K->size[1] = H->size[0];
-      emxEnsureCapacity((emxArray__common *)K, i24, (int)sizeof(float));
-      ar = H->size[0];
-      for (i24 = 0; i24 < ar; i24++) {
-        for (i25 = 0; i25 < 91; i25++) {
-          K->data[i25 + K->size[0] * i24] = H->data[i24 + H->size[0] * i25];
+      emxEnsureCapacity((emxArray__common *)K, i40, (int)sizeof(double));
+      br = H->size[0];
+      for (i40 = 0; i40 < br; i40++) {
+        for (i41 = 0; i41 < 91; i41++) {
+          K->data[i41 + K->size[0] * i40] = H->data[i40 + H->size[0] * i41];
         }
       }
 
-      unnamed_idx_1 = (unsigned int)K->size[1];
-      i24 = e_c->size[0] * e_c->size[1];
-      e_c->size[0] = 91;
-      e_c->size[1] = (int)unnamed_idx_1;
-      e_c->size[0] = 91;
-      emxEnsureCapacity((emxArray__common *)e_c, i24, (int)sizeof(float));
-      ar = e_c->size[1];
-      for (i24 = 0; i24 < ar; i24++) {
-        for (i25 = 0; i25 < 91; i25++) {
-          e_c->data[i25 + e_c->size[0] * i24] = 0.0F;
+      H_idx_0 = (unsigned int)K->size[1];
+      i40 = b_y->size[0] * b_y->size[1];
+      b_y->size[0] = 91;
+      b_y->size[1] = (int)H_idx_0;
+      b_y->size[0] = 91;
+      emxEnsureCapacity((emxArray__common *)b_y, i40, (int)sizeof(double));
+      br = b_y->size[1];
+      for (i40 = 0; i40 < br; i40++) {
+        for (i41 = 0; i41 < 91; i41++) {
+          b_y->data[i41 + b_y->size[0] * i40] = 0.0;
         }
       }
 
       if (K->size[1] == 0) {
       } else {
-        f_c = 91 * (K->size[1] - 1);
-        for (idx = 0; idx <= f_c; idx += 91) {
-          for (ic = idx + 1; ic <= idx + 91; ic++) {
-            e_c->data[ic - 1] = 0.0F;
+        ii = 91 * (K->size[1] - 1);
+        for (idx = 0; idx <= ii; idx += 91) {
+          for (ic = idx; ic + 1 <= idx + 91; ic++) {
+            b_y->data[ic] = 0.0;
           }
         }
 
         br = 0;
-        for (idx = 0; idx <= f_c; idx += 91) {
+        for (idx = 0; idx <= ii; idx += 91) {
           ar = 0;
           for (ib = br; ib + 1 <= br + 91; ib++) {
-            if (K->data[ib] != 0.0F) {
+            if (K->data[ib] != 0.0) {
               ia = ar;
               for (ic = idx; ic + 1 <= idx + 91; ic++) {
                 ia++;
-                e_c->data[ic] += K->data[ib] * b_P[ia - 1];
+                b_y->data[ic] += K->data[ib] * b_P[ia - 1];
               }
             }
 
@@ -990,150 +667,30 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, float b_P[8281], const float
         }
       }
 
-      if ((e_c->size[1] == 0) || ((S->size[0] == 0) || (S->size[1] == 0))) {
-        unnamed_idx_1 = (unsigned int)S->size[0];
-        i24 = K->size[0] * K->size[1];
-        K->size[0] = 91;
-        K->size[1] = (int)unnamed_idx_1;
-        emxEnsureCapacity((emxArray__common *)K, i24, (int)sizeof(float));
-        ar = 91 * (int)unnamed_idx_1;
-        for (i24 = 0; i24 < ar; i24++) {
-          K->data[i24] = 0.0F;
-        }
-      } else if (S->size[0] == S->size[1]) {
-        i24 = K->size[0] * K->size[1];
-        K->size[0] = 91;
-        K->size[1] = e_c->size[1];
-        emxEnsureCapacity((emxArray__common *)K, i24, (int)sizeof(float));
-        ar = e_c->size[0] * e_c->size[1];
-        for (i24 = 0; i24 < ar; i24++) {
-          K->data[i24] = e_c->data[i24];
-        }
-
-        lusolve(S, K);
-      } else {
-        i24 = A->size[0] * A->size[1];
-        A->size[0] = S->size[1];
-        A->size[1] = S->size[0];
-        emxEnsureCapacity((emxArray__common *)A, i24, (int)sizeof(float));
-        ar = S->size[0];
-        for (i24 = 0; i24 < ar; i24++) {
-          ib = S->size[1];
-          for (i25 = 0; i25 < ib; i25++) {
-            A->data[i25 + A->size[0] * i24] = S->data[i24 + S->size[0] * i25];
-          }
-        }
-
-        xgeqp3(A, tau, jpvt);
-        ia = 0;
-        if (A->size[0] < A->size[1]) {
-          br = A->size[0];
-          idx = A->size[1];
-        } else {
-          br = A->size[1];
-          idx = A->size[0];
-        }
-
-        if (br > 0) {
-          tol = (float)idx * (float)fabs((double)A->data[0]) * 1.1920929E-7F;
-          while ((ia < br) && ((float)fabs((double)A->data[ia + A->size[0] * ia])
-                               >= tol)) {
-            ia++;
-          }
-        }
-
-        idx = A->size[1];
-        i24 = Y->size[0] * Y->size[1];
-        Y->size[0] = idx;
-        Y->size[1] = 91;
-        emxEnsureCapacity((emxArray__common *)Y, i24, (int)sizeof(float));
-        ar = idx * 91;
-        for (i24 = 0; i24 < ar; i24++) {
-          Y->data[i24] = 0.0F;
-        }
-
-        i24 = B->size[0] * B->size[1];
-        B->size[0] = e_c->size[1];
-        B->size[1] = 91;
-        emxEnsureCapacity((emxArray__common *)B, i24, (int)sizeof(float));
-        for (i24 = 0; i24 < 91; i24++) {
-          ar = e_c->size[1];
-          for (i25 = 0; i25 < ar; i25++) {
-            B->data[i25 + B->size[0] * i24] = e_c->data[i24 + e_c->size[0] * i25];
-          }
-        }
-
-        b_m = A->size[0];
-        idx = A->size[0];
-        br = A->size[1];
-        if (idx <= br) {
-          br = idx;
-        }
-
-        for (idx = 0; idx + 1 <= br; idx++) {
-          if (tau->data[idx] != 0.0F) {
-            for (k = 0; k < 91; k++) {
-              tol = B->data[idx + B->size[0] * k];
-              for (ib = idx + 1; ib + 1 <= b_m; ib++) {
-                tol += A->data[ib + A->size[0] * idx] * B->data[ib + B->size[0] *
-                  k];
-              }
-
-              tol *= tau->data[idx];
-              if (tol != 0.0F) {
-                B->data[idx + B->size[0] * k] -= tol;
-                for (ib = idx + 1; ib + 1 <= b_m; ib++) {
-                  B->data[ib + B->size[0] * k] -= A->data[ib + A->size[0] * idx]
-                    * tol;
-                }
-              }
-            }
-          }
-        }
-
-        for (k = 0; k < 91; k++) {
-          for (ib = 0; ib + 1 <= ia; ib++) {
-            Y->data[(jpvt->data[ib] + Y->size[0] * k) - 1] = B->data[ib +
-              B->size[0] * k];
-          }
-
-          for (idx = ia - 1; idx + 1 > 0; idx--) {
-            Y->data[(jpvt->data[idx] + Y->size[0] * k) - 1] /= A->data[idx +
-              A->size[0] * idx];
-            for (ib = 0; ib + 1 <= idx; ib++) {
-              Y->data[(jpvt->data[ib] + Y->size[0] * k) - 1] -= Y->data
-                [(jpvt->data[idx] + Y->size[0] * k) - 1] * A->data[ib + A->size
-                [0] * idx];
-            }
-          }
-        }
-
-        i24 = K->size[0] * K->size[1];
-        K->size[0] = 91;
-        K->size[1] = Y->size[0];
-        emxEnsureCapacity((emxArray__common *)K, i24, (int)sizeof(float));
-        ar = Y->size[0];
-        for (i24 = 0; i24 < ar; i24++) {
-          for (i25 = 0; i25 < 91; i25++) {
-            K->data[i25 + K->size[0] * i24] = Y->data[i24 + Y->size[0] * i25];
-          }
-        }
+      i40 = b_C->size[0] * b_C->size[1];
+      b_C->size[0] = C->size[0];
+      b_C->size[1] = C->size[1];
+      emxEnsureCapacity((emxArray__common *)b_C, i40, (int)sizeof(double));
+      br = C->size[0] * C->size[1];
+      for (i40 = 0; i40 < br; i40++) {
+        b_C->data[i40] = C->data[i40] + R->data[i40];
       }
 
+      mrdivide(b_y, b_C, K);
       if ((K->size[1] == 1) || (r->size[0] == 1)) {
-        for (i24 = 0; i24 < 91; i24++) {
-          x_apo[i24] = 0.0F;
-          ar = K->size[1];
-          for (i25 = 0; i25 < ar; i25++) {
-            b_x_apo = x_apo[i24] + K->data[i24 + K->size[0] * i25] * r->data[i25];
-            x_apo[i24] = b_x_apo;
+        for (i40 = 0; i40 < 91; i40++) {
+          x_apo[i40] = 0.0;
+          br = K->size[1];
+          for (i41 = 0; i41 < br; i41++) {
+            b_x_apo = x_apo[i40] + K->data[i40 + K->size[0] * i41] * r->data[i41];
+            x_apo[i40] = b_x_apo;
           }
         }
       } else {
-        memset(&x_apo[0], 0, 91U * sizeof(float));
+        memset(&x_apo[0], 0, 91U * sizeof(double));
         ar = 0;
         for (ib = 0; ib + 1 <= K->size[1]; ib++) {
-          if (r->data[ib] != 0.0F) {
+          if (r->data[ib] != 0.0) {
             ia = ar;
             for (ic = 0; ic < 91; ic++) {
               ia++;
@@ -1146,26 +703,8 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, float b_P[8281], const float
         }
       }
 
-      theta = norm(*(float (*)[3])&x_apo[3]) * 0.5F;
-      if (theta < 0.244F) {
-        for (ib = 0; ib < 3; ib++) {
-          dq[ib] = 0.5F * x_apo[ib + 3];
-        }
-
-        dq[3] = 1.0F;
-      } else {
-        dq[0] = 0.5F * x_apo[3] * (float)sin((double)theta) / theta;
-        dq[1] = 0.5F * x_apo[4] * (float)sin((double)theta) / theta;
-        dq[2] = 0.5F * x_apo[5] * (float)sin((double)theta) / theta;
-        dq[3] = (float)cos((double)theta);
-      }
-
-      tol = b_norm(dq);
-      for (i24 = 0; i24 < 4; i24++) {
-        dq[i24] /= tol;
-      }
-
-      quatmultJ(dq, b_xt->robot_state.att, c_xt);
+      quatPlusThetaJ(*(double (*)[3])&x_apo[3], dv17);
+      quatmultJ(dv17, b_xt->robot_state.att, c_xt);
 
       //  if ~all(size(q) == [4, 1])
       //      error('q does not have the size of a quaternion')
@@ -1175,49 +714,31 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, float b_P[8281], const float
       //  end
       R_cw[0] = ((c_xt[0] * c_xt[0] - c_xt[1] * c_xt[1]) - c_xt[2] * c_xt[2]) +
         c_xt[3] * c_xt[3];
-      R_cw[3] = 2.0F * (c_xt[0] * c_xt[1] + c_xt[2] * c_xt[3]);
-      R_cw[6] = 2.0F * (c_xt[0] * c_xt[2] - c_xt[1] * c_xt[3]);
-      R_cw[1] = 2.0F * (c_xt[0] * c_xt[1] - c_xt[2] * c_xt[3]);
+      R_cw[3] = 2.0 * (c_xt[0] * c_xt[1] + c_xt[2] * c_xt[3]);
+      R_cw[6] = 2.0 * (c_xt[0] * c_xt[2] - c_xt[1] * c_xt[3]);
+      R_cw[1] = 2.0 * (c_xt[0] * c_xt[1] - c_xt[2] * c_xt[3]);
       R_cw[4] = ((-(c_xt[0] * c_xt[0]) + c_xt[1] * c_xt[1]) - c_xt[2] * c_xt[2])
         + c_xt[3] * c_xt[3];
-      R_cw[7] = 2.0F * (c_xt[1] * c_xt[2] + c_xt[0] * c_xt[3]);
-      R_cw[2] = 2.0F * (c_xt[0] * c_xt[2] + c_xt[1] * c_xt[3]);
-      R_cw[5] = 2.0F * (c_xt[1] * c_xt[2] - c_xt[0] * c_xt[3]);
+      R_cw[7] = 2.0 * (c_xt[1] * c_xt[2] + c_xt[0] * c_xt[3]);
+      R_cw[2] = 2.0 * (c_xt[0] * c_xt[2] + c_xt[1] * c_xt[3]);
+      R_cw[5] = 2.0 * (c_xt[1] * c_xt[2] - c_xt[0] * c_xt[3]);
       R_cw[8] = ((-(c_xt[0] * c_xt[0]) - c_xt[1] * c_xt[1]) + c_xt[2] * c_xt[2])
         + c_xt[3] * c_xt[3];
-      for (ib = 0; ib < 3; ib++) {
-        r_wc[ib] = b_xt->robot_state.pos[ib] + x_apo[ib];
+      for (ii = 0; ii < 3; ii++) {
+        r_wc[ii] = b_xt->robot_state.pos[ii] + x_apo[ii];
       }
 
       for (anchorIdx = 0; anchorIdx < 5; anchorIdx++) {
-        f_c = anchorIdx * 14 + 21;
-        ar = 21 + anchorIdx * 14;
-        for (i24 = 0; i24 < 3; i24++) {
-          anchorPos[i24] = b_xt->anchor_states[anchorIdx].pos[i24] + x_apo[i24 +
-            f_c];
-          fp_scaled[i24] = x_apo[(i24 + ar) + 3];
+        i40 = anchorIdx * 14;
+        i41 = anchorIdx * 14;
+        for (idx = 0; idx < 3; idx++) {
+          anchorPos[idx] = b_xt->anchor_states[anchorIdx].pos[idx] + x_apo[(idx
+            + i40) + 21];
+          c_x_apo[idx] = x_apo[(idx + i41) + 24];
         }
 
-        theta = norm(fp_scaled) * 0.5F;
-        if (theta < 0.244F) {
-          for (ib = 0; ib < 3; ib++) {
-            dq[ib] = 0.5F * fp_scaled[ib];
-          }
-
-          dq[3] = 1.0F;
-        } else {
-          dq[0] = 0.5F * x_apo[ar + 3] * (float)sin((double)theta) / theta;
-          dq[1] = 0.5F * x_apo[ar + 4] * (float)sin((double)theta) / theta;
-          dq[2] = 0.5F * x_apo[ar + 5] * (float)sin((double)theta) / theta;
-          dq[3] = (float)cos((double)theta);
-        }
-
-        tol = b_norm(dq);
-        for (i24 = 0; i24 < 4; i24++) {
-          dq[i24] /= tol;
-        }
-
-        quatmultJ(dq, b_xt->anchor_states[anchorIdx].att, c_xt);
+        quatPlusThetaJ(c_x_apo, dv18);
+        quatmultJ(dv18, b_xt->anchor_states[anchorIdx].att, c_xt);
 
         //  if ~all(size(q) == [4, 1])
         //      error('q does not have the size of a quaternion')
@@ -1227,14 +748,14 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, float b_P[8281], const float
         //  end
         anchorRot[0] = ((c_xt[0] * c_xt[0] - c_xt[1] * c_xt[1]) - c_xt[2] *
                         c_xt[2]) + c_xt[3] * c_xt[3];
-        anchorRot[3] = 2.0F * (c_xt[0] * c_xt[1] + c_xt[2] * c_xt[3]);
-        anchorRot[6] = 2.0F * (c_xt[0] * c_xt[2] - c_xt[1] * c_xt[3]);
-        anchorRot[1] = 2.0F * (c_xt[0] * c_xt[1] - c_xt[2] * c_xt[3]);
+        anchorRot[3] = 2.0 * (c_xt[0] * c_xt[1] + c_xt[2] * c_xt[3]);
+        anchorRot[6] = 2.0 * (c_xt[0] * c_xt[2] - c_xt[1] * c_xt[3]);
+        anchorRot[1] = 2.0 * (c_xt[0] * c_xt[1] - c_xt[2] * c_xt[3]);
         anchorRot[4] = ((-(c_xt[0] * c_xt[0]) + c_xt[1] * c_xt[1]) - c_xt[2] *
                         c_xt[2]) + c_xt[3] * c_xt[3];
-        anchorRot[7] = 2.0F * (c_xt[1] * c_xt[2] + c_xt[0] * c_xt[3]);
-        anchorRot[2] = 2.0F * (c_xt[0] * c_xt[2] + c_xt[1] * c_xt[3]);
-        anchorRot[5] = 2.0F * (c_xt[1] * c_xt[2] - c_xt[0] * c_xt[3]);
+        anchorRot[7] = 2.0 * (c_xt[1] * c_xt[2] + c_xt[0] * c_xt[3]);
+        anchorRot[2] = 2.0 * (c_xt[0] * c_xt[2] + c_xt[1] * c_xt[3]);
+        anchorRot[5] = 2.0 * (c_xt[1] * c_xt[2] - c_xt[0] * c_xt[3]);
         anchorRot[8] = ((-(c_xt[0] * c_xt[0]) - c_xt[1] * c_xt[1]) + c_xt[2] *
                         c_xt[2]) + c_xt[3] * c_xt[3];
         for (featureIdx = 0; featureIdx < 8; featureIdx++) {
@@ -1243,63 +764,62 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, float b_P[8281], const float
             //  only update active features
             rho = b_xt->anchor_states[anchorIdx].feature_states[featureIdx].
               inverse_depth + x_apo[(anchorIdx * 14 + featureIdx) + 27];
-            for (i24 = 0; i24 < 3; i24++) {
-              tol = 0.0F;
-              for (i25 = 0; i25 < 3; i25++) {
-                tol += anchorRot[i25 + 3 * i24] * b_xt->anchor_states[anchorIdx]
-                  .feature_states[featureIdx].m[i25];
-              }
-
-              b_rho[i24] = (rho * anchorPos[i24] + tol) - r_wc[i24] * rho;
-            }
-
-            for (i24 = 0; i24 < 3; i24++) {
-              fp_scaled[i24] = 0.0F;
-              for (i25 = 0; i25 < 3; i25++) {
-                fp_scaled[i24] += R_cw[i24 + 3 * i25] * b_rho[i25];
-              }
-            }
-
-            // predictMeasurementLeft Predict the measurement of a feature given in the left 
-            // camera frame
-            //    Get the normalized pixel coordinates where a feature given in the left camera 
-            //    frame
-            //  normalized feature in camera frame
-            idx = b_xt->anchor_states[anchorIdx].feature_states[featureIdx].
-              status_idx;
-            br = idx - 1;
-            if ((idx < 0) && (br >= 0)) {
-              br = MIN_int32_T;
-            }
-
-            if (br > 1073741823) {
-              f_c = MAX_int32_T;
-            } else if (br <= -1073741824) {
-              f_c = MIN_int32_T;
+            i42 = b_xt->anchor_states[anchorIdx].feature_states[featureIdx].
+              status_idx - 1L;
+            if (i42 > 2147483647L) {
+              i42 = 2147483647L;
             } else {
-              f_c = br << 1;
+              if (i42 < -2147483648L) {
+                i42 = -2147483648L;
+              }
             }
 
-            for (ib = 0; ib < 2; ib++) {
-              h_c_n_l[ib] = fp_scaled[ib] / fp_scaled[2];
-              idx = 1 + ib;
-              br = f_c + idx;
-              if ((f_c > 0) && (br <= 0)) {
-                br = MAX_int32_T;
+            i40 = (int)i42;
+            if (i40 > 1073741823) {
+              ii = MAX_int32_T;
+            } else if (i40 <= -1073741824) {
+              ii = MIN_int32_T;
+            } else {
+              ii = i40 << 1;
+            }
+
+            for (i40 = 0; i40 < 2; i40++) {
+              i42 = (long)ii + (1 + i40);
+              if (i42 > 2147483647L) {
+                i42 = 2147483647L;
+              } else {
+                if (i42 < -2147483648L) {
+                  i42 = -2147483648L;
+                }
               }
 
-              z_u[ib] = z_u_l[br - 1];
+              z_u[i40] = z_u_l[(int)i42 - 1];
             }
 
-            g_c[0] = h_c_n_l[0] * cameraparams_FocalLength[0] +
-              cameraparams_PrincipalPoint[0];
-            g_c[1] = h_c_n_l[1] * cameraparams_FocalLength[1] +
-              cameraparams_PrincipalPoint[1];
-            for (i24 = 0; i24 < 2; i24++) {
-              h_c_n_l[i24] = g_c[i24] - z_u[i24];
+            for (i40 = 0; i40 < 3; i40++) {
+              d9 = 0.0;
+              for (i41 = 0; i41 < 3; i41++) {
+                d9 += anchorRot[i41 + 3 * i40] * b_xt->anchor_states[anchorIdx].
+                  feature_states[featureIdx].m[i41];
+              }
+
+              b_rho[i40] = (rho * anchorPos[i40] + d9) - r_wc[i40] * rho;
             }
 
-            if (c_norm(h_c_n_l) < 3.0F) {
+            for (i40 = 0; i40 < 3; i40++) {
+              c_x_apo[i40] = 0.0;
+              for (i41 = 0; i41 < 3; i41++) {
+                c_x_apo[i40] += R_cw[i40 + 3 * i41] * b_rho[i41];
+              }
+            }
+
+            predictMeasurementMono(c_x_apo, cameraparams_FocalLength,
+              cameraparams_PrincipalPoint, b_r);
+            for (ii = 0; ii < 2; ii++) {
+              dv19[ii] = b_r[ii] - z_u[ii];
+            }
+
+            if (c_norm(dv19) < 3.0) {
               LI_inlier_status_i[b_xt->anchor_states[anchorIdx]
                 .feature_states[featureIdx].status_idx - 1] = true;
             }
@@ -1307,11 +827,11 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, float b_P[8281], const float
         }
       }
 
-      br = 0;
+      ii = 0;
       idx = 0;
       for (k = 0; k < 40; k++) {
         if (LI_inlier_status_i[k]) {
-          br++;
+          ii++;
         }
 
         if (LI_inlier_status[k]) {
@@ -1319,13 +839,13 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, float b_P[8281], const float
         }
       }
 
-      if ((float)br > idx) {
-        br = 0;
+      if (ii > idx) {
+        ii = 0;
         idx = 0;
         for (k = 0; k < 40; k++) {
           LI_inlier_status[k] = LI_inlier_status_i[k];
           if (LI_inlier_status_i[k]) {
-            br++;
+            ii++;
           }
 
           if (activeFeatures[k]) {
@@ -1333,55 +853,55 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, float b_P[8281], const float
           }
         }
 
-        num_hyp = -4.6051712F / (float)log((double)(1.0F - (float)br / (float)
-          idx));
+        num_hyp = -4.60517018598809 / log(1.0 - (double)ii / (double)idx);
       }
 
       hyp_it++;
     }
 
-    emxFree_real32_T(&e_c);
-    emxFree_real32_T(&d_c);
-    emxFree_real32_T(&c_c);
+    emxFree_real_T(&b_C);
+    emxFree_real_T(&b_y);
+    emxFree_real_T(&y);
+    emxFree_real_T(&C);
 
     //  ros_info('Found %i LI inliers in %i active features', nnz(LI_inlier_status), nnz(activeFeatures)) 
-    br = 0;
+    ii = 0;
     for (k = 0; k < 40; k++) {
       if (LI_inlier_status[k]) {
-        br++;
+        ii++;
       }
     }
 
-    if (br > 3.0F) {
-      emxInit_real32_T1(&h_c, 2);
+    if (ii > 3) {
+      emxInit_real_T1(&c_y, 2);
       getH_R_res(b_xt->robot_state.pos, b_xt->robot_state.att,
                  b_xt->anchor_states, z_u_l, LI_inlier_status,
                  cameraparams_FocalLength, cameraparams_PrincipalPoint,
-                 noiseParameters_image_noise, r, H, S);
+                 noiseParameters_image_noise, r, H, R);
       H_idx_0 = (unsigned int)H->size[0];
-      i24 = h_c->size[0] * h_c->size[1];
-      h_c->size[0] = (int)H_idx_0;
-      h_c->size[1] = 91;
-      emxEnsureCapacity((emxArray__common *)h_c, i24, (int)sizeof(float));
+      i40 = c_y->size[0] * c_y->size[1];
+      c_y->size[0] = (int)H_idx_0;
+      c_y->size[1] = 91;
+      emxEnsureCapacity((emxArray__common *)c_y, i40, (int)sizeof(double));
       b_m = H->size[0];
-      i24 = h_c->size[0] * h_c->size[1];
-      h_c->size[1] = 91;
-      emxEnsureCapacity((emxArray__common *)h_c, i24, (int)sizeof(float));
-      for (i24 = 0; i24 < 91; i24++) {
-        loop_ub = h_c->size[0];
-        for (i25 = 0; i25 < loop_ub; i25++) {
-          h_c->data[i25 + h_c->size[0] * i24] = 0.0F;
+      i40 = c_y->size[0] * c_y->size[1];
+      c_y->size[1] = 91;
+      emxEnsureCapacity((emxArray__common *)c_y, i40, (int)sizeof(double));
+      for (i40 = 0; i40 < 91; i40++) {
+        loop_ub = c_y->size[0];
+        for (i41 = 0; i41 < loop_ub; i41++) {
+          c_y->data[i41 + c_y->size[0] * i40] = 0.0;
         }
       }
 
       if (H->size[0] == 0) {
       } else {
-        f_c = H->size[0] * 90;
+        ii = H->size[0] * 90;
         idx = 0;
-        while ((b_m > 0) && (idx <= f_c)) {
-          i24 = idx + b_m;
-          for (ic = idx; ic + 1 <= i24; ic++) {
-            h_c->data[ic] = 0.0F;
+        while ((b_m > 0) && (idx <= ii)) {
+          i40 = idx + b_m;
+          for (ic = idx; ic + 1 <= i40; ic++) {
+            c_y->data[ic] = 0.0;
           }
 
           idx += b_m;
@@ -1389,15 +909,15 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, float b_P[8281], const float
 
         br = 0;
         idx = 0;
-        while ((b_m > 0) && (idx <= f_c)) {
+        while ((b_m > 0) && (idx <= ii)) {
           ar = 0;
           for (ib = br; ib + 1 <= br + 91; ib++) {
-            if (b_P[ib] != 0.0F) {
+            if (b_P[ib] != 0.0) {
               ia = ar;
-              i24 = idx + b_m;
-              for (ic = idx; ic + 1 <= i24; ic++) {
+              i40 = idx + b_m;
+              for (ic = idx; ic + 1 <= i40; ic++) {
                 ia++;
-                h_c->data[ic] += b_P[ib] * H->data[ia - 1];
+                c_y->data[ic] += b_P[ib] * H->data[ia - 1];
               }
             }
 
@@ -1409,42 +929,42 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, float b_P[8281], const float
         }
       }
 
-      i24 = K->size[0] * K->size[1];
+      i40 = K->size[0] * K->size[1];
       K->size[0] = 91;
       K->size[1] = H->size[0];
-      emxEnsureCapacity((emxArray__common *)K, i24, (int)sizeof(float));
+      emxEnsureCapacity((emxArray__common *)K, i40, (int)sizeof(double));
       loop_ub = H->size[0];
-      for (i24 = 0; i24 < loop_ub; i24++) {
-        for (i25 = 0; i25 < 91; i25++) {
-          K->data[i25 + K->size[0] * i24] = H->data[i24 + H->size[0] * i25];
+      for (i40 = 0; i40 < loop_ub; i40++) {
+        for (i41 = 0; i41 < 91; i41++) {
+          K->data[i41 + K->size[0] * i40] = H->data[i40 + H->size[0] * i41];
         }
       }
 
-      H_idx_0 = (unsigned int)h_c->size[0];
-      unnamed_idx_1 = (unsigned int)K->size[1];
-      i24 = c->size[0] * c->size[1];
-      c->size[0] = (int)H_idx_0;
-      c->size[1] = (int)unnamed_idx_1;
-      emxEnsureCapacity((emxArray__common *)c, i24, (int)sizeof(float));
-      b_m = h_c->size[0];
-      i24 = c->size[0] * c->size[1];
-      emxEnsureCapacity((emxArray__common *)c, i24, (int)sizeof(float));
-      loop_ub = c->size[1];
-      for (i24 = 0; i24 < loop_ub; i24++) {
-        ar = c->size[0];
-        for (i25 = 0; i25 < ar; i25++) {
-          c->data[i25 + c->size[0] * i24] = 0.0F;
+      a[0] = (unsigned int)c_y->size[0];
+      a[1] = (unsigned int)K->size[1];
+      i40 = S->size[0] * S->size[1];
+      S->size[0] = (int)a[0];
+      S->size[1] = (int)a[1];
+      emxEnsureCapacity((emxArray__common *)S, i40, (int)sizeof(double));
+      b_m = c_y->size[0];
+      i40 = S->size[0] * S->size[1];
+      emxEnsureCapacity((emxArray__common *)S, i40, (int)sizeof(double));
+      loop_ub = S->size[1];
+      for (i40 = 0; i40 < loop_ub; i40++) {
+        br = S->size[0];
+        for (i41 = 0; i41 < br; i41++) {
+          S->data[i41 + S->size[0] * i40] = 0.0;
         }
       }
 
-      if ((h_c->size[0] == 0) || (K->size[1] == 0)) {
+      if ((c_y->size[0] == 0) || (K->size[1] == 0)) {
       } else {
-        f_c = h_c->size[0] * (K->size[1] - 1);
+        ii = c_y->size[0] * (K->size[1] - 1);
         idx = 0;
-        while ((b_m > 0) && (idx <= f_c)) {
-          i24 = idx + b_m;
-          for (ic = idx; ic + 1 <= i24; ic++) {
-            c->data[ic] = 0.0F;
+        while ((b_m > 0) && (idx <= ii)) {
+          i40 = idx + b_m;
+          for (ic = idx; ic + 1 <= i40; ic++) {
+            S->data[ic] = 0.0;
           }
 
           idx += b_m;
@@ -1452,15 +972,15 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, float b_P[8281], const float
 
         br = 0;
         idx = 0;
-        while ((b_m > 0) && (idx <= f_c)) {
+        while ((b_m > 0) && (idx <= ii)) {
           ar = 0;
           for (ib = br; ib + 1 <= br + 91; ib++) {
-            if (K->data[ib] != 0.0F) {
+            if (K->data[ib] != 0.0) {
               ia = ar;
-              i24 = idx + b_m;
-              for (ic = idx; ic + 1 <= i24; ic++) {
+              i40 = idx + b_m;
+              for (ic = idx; ic + 1 <= i40; ic++) {
                 ia++;
-                c->data[ic] += K->data[ib] * h_c->data[ia - 1];
+                S->data[ic] += K->data[ib] * c_y->data[ia - 1];
               }
             }
 
@@ -1472,58 +992,50 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, float b_P[8281], const float
         }
       }
 
-      emxFree_real32_T(&h_c);
-      i24 = S->size[0] * S->size[1];
-      S->size[0] = c->size[0];
-      S->size[1] = c->size[1];
-      emxEnsureCapacity((emxArray__common *)S, i24, (int)sizeof(float));
-      loop_ub = c->size[0] * c->size[1];
-      for (i24 = 0; i24 < loop_ub; i24++) {
-        S->data[i24] += c->data[i24];
-      }
-
-      i24 = K->size[0] * K->size[1];
+      emxFree_real_T(&c_y);
+      i40 = K->size[0] * K->size[1];
       K->size[0] = 91;
       K->size[1] = H->size[0];
-      emxEnsureCapacity((emxArray__common *)K, i24, (int)sizeof(float));
+      emxEnsureCapacity((emxArray__common *)K, i40, (int)sizeof(double));
       loop_ub = H->size[0];
-      for (i24 = 0; i24 < loop_ub; i24++) {
-        for (i25 = 0; i25 < 91; i25++) {
-          K->data[i25 + K->size[0] * i24] = H->data[i24 + H->size[0] * i25];
+      for (i40 = 0; i40 < loop_ub; i40++) {
+        for (i41 = 0; i41 < 91; i41++) {
+          K->data[i41 + K->size[0] * i40] = H->data[i40 + H->size[0] * i41];
         }
       }
 
-      unnamed_idx_1 = (unsigned int)K->size[1];
-      i24 = b_c->size[0] * b_c->size[1];
-      b_c->size[0] = 91;
-      b_c->size[1] = (int)unnamed_idx_1;
-      b_c->size[0] = 91;
-      emxEnsureCapacity((emxArray__common *)b_c, i24, (int)sizeof(float));
-      loop_ub = b_c->size[1];
-      for (i24 = 0; i24 < loop_ub; i24++) {
-        for (i25 = 0; i25 < 91; i25++) {
-          b_c->data[i25 + b_c->size[0] * i24] = 0.0F;
+      emxInit_real_T1(&d_y, 2);
+      H_idx_0 = (unsigned int)K->size[1];
+      i40 = d_y->size[0] * d_y->size[1];
+      d_y->size[0] = 91;
+      d_y->size[1] = (int)H_idx_0;
+      d_y->size[0] = 91;
+      emxEnsureCapacity((emxArray__common *)d_y, i40, (int)sizeof(double));
+      loop_ub = d_y->size[1];
+      for (i40 = 0; i40 < loop_ub; i40++) {
+        for (i41 = 0; i41 < 91; i41++) {
+          d_y->data[i41 + d_y->size[0] * i40] = 0.0;
         }
       }
 
       if (K->size[1] == 0) {
       } else {
-        f_c = 91 * (K->size[1] - 1);
-        for (idx = 0; idx <= f_c; idx += 91) {
-          for (ic = idx + 1; ic <= idx + 91; ic++) {
-            b_c->data[ic - 1] = 0.0F;
+        ii = 91 * (K->size[1] - 1);
+        for (idx = 0; idx <= ii; idx += 91) {
+          for (ic = idx; ic + 1 <= idx + 91; ic++) {
+            d_y->data[ic] = 0.0;
           }
         }
 
         br = 0;
-        for (idx = 0; idx <= f_c; idx += 91) {
+        for (idx = 0; idx <= ii; idx += 91) {
           ar = 0;
           for (ib = br; ib + 1 <= br + 91; ib++) {
-            if (K->data[ib] != 0.0F) {
+            if (K->data[ib] != 0.0) {
               ia = ar;
               for (ic = idx; ic + 1 <= idx + 91; ic++) {
                 ia++;
-                b_c->data[ic] += K->data[ib] * b_P[ia - 1];
+                d_y->data[ic] += K->data[ib] * b_P[ia - 1];
               }
             }
 
@@ -1534,150 +1046,33 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, float b_P[8281], const float
         }
       }
 
-      if ((b_c->size[1] == 0) || ((S->size[0] == 0) || (S->size[1] == 0))) {
-        unnamed_idx_1 = (unsigned int)S->size[0];
-        i24 = K->size[0] * K->size[1];
-        K->size[0] = 91;
-        K->size[1] = (int)unnamed_idx_1;
-        emxEnsureCapacity((emxArray__common *)K, i24, (int)sizeof(float));
-        loop_ub = 91 * (int)unnamed_idx_1;
-        for (i24 = 0; i24 < loop_ub; i24++) {
-          K->data[i24] = 0.0F;
-        }
-      } else if (S->size[0] == S->size[1]) {
-        i24 = K->size[0] * K->size[1];
-        K->size[0] = 91;
-        K->size[1] = b_c->size[1];
-        emxEnsureCapacity((emxArray__common *)K, i24, (int)sizeof(float));
-        loop_ub = b_c->size[0] * b_c->size[1];
-        for (i24 = 0; i24 < loop_ub; i24++) {
-          K->data[i24] = b_c->data[i24];
-        }
-
-        lusolve(S, K);
-      } else {
-        i24 = A->size[0] * A->size[1];
-        A->size[0] = S->size[1];
-        A->size[1] = S->size[0];
-        emxEnsureCapacity((emxArray__common *)A, i24, (int)sizeof(float));
-        loop_ub = S->size[0];
-        for (i24 = 0; i24 < loop_ub; i24++) {
-          ar = S->size[1];
-          for (i25 = 0; i25 < ar; i25++) {
-            A->data[i25 + A->size[0] * i24] = S->data[i24 + S->size[0] * i25];
-          }
-        }
-
-        xgeqp3(A, tau, jpvt);
-        ia = 0;
-        if (A->size[0] < A->size[1]) {
-          br = A->size[0];
-          idx = A->size[1];
-        } else {
-          br = A->size[1];
-          idx = A->size[0];
-        }
-
-        if (br > 0) {
-          tol = (float)idx * (float)fabs((double)A->data[0]) * 1.1920929E-7F;
-          while ((ia < br) && ((float)fabs((double)A->data[ia + A->size[0] * ia])
-                               >= tol)) {
-            ia++;
-          }
-        }
-
-        idx = A->size[1];
-        i24 = Y->size[0] * Y->size[1];
-        Y->size[0] = idx;
-        Y->size[1] = 91;
-        emxEnsureCapacity((emxArray__common *)Y, i24, (int)sizeof(float));
-        loop_ub = idx * 91;
-        for (i24 = 0; i24 < loop_ub; i24++) {
-          Y->data[i24] = 0.0F;
-        }
-
-        i24 = B->size[0] * B->size[1];
-        B->size[0] = b_c->size[1];
-        B->size[1] = 91;
-        emxEnsureCapacity((emxArray__common *)B, i24, (int)sizeof(float));
-        for (i24 = 0; i24 < 91; i24++) {
-          loop_ub = b_c->size[1];
-          for (i25 = 0; i25 < loop_ub; i25++) {
-            B->data[i25 + B->size[0] * i24] = b_c->data[i24 + b_c->size[0] * i25];
-          }
-        }
-
-        b_m = A->size[0];
-        idx = A->size[0];
-        br = A->size[1];
-        if (idx <= br) {
-          br = idx;
-        }
-
-        for (idx = 0; idx + 1 <= br; idx++) {
-          if (tau->data[idx] != 0.0F) {
-            for (k = 0; k < 91; k++) {
-              tol = B->data[idx + B->size[0] * k];
-              for (ib = idx + 1; ib + 1 <= b_m; ib++) {
-                tol += A->data[ib + A->size[0] * idx] * B->data[ib + B->size[0] *
-                  k];
-              }
-
-              tol *= tau->data[idx];
-              if (tol != 0.0F) {
-                B->data[idx + B->size[0] * k] -= tol;
-                for (ib = idx + 1; ib + 1 <= b_m; ib++) {
-                  B->data[ib + B->size[0] * k] -= A->data[ib + A->size[0] * idx]
-                    * tol;
-                }
-              }
-            }
-          }
-        }
-
-        for (k = 0; k < 91; k++) {
-          for (ib = 0; ib + 1 <= ia; ib++) {
-            Y->data[(jpvt->data[ib] + Y->size[0] * k) - 1] = B->data[ib +
-              B->size[0] * k];
-          }
-
-          for (idx = ia - 1; idx + 1 > 0; idx--) {
-            Y->data[(jpvt->data[idx] + Y->size[0] * k) - 1] /= A->data[idx +
-              A->size[0] * idx];
-            for (ib = 0; ib + 1 <= idx; ib++) {
-              Y->data[(jpvt->data[ib] + Y->size[0] * k) - 1] -= Y->data
-                [(jpvt->data[idx] + Y->size[0] * k) - 1] * A->data[ib + A->size
-                [0] * idx];
-            }
-          }
-        }
-
-        i24 = K->size[0] * K->size[1];
-        K->size[0] = 91;
-        K->size[1] = Y->size[0];
-        emxEnsureCapacity((emxArray__common *)K, i24, (int)sizeof(float));
-        loop_ub = Y->size[0];
-        for (i24 = 0; i24 < loop_ub; i24++) {
-          for (i25 = 0; i25 < 91; i25++) {
-            K->data[i25 + K->size[0] * i24] = Y->data[i24 + Y->size[0] * i25];
-          }
-        }
+      emxInit_real_T1(&b_S, 2);
+      i40 = b_S->size[0] * b_S->size[1];
+      b_S->size[0] = S->size[0];
+      b_S->size[1] = S->size[1];
+      emxEnsureCapacity((emxArray__common *)b_S, i40, (int)sizeof(double));
+      loop_ub = S->size[0] * S->size[1];
+      for (i40 = 0; i40 < loop_ub; i40++) {
+        b_S->data[i40] = S->data[i40] + R->data[i40];
       }
 
+      mrdivide(d_y, b_S, K);
+      emxFree_real_T(&b_S);
+      emxFree_real_T(&d_y);
       if ((K->size[1] == 1) || (r->size[0] == 1)) {
-        for (i24 = 0; i24 < 91; i24++) {
-          x_apo[i24] = 0.0F;
+        for (i40 = 0; i40 < 91; i40++) {
+          x_apo[i40] = 0.0;
           loop_ub = K->size[1];
-          for (i25 = 0; i25 < loop_ub; i25++) {
-            b_x_apo = x_apo[i24] + K->data[i24 + K->size[0] * i25] * r->data[i25];
-            x_apo[i24] = b_x_apo;
+          for (i41 = 0; i41 < loop_ub; i41++) {
+            b_x_apo = x_apo[i40] + K->data[i40 + K->size[0] * i41] * r->data[i41];
+            x_apo[i40] = b_x_apo;
           }
         }
       } else {
-        memset(&x_apo[0], 0, 91U * sizeof(float));
+        memset(&x_apo[0], 0, 91U * sizeof(double));
         ar = 0;
         for (ib = 0; ib + 1 <= K->size[1]; ib++) {
-          if (r->data[ib] != 0.0F) {
+          if (r->data[ib] != 0.0) {
             ia = ar;
             for (ic = 0; ic < 91; ic++) {
               ia++;
@@ -1690,112 +1085,52 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, float b_P[8281], const float
         }
       }
 
-      for (i24 = 0; i24 < 3; i24++) {
-        b_xt->robot_state.pos[i24] += x_apo[i24];
+      for (i40 = 0; i40 < 3; i40++) {
+        b_xt->robot_state.pos[i40] += x_apo[i40];
       }
 
-      theta = norm(*(float (*)[3])&x_apo[3]) * 0.5F;
-      if (theta < 0.244F) {
-        for (ib = 0; ib < 3; ib++) {
-          dq[ib] = 0.5F * x_apo[ib + 3];
-        }
-
-        dq[3] = 1.0F;
-      } else {
-        dq[0] = 0.5F * x_apo[3] * (float)sin((double)theta) / theta;
-        dq[1] = 0.5F * x_apo[4] * (float)sin((double)theta) / theta;
-        dq[2] = 0.5F * x_apo[5] * (float)sin((double)theta) / theta;
-        dq[3] = (float)cos((double)theta);
+      quatPlusThetaJ(*(double (*)[3])&x_apo[3], dv17);
+      for (ii = 0; ii < 4; ii++) {
+        c_xt[ii] = b_xt->robot_state.att[ii];
       }
 
-      tol = b_norm(dq);
-      for (ib = 0; ib < 4; ib++) {
-        c_xt[ib] = b_xt->robot_state.att[ib];
-        dq[ib] /= tol;
+      quatmultJ(dv17, c_xt, b_xt->robot_state.att);
+      for (i40 = 0; i40 < 3; i40++) {
+        b_xt->robot_state.vel[i40] += x_apo[6 + i40];
+        b_xt->robot_state.IMU.gyro_bias[i40] += x_apo[9 + i40];
+        b_xt->robot_state.IMU.acc_bias[i40] += x_apo[12 + i40];
       }
 
-      quatmultJ(dq, c_xt, b_xt->robot_state.att);
-      for (i24 = 0; i24 < 3; i24++) {
-        b_xt->robot_state.vel[i24] += x_apo[6 + i24];
-        b_xt->robot_state.IMU.gyro_bias[i24] += x_apo[9 + i24];
-        b_xt->robot_state.IMU.acc_bias[i24] += x_apo[12 + i24];
+      quatPlusThetaJ(*(double (*)[3])&x_apo[15], dv17);
+      for (ii = 0; ii < 4; ii++) {
+        c_xt[ii] = b_xt->origin.att[ii];
       }
 
-      theta = norm(*(float (*)[3])&x_apo[15]) * 0.5F;
-      if (theta < 0.244F) {
-        for (ib = 0; ib < 3; ib++) {
-          dq[ib] = 0.5F * x_apo[ib + 15];
-        }
-
-        dq[3] = 1.0F;
-      } else {
-        dq[0] = 0.5F * x_apo[15] * (float)sin((double)theta) / theta;
-        dq[1] = 0.5F * x_apo[16] * (float)sin((double)theta) / theta;
-        dq[2] = 0.5F * x_apo[17] * (float)sin((double)theta) / theta;
-        dq[3] = (float)cos((double)theta);
+      quatmultJ(dv17, c_xt, b_xt->origin.att);
+      quatPlusThetaJ(*(double (*)[3])&x_apo[18], dv17);
+      for (ii = 0; ii < 4; ii++) {
+        c_xt[ii] = b_xt->robot_state.IMU.att[ii];
       }
 
-      tol = b_norm(dq);
-      for (ib = 0; ib < 4; ib++) {
-        c_xt[ib] = b_xt->origin.att[ib];
-        dq[ib] /= tol;
-      }
-
-      quatmultJ(dq, c_xt, b_xt->origin.att);
-      theta = norm(*(float (*)[3])&x_apo[18]) * 0.5F;
-      if (theta < 0.244F) {
-        for (ib = 0; ib < 3; ib++) {
-          dq[ib] = 0.5F * x_apo[ib + 18];
-        }
-
-        dq[3] = 1.0F;
-      } else {
-        dq[0] = 0.5F * x_apo[18] * (float)sin((double)theta) / theta;
-        dq[1] = 0.5F * x_apo[19] * (float)sin((double)theta) / theta;
-        dq[2] = 0.5F * x_apo[20] * (float)sin((double)theta) / theta;
-        dq[3] = (float)cos((double)theta);
-      }
-
-      tol = b_norm(dq);
-      for (ib = 0; ib < 4; ib++) {
-        c_xt[ib] = b_xt->robot_state.IMU.att[ib];
-        dq[ib] /= tol;
-      }
-
-      quatmultJ(dq, c_xt, b_xt->robot_state.IMU.att);
-      for (i24 = 0; i24 < 3; i24++) {
-        b_xt->robot_state.IMU.pos[i24] += x_apo[21 + i24];
+      quatmultJ(dv17, c_xt, b_xt->robot_state.IMU.att);
+      for (i40 = 0; i40 < 3; i40++) {
+        b_xt->robot_state.IMU.pos[i40] += x_apo[21 + i40];
       }
 
       for (anchorIdx = 0; anchorIdx < 5; anchorIdx++) {
-        f_c = anchorIdx * 14 + 21;
-        ar = 21 + anchorIdx * 14;
-        for (i24 = 0; i24 < 3; i24++) {
-          b_xt->anchor_states[anchorIdx].pos[i24] += x_apo[i24 + f_c];
-          fp_scaled[i24] = x_apo[(i24 + ar) + 3];
+        i40 = anchorIdx * 14;
+        i41 = anchorIdx * 14;
+        for (idx = 0; idx < 3; idx++) {
+          b_xt->anchor_states[anchorIdx].pos[idx] += x_apo[(idx + i40) + 21];
+          c_x_apo[idx] = x_apo[(idx + i41) + 24];
         }
 
-        theta = norm(fp_scaled) * 0.5F;
-        if (theta < 0.244F) {
-          for (ib = 0; ib < 3; ib++) {
-            dq[ib] = 0.5F * fp_scaled[ib];
-          }
-
-          dq[3] = 1.0F;
-        } else {
-          dq[0] = 0.5F * x_apo[ar + 3] * (float)sin((double)theta) / theta;
-          dq[1] = 0.5F * x_apo[ar + 4] * (float)sin((double)theta) / theta;
-          dq[2] = 0.5F * x_apo[ar + 5] * (float)sin((double)theta) / theta;
-          dq[3] = (float)cos((double)theta);
+        for (ii = 0; ii < 4; ii++) {
+          c_xt[ii] = b_xt->anchor_states[anchorIdx].att[ii];
         }
 
-        tol = b_norm(dq);
-        for (ib = 0; ib < 4; ib++) {
-          c_xt[ib] = b_xt->anchor_states[anchorIdx].att[ib];
-          dq[ib] /= tol;
-        }
-
-        quatmultJ(dq, c_xt, b_xt->anchor_states[anchorIdx].att);
+        quatPlusThetaJ(c_x_apo, dv20);
+        quatmultJ(dv20, c_xt, b_xt->anchor_states[anchorIdx].att);
         for (featureIdx = 0; featureIdx < 8; featureIdx++) {
           if (b_xt->anchor_states[anchorIdx].feature_states[featureIdx].status ==
               1) {
@@ -1803,7 +1138,7 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, float b_P[8281], const float
             b_xt->anchor_states[anchorIdx].feature_states[featureIdx].
               inverse_depth += x_apo[(anchorIdx * 14 + featureIdx) + 27];
             if (b_xt->anchor_states[anchorIdx].feature_states[featureIdx].
-                inverse_depth < 0.0F) {
+                inverse_depth < 0.0) {
               updateVect[b_xt->anchor_states[anchorIdx]
                 .feature_states[featureIdx].status_idx - 1] = 0;
               b_xt->anchor_states[anchorIdx].feature_states[featureIdx].status =
@@ -1816,35 +1151,35 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, float b_P[8281], const float
       }
 
       if ((K->size[1] == 1) || (H->size[0] == 1)) {
-        for (i24 = 0; i24 < 91; i24++) {
-          for (i25 = 0; i25 < 91; i25++) {
-            i_c[i24 + 91 * i25] = 0.0F;
+        for (i40 = 0; i40 < 91; i40++) {
+          for (i41 = 0; i41 < 91; i41++) {
+            e_y[i40 + 91 * i41] = 0.0;
             loop_ub = K->size[1];
             for (idx = 0; idx < loop_ub; idx++) {
-              i_c[i24 + 91 * i25] += K->data[i24 + K->size[0] * idx] * H->
-                data[idx + H->size[0] * i25];
+              e_y[i40 + 91 * i41] += K->data[i40 + K->size[0] * idx] * H->
+                data[idx + H->size[0] * i41];
             }
           }
         }
       } else {
         k = K->size[1];
-        memset(&i_c[0], 0, 8281U * sizeof(float));
+        memset(&e_y[0], 0, 8281U * sizeof(double));
         for (idx = 0; idx <= 8191; idx += 91) {
           for (ic = idx; ic + 1 <= idx + 91; ic++) {
-            i_c[ic] = 0.0F;
+            e_y[ic] = 0.0;
           }
         }
 
         br = 0;
         for (idx = 0; idx <= 8191; idx += 91) {
           ar = 0;
-          i24 = br + k;
-          for (ib = br; ib + 1 <= i24; ib++) {
-            if (H->data[ib] != 0.0F) {
+          i40 = br + k;
+          for (ib = br; ib + 1 <= i40; ib++) {
+            if (H->data[ib] != 0.0) {
               ia = ar;
               for (ic = idx; ic + 1 <= idx + 91; ic++) {
                 ia++;
-                i_c[ic] += H->data[ib] * K->data[ia - 1];
+                e_y[ic] += H->data[ib] * K->data[ia - 1];
               }
             }
 
@@ -1855,48 +1190,48 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, float b_P[8281], const float
         }
       }
 
-      for (i24 = 0; i24 < 91; i24++) {
-        for (i25 = 0; i25 < 91; i25++) {
-          fv14[i25 + 91 * i24] = (float)iv14[i25 + 91 * i24] - i_c[i25 + 91 *
-            i24];
+      c_eye(dv21);
+      for (i40 = 0; i40 < 91; i40++) {
+        for (i41 = 0; i41 < 91; i41++) {
+          dv22[i41 + 91 * i40] = dv21[i41 + 91 * i40] - e_y[i41 + 91 * i40];
         }
       }
 
-      for (i24 = 0; i24 < 91; i24++) {
-        for (i25 = 0; i25 < 91; i25++) {
-          fv15[i24 + 91 * i25] = 0.0F;
+      for (i40 = 0; i40 < 91; i40++) {
+        for (i41 = 0; i41 < 91; i41++) {
+          dv23[i40 + 91 * i41] = 0.0;
           for (idx = 0; idx < 91; idx++) {
-            fv15[i24 + 91 * i25] += fv14[i24 + 91 * idx] * b_P[idx + 91 * i25];
+            dv23[i40 + 91 * i41] += dv22[i40 + 91 * idx] * b_P[idx + 91 * i41];
           }
         }
       }
 
-      for (i24 = 0; i24 < 91; i24++) {
-        memcpy(&b_P[i24 * 91], &fv15[i24 * 91], 91U * sizeof(float));
+      for (i40 = 0; i40 < 91; i40++) {
+        memcpy(&b_P[i40 * 91], &dv23[i40 * 91], 91U * sizeof(double));
       }
     } else {
-      for (ib = 0; ib < 40; ib++) {
-        LI_inlier_status[ib] = false;
+      for (ii = 0; ii < 40; ii++) {
+        LI_inlier_status[ii] = false;
       }
     }
   }
 
   // % D Partial EKF update using high-innovation inliers
   //  high innovation inliers (ordered like updateVect)
-  for (ib = 0; ib < 40; ib++) {
-    b_activeFeatures = (activeFeatures[ib] && (!LI_inlier_status[ib]));
-    activeFeatures[ib] = b_activeFeatures;
-    LI_inlier_status[ib] = b_activeFeatures;
+  for (ii = 0; ii < 40; ii++) {
+    b_activeFeatures = (activeFeatures[ii] && (!LI_inlier_status[ii]));
+    activeFeatures[ii] = b_activeFeatures;
+    LI_inlier_status[ii] = b_activeFeatures;
   }
 
   idx = 0;
-  br = 1;
+  ii = 1;
   exitg1 = false;
-  while ((!exitg1) && (br < 41)) {
+  while ((!exitg1) && (ii < 41)) {
     guard1 = false;
-    if (activeFeatures[br - 1]) {
+    if (activeFeatures[ii - 1]) {
       idx++;
-      ii_data[idx - 1] = (signed char)br;
+      ii_data[idx - 1] = (signed char)ii;
       if (idx >= 40) {
         exitg1 = true;
       } else {
@@ -1907,8 +1242,14 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, float b_P[8281], const float
     }
 
     if (guard1) {
-      br++;
+      ii++;
     }
+  }
+
+  if (1 > idx) {
+    ii_size_idx_0 = 0;
+  } else {
+    ii_size_idx_0 = idx;
   }
 
   if (1 > idx) {
@@ -1917,39 +1258,37 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, float b_P[8281], const float
     loop_ub = idx;
   }
 
-  i24 = out->size[0];
-  out->size[0] = loop_ub;
-  emxEnsureCapacity((emxArray__common *)out, i24, (int)sizeof(float));
-  for (i24 = 0; i24 < loop_ub; i24++) {
-    out->data[i24] = ii_data[i24];
+  for (i40 = 0; i40 < loop_ub; i40++) {
+    hyp_ind_data[i40] = ii_data[i40];
   }
 
   if (any(activeFeatures)) {
-    emxInit_real32_T1(&b_K, 2);
-    emxInit_real32_T1(&b_H, 2);
-    i24 = b_K->size[0] * b_K->size[1];
+    emxInit_real_T1(&b_K, 2);
+    emxInit_real_T1(&b_H, 2);
+    i40 = b_K->size[0] * b_K->size[1];
     b_K->size[0] = 1;
     b_K->size[1] = 1;
-    emxEnsureCapacity((emxArray__common *)b_K, i24, (int)sizeof(float));
-    b_K->data[0] = 0.0F;
+    emxEnsureCapacity((emxArray__common *)b_K, i40, (int)sizeof(double));
+    b_K->data[0] = 0.0;
 
     //  for coder
-    i24 = b_H->size[0] * b_H->size[1];
+    i40 = b_H->size[0] * b_H->size[1];
     b_H->size[0] = 1;
     b_H->size[1] = 1;
-    emxEnsureCapacity((emxArray__common *)b_H, i24, (int)sizeof(float));
-    b_H->data[0] = 0.0F;
+    emxEnsureCapacity((emxArray__common *)b_H, i40, (int)sizeof(double));
+    b_H->data[0] = 0.0;
 
     //  for coder
     it = 1;
-    emxInit_real32_T1(&j_c, 2);
-    emxInit_real32_T1(&k_c, 2);
-    emxInit_real32_T1(&l_c, 2);
-    emxInit_real32_T1(&m_c, 2);
-    emxInit_real32_T1(&n_c, 2);
-    emxInit_real32_T1(&c_H, 2);
-    emxInit_real32_T1(&d_H, 2);
-    emxInit_real32_T1(&e_H, 2);
+    emxInit_real_T1(&c_C, 2);
+    emxInit_real_T1(&d_C, 2);
+    emxInit_real_T1(&f_y, 2);
+    emxInit_real_T1(&g_y, 2);
+    emxInit_real_T1(&h_y, 2);
+    emxInit_real_T1(&e_C, 2);
+    emxInit_real_T1(&c_H, 2);
+    emxInit_real_T1(&d_H, 2);
+    emxInit_real_T1(&e_H, 2);
     while (it <= c_VIOParameters_max_ekf_iterati) {
       getScaledMap(b_xt);
 
@@ -1957,41 +1296,41 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, float b_P[8281], const float
       getH_R_res(b_xt->robot_state.pos, b_xt->robot_state.att,
                  b_xt->anchor_states, z_u_l, LI_inlier_status,
                  cameraparams_FocalLength, cameraparams_PrincipalPoint,
-                 noiseParameters_image_noise, r, H, c);
-      i24 = b_H->size[0] * b_H->size[1];
+                 noiseParameters_image_noise, r, H, R);
+      i40 = b_H->size[0] * b_H->size[1];
       b_H->size[0] = H->size[0];
       b_H->size[1] = 91;
-      emxEnsureCapacity((emxArray__common *)b_H, i24, (int)sizeof(float));
+      emxEnsureCapacity((emxArray__common *)b_H, i40, (int)sizeof(double));
       loop_ub = H->size[0] * H->size[1];
-      for (i24 = 0; i24 < loop_ub; i24++) {
-        b_H->data[i24] = H->data[i24];
+      for (i40 = 0; i40 < loop_ub; i40++) {
+        b_H->data[i40] = H->data[i40];
       }
 
       //  the residual is ordered by anchors/features, not like updateVect
       H_idx_0 = (unsigned int)H->size[0];
-      i24 = j_c->size[0] * j_c->size[1];
-      j_c->size[0] = (int)H_idx_0;
-      j_c->size[1] = 91;
-      emxEnsureCapacity((emxArray__common *)j_c, i24, (int)sizeof(float));
+      i40 = f_y->size[0] * f_y->size[1];
+      f_y->size[0] = (int)H_idx_0;
+      f_y->size[1] = 91;
+      emxEnsureCapacity((emxArray__common *)f_y, i40, (int)sizeof(double));
       b_m = H->size[0];
-      i24 = j_c->size[0] * j_c->size[1];
-      j_c->size[1] = 91;
-      emxEnsureCapacity((emxArray__common *)j_c, i24, (int)sizeof(float));
-      for (i24 = 0; i24 < 91; i24++) {
-        loop_ub = j_c->size[0];
-        for (i25 = 0; i25 < loop_ub; i25++) {
-          j_c->data[i25 + j_c->size[0] * i24] = 0.0F;
+      i40 = f_y->size[0] * f_y->size[1];
+      f_y->size[1] = 91;
+      emxEnsureCapacity((emxArray__common *)f_y, i40, (int)sizeof(double));
+      for (i40 = 0; i40 < 91; i40++) {
+        loop_ub = f_y->size[0];
+        for (i41 = 0; i41 < loop_ub; i41++) {
+          f_y->data[i41 + f_y->size[0] * i40] = 0.0;
         }
       }
 
       if (H->size[0] == 0) {
       } else {
-        f_c = H->size[0] * 90;
+        ii = H->size[0] * 90;
         idx = 0;
-        while ((b_m > 0) && (idx <= f_c)) {
-          i24 = idx + b_m;
-          for (ic = idx; ic + 1 <= i24; ic++) {
-            j_c->data[ic] = 0.0F;
+        while ((b_m > 0) && (idx <= ii)) {
+          i40 = idx + b_m;
+          for (ic = idx; ic + 1 <= i40; ic++) {
+            f_y->data[ic] = 0.0;
           }
 
           idx += b_m;
@@ -1999,15 +1338,15 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, float b_P[8281], const float
 
         br = 0;
         idx = 0;
-        while ((b_m > 0) && (idx <= f_c)) {
+        while ((b_m > 0) && (idx <= ii)) {
           ar = 0;
           for (ib = br; ib + 1 <= br + 91; ib++) {
-            if (b_P[ib] != 0.0F) {
+            if (b_P[ib] != 0.0) {
               ia = ar;
-              i24 = idx + b_m;
-              for (ic = idx; ic + 1 <= i24; ic++) {
+              i40 = idx + b_m;
+              for (ic = idx; ic + 1 <= i40; ic++) {
                 ia++;
-                j_c->data[ic] += b_P[ib] * H->data[ia - 1];
+                f_y->data[ic] += b_P[ib] * H->data[ia - 1];
               }
             }
 
@@ -2019,53 +1358,53 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, float b_P[8281], const float
         }
       }
 
-      i24 = c_H->size[0] * c_H->size[1];
+      i40 = c_H->size[0] * c_H->size[1];
       c_H->size[0] = 91;
       c_H->size[1] = H->size[0];
-      emxEnsureCapacity((emxArray__common *)c_H, i24, (int)sizeof(float));
+      emxEnsureCapacity((emxArray__common *)c_H, i40, (int)sizeof(double));
       loop_ub = H->size[0];
-      for (i24 = 0; i24 < loop_ub; i24++) {
-        for (i25 = 0; i25 < 91; i25++) {
-          c_H->data[i25 + c_H->size[0] * i24] = H->data[i24 + H->size[0] * i25];
+      for (i40 = 0; i40 < loop_ub; i40++) {
+        for (i41 = 0; i41 < 91; i41++) {
+          c_H->data[i41 + c_H->size[0] * i40] = H->data[i40 + H->size[0] * i41];
         }
       }
 
-      br = H->size[0];
-      i24 = K->size[0] * K->size[1];
+      ii = H->size[0];
+      i40 = K->size[0] * K->size[1];
       K->size[0] = 91;
-      K->size[1] = br;
-      emxEnsureCapacity((emxArray__common *)K, i24, (int)sizeof(float));
-      for (i24 = 0; i24 < br; i24++) {
-        for (i25 = 0; i25 < 91; i25++) {
-          K->data[i25 + K->size[0] * i24] = c_H->data[i25 + 91 * i24];
+      K->size[1] = ii;
+      emxEnsureCapacity((emxArray__common *)K, i40, (int)sizeof(double));
+      for (i40 = 0; i40 < ii; i40++) {
+        for (i41 = 0; i41 < 91; i41++) {
+          K->data[i41 + K->size[0] * i40] = c_H->data[i41 + 91 * i40];
         }
       }
 
-      H_idx_0 = (unsigned int)j_c->size[0];
-      unnamed_idx_1 = (unsigned int)K->size[1];
-      i24 = k_c->size[0] * k_c->size[1];
-      k_c->size[0] = (int)H_idx_0;
-      k_c->size[1] = (int)unnamed_idx_1;
-      emxEnsureCapacity((emxArray__common *)k_c, i24, (int)sizeof(float));
-      b_m = j_c->size[0];
-      i24 = k_c->size[0] * k_c->size[1];
-      emxEnsureCapacity((emxArray__common *)k_c, i24, (int)sizeof(float));
-      loop_ub = k_c->size[1];
-      for (i24 = 0; i24 < loop_ub; i24++) {
-        ar = k_c->size[0];
-        for (i25 = 0; i25 < ar; i25++) {
-          k_c->data[i25 + k_c->size[0] * i24] = 0.0F;
+      a[0] = (unsigned int)f_y->size[0];
+      a[1] = (unsigned int)K->size[1];
+      i40 = c_C->size[0] * c_C->size[1];
+      c_C->size[0] = (int)a[0];
+      c_C->size[1] = (int)a[1];
+      emxEnsureCapacity((emxArray__common *)c_C, i40, (int)sizeof(double));
+      b_m = f_y->size[0];
+      i40 = c_C->size[0] * c_C->size[1];
+      emxEnsureCapacity((emxArray__common *)c_C, i40, (int)sizeof(double));
+      loop_ub = c_C->size[1];
+      for (i40 = 0; i40 < loop_ub; i40++) {
+        br = c_C->size[0];
+        for (i41 = 0; i41 < br; i41++) {
+          c_C->data[i41 + c_C->size[0] * i40] = 0.0;
         }
       }
 
-      if ((j_c->size[0] == 0) || (K->size[1] == 0)) {
+      if ((f_y->size[0] == 0) || (K->size[1] == 0)) {
       } else {
-        f_c = j_c->size[0] * (K->size[1] - 1);
+        ii = f_y->size[0] * (K->size[1] - 1);
         idx = 0;
-        while ((b_m > 0) && (idx <= f_c)) {
-          i24 = idx + b_m;
-          for (ic = idx; ic + 1 <= i24; ic++) {
-            k_c->data[ic] = 0.0F;
+        while ((b_m > 0) && (idx <= ii)) {
+          i40 = idx + b_m;
+          for (ic = idx; ic + 1 <= i40; ic++) {
+            c_C->data[ic] = 0.0;
           }
 
           idx += b_m;
@@ -2073,15 +1412,15 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, float b_P[8281], const float
 
         br = 0;
         idx = 0;
-        while ((b_m > 0) && (idx <= f_c)) {
+        while ((b_m > 0) && (idx <= ii)) {
           ar = 0;
           for (ib = br; ib + 1 <= br + 91; ib++) {
-            if (K->data[ib] != 0.0F) {
+            if (K->data[ib] != 0.0) {
               ia = ar;
-              i24 = idx + b_m;
-              for (ic = idx; ic + 1 <= i24; ic++) {
+              i40 = idx + b_m;
+              for (ic = idx; ic + 1 <= i40; ic++) {
                 ia++;
-                k_c->data[ic] += K->data[ib] * j_c->data[ia - 1];
+                c_C->data[ic] += K->data[ib] * f_y->data[ia - 1];
               }
             }
 
@@ -2093,103 +1432,91 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, float b_P[8281], const float
         }
       }
 
-      i24 = S->size[0] * S->size[1];
-      S->size[0] = k_c->size[0];
-      S->size[1] = k_c->size[1];
-      emxEnsureCapacity((emxArray__common *)S, i24, (int)sizeof(float));
-      loop_ub = k_c->size[0] * k_c->size[1];
-      for (i24 = 0; i24 < loop_ub; i24++) {
-        S->data[i24] = k_c->data[i24] + c->data[i24];
+      i40 = S->size[0] * S->size[1];
+      S->size[0] = c_C->size[0];
+      S->size[1] = c_C->size[1];
+      emxEnsureCapacity((emxArray__common *)S, i40, (int)sizeof(double));
+      loop_ub = c_C->size[0] * c_C->size[1];
+      for (i40 = 0; i40 < loop_ub; i40++) {
+        S->data[i40] = c_C->data[i40] + R->data[i40];
       }
 
-      for (k = 0; k < out->size[0]; k++) {
-        f_c = k << 1;
-        ar = (k << 1) - 1;
-        ib = (k << 1) - 1;
-        for (i24 = 0; i24 < 2; i24++) {
-          o_c[i24] = (signed char)((i24 + (signed char)f_c) + 1);
-          p_c[i24] = (signed char)((i24 + (signed char)(ar + 1)) + 1);
-          q_c[i24] = (signed char)((i24 + (signed char)(ib + 1)) + 1);
+      for (k = 0; k < ii_size_idx_0; k++) {
+        ii = k << 1;
+        for (i40 = 0; i40 < 2; i40++) {
+          b_r[i40] = r->data[i40 + ii];
         }
 
-        if ((float)fabs((double)S->data[(ar + S->size[0] * (1 + ib)) + 2]) >
-            (float)fabs((double)S->data[(ar + S->size[0] * (1 + ib)) + 1])) {
-          idx = 1;
-          br = 0;
-        } else {
-          idx = 0;
-          br = 1;
+        ii = k << 1;
+        idx = k << 1;
+        for (i40 = 0; i40 < 2; i40++) {
+          for (i41 = 0; i41 < 2; i41++) {
+            c_xt[i41 + (i40 << 1)] = S->data[(i41 + ii) + S->size[0] * (i40 +
+              idx)];
+          }
         }
 
-        tol = S->data[((br + ar) + S->size[0] * (1 + ib)) + 1] / S->data[((idx +
-          ar) + S->size[0] * (1 + ib)) + 1];
-        g_c[idx] = r->data[o_c[0] - 1] / S->data[(p_c[idx] + S->size[0] * (q_c[0]
-          - 1)) - 1];
-        g_c[br] = (r->data[o_c[1] - 1] - g_c[idx] * S->data[(p_c[idx] + S->size
-                    [0] * (q_c[1] - 1)) - 1]) / (S->data[(p_c[br] + S->size[0] *
-          (q_c[1] - 1)) - 1] - tol * S->data[(p_c[idx] + S->size[0] * (q_c[1] -
-          1)) - 1]);
-        g_c[idx] -= g_c[br] * tol;
-        f_c = k << 1;
-        for (i24 = 0; i24 < 2; i24++) {
-          h_c_n_l[i24] = r->data[i24 + f_c];
+        b_mrdivide(b_r, c_xt, a);
+        ii = k << 1;
+        for (i40 = 0; i40 < 2; i40++) {
+          z_u[i40] = r->data[i40 + ii];
         }
 
-        tol = 0.0F;
-        for (i24 = 0; i24 < 2; i24++) {
-          tol += g_c[i24] * h_c_n_l[i24];
+        d9 = 0.0;
+        for (i40 = 0; i40 < 2; i40++) {
+          d9 += a[i40] * z_u[i40];
         }
 
-        if (tol > 6.0F) {
-          f_c = (k << 1) - 1;
-          for (i24 = 0; i24 < 2; i24++) {
-            r->data[(i24 + f_c) + 1] = 0.0F;
+        if (d9 > 6.0) {
+          ii = k << 1;
+          for (i40 = 0; i40 < 2; i40++) {
+            r->data[i40 + ii] = 0.0;
           }
 
-          f_c = k << 1;
-          for (i24 = 0; i24 < 91; i24++) {
-            for (i25 = 0; i25 < 2; i25++) {
-              b_H->data[(i25 + f_c) + b_H->size[0] * i24] = 0.0F;
+          ii = k << 1;
+          for (i40 = 0; i40 < 91; i40++) {
+            for (i41 = 0; i41 < 2; i41++) {
+              b_H->data[(i41 + ii) + b_H->size[0] * i40] = 0.0;
             }
           }
 
           if (it == c_VIOParameters_max_ekf_iterati) {
-            LI_inlier_status[(int)out->data[k] - 1] = false;
+            LI_inlier_status[hyp_ind_data[k] - 1] = false;
 
             //  only reject the feature if its still bad in last iteration, otherwise just dont use for this update 
           }
 
           //          ros_info('rejecting %i', HI_ind(k))
-          if (updateVect[(int)out->data[k] - 1] == 2) {
+          if (updateVect[hyp_ind_data[k] - 1] == 2) {
             b_ros_error();
           }
         }
       }
 
       H_idx_0 = (unsigned int)b_H->size[0];
-      i24 = l_c->size[0] * l_c->size[1];
-      l_c->size[0] = (int)H_idx_0;
-      l_c->size[1] = 91;
-      emxEnsureCapacity((emxArray__common *)l_c, i24, (int)sizeof(float));
+      i40 = g_y->size[0] * g_y->size[1];
+      g_y->size[0] = (int)H_idx_0;
+      g_y->size[1] = 91;
+      emxEnsureCapacity((emxArray__common *)g_y, i40, (int)sizeof(double));
       b_m = b_H->size[0];
-      i24 = l_c->size[0] * l_c->size[1];
-      l_c->size[1] = 91;
-      emxEnsureCapacity((emxArray__common *)l_c, i24, (int)sizeof(float));
-      for (i24 = 0; i24 < 91; i24++) {
-        loop_ub = l_c->size[0];
-        for (i25 = 0; i25 < loop_ub; i25++) {
-          l_c->data[i25 + l_c->size[0] * i24] = 0.0F;
+      i40 = g_y->size[0] * g_y->size[1];
+      g_y->size[1] = 91;
+      emxEnsureCapacity((emxArray__common *)g_y, i40, (int)sizeof(double));
+      for (i40 = 0; i40 < 91; i40++) {
+        loop_ub = g_y->size[0];
+        for (i41 = 0; i41 < loop_ub; i41++) {
+          g_y->data[i41 + g_y->size[0] * i40] = 0.0;
         }
       }
 
       if (b_H->size[0] == 0) {
       } else {
-        f_c = b_H->size[0] * 90;
+        ii = b_H->size[0] * 90;
         idx = 0;
-        while ((b_m > 0) && (idx <= f_c)) {
-          i24 = idx + b_m;
-          for (ic = idx; ic + 1 <= i24; ic++) {
-            l_c->data[ic] = 0.0F;
+        while ((b_m > 0) && (idx <= ii)) {
+          i40 = idx + b_m;
+          for (ic = idx; ic + 1 <= i40; ic++) {
+            g_y->data[ic] = 0.0;
           }
 
           idx += b_m;
@@ -2197,15 +1524,15 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, float b_P[8281], const float
 
         br = 0;
         idx = 0;
-        while ((b_m > 0) && (idx <= f_c)) {
+        while ((b_m > 0) && (idx <= ii)) {
           ar = 0;
           for (ib = br; ib + 1 <= br + 91; ib++) {
-            if (b_P[ib] != 0.0F) {
+            if (b_P[ib] != 0.0) {
               ia = ar;
-              i24 = idx + b_m;
-              for (ic = idx; ic + 1 <= i24; ic++) {
+              i40 = idx + b_m;
+              for (ic = idx; ic + 1 <= i40; ic++) {
                 ia++;
-                l_c->data[ic] += b_P[ib] * b_H->data[ia - 1];
+                g_y->data[ic] += b_P[ib] * b_H->data[ia - 1];
               }
             }
 
@@ -2217,55 +1544,55 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, float b_P[8281], const float
         }
       }
 
-      i24 = d_H->size[0] * d_H->size[1];
+      i40 = d_H->size[0] * d_H->size[1];
       d_H->size[0] = b_H->size[1];
       d_H->size[1] = b_H->size[0];
-      emxEnsureCapacity((emxArray__common *)d_H, i24, (int)sizeof(float));
+      emxEnsureCapacity((emxArray__common *)d_H, i40, (int)sizeof(double));
       loop_ub = b_H->size[0];
-      for (i24 = 0; i24 < loop_ub; i24++) {
-        ar = b_H->size[1];
-        for (i25 = 0; i25 < ar; i25++) {
-          d_H->data[i25 + d_H->size[0] * i24] = b_H->data[i24 + b_H->size[0] *
-            i25];
+      for (i40 = 0; i40 < loop_ub; i40++) {
+        br = b_H->size[1];
+        for (i41 = 0; i41 < br; i41++) {
+          d_H->data[i41 + d_H->size[0] * i40] = b_H->data[i40 + b_H->size[0] *
+            i41];
         }
       }
 
-      br = b_H->size[0];
-      i24 = K->size[0] * K->size[1];
+      ii = b_H->size[0];
+      i40 = K->size[0] * K->size[1];
       K->size[0] = 91;
-      K->size[1] = br;
-      emxEnsureCapacity((emxArray__common *)K, i24, (int)sizeof(float));
-      for (i24 = 0; i24 < br; i24++) {
-        for (i25 = 0; i25 < 91; i25++) {
-          K->data[i25 + K->size[0] * i24] = d_H->data[i25 + 91 * i24];
+      K->size[1] = ii;
+      emxEnsureCapacity((emxArray__common *)K, i40, (int)sizeof(double));
+      for (i40 = 0; i40 < ii; i40++) {
+        for (i41 = 0; i41 < 91; i41++) {
+          K->data[i41 + K->size[0] * i40] = d_H->data[i41 + 91 * i40];
         }
       }
 
-      H_idx_0 = (unsigned int)l_c->size[0];
-      unnamed_idx_1 = (unsigned int)K->size[1];
-      i24 = m_c->size[0] * m_c->size[1];
-      m_c->size[0] = (int)H_idx_0;
-      m_c->size[1] = (int)unnamed_idx_1;
-      emxEnsureCapacity((emxArray__common *)m_c, i24, (int)sizeof(float));
-      b_m = l_c->size[0];
-      i24 = m_c->size[0] * m_c->size[1];
-      emxEnsureCapacity((emxArray__common *)m_c, i24, (int)sizeof(float));
-      loop_ub = m_c->size[1];
-      for (i24 = 0; i24 < loop_ub; i24++) {
-        ar = m_c->size[0];
-        for (i25 = 0; i25 < ar; i25++) {
-          m_c->data[i25 + m_c->size[0] * i24] = 0.0F;
+      a[0] = (unsigned int)g_y->size[0];
+      a[1] = (unsigned int)K->size[1];
+      i40 = d_C->size[0] * d_C->size[1];
+      d_C->size[0] = (int)a[0];
+      d_C->size[1] = (int)a[1];
+      emxEnsureCapacity((emxArray__common *)d_C, i40, (int)sizeof(double));
+      b_m = g_y->size[0];
+      i40 = d_C->size[0] * d_C->size[1];
+      emxEnsureCapacity((emxArray__common *)d_C, i40, (int)sizeof(double));
+      loop_ub = d_C->size[1];
+      for (i40 = 0; i40 < loop_ub; i40++) {
+        br = d_C->size[0];
+        for (i41 = 0; i41 < br; i41++) {
+          d_C->data[i41 + d_C->size[0] * i40] = 0.0;
         }
       }
 
-      if ((l_c->size[0] == 0) || (K->size[1] == 0)) {
+      if ((g_y->size[0] == 0) || (K->size[1] == 0)) {
       } else {
-        f_c = l_c->size[0] * (K->size[1] - 1);
+        ii = g_y->size[0] * (K->size[1] - 1);
         idx = 0;
-        while ((b_m > 0) && (idx <= f_c)) {
-          i24 = idx + b_m;
-          for (ic = idx; ic + 1 <= i24; ic++) {
-            m_c->data[ic] = 0.0F;
+        while ((b_m > 0) && (idx <= ii)) {
+          i40 = idx + b_m;
+          for (ic = idx; ic + 1 <= i40; ic++) {
+            d_C->data[ic] = 0.0;
           }
 
           idx += b_m;
@@ -2273,15 +1600,15 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, float b_P[8281], const float
 
         br = 0;
         idx = 0;
-        while ((b_m > 0) && (idx <= f_c)) {
+        while ((b_m > 0) && (idx <= ii)) {
           ar = 0;
           for (ib = br; ib + 1 <= br + 91; ib++) {
-            if (K->data[ib] != 0.0F) {
+            if (K->data[ib] != 0.0) {
               ia = ar;
-              i24 = idx + b_m;
-              for (ic = idx; ic + 1 <= i24; ic++) {
+              i40 = idx + b_m;
+              for (ic = idx; ic + 1 <= i40; ic++) {
                 ia++;
-                m_c->data[ic] += K->data[ib] * l_c->data[ia - 1];
+                d_C->data[ic] += K->data[ib] * g_y->data[ia - 1];
               }
             }
 
@@ -2293,70 +1620,61 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, float b_P[8281], const float
         }
       }
 
-      i24 = S->size[0] * S->size[1];
-      S->size[0] = m_c->size[0];
-      S->size[1] = m_c->size[1];
-      emxEnsureCapacity((emxArray__common *)S, i24, (int)sizeof(float));
-      loop_ub = m_c->size[0] * m_c->size[1];
-      for (i24 = 0; i24 < loop_ub; i24++) {
-        S->data[i24] = m_c->data[i24] + c->data[i24];
-      }
-
-      i24 = e_H->size[0] * e_H->size[1];
+      i40 = e_H->size[0] * e_H->size[1];
       e_H->size[0] = b_H->size[1];
       e_H->size[1] = b_H->size[0];
-      emxEnsureCapacity((emxArray__common *)e_H, i24, (int)sizeof(float));
+      emxEnsureCapacity((emxArray__common *)e_H, i40, (int)sizeof(double));
       loop_ub = b_H->size[0];
-      for (i24 = 0; i24 < loop_ub; i24++) {
-        ar = b_H->size[1];
-        for (i25 = 0; i25 < ar; i25++) {
-          e_H->data[i25 + e_H->size[0] * i24] = b_H->data[i24 + b_H->size[0] *
-            i25];
+      for (i40 = 0; i40 < loop_ub; i40++) {
+        br = b_H->size[1];
+        for (i41 = 0; i41 < br; i41++) {
+          e_H->data[i41 + e_H->size[0] * i40] = b_H->data[i40 + b_H->size[0] *
+            i41];
         }
       }
 
-      br = b_H->size[0];
-      i24 = K->size[0] * K->size[1];
+      ii = b_H->size[0];
+      i40 = K->size[0] * K->size[1];
       K->size[0] = 91;
-      K->size[1] = br;
-      emxEnsureCapacity((emxArray__common *)K, i24, (int)sizeof(float));
-      for (i24 = 0; i24 < br; i24++) {
-        for (i25 = 0; i25 < 91; i25++) {
-          K->data[i25 + K->size[0] * i24] = e_H->data[i25 + 91 * i24];
+      K->size[1] = ii;
+      emxEnsureCapacity((emxArray__common *)K, i40, (int)sizeof(double));
+      for (i40 = 0; i40 < ii; i40++) {
+        for (i41 = 0; i41 < 91; i41++) {
+          K->data[i41 + K->size[0] * i40] = e_H->data[i41 + 91 * i40];
         }
       }
 
-      unnamed_idx_1 = (unsigned int)K->size[1];
-      i24 = n_c->size[0] * n_c->size[1];
-      n_c->size[0] = 91;
-      n_c->size[1] = (int)unnamed_idx_1;
-      n_c->size[0] = 91;
-      emxEnsureCapacity((emxArray__common *)n_c, i24, (int)sizeof(float));
-      loop_ub = n_c->size[1];
-      for (i24 = 0; i24 < loop_ub; i24++) {
-        for (i25 = 0; i25 < 91; i25++) {
-          n_c->data[i25 + n_c->size[0] * i24] = 0.0F;
+      H_idx_0 = (unsigned int)K->size[1];
+      i40 = h_y->size[0] * h_y->size[1];
+      h_y->size[0] = 91;
+      h_y->size[1] = (int)H_idx_0;
+      h_y->size[0] = 91;
+      emxEnsureCapacity((emxArray__common *)h_y, i40, (int)sizeof(double));
+      loop_ub = h_y->size[1];
+      for (i40 = 0; i40 < loop_ub; i40++) {
+        for (i41 = 0; i41 < 91; i41++) {
+          h_y->data[i41 + h_y->size[0] * i40] = 0.0;
         }
       }
 
       if (K->size[1] == 0) {
       } else {
-        f_c = 91 * (K->size[1] - 1);
-        for (idx = 0; idx <= f_c; idx += 91) {
-          for (ic = idx + 1; ic <= idx + 91; ic++) {
-            n_c->data[ic - 1] = 0.0F;
+        ii = 91 * (K->size[1] - 1);
+        for (idx = 0; idx <= ii; idx += 91) {
+          for (ic = idx; ic + 1 <= idx + 91; ic++) {
+            h_y->data[ic] = 0.0;
           }
         }
 
         br = 0;
-        for (idx = 0; idx <= f_c; idx += 91) {
+        for (idx = 0; idx <= ii; idx += 91) {
           ar = 0;
           for (ib = br; ib + 1 <= br + 91; ib++) {
-            if (K->data[ib] != 0.0F) {
+            if (K->data[ib] != 0.0) {
               ia = ar;
               for (ic = idx; ic + 1 <= idx + 91; ic++) {
                 ia++;
-                n_c->data[ic] += K->data[ib] * b_P[ia - 1];
+                h_y->data[ic] += K->data[ib] * b_P[ia - 1];
               }
             }
 
@@ -2367,169 +1685,50 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, float b_P[8281], const float
         }
       }
 
-      if ((n_c->size[1] == 0) || ((S->size[0] == 0) || (S->size[1] == 0))) {
-        unnamed_idx_1 = (unsigned int)S->size[0];
-        i24 = b_c->size[0] * b_c->size[1];
-        b_c->size[0] = 91;
-        b_c->size[1] = (int)unnamed_idx_1;
-        emxEnsureCapacity((emxArray__common *)b_c, i24, (int)sizeof(float));
-        loop_ub = 91 * (int)unnamed_idx_1;
-        for (i24 = 0; i24 < loop_ub; i24++) {
-          b_c->data[i24] = 0.0F;
-        }
-      } else if (S->size[0] == S->size[1]) {
-        i24 = b_c->size[0] * b_c->size[1];
-        b_c->size[0] = 91;
-        b_c->size[1] = n_c->size[1];
-        emxEnsureCapacity((emxArray__common *)b_c, i24, (int)sizeof(float));
-        loop_ub = n_c->size[0] * n_c->size[1];
-        for (i24 = 0; i24 < loop_ub; i24++) {
-          b_c->data[i24] = n_c->data[i24];
-        }
-
-        lusolve(S, b_c);
-      } else {
-        i24 = A->size[0] * A->size[1];
-        A->size[0] = S->size[1];
-        A->size[1] = S->size[0];
-        emxEnsureCapacity((emxArray__common *)A, i24, (int)sizeof(float));
-        loop_ub = S->size[0];
-        for (i24 = 0; i24 < loop_ub; i24++) {
-          ar = S->size[1];
-          for (i25 = 0; i25 < ar; i25++) {
-            A->data[i25 + A->size[0] * i24] = S->data[i24 + S->size[0] * i25];
-          }
-        }
-
-        xgeqp3(A, tau, jpvt);
-        ia = 0;
-        if (A->size[0] < A->size[1]) {
-          br = A->size[0];
-          idx = A->size[1];
-        } else {
-          br = A->size[1];
-          idx = A->size[0];
-        }
-
-        if (br > 0) {
-          tol = (float)idx * (float)fabs((double)A->data[0]) * 1.1920929E-7F;
-          while ((ia < br) && ((float)fabs((double)A->data[ia + A->size[0] * ia])
-                               >= tol)) {
-            ia++;
-          }
-        }
-
-        idx = A->size[1];
-        i24 = Y->size[0] * Y->size[1];
-        Y->size[0] = idx;
-        Y->size[1] = 91;
-        emxEnsureCapacity((emxArray__common *)Y, i24, (int)sizeof(float));
-        loop_ub = idx * 91;
-        for (i24 = 0; i24 < loop_ub; i24++) {
-          Y->data[i24] = 0.0F;
-        }
-
-        i24 = B->size[0] * B->size[1];
-        B->size[0] = n_c->size[1];
-        B->size[1] = 91;
-        emxEnsureCapacity((emxArray__common *)B, i24, (int)sizeof(float));
-        for (i24 = 0; i24 < 91; i24++) {
-          loop_ub = n_c->size[1];
-          for (i25 = 0; i25 < loop_ub; i25++) {
-            B->data[i25 + B->size[0] * i24] = n_c->data[i24 + n_c->size[0] * i25];
-          }
-        }
-
-        b_m = A->size[0];
-        idx = A->size[0];
-        br = A->size[1];
-        if (idx <= br) {
-          br = idx;
-        }
-
-        for (idx = 0; idx + 1 <= br; idx++) {
-          if (tau->data[idx] != 0.0F) {
-            for (k = 0; k < 91; k++) {
-              tol = B->data[idx + B->size[0] * k];
-              for (ib = idx + 1; ib + 1 <= b_m; ib++) {
-                tol += A->data[ib + A->size[0] * idx] * B->data[ib + B->size[0] *
-                  k];
-              }
-
-              tol *= tau->data[idx];
-              if (tol != 0.0F) {
-                B->data[idx + B->size[0] * k] -= tol;
-                for (ib = idx + 1; ib + 1 <= b_m; ib++) {
-                  B->data[ib + B->size[0] * k] -= A->data[ib + A->size[0] * idx]
-                    * tol;
-                }
-              }
-            }
-          }
-        }
-
-        for (k = 0; k < 91; k++) {
-          for (ib = 0; ib + 1 <= ia; ib++) {
-            Y->data[(jpvt->data[ib] + Y->size[0] * k) - 1] = B->data[ib +
-              B->size[0] * k];
-          }
-
-          for (idx = ia - 1; idx + 1 > 0; idx--) {
-            Y->data[(jpvt->data[idx] + Y->size[0] * k) - 1] /= A->data[idx +
-              A->size[0] * idx];
-            for (ib = 0; ib + 1 <= idx; ib++) {
-              Y->data[(jpvt->data[ib] + Y->size[0] * k) - 1] -= Y->data
-                [(jpvt->data[idx] + Y->size[0] * k) - 1] * A->data[ib + A->size
-                [0] * idx];
-            }
-          }
-        }
-
-        i24 = b_c->size[0] * b_c->size[1];
-        b_c->size[0] = 91;
-        b_c->size[1] = Y->size[0];
-        emxEnsureCapacity((emxArray__common *)b_c, i24, (int)sizeof(float));
-        loop_ub = Y->size[0];
-        for (i24 = 0; i24 < loop_ub; i24++) {
-          for (i25 = 0; i25 < 91; i25++) {
-            b_c->data[i25 + b_c->size[0] * i24] = Y->data[i24 + Y->size[0] * i25];
-          }
-        }
+      i40 = e_C->size[0] * e_C->size[1];
+      e_C->size[0] = d_C->size[0];
+      e_C->size[1] = d_C->size[1];
+      emxEnsureCapacity((emxArray__common *)e_C, i40, (int)sizeof(double));
+      loop_ub = d_C->size[0] * d_C->size[1];
+      for (i40 = 0; i40 < loop_ub; i40++) {
+        e_C->data[i40] = d_C->data[i40] + R->data[i40];
       }
 
-      i24 = b_K->size[0] * b_K->size[1];
+      mrdivide(h_y, e_C, K);
+      i40 = b_K->size[0] * b_K->size[1];
       b_K->size[0] = 91;
-      b_K->size[1] = b_c->size[1];
-      emxEnsureCapacity((emxArray__common *)b_K, i24, (int)sizeof(float));
-      loop_ub = b_c->size[0] * b_c->size[1];
-      for (i24 = 0; i24 < loop_ub; i24++) {
-        b_K->data[i24] = b_c->data[i24];
+      b_K->size[1] = K->size[1];
+      emxEnsureCapacity((emxArray__common *)b_K, i40, (int)sizeof(double));
+      loop_ub = K->size[0] * K->size[1];
+      for (i40 = 0; i40 < loop_ub; i40++) {
+        b_K->data[i40] = K->data[i40];
       }
 
-      if ((b_c->size[1] == 1) || (r->size[0] == 1)) {
-        for (i24 = 0; i24 < 91; i24++) {
-          x_apo_data[i24] = 0.0F;
-          loop_ub = b_c->size[1];
-          for (i25 = 0; i25 < loop_ub; i25++) {
-            b_x_apo_data = x_apo_data[i24] + b_c->data[i24 + b_c->size[0] * i25]
-              * r->data[i25];
-            x_apo_data[i24] = b_x_apo_data;
+      if ((b_K->size[1] == 1) || (r->size[0] == 1)) {
+        loop_ub = b_K->size[0];
+        for (i40 = 0; i40 < loop_ub; i40++) {
+          x_apo_data[i40] = 0.0;
+          br = b_K->size[1];
+          for (i41 = 0; i41 < br; i41++) {
+            b_x_apo_data = x_apo_data[i40] + b_K->data[i40 + b_K->size[0] * i41]
+              * r->data[i41];
+            x_apo_data[i40] = b_x_apo_data;
           }
         }
       } else {
-        k = b_c->size[1];
-        memset(&x_apo_data[0], 0, 91U * sizeof(float));
+        k = b_K->size[1];
+        memset(&x_apo_data[0], 0, 91U * sizeof(double));
         for (ic = 1; ic < 92; ic++) {
-          x_apo_data[ic - 1] = 0.0F;
+          x_apo_data[ic - 1] = 0.0;
         }
 
         ar = 0;
         for (ib = 0; ib + 1 <= k; ib++) {
-          if (r->data[ib] != 0.0F) {
+          if (r->data[ib] != 0.0) {
             ia = ar;
             for (ic = 0; ic + 1 < 92; ic++) {
               ia++;
-              x_apo_data[ic] += r->data[ib] * b_c->data[ia - 1];
+              x_apo_data[ic] += r->data[ib] * b_K->data[ia - 1];
             }
           }
 
@@ -2537,112 +1736,52 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, float b_P[8281], const float
         }
       }
 
-      for (i24 = 0; i24 < 3; i24++) {
-        b_xt->robot_state.pos[i24] += x_apo_data[i24];
+      for (i40 = 0; i40 < 3; i40++) {
+        b_xt->robot_state.pos[i40] += x_apo_data[i40];
       }
 
-      theta = norm(*(float (*)[3])&x_apo_data[3]) * 0.5F;
-      if (theta < 0.244F) {
-        for (i24 = 0; i24 < 3; i24++) {
-          dq[i24] = 0.5F * x_apo_data[3 + i24];
-        }
-
-        dq[3] = 1.0F;
-      } else {
-        dq[0] = 0.5F * x_apo_data[3] * (float)sin((double)theta) / theta;
-        dq[1] = 0.5F * x_apo_data[4] * (float)sin((double)theta) / theta;
-        dq[2] = 0.5F * x_apo_data[5] * (float)sin((double)theta) / theta;
-        dq[3] = (float)cos((double)theta);
+      quatPlusThetaJ(*(double (*)[3])&x_apo_data[3], dv17);
+      for (ii = 0; ii < 4; ii++) {
+        c_xt[ii] = b_xt->robot_state.att[ii];
       }
 
-      tol = b_norm(dq);
-      for (ib = 0; ib < 4; ib++) {
-        c_xt[ib] = b_xt->robot_state.att[ib];
-        dq[ib] /= tol;
+      quatmultJ(dv17, c_xt, b_xt->robot_state.att);
+      for (i40 = 0; i40 < 3; i40++) {
+        b_xt->robot_state.vel[i40] += x_apo_data[6 + i40];
+        b_xt->robot_state.IMU.gyro_bias[i40] += x_apo_data[9 + i40];
+        b_xt->robot_state.IMU.acc_bias[i40] += x_apo_data[12 + i40];
       }
 
-      quatmultJ(dq, c_xt, b_xt->robot_state.att);
-      for (i24 = 0; i24 < 3; i24++) {
-        b_xt->robot_state.vel[i24] += x_apo_data[6 + i24];
-        b_xt->robot_state.IMU.gyro_bias[i24] += x_apo_data[9 + i24];
-        b_xt->robot_state.IMU.acc_bias[i24] += x_apo_data[12 + i24];
+      quatPlusThetaJ(*(double (*)[3])&x_apo_data[15], dv17);
+      for (ii = 0; ii < 4; ii++) {
+        c_xt[ii] = b_xt->origin.att[ii];
       }
 
-      theta = norm(*(float (*)[3])&x_apo_data[15]) * 0.5F;
-      if (theta < 0.244F) {
-        for (i24 = 0; i24 < 3; i24++) {
-          dq[i24] = 0.5F * x_apo_data[15 + i24];
-        }
-
-        dq[3] = 1.0F;
-      } else {
-        dq[0] = 0.5F * x_apo_data[15] * (float)sin((double)theta) / theta;
-        dq[1] = 0.5F * x_apo_data[16] * (float)sin((double)theta) / theta;
-        dq[2] = 0.5F * x_apo_data[17] * (float)sin((double)theta) / theta;
-        dq[3] = (float)cos((double)theta);
+      quatmultJ(dv17, c_xt, b_xt->origin.att);
+      quatPlusThetaJ(*(double (*)[3])&x_apo_data[18], dv17);
+      for (ii = 0; ii < 4; ii++) {
+        c_xt[ii] = b_xt->robot_state.IMU.att[ii];
       }
 
-      tol = b_norm(dq);
-      for (ib = 0; ib < 4; ib++) {
-        c_xt[ib] = b_xt->origin.att[ib];
-        dq[ib] /= tol;
-      }
-
-      quatmultJ(dq, c_xt, b_xt->origin.att);
-      theta = norm(*(float (*)[3])&x_apo_data[18]) * 0.5F;
-      if (theta < 0.244F) {
-        for (i24 = 0; i24 < 3; i24++) {
-          dq[i24] = 0.5F * x_apo_data[18 + i24];
-        }
-
-        dq[3] = 1.0F;
-      } else {
-        dq[0] = 0.5F * x_apo_data[18] * (float)sin((double)theta) / theta;
-        dq[1] = 0.5F * x_apo_data[19] * (float)sin((double)theta) / theta;
-        dq[2] = 0.5F * x_apo_data[20] * (float)sin((double)theta) / theta;
-        dq[3] = (float)cos((double)theta);
-      }
-
-      tol = b_norm(dq);
-      for (ib = 0; ib < 4; ib++) {
-        c_xt[ib] = b_xt->robot_state.IMU.att[ib];
-        dq[ib] /= tol;
-      }
-
-      quatmultJ(dq, c_xt, b_xt->robot_state.IMU.att);
-      for (i24 = 0; i24 < 3; i24++) {
-        b_xt->robot_state.IMU.pos[i24] += x_apo_data[21 + i24];
+      quatmultJ(dv17, c_xt, b_xt->robot_state.IMU.att);
+      for (i40 = 0; i40 < 3; i40++) {
+        b_xt->robot_state.IMU.pos[i40] += x_apo_data[21 + i40];
       }
 
       for (anchorIdx = 0; anchorIdx < 5; anchorIdx++) {
-        f_c = anchorIdx * 14 + 21;
-        ar = 21 + anchorIdx * 14;
-        for (i24 = 0; i24 < 3; i24++) {
-          b_xt->anchor_states[anchorIdx].pos[i24] += x_apo_data[i24 + f_c];
-          fp_scaled[i24] = x_apo_data[(i24 + ar) + 3];
+        i40 = anchorIdx * 14;
+        i41 = anchorIdx * 14;
+        for (idx = 0; idx < 3; idx++) {
+          b_xt->anchor_states[anchorIdx].pos[idx] += x_apo_data[(idx + i40) + 21];
+          c_x_apo[idx] = x_apo_data[(idx + i41) + 24];
         }
 
-        theta = norm(fp_scaled) * 0.5F;
-        if (theta < 0.244F) {
-          for (ib = 0; ib < 3; ib++) {
-            dq[ib] = 0.5F * fp_scaled[ib];
-          }
-
-          dq[3] = 1.0F;
-        } else {
-          dq[0] = 0.5F * x_apo_data[ar + 3] * (float)sin((double)theta) / theta;
-          dq[1] = 0.5F * x_apo_data[ar + 4] * (float)sin((double)theta) / theta;
-          dq[2] = 0.5F * x_apo_data[ar + 5] * (float)sin((double)theta) / theta;
-          dq[3] = (float)cos((double)theta);
+        for (ii = 0; ii < 4; ii++) {
+          c_xt[ii] = b_xt->anchor_states[anchorIdx].att[ii];
         }
 
-        tol = b_norm(dq);
-        for (ib = 0; ib < 4; ib++) {
-          c_xt[ib] = b_xt->anchor_states[anchorIdx].att[ib];
-          dq[ib] /= tol;
-        }
-
-        quatmultJ(dq, c_xt, b_xt->anchor_states[anchorIdx].att);
+        quatPlusThetaJ(c_x_apo, dv24);
+        quatmultJ(dv24, c_xt, b_xt->anchor_states[anchorIdx].att);
         for (featureIdx = 0; featureIdx < 8; featureIdx++) {
           if (b_xt->anchor_states[anchorIdx].feature_states[featureIdx].status ==
               1) {
@@ -2652,7 +1791,7 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, float b_P[8281], const float
               b_xt->anchor_states[anchorIdx].feature_states[featureIdx].
                 inverse_depth += x_apo_data[(anchorIdx * 14 + featureIdx) + 27];
               if ((b_xt->anchor_states[anchorIdx].feature_states[featureIdx].
-                   inverse_depth < 0.0F) && (it ==
+                   inverse_depth < 0.0) && (it ==
                    c_VIOParameters_max_ekf_iterati)) {
                 //  only reject if we are done iterating
                 updateVect[b_xt->anchor_states[anchorIdx]
@@ -2686,60 +1825,71 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, float b_P[8281], const float
       it++;
     }
 
-    emxFree_real32_T(&e_H);
-    emxFree_real32_T(&d_H);
-    emxFree_real32_T(&c_H);
-    emxFree_real32_T(&n_c);
-    emxFree_real32_T(&m_c);
-    emxFree_real32_T(&l_c);
-    emxFree_real32_T(&k_c);
-    emxFree_real32_T(&j_c);
+    emxFree_real_T(&e_H);
+    emxFree_real_T(&d_H);
+    emxFree_real_T(&c_H);
+    emxFree_real_T(&e_C);
+    emxFree_real_T(&h_y);
+    emxFree_real_T(&g_y);
+    emxFree_real_T(&f_y);
+    emxFree_real_T(&d_C);
+    emxFree_real_T(&c_C);
+    emxInit_real_T1(&f_C, 2);
     if ((b_K->size[1] == 1) || (b_H->size[0] == 1)) {
-      br = b_K->size[0];
+      i40 = f_C->size[0] * f_C->size[1];
+      f_C->size[0] = b_K->size[0];
+      f_C->size[1] = b_H->size[1];
+      emxEnsureCapacity((emxArray__common *)f_C, i40, (int)sizeof(double));
       loop_ub = b_K->size[0];
-      for (i24 = 0; i24 < loop_ub; i24++) {
-        ar = b_H->size[1];
-        for (i25 = 0; i25 < ar; i25++) {
-          c_data[i24 + br * i25] = 0.0F;
-          ib = b_K->size[1];
-          for (idx = 0; idx < ib; idx++) {
-            c_data[i24 + br * i25] += b_K->data[i24 + b_K->size[0] * idx] *
-              b_H->data[idx + b_H->size[0] * i25];
+      for (i40 = 0; i40 < loop_ub; i40++) {
+        br = b_H->size[1];
+        for (i41 = 0; i41 < br; i41++) {
+          f_C->data[i40 + f_C->size[0] * i41] = 0.0;
+          ii = b_K->size[1];
+          for (idx = 0; idx < ii; idx++) {
+            f_C->data[i40 + f_C->size[0] * i41] += b_K->data[i40 + b_K->size[0] *
+              idx] * b_H->data[idx + b_H->size[0] * i41];
           }
         }
       }
     } else {
       k = b_K->size[1];
-      H_idx_0 = (unsigned int)b_K->size[0];
-      unnamed_idx_1 = (unsigned int)b_H->size[1];
-      br = (int)H_idx_0;
+      a[0] = (signed char)b_K->size[0];
+      a[1] = (signed char)b_H->size[1];
+      i40 = f_C->size[0] * f_C->size[1];
+      f_C->size[0] = (int)a[0];
+      f_C->size[1] = (int)a[1];
+      emxEnsureCapacity((emxArray__common *)f_C, i40, (int)sizeof(double));
       b_m = b_K->size[0];
-      loop_ub = (int)unnamed_idx_1;
-      for (i24 = 0; i24 < loop_ub; i24++) {
-        for (i25 = 0; i25 < br; i25++) {
-          c_data[i25 + (int)H_idx_0 * i24] = 0.0F;
+      i40 = f_C->size[0] * f_C->size[1];
+      emxEnsureCapacity((emxArray__common *)f_C, i40, (int)sizeof(double));
+      loop_ub = f_C->size[1];
+      for (i40 = 0; i40 < loop_ub; i40++) {
+        br = f_C->size[0];
+        for (i41 = 0; i41 < br; i41++) {
+          f_C->data[i41 + f_C->size[0] * i40] = 0.0;
         }
       }
 
-      f_c = b_K->size[0] * (b_H->size[1] - 1);
-      for (idx = 0; idx <= f_c; idx += b_m) {
-        i24 = idx + b_m;
-        for (ic = idx; ic + 1 <= i24; ic++) {
-          c_data[ic] = 0.0F;
+      ii = b_K->size[0] * (b_H->size[1] - 1);
+      for (idx = 0; idx <= ii; idx += b_m) {
+        i40 = idx + b_m;
+        for (ic = idx; ic + 1 <= i40; ic++) {
+          f_C->data[ic] = 0.0;
         }
       }
 
       br = 0;
-      for (idx = 0; idx <= f_c; idx += b_m) {
+      for (idx = 0; idx <= ii; idx += b_m) {
         ar = 0;
-        i24 = br + k;
-        for (ib = br; ib + 1 <= i24; ib++) {
-          if (b_H->data[ib] != 0.0F) {
+        i40 = br + k;
+        for (ib = br; ib + 1 <= i40; ib++) {
+          if (b_H->data[ib] != 0.0) {
             ia = ar;
-            i25 = idx + b_m;
-            for (ic = idx; ic + 1 <= i25; ic++) {
+            i41 = idx + b_m;
+            for (ic = idx; ic + 1 <= i41; ic++) {
               ia++;
-              c_data[ic] += b_H->data[ib] * b_K->data[ia - 1];
+              f_C->data[ic] += b_H->data[ib] * b_K->data[ia - 1];
             }
           }
 
@@ -2750,64 +1900,63 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, float b_P[8281], const float
       }
     }
 
-    emxFree_real32_T(&b_H);
-    emxFree_real32_T(&b_K);
-    for (i24 = 0; i24 < 91; i24++) {
-      for (i25 = 0; i25 < 91; i25++) {
-        fv14[i25 + 91 * i24] = (float)iv14[i25 + 91 * i24] - c_data[i25 + 91 *
-          i24];
+    emxFree_real_T(&b_H);
+    emxFree_real_T(&b_K);
+    c_eye(dv21);
+    for (i40 = 0; i40 < 91; i40++) {
+      for (i41 = 0; i41 < 91; i41++) {
+        dv22[i41 + 91 * i40] = dv21[i41 + 91 * i40] - f_C->data[i41 + 91 * i40];
       }
     }
 
-    for (i24 = 0; i24 < 91; i24++) {
-      for (i25 = 0; i25 < 91; i25++) {
-        fv16[i24 + 91 * i25] = 0.0F;
+    emxFree_real_T(&f_C);
+    for (i40 = 0; i40 < 91; i40++) {
+      for (i41 = 0; i41 < 91; i41++) {
+        dv25[i40 + 91 * i41] = 0.0;
         for (idx = 0; idx < 91; idx++) {
-          fv16[i24 + 91 * i25] += fv14[i24 + 91 * idx] * b_P[idx + 91 * i25];
+          dv25[i40 + 91 * i41] += dv22[i40 + 91 * idx] * b_P[idx + 91 * i41];
         }
       }
     }
 
-    for (i24 = 0; i24 < 91; i24++) {
-      memcpy(&b_P[i24 * 91], &fv16[i24 * 91], 91U * sizeof(float));
+    for (i40 = 0; i40 < 91; i40++) {
+      memcpy(&b_P[i40 * 91], &dv25[i40 * 91], 91U * sizeof(double));
     }
   }
 
-  emxFree_real32_T(&b_c);
-  emxFree_real32_T(&c);
-  emxFree_real32_T(&out);
+  emxFree_real_T(&S);
 
   // % Update the delayed initialization features
   if (c_VIOParameters_delayed_initial) {
-    emxInit_real32_T1(&r_c, 2);
+    emxInit_real_T1(&i_y, 2);
     getScaledMap(b_xt);
     getH_R_res(b_xt->robot_state.pos, b_xt->robot_state.att, b_xt->anchor_states,
                z_u_l, delayedFeatures, cameraparams_FocalLength,
-               cameraparams_PrincipalPoint, noiseParameters_image_noise, r, H, S);
+               cameraparams_PrincipalPoint, noiseParameters_image_noise, r, H, R);
     H_idx_0 = (unsigned int)H->size[0];
-    i24 = r_c->size[0] * r_c->size[1];
-    r_c->size[0] = (int)H_idx_0;
-    r_c->size[1] = 91;
-    emxEnsureCapacity((emxArray__common *)r_c, i24, (int)sizeof(float));
+    i40 = i_y->size[0] * i_y->size[1];
+    i_y->size[0] = (int)H_idx_0;
+    i_y->size[1] = 91;
+    emxEnsureCapacity((emxArray__common *)i_y, i40, (int)sizeof(double));
     b_m = H->size[0];
-    i24 = r_c->size[0] * r_c->size[1];
-    r_c->size[1] = 91;
-    emxEnsureCapacity((emxArray__common *)r_c, i24, (int)sizeof(float));
-    for (i24 = 0; i24 < 91; i24++) {
-      loop_ub = r_c->size[0];
-      for (i25 = 0; i25 < loop_ub; i25++) {
-        r_c->data[i25 + r_c->size[0] * i24] = 0.0F;
+    i40 = i_y->size[0] * i_y->size[1];
+    i_y->size[1] = 91;
+    emxEnsureCapacity((emxArray__common *)i_y, i40, (int)sizeof(double));
+    for (i40 = 0; i40 < 91; i40++) {
+      loop_ub = i_y->size[0];
+      for (i41 = 0; i41 < loop_ub; i41++) {
+        i_y->data[i41 + i_y->size[0] * i40] = 0.0;
       }
     }
 
     if (H->size[0] == 0) {
     } else {
-      f_c = H->size[0] * 90;
+      ii = H->size[0] * 90;
       idx = 0;
-      while ((b_m > 0) && (idx <= f_c)) {
-        i24 = idx + b_m;
-        for (ic = idx; ic + 1 <= i24; ic++) {
-          r_c->data[ic] = 0.0F;
+      while ((b_m > 0) && (idx <= ii)) {
+        i40 = idx + b_m;
+        for (ic = idx; ic + 1 <= i40; ic++) {
+          i_y->data[ic] = 0.0;
         }
 
         idx += b_m;
@@ -2815,15 +1964,15 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, float b_P[8281], const float
 
       br = 0;
       idx = 0;
-      while ((b_m > 0) && (idx <= f_c)) {
+      while ((b_m > 0) && (idx <= ii)) {
         ar = 0;
         for (ib = br; ib + 1 <= br + 91; ib++) {
-          if (b_P[ib] != 0.0F) {
+          if (b_P[ib] != 0.0) {
             ia = ar;
-            i24 = idx + b_m;
-            for (ic = idx; ic + 1 <= i24; ic++) {
+            i40 = idx + b_m;
+            for (ic = idx; ic + 1 <= i40; ic++) {
               ia++;
-              r_c->data[ic] += b_P[ib] * H->data[ia - 1];
+              i_y->data[ic] += b_P[ib] * H->data[ia - 1];
             }
           }
 
@@ -2835,43 +1984,43 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, float b_P[8281], const float
       }
     }
 
-    i24 = K->size[0] * K->size[1];
+    i40 = K->size[0] * K->size[1];
     K->size[0] = 91;
     K->size[1] = H->size[0];
-    emxEnsureCapacity((emxArray__common *)K, i24, (int)sizeof(float));
+    emxEnsureCapacity((emxArray__common *)K, i40, (int)sizeof(double));
     loop_ub = H->size[0];
-    for (i24 = 0; i24 < loop_ub; i24++) {
-      for (i25 = 0; i25 < 91; i25++) {
-        K->data[i25 + K->size[0] * i24] = H->data[i24 + H->size[0] * i25];
+    for (i40 = 0; i40 < loop_ub; i40++) {
+      for (i41 = 0; i41 < 91; i41++) {
+        K->data[i41 + K->size[0] * i40] = H->data[i40 + H->size[0] * i41];
       }
     }
 
-    emxInit_real32_T1(&s_c, 2);
-    H_idx_0 = (unsigned int)r_c->size[0];
-    unnamed_idx_1 = (unsigned int)K->size[1];
-    i24 = s_c->size[0] * s_c->size[1];
-    s_c->size[0] = (int)H_idx_0;
-    s_c->size[1] = (int)unnamed_idx_1;
-    emxEnsureCapacity((emxArray__common *)s_c, i24, (int)sizeof(float));
-    b_m = r_c->size[0];
-    i24 = s_c->size[0] * s_c->size[1];
-    emxEnsureCapacity((emxArray__common *)s_c, i24, (int)sizeof(float));
-    loop_ub = s_c->size[1];
-    for (i24 = 0; i24 < loop_ub; i24++) {
-      ar = s_c->size[0];
-      for (i25 = 0; i25 < ar; i25++) {
-        s_c->data[i25 + s_c->size[0] * i24] = 0.0F;
+    emxInit_real_T1(&g_C, 2);
+    a[0] = (unsigned int)i_y->size[0];
+    a[1] = (unsigned int)K->size[1];
+    i40 = g_C->size[0] * g_C->size[1];
+    g_C->size[0] = (int)a[0];
+    g_C->size[1] = (int)a[1];
+    emxEnsureCapacity((emxArray__common *)g_C, i40, (int)sizeof(double));
+    b_m = i_y->size[0];
+    i40 = g_C->size[0] * g_C->size[1];
+    emxEnsureCapacity((emxArray__common *)g_C, i40, (int)sizeof(double));
+    loop_ub = g_C->size[1];
+    for (i40 = 0; i40 < loop_ub; i40++) {
+      br = g_C->size[0];
+      for (i41 = 0; i41 < br; i41++) {
+        g_C->data[i41 + g_C->size[0] * i40] = 0.0;
       }
     }
 
-    if ((r_c->size[0] == 0) || (K->size[1] == 0)) {
+    if ((i_y->size[0] == 0) || (K->size[1] == 0)) {
     } else {
-      f_c = r_c->size[0] * (K->size[1] - 1);
+      ii = i_y->size[0] * (K->size[1] - 1);
       idx = 0;
-      while ((b_m > 0) && (idx <= f_c)) {
-        i24 = idx + b_m;
-        for (ic = idx; ic + 1 <= i24; ic++) {
-          s_c->data[ic] = 0.0F;
+      while ((b_m > 0) && (idx <= ii)) {
+        i40 = idx + b_m;
+        for (ic = idx; ic + 1 <= i40; ic++) {
+          g_C->data[ic] = 0.0;
         }
 
         idx += b_m;
@@ -2879,15 +2028,15 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, float b_P[8281], const float
 
       br = 0;
       idx = 0;
-      while ((b_m > 0) && (idx <= f_c)) {
+      while ((b_m > 0) && (idx <= ii)) {
         ar = 0;
         for (ib = br; ib + 1 <= br + 91; ib++) {
-          if (K->data[ib] != 0.0F) {
+          if (K->data[ib] != 0.0) {
             ia = ar;
-            i24 = idx + b_m;
-            for (ic = idx; ic + 1 <= i24; ic++) {
+            i40 = idx + b_m;
+            for (ic = idx; ic + 1 <= i40; ic++) {
               ia++;
-              s_c->data[ic] += K->data[ib] * r_c->data[ia - 1];
+              g_C->data[ic] += K->data[ib] * i_y->data[ia - 1];
             }
           }
 
@@ -2899,60 +2048,50 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, float b_P[8281], const float
       }
     }
 
-    emxFree_real32_T(&r_c);
-    i24 = S->size[0] * S->size[1];
-    S->size[0] = s_c->size[0];
-    S->size[1] = s_c->size[1];
-    emxEnsureCapacity((emxArray__common *)S, i24, (int)sizeof(float));
-    loop_ub = s_c->size[0] * s_c->size[1];
-    for (i24 = 0; i24 < loop_ub; i24++) {
-      S->data[i24] += s_c->data[i24];
-    }
-
-    emxFree_real32_T(&s_c);
-    i24 = K->size[0] * K->size[1];
+    emxFree_real_T(&i_y);
+    i40 = K->size[0] * K->size[1];
     K->size[0] = 91;
     K->size[1] = H->size[0];
-    emxEnsureCapacity((emxArray__common *)K, i24, (int)sizeof(float));
+    emxEnsureCapacity((emxArray__common *)K, i40, (int)sizeof(double));
     loop_ub = H->size[0];
-    for (i24 = 0; i24 < loop_ub; i24++) {
-      for (i25 = 0; i25 < 91; i25++) {
-        K->data[i25 + K->size[0] * i24] = H->data[i24 + H->size[0] * i25];
+    for (i40 = 0; i40 < loop_ub; i40++) {
+      for (i41 = 0; i41 < 91; i41++) {
+        K->data[i41 + K->size[0] * i40] = H->data[i40 + H->size[0] * i41];
       }
     }
 
-    emxInit_real32_T1(&t_c, 2);
-    unnamed_idx_1 = (unsigned int)K->size[1];
-    i24 = t_c->size[0] * t_c->size[1];
-    t_c->size[0] = 91;
-    t_c->size[1] = (int)unnamed_idx_1;
-    t_c->size[0] = 91;
-    emxEnsureCapacity((emxArray__common *)t_c, i24, (int)sizeof(float));
-    loop_ub = t_c->size[1];
-    for (i24 = 0; i24 < loop_ub; i24++) {
-      for (i25 = 0; i25 < 91; i25++) {
-        t_c->data[i25 + t_c->size[0] * i24] = 0.0F;
+    emxInit_real_T1(&j_y, 2);
+    H_idx_0 = (unsigned int)K->size[1];
+    i40 = j_y->size[0] * j_y->size[1];
+    j_y->size[0] = 91;
+    j_y->size[1] = (int)H_idx_0;
+    j_y->size[0] = 91;
+    emxEnsureCapacity((emxArray__common *)j_y, i40, (int)sizeof(double));
+    loop_ub = j_y->size[1];
+    for (i40 = 0; i40 < loop_ub; i40++) {
+      for (i41 = 0; i41 < 91; i41++) {
+        j_y->data[i41 + j_y->size[0] * i40] = 0.0;
       }
     }
 
     if (K->size[1] == 0) {
     } else {
-      f_c = 91 * (K->size[1] - 1);
-      for (idx = 0; idx <= f_c; idx += 91) {
-        for (ic = idx + 1; ic <= idx + 91; ic++) {
-          t_c->data[ic - 1] = 0.0F;
+      ii = 91 * (K->size[1] - 1);
+      for (idx = 0; idx <= ii; idx += 91) {
+        for (ic = idx; ic + 1 <= idx + 91; ic++) {
+          j_y->data[ic] = 0.0;
         }
       }
 
       br = 0;
-      for (idx = 0; idx <= f_c; idx += 91) {
+      for (idx = 0; idx <= ii; idx += 91) {
         ar = 0;
         for (ib = br; ib + 1 <= br + 91; ib++) {
-          if (K->data[ib] != 0.0F) {
+          if (K->data[ib] != 0.0) {
             ia = ar;
             for (ic = idx; ic + 1 <= idx + 91; ic++) {
               ia++;
-              t_c->data[ic] += K->data[ib] * b_P[ia - 1];
+              j_y->data[ic] += K->data[ib] * b_P[ia - 1];
             }
           }
 
@@ -2963,151 +2102,34 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, float b_P[8281], const float
       }
     }
 
-    if ((t_c->size[1] == 0) || ((S->size[0] == 0) || (S->size[1] == 0))) {
-      unnamed_idx_1 = (unsigned int)S->size[0];
-      i24 = K->size[0] * K->size[1];
-      K->size[0] = 91;
-      K->size[1] = (int)unnamed_idx_1;
-      emxEnsureCapacity((emxArray__common *)K, i24, (int)sizeof(float));
-      loop_ub = 91 * (int)unnamed_idx_1;
-      for (i24 = 0; i24 < loop_ub; i24++) {
-        K->data[i24] = 0.0F;
-      }
-    } else if (S->size[0] == S->size[1]) {
-      i24 = K->size[0] * K->size[1];
-      K->size[0] = 91;
-      K->size[1] = t_c->size[1];
-      emxEnsureCapacity((emxArray__common *)K, i24, (int)sizeof(float));
-      loop_ub = t_c->size[0] * t_c->size[1];
-      for (i24 = 0; i24 < loop_ub; i24++) {
-        K->data[i24] = t_c->data[i24];
-      }
-
-      lusolve(S, K);
-    } else {
-      i24 = A->size[0] * A->size[1];
-      A->size[0] = S->size[1];
-      A->size[1] = S->size[0];
-      emxEnsureCapacity((emxArray__common *)A, i24, (int)sizeof(float));
-      loop_ub = S->size[0];
-      for (i24 = 0; i24 < loop_ub; i24++) {
-        ar = S->size[1];
-        for (i25 = 0; i25 < ar; i25++) {
-          A->data[i25 + A->size[0] * i24] = S->data[i24 + S->size[0] * i25];
-        }
-      }
-
-      xgeqp3(A, tau, jpvt);
-      ia = 0;
-      if (A->size[0] < A->size[1]) {
-        br = A->size[0];
-        idx = A->size[1];
-      } else {
-        br = A->size[1];
-        idx = A->size[0];
-      }
-
-      if (br > 0) {
-        tol = (float)idx * (float)fabs((double)A->data[0]) * 1.1920929E-7F;
-        while ((ia < br) && ((float)fabs((double)A->data[ia + A->size[0] * ia]) >=
-                             tol)) {
-          ia++;
-        }
-      }
-
-      idx = A->size[1];
-      i24 = Y->size[0] * Y->size[1];
-      Y->size[0] = idx;
-      Y->size[1] = 91;
-      emxEnsureCapacity((emxArray__common *)Y, i24, (int)sizeof(float));
-      loop_ub = idx * 91;
-      for (i24 = 0; i24 < loop_ub; i24++) {
-        Y->data[i24] = 0.0F;
-      }
-
-      i24 = B->size[0] * B->size[1];
-      B->size[0] = t_c->size[1];
-      B->size[1] = 91;
-      emxEnsureCapacity((emxArray__common *)B, i24, (int)sizeof(float));
-      for (i24 = 0; i24 < 91; i24++) {
-        loop_ub = t_c->size[1];
-        for (i25 = 0; i25 < loop_ub; i25++) {
-          B->data[i25 + B->size[0] * i24] = t_c->data[i24 + t_c->size[0] * i25];
-        }
-      }
-
-      b_m = A->size[0];
-      idx = A->size[0];
-      br = A->size[1];
-      if (idx <= br) {
-        br = idx;
-      }
-
-      for (idx = 0; idx + 1 <= br; idx++) {
-        if (tau->data[idx] != 0.0F) {
-          for (k = 0; k < 91; k++) {
-            tol = B->data[idx + B->size[0] * k];
-            for (ib = idx + 1; ib + 1 <= b_m; ib++) {
-              tol += A->data[ib + A->size[0] * idx] * B->data[ib + B->size[0] *
-                k];
-            }
-
-            tol *= tau->data[idx];
-            if (tol != 0.0F) {
-              B->data[idx + B->size[0] * k] -= tol;
-              for (ib = idx + 1; ib + 1 <= b_m; ib++) {
-                B->data[ib + B->size[0] * k] -= A->data[ib + A->size[0] * idx] *
-                  tol;
-              }
-            }
-          }
-        }
-      }
-
-      for (k = 0; k < 91; k++) {
-        for (ib = 0; ib + 1 <= ia; ib++) {
-          Y->data[(jpvt->data[ib] + Y->size[0] * k) - 1] = B->data[ib + B->size
-            [0] * k];
-        }
-
-        for (idx = ia - 1; idx + 1 > 0; idx--) {
-          Y->data[(jpvt->data[idx] + Y->size[0] * k) - 1] /= A->data[idx +
-            A->size[0] * idx];
-          for (ib = 0; ib + 1 <= idx; ib++) {
-            Y->data[(jpvt->data[ib] + Y->size[0] * k) - 1] -= Y->data
-              [(jpvt->data[idx] + Y->size[0] * k) - 1] * A->data[ib + A->size[0]
-              * idx];
-          }
-        }
-      }
-
-      i24 = K->size[0] * K->size[1];
-      K->size[0] = 91;
-      K->size[1] = Y->size[0];
-      emxEnsureCapacity((emxArray__common *)K, i24, (int)sizeof(float));
-      loop_ub = Y->size[0];
-      for (i24 = 0; i24 < loop_ub; i24++) {
-        for (i25 = 0; i25 < 91; i25++) {
-          K->data[i25 + K->size[0] * i24] = Y->data[i24 + Y->size[0] * i25];
-        }
-      }
+    emxInit_real_T1(&h_C, 2);
+    i40 = h_C->size[0] * h_C->size[1];
+    h_C->size[0] = g_C->size[0];
+    h_C->size[1] = g_C->size[1];
+    emxEnsureCapacity((emxArray__common *)h_C, i40, (int)sizeof(double));
+    loop_ub = g_C->size[0] * g_C->size[1];
+    for (i40 = 0; i40 < loop_ub; i40++) {
+      h_C->data[i40] = g_C->data[i40] + R->data[i40];
     }
 
-    emxFree_real32_T(&t_c);
+    emxFree_real_T(&g_C);
+    mrdivide(j_y, h_C, K);
+    emxFree_real_T(&h_C);
+    emxFree_real_T(&j_y);
     if ((K->size[1] == 1) || (r->size[0] == 1)) {
-      for (i24 = 0; i24 < 91; i24++) {
-        x_apo[i24] = 0.0F;
+      for (i40 = 0; i40 < 91; i40++) {
+        x_apo[i40] = 0.0;
         loop_ub = K->size[1];
-        for (i25 = 0; i25 < loop_ub; i25++) {
-          b_x_apo = x_apo[i24] + K->data[i24 + K->size[0] * i25] * r->data[i25];
-          x_apo[i24] = b_x_apo;
+        for (i41 = 0; i41 < loop_ub; i41++) {
+          b_x_apo = x_apo[i40] + K->data[i40 + K->size[0] * i41] * r->data[i41];
+          x_apo[i40] = b_x_apo;
         }
       }
     } else {
-      memset(&x_apo[0], 0, 91U * sizeof(float));
+      memset(&x_apo[0], 0, 91U * sizeof(double));
       ar = 0;
       for (ib = 0; ib + 1 <= K->size[1]; ib++) {
-        if (r->data[ib] != 0.0F) {
+        if (r->data[ib] != 0.0) {
           ia = ar;
           for (ic = 0; ic < 91; ic++) {
             ia++;
@@ -3131,35 +2153,35 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, float b_P[8281], const float
     }
 
     if ((K->size[1] == 1) || (H->size[0] == 1)) {
-      for (i24 = 0; i24 < 91; i24++) {
-        for (i25 = 0; i25 < 91; i25++) {
-          i_c[i24 + 91 * i25] = 0.0F;
+      for (i40 = 0; i40 < 91; i40++) {
+        for (i41 = 0; i41 < 91; i41++) {
+          e_y[i40 + 91 * i41] = 0.0;
           loop_ub = K->size[1];
           for (idx = 0; idx < loop_ub; idx++) {
-            i_c[i24 + 91 * i25] += K->data[i24 + K->size[0] * idx] * H->data[idx
-              + H->size[0] * i25];
+            e_y[i40 + 91 * i41] += K->data[i40 + K->size[0] * idx] * H->data[idx
+              + H->size[0] * i41];
           }
         }
       }
     } else {
       k = K->size[1];
-      memset(&i_c[0], 0, 8281U * sizeof(float));
+      memset(&e_y[0], 0, 8281U * sizeof(double));
       for (idx = 0; idx <= 8191; idx += 91) {
         for (ic = idx; ic + 1 <= idx + 91; ic++) {
-          i_c[ic] = 0.0F;
+          e_y[ic] = 0.0;
         }
       }
 
       br = 0;
       for (idx = 0; idx <= 8191; idx += 91) {
         ar = 0;
-        i24 = br + k;
-        for (ib = br; ib + 1 <= i24; ib++) {
-          if (H->data[ib] != 0.0F) {
+        i40 = br + k;
+        for (ib = br; ib + 1 <= i40; ib++) {
+          if (H->data[ib] != 0.0) {
             ia = ar;
             for (ic = idx; ic + 1 <= idx + 91; ic++) {
               ia++;
-              i_c[ic] += H->data[ib] * K->data[ia - 1];
+              e_y[ic] += H->data[ib] * K->data[ia - 1];
             }
           }
 
@@ -3170,499 +2192,810 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, float b_P[8281], const float
       }
     }
 
-    for (i24 = 0; i24 < 91; i24++) {
-      for (i25 = 0; i25 < 91; i25++) {
-        fv14[i25 + 91 * i24] = (float)iv14[i25 + 91 * i24] - i_c[i25 + 91 * i24];
+    c_eye(dv21);
+    for (i40 = 0; i40 < 91; i40++) {
+      for (i41 = 0; i41 < 91; i41++) {
+        dv22[i41 + 91 * i40] = dv21[i41 + 91 * i40] - e_y[i41 + 91 * i40];
       }
     }
 
-    for (i24 = 0; i24 < 91; i24++) {
-      for (i25 = 0; i25 < 91; i25++) {
-        fv17[i24 + 91 * i25] = 0.0F;
+    for (i40 = 0; i40 < 91; i40++) {
+      for (i41 = 0; i41 < 91; i41++) {
+        dv26[i40 + 91 * i41] = 0.0;
         for (idx = 0; idx < 91; idx++) {
-          fv17[i24 + 91 * i25] += fv14[i24 + 91 * idx] * b_P[idx + 91 * i25];
+          dv26[i40 + 91 * i41] += dv22[i40 + 91 * idx] * b_P[idx + 91 * i41];
         }
       }
     }
 
-    for (i24 = 0; i24 < 91; i24++) {
-      memcpy(&b_P[i24 * 91], &fv17[i24 * 91], 91U * sizeof(float));
+    for (i40 = 0; i40 < 91; i40++) {
+      memcpy(&b_P[i40 * 91], &dv26[i40 * 91], 91U * sizeof(double));
     }
   }
 
-  emxFree_real32_T(&B);
-  emxFree_int32_T(&jpvt);
-  emxFree_real32_T(&tau);
-  emxFree_real32_T(&A);
-  emxFree_real32_T(&Y);
-  emxFree_real32_T(&H);
-  emxFree_real32_T(&r);
-  emxFree_real32_T(&K);
-  emxFree_real32_T(&S);
+  emxFree_real_T(&R);
+  emxFree_real_T(&H);
+  emxFree_real_T(&r);
+  emxFree_real_T(&K);
 
   // %
 }
 
 //
-// % Iterative Camera Pose optimization (EKF)
-// Arguments    : float P_apr[8281]
-//                g_struct_T *b_xt
-//                const float c_cameraParams_CameraParameters[2]
-//                const float d_cameraParams_CameraParameters[2]
-//                const float e_cameraParams_CameraParameters[3]
-//                const float f_cameraParams_CameraParameters[2]
-//                const float g_cameraParams_CameraParameters[2]
-//                const float h_cameraParams_CameraParameters[3]
-//                const float cameraParams_r_lr[3]
-//                const float cameraParams_R_lr[9]
-//                const float cameraParams_R_rl[9]
-//                int updateVect[40]
-//                float z_all_l[80]
-//                float z_all_r[80]
-//                float noiseParameters_image_noise
-//                float c_noiseParameters_inv_depth_ini
-//                const VIOParameters b_VIOParameters
-//                float h_u_apo[160]
-//                float b_map[120]
-//                float b_delayedStatus[40]
+// THIS IS OK, It is according to the NASA memo found
+//  https://claraty.jpl.nasa.gov/man/software/development/conventions/standards_docs/unadopted/JPL_Quaternions_Breckenridge.pdf
+// QUATFROMROTJ Get equivalent quaternion of the rotation matrix R
+//    Returns a quaternion in JPL notation
+//  The implementation is copied from qGetQ(R), but we are careful about the
+//  ordering of the output vector
+//  Q = [0;0;0;1];
+//  % [r,c] = size( R );
+//  % if( r ~= 3 || c ~= 3 )
+//  %     error( 'R must be a 3x3 matrix\n\r' );
+//  % end
+//
+//  if abs(det(R) - 1) > 1e-2
+//      error('The provided matrix is not a valid rotation matrix. It must have det(R) = 1, but is %i.', det(R))
+//  end
+//  T = R(1,1)+R(2,2)+R(3,3);
+//  pivot = zeros(4,1);
+//  pivot(1) = sqrt(max(1+2*R(1,1)-T, eps))/2;
+//  pivot(2) = sqrt(max(1+2*R(2,2)-T, eps))/2;
+//  pivot(3) = sqrt(max(1+2*R(3,3)-T, eps))/2;
+//  pivot(4) = sqrt(max(1+T, eps))/2;
+//  if ~all(isreal(pivot))
+//      error('complex')
+//  end
+//  index = round(find(pivot==max(pivot)));
+//  if(index(1)==1)
+//      Q(1) = sqrt(1+2*R(1,1)-T)/2;
+//      Q(2) = (R(1,2)+R(2,1))/(4*(Q(1)));
+//      Q(3) = (R(1,3)+R(3,1))/(4*(Q(1)));
+//      Q(4) = (R(2,3)-R(3,2))/(4*(Q(1)));
+//  elseif(index(1)==2)
+//      Q(2) = sqrt(1+2*R(2,2)-T)/2;
+//      Q(1) = (R(1,2)+R(2,1))/(4*Q(2));
+//      Q(3) = (R(2,3)+R(3,2))/(4*Q(2));
+//      Q(4) = (R(3,1)-R(1,3))/(4*Q(2));
+//  elseif(index(1)==3)
+//      Q(3) = sqrt(1+2*R(3,3)-T)/2;
+//      Q(1) = (R(1,3)+R(3,1))/(4*Q(3));
+//      Q(2) = (R(2,3)+R(3,2))/(4*Q(3));
+//      Q(4) = (R(1,2)-R(2,1))/(4*Q(3));
+//  elseif(index(1)==4)
+//      Q(4) = sqrt(1+T)/2;
+//      Q(1) = (R(2,3)-R(3,2))/(4*Q(4));
+//      Q(2) = (R(3,1)-R(1,3))/(4*Q(4));
+//      Q(3) = (R(1,2)-R(2,1))/(4*Q(4));
+//  end
+// Arguments    : const double R[9]
+//                double Q[4]
 // Return Type  : void
 //
-static void SLAM_upd(float P_apr[8281], g_struct_T *b_xt, const float
-                     c_cameraParams_CameraParameters[2], const float
-                     d_cameraParams_CameraParameters[2], const float
-                     e_cameraParams_CameraParameters[3], const float
-                     f_cameraParams_CameraParameters[2], const float
-                     g_cameraParams_CameraParameters[2], const float
-                     h_cameraParams_CameraParameters[3], const float
-                     cameraParams_r_lr[3], const float cameraParams_R_lr[9],
-                     const float cameraParams_R_rl[9], int updateVect[40], float
-                     z_all_l[80], float z_all_r[80], float
-                     noiseParameters_image_noise, float
+static void QuatFromRotJ(const double R[9], double Q[4])
+{
+  double varargin_1[4];
+  int ixstart;
+  double mtmp;
+  int itmp;
+  int ix;
+  boolean_T exitg1;
+
+  // % speed optimization
+  varargin_1[0] = (1.0 + R[0]) - (R[4] + R[8]);
+  varargin_1[1] = (1.0 + R[4]) - (R[0] + R[8]);
+  varargin_1[2] = (1.0 + R[8]) - (R[0] + R[4]);
+  varargin_1[3] = 1.0 + ((R[0] + R[4]) + R[8]);
+  ixstart = 1;
+  mtmp = varargin_1[0];
+  itmp = 1;
+  if (rtIsNaN(varargin_1[0])) {
+    ix = 2;
+    exitg1 = false;
+    while ((!exitg1) && (ix < 5)) {
+      ixstart = ix;
+      if (!rtIsNaN(varargin_1[ix - 1])) {
+        mtmp = varargin_1[ix - 1];
+        itmp = ix;
+        exitg1 = true;
+      } else {
+        ix++;
+      }
+    }
+  }
+
+  if (ixstart < 4) {
+    while (ixstart + 1 < 5) {
+      if (varargin_1[ixstart] > mtmp) {
+        mtmp = varargin_1[ixstart];
+        itmp = ixstart + 1;
+      }
+
+      ixstart++;
+    }
+  }
+
+  if (itmp == 1) {
+    Q[0] = sqrt((1.0 + 2.0 * R[0]) - ((R[0] + R[4]) + R[8])) / 2.0;
+    Q[1] = (R[3] + R[1]) / (4.0 * (sqrt((1.0 + 2.0 * R[0]) - ((R[0] + R[4]) + R
+      [8])) / 2.0));
+    Q[2] = (R[6] + R[2]) / (4.0 * (sqrt((1.0 + 2.0 * R[0]) - ((R[0] + R[4]) + R
+      [8])) / 2.0));
+    Q[3] = (R[7] - R[5]) / (4.0 * (sqrt((1.0 + 2.0 * R[0]) - ((R[0] + R[4]) + R
+      [8])) / 2.0));
+  } else if (itmp == 2) {
+    Q[0] = (R[3] + R[1]) / (4.0 * (sqrt((1.0 + 2.0 * R[4]) - ((R[0] + R[4]) + R
+      [8])) / 2.0));
+    Q[1] = sqrt((1.0 + 2.0 * R[4]) - ((R[0] + R[4]) + R[8])) / 2.0;
+    Q[2] = (R[7] + R[5]) / (4.0 * (sqrt((1.0 + 2.0 * R[4]) - ((R[0] + R[4]) + R
+      [8])) / 2.0));
+    Q[3] = (R[2] - R[6]) / (4.0 * (sqrt((1.0 + 2.0 * R[4]) - ((R[0] + R[4]) + R
+      [8])) / 2.0));
+  } else if (itmp == 3) {
+    Q[0] = (R[6] + R[2]) / (4.0 * (sqrt((1.0 + 2.0 * R[8]) - ((R[0] + R[4]) + R
+      [8])) / 2.0));
+    Q[1] = (R[7] + R[5]) / (4.0 * (sqrt((1.0 + 2.0 * R[8]) - ((R[0] + R[4]) + R
+      [8])) / 2.0));
+    Q[2] = sqrt((1.0 + 2.0 * R[8]) - ((R[0] + R[4]) + R[8])) / 2.0;
+    Q[3] = (R[3] - R[1]) / (4.0 * (sqrt((1.0 + 2.0 * R[8]) - ((R[0] + R[4]) + R
+      [8])) / 2.0));
+  } else {
+    Q[0] = (R[7] - R[5]) / (4.0 * (sqrt(1.0 + ((R[0] + R[4]) + R[8])) / 2.0));
+    Q[1] = (R[2] - R[6]) / (4.0 * (sqrt(1.0 + ((R[0] + R[4]) + R[8])) / 2.0));
+    Q[2] = (R[3] - R[1]) / (4.0 * (sqrt(1.0 + ((R[0] + R[4]) + R[8])) / 2.0));
+    Q[3] = sqrt(1.0 + ((R[0] + R[4]) + R[8])) / 2.0;
+  }
+}
+
+//
+// Arguments    : double P_apo[8281]
+//                g_struct_T *x
+//                double dt
+//                double processNoise_qv
+//                double processNoise_qw
+//                double processNoise_qao
+//                double processNoise_qwo
+//                double processNoise_qR_ci
+//                const double measurements_acc_duo[3]
+//                const double measurements_gyr_duo[3]
+// Return Type  : void
+//
+static void SLAM_pred_euler(double P_apo[8281], g_struct_T *x, double dt, double
+  processNoise_qv, double processNoise_qw, double processNoise_qao, double
+  processNoise_qwo, double processNoise_qR_ci, const double
+  measurements_acc_duo[3], const double measurements_gyr_duo[3])
+{
+  double R_cw[9];
+  double R_ci[9];
+  double b_R_ci[9];
+  int i36;
+  int i;
+  double t_ci[3];
+  double w_imu[3];
+  double R[9];
+  double b_R[9];
+  double b_measurements_acc_duo[3];
+  double w_c[3];
+  double d8;
+  int i37;
+  double b_x[9];
+  double a_c[3];
+  double grav_origin[3];
+  double y[3];
+  static const double b[3] = { 0.0, 0.0, 9.81 };
+
+  double dv6[9];
+  double b_y[3];
+  double c_y[3];
+  double G[315];
+  static const signed char iv3[45] = { -1, 0, 0, 0, -1, 0, 0, 0, -1, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0 };
+
+  static const signed char iv4[45] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0 };
+
+  static const signed char iv5[45] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0,
+    0, 0, 0, 0, 0 };
+
+  static const signed char iv6[45] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0,
+    1, 0, 0, 0, 1 };
+
+  double P_xx_apr[441];
+  double dv7[9];
+  double dv8[9];
+  double dv9[9];
+  double dv10[9];
+  double dv11[9];
+  double dv12[9];
+  double dv13[9];
+  double dv14[9];
+  double Phi[441];
+  static const signed char iv7[63] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+
+  static const signed char iv8[9] = { -1, 0, 0, 0, -1, 0, 0, 0, -1 };
+
+  double b_Phi[441];
+  double b_processNoise_qw[15];
+  double dv15[225];
+  double b_G[315];
+  double c_G[441];
+  double P_xs_apr[1470];
+  double c_x[4];
+  double dv16[4];
+
+  //  if ~all(size(q) == [4, 1])
+  //      error('q does not have the size of a quaternion')
+  //  end
+  //  if abs(norm(q) - 1) > 1e-3
+  //      error('The provided quaternion is not a valid rotation quaternion because it does not have norm 1') 
+  //  end
+  R_cw[0] = ((x->robot_state.att[0] * x->robot_state.att[0] - x->
+              robot_state.att[1] * x->robot_state.att[1]) - x->robot_state.att[2]
+             * x->robot_state.att[2]) + x->robot_state.att[3] *
+    x->robot_state.att[3];
+  R_cw[3] = 2.0 * (x->robot_state.att[0] * x->robot_state.att[1] +
+                   x->robot_state.att[2] * x->robot_state.att[3]);
+  R_cw[6] = 2.0 * (x->robot_state.att[0] * x->robot_state.att[2] -
+                   x->robot_state.att[1] * x->robot_state.att[3]);
+  R_cw[1] = 2.0 * (x->robot_state.att[0] * x->robot_state.att[1] -
+                   x->robot_state.att[2] * x->robot_state.att[3]);
+  R_cw[4] = ((-(x->robot_state.att[0] * x->robot_state.att[0]) +
+              x->robot_state.att[1] * x->robot_state.att[1]) -
+             x->robot_state.att[2] * x->robot_state.att[2]) + x->
+    robot_state.att[3] * x->robot_state.att[3];
+  R_cw[7] = 2.0 * (x->robot_state.att[1] * x->robot_state.att[2] +
+                   x->robot_state.att[0] * x->robot_state.att[3]);
+  R_cw[2] = 2.0 * (x->robot_state.att[0] * x->robot_state.att[2] +
+                   x->robot_state.att[1] * x->robot_state.att[3]);
+  R_cw[5] = 2.0 * (x->robot_state.att[1] * x->robot_state.att[2] -
+                   x->robot_state.att[0] * x->robot_state.att[3]);
+  R_cw[8] = ((-(x->robot_state.att[0] * x->robot_state.att[0]) -
+              x->robot_state.att[1] * x->robot_state.att[1]) +
+             x->robot_state.att[2] * x->robot_state.att[2]) + x->
+    robot_state.att[3] * x->robot_state.att[3];
+
+  //  rotation in origin frame
+  //  if ~all(size(q) == [4, 1])
+  //      error('q does not have the size of a quaternion')
+  //  end
+  //  if abs(norm(q) - 1) > 1e-3
+  //      error('The provided quaternion is not a valid rotation quaternion because it does not have norm 1') 
+  //  end
+  R_ci[0] = ((x->robot_state.IMU.att[0] * x->robot_state.IMU.att[0] -
+              x->robot_state.IMU.att[1] * x->robot_state.IMU.att[1]) -
+             x->robot_state.IMU.att[2] * x->robot_state.IMU.att[2]) +
+    x->robot_state.IMU.att[3] * x->robot_state.IMU.att[3];
+  R_ci[3] = 2.0 * (x->robot_state.IMU.att[0] * x->robot_state.IMU.att[1] +
+                   x->robot_state.IMU.att[2] * x->robot_state.IMU.att[3]);
+  R_ci[6] = 2.0 * (x->robot_state.IMU.att[0] * x->robot_state.IMU.att[2] -
+                   x->robot_state.IMU.att[1] * x->robot_state.IMU.att[3]);
+  R_ci[1] = 2.0 * (x->robot_state.IMU.att[0] * x->robot_state.IMU.att[1] -
+                   x->robot_state.IMU.att[2] * x->robot_state.IMU.att[3]);
+  R_ci[4] = ((-(x->robot_state.IMU.att[0] * x->robot_state.IMU.att[0]) +
+              x->robot_state.IMU.att[1] * x->robot_state.IMU.att[1]) -
+             x->robot_state.IMU.att[2] * x->robot_state.IMU.att[2]) +
+    x->robot_state.IMU.att[3] * x->robot_state.IMU.att[3];
+  R_ci[7] = 2.0 * (x->robot_state.IMU.att[1] * x->robot_state.IMU.att[2] +
+                   x->robot_state.IMU.att[0] * x->robot_state.IMU.att[3]);
+  R_ci[2] = 2.0 * (x->robot_state.IMU.att[0] * x->robot_state.IMU.att[2] +
+                   x->robot_state.IMU.att[1] * x->robot_state.IMU.att[3]);
+  R_ci[5] = 2.0 * (x->robot_state.IMU.att[1] * x->robot_state.IMU.att[2] -
+                   x->robot_state.IMU.att[0] * x->robot_state.IMU.att[3]);
+  R_ci[8] = ((-(x->robot_state.IMU.att[0] * x->robot_state.IMU.att[0]) -
+              x->robot_state.IMU.att[1] * x->robot_state.IMU.att[1]) +
+             x->robot_state.IMU.att[2] * x->robot_state.IMU.att[2]) +
+    x->robot_state.IMU.att[3] * x->robot_state.IMU.att[3];
+
+  //  in camera frame
+  for (i36 = 0; i36 < 3; i36++) {
+    for (i = 0; i < 3; i++) {
+      b_R_ci[i + 3 * i36] = -R_ci[i36 + 3 * i];
+    }
+  }
+
+  //  in imu frame
+  for (i = 0; i < 3; i++) {
+    t_ci[i] = 0.0;
+    for (i36 = 0; i36 < 3; i36++) {
+      t_ci[i] += b_R_ci[i + 3 * i36] * x->robot_state.IMU.pos[i36];
+    }
+
+    w_imu[i] = measurements_gyr_duo[i] - x->robot_state.IMU.gyro_bias[i];
+  }
+
+  //  gyro in IMU frame
+  //  gyro in camera frame
+  //  w = 0*w;
+  //  acceleration in IMU frame
+  R[0] = 0.0;
+  R[3] = -w_imu[2];
+  R[6] = w_imu[1];
+  R[1] = w_imu[2];
+  R[4] = 0.0;
+  R[7] = -w_imu[0];
+  R[2] = -w_imu[1];
+  R[5] = w_imu[0];
+  R[8] = 0.0;
+  for (i36 = 0; i36 < 3; i36++) {
+    w_c[i36] = 0.0;
+    d8 = 0.0;
+    for (i = 0; i < 3; i++) {
+      w_c[i36] += R_ci[i36 + 3 * i] * w_imu[i];
+      b_R[i36 + 3 * i] = 0.0;
+      for (i37 = 0; i37 < 3; i37++) {
+        b_R[i36 + 3 * i] += R[i36 + 3 * i37] * R[i37 + 3 * i];
+      }
+
+      d8 += b_R[i36 + 3 * i] * t_ci[i];
+    }
+
+    b_measurements_acc_duo[i36] = (measurements_acc_duo[i36] -
+      x->robot_state.IMU.acc_bias[i36]) + d8;
+  }
+
+  //  a = 0*a;
+  // % compute the linearization F of the non linear model f
+  //  if ~all(size(q) == [4, 1])
+  //      error('q does not have the size of a quaternion')
+  //  end
+  //  if abs(norm(q) - 1) > 1e-3
+  //      error('The provided quaternion is not a valid rotation quaternion because it does not have norm 1') 
+  //  end
+  b_x[0] = ((x->origin.att[0] * x->origin.att[0] - x->origin.att[1] *
+             x->origin.att[1]) - x->origin.att[2] * x->origin.att[2]) +
+    x->origin.att[3] * x->origin.att[3];
+  b_x[3] = 2.0 * (x->origin.att[0] * x->origin.att[1] + x->origin.att[2] *
+                  x->origin.att[3]);
+  b_x[6] = 2.0 * (x->origin.att[0] * x->origin.att[2] - x->origin.att[1] *
+                  x->origin.att[3]);
+  b_x[1] = 2.0 * (x->origin.att[0] * x->origin.att[1] - x->origin.att[2] *
+                  x->origin.att[3]);
+  b_x[4] = ((-(x->origin.att[0] * x->origin.att[0]) + x->origin.att[1] *
+             x->origin.att[1]) - x->origin.att[2] * x->origin.att[2]) +
+    x->origin.att[3] * x->origin.att[3];
+  b_x[7] = 2.0 * (x->origin.att[1] * x->origin.att[2] + x->origin.att[0] *
+                  x->origin.att[3]);
+  b_x[2] = 2.0 * (x->origin.att[0] * x->origin.att[2] + x->origin.att[1] *
+                  x->origin.att[3]);
+  b_x[5] = 2.0 * (x->origin.att[1] * x->origin.att[2] - x->origin.att[0] *
+                  x->origin.att[3]);
+  b_x[8] = ((-(x->origin.att[0] * x->origin.att[0]) - x->origin.att[1] *
+             x->origin.att[1]) + x->origin.att[2] * x->origin.att[2]) +
+    x->origin.att[3] * x->origin.att[3];
+
+  //  gravity transformed into the origin frame
+  //    pos,            rot, vel,                                         gyr_bias,   acc_bias,          origin_att,                                    R_ci 
+  for (i36 = 0; i36 < 3; i36++) {
+    a_c[i36] = 0.0;
+    grav_origin[i36] = 0.0;
+    y[i36] = 0.0;
+    for (i = 0; i < 3; i++) {
+      a_c[i36] += R_ci[i36 + 3 * i] * b_measurements_acc_duo[i];
+      grav_origin[i36] += b_x[i36 + 3 * i] * b[i];
+      y[i36] += R_ci[i36 + 3 * i] * x->robot_state.IMU.gyro_bias[i];
+    }
+  }
+
+  dv6[0] = 0.0;
+  dv6[3] = -w_imu[2];
+  dv6[6] = w_imu[1];
+  dv6[1] = w_imu[2];
+  dv6[4] = 0.0;
+  dv6[7] = -w_imu[0];
+  dv6[2] = -w_imu[1];
+  dv6[5] = w_imu[0];
+  dv6[8] = 0.0;
+  for (i36 = 0; i36 < 3; i36++) {
+    b_y[i36] = 0.0;
+    c_y[i36] = 0.0;
+    for (i = 0; i < 3; i++) {
+      b_y[i36] += R_cw[i + 3 * i36] * a_c[i];
+      c_y[i36] += dv6[i36 + 3 * i] * t_ci[i];
+    }
+  }
+
+  //  pos
+  //  att
+  //  vel
+  //  gyro bias
+  //  acc bias
+  //  origin att
+  for (i36 = 0; i36 < 15; i36++) {
+    for (i = 0; i < 3; i++) {
+      G[i + 21 * i36] = 0.0;
+      G[(i + 21 * i36) + 3] = iv3[i + 3 * i36];
+    }
+  }
+
+  for (i36 = 0; i36 < 3; i36++) {
+    for (i = 0; i < 3; i++) {
+      G[(i + 21 * i36) + 6] = 0.0;
+      G[(i + 21 * (i36 + 3)) + 6] = -R_cw[i36 + 3 * i];
+      G[(i + 21 * (i36 + 6)) + 6] = 0.0;
+      G[(i + 21 * (i36 + 9)) + 6] = 0.0;
+      G[(i + 21 * (i36 + 12)) + 6] = 0.0;
+    }
+  }
+
+  for (i36 = 0; i36 < 15; i36++) {
+    for (i = 0; i < 3; i++) {
+      G[(i + 21 * i36) + 9] = iv4[i + 3 * i36];
+      G[(i + 21 * i36) + 12] = iv5[i + 3 * i36];
+      G[(i + 21 * i36) + 15] = 0.0;
+      G[(i + 21 * i36) + 18] = iv6[i + 3 * i36];
+    }
+  }
+
+  //  R_ci
+  b_eye(P_xx_apr);
+  dv7[0] = 0.0;
+  dv7[3] = -w_c[2];
+  dv7[6] = w_c[1];
+  dv7[1] = w_c[2];
+  dv7[4] = 0.0;
+  dv7[7] = -w_c[0];
+  dv7[2] = -w_c[1];
+  dv7[5] = w_c[0];
+  dv7[8] = 0.0;
+  dv8[0] = 0.0;
+  dv8[3] = -y[2];
+  dv8[6] = y[1];
+  dv8[1] = y[2];
+  dv8[4] = 0.0;
+  dv8[7] = -y[0];
+  dv8[2] = -y[1];
+  dv8[5] = y[0];
+  dv8[8] = 0.0;
+  dv9[0] = 0.0;
+  dv9[3] = -b_y[2];
+  dv9[6] = b_y[1];
+  dv9[1] = b_y[2];
+  dv9[4] = 0.0;
+  dv9[7] = -b_y[0];
+  dv9[2] = -b_y[1];
+  dv9[5] = b_y[0];
+  dv9[8] = 0.0;
+  dv10[0] = 0.0;
+  dv10[3] = -c_y[2];
+  dv10[6] = c_y[1];
+  dv10[1] = c_y[2];
+  dv10[4] = 0.0;
+  dv10[7] = -c_y[0];
+  dv10[2] = -c_y[1];
+  dv10[5] = c_y[0];
+  dv10[8] = 0.0;
+  dv11[0] = 0.0;
+  dv11[3] = -w_imu[2];
+  dv11[6] = w_imu[1];
+  dv11[1] = w_imu[2];
+  dv11[4] = 0.0;
+  dv11[7] = -w_imu[0];
+  dv11[2] = -w_imu[1];
+  dv11[5] = w_imu[0];
+  dv11[8] = 0.0;
+  dv12[0] = 0.0;
+  dv12[3] = -t_ci[2];
+  dv12[6] = t_ci[1];
+  dv12[1] = t_ci[2];
+  dv12[4] = 0.0;
+  dv12[7] = -t_ci[0];
+  dv12[2] = -t_ci[1];
+  dv12[5] = t_ci[0];
+  dv12[8] = 0.0;
+  dv13[0] = 0.0;
+  dv13[3] = -grav_origin[2];
+  dv13[6] = grav_origin[1];
+  dv13[1] = grav_origin[2];
+  dv13[4] = 0.0;
+  dv13[7] = -grav_origin[0];
+  dv13[2] = -grav_origin[1];
+  dv13[5] = grav_origin[0];
+  dv13[8] = 0.0;
+  dv14[0] = 0.0;
+  dv14[3] = -a_c[2];
+  dv14[6] = a_c[1];
+  dv14[1] = a_c[2];
+  dv14[4] = 0.0;
+  dv14[7] = -a_c[0];
+  dv14[2] = -a_c[1];
+  dv14[5] = a_c[0];
+  dv14[8] = 0.0;
+  for (i36 = 0; i36 < 3; i36++) {
+    for (i = 0; i < 3; i++) {
+      R[i + 3 * i36] = -R_cw[i36 + 3 * i];
+      d8 = 0.0;
+      for (i37 = 0; i37 < 3; i37++) {
+        d8 += dv11[i36 + 3 * i37] * dv12[i37 + 3 * i];
+      }
+
+      dv6[i36 + 3 * i] = -dv10[i36 + 3 * i] - d8;
+    }
+  }
+
+  for (i36 = 0; i36 < 3; i36++) {
+    for (i = 0; i < 3; i++) {
+      b_R_ci[i36 + 3 * i] = 0.0;
+      b_R[i36 + 3 * i] = 0.0;
+      for (i37 = 0; i37 < 3; i37++) {
+        b_R_ci[i36 + 3 * i] += R[i36 + 3 * i37] * R_ci[i37 + 3 * i];
+        b_R[i36 + 3 * i] += R_cw[i36 + 3 * i37] * dv14[i37 + 3 * i];
+      }
+    }
+  }
+
+  for (i36 = 0; i36 < 21; i36++) {
+    for (i = 0; i < 3; i++) {
+      Phi[i + 21 * i36] = iv7[i + 3 * i36];
+    }
+  }
+
+  for (i36 = 0; i36 < 3; i36++) {
+    for (i = 0; i < 3; i++) {
+      Phi[(i + 21 * i36) + 3] = 0.0;
+      Phi[(i + 21 * (i36 + 3)) + 3] = -dv7[i + 3 * i36];
+      Phi[(i + 21 * (i36 + 6)) + 3] = 0.0;
+      Phi[(i + 21 * (i36 + 9)) + 3] = iv8[i + 3 * i36];
+      Phi[(i + 21 * (i36 + 12)) + 3] = 0.0;
+      Phi[(i + 21 * (i36 + 15)) + 3] = 0.0;
+      Phi[(i + 21 * (i36 + 18)) + 3] = -dv8[i + 3 * i36];
+      Phi[(i + 21 * i36) + 6] = 0.0;
+      Phi[(i + 21 * (i36 + 3)) + 6] = -dv9[i + 3 * i36];
+      Phi[(i + 21 * (i36 + 6)) + 6] = 0.0;
+      Phi[(i + 21 * (i36 + 9)) + 6] = dv6[i + 3 * i36];
+      Phi[(i + 21 * (i36 + 12)) + 6] = b_R_ci[i + 3 * i36];
+      Phi[(i + 21 * (i36 + 15)) + 6] = -dv13[i + 3 * i36];
+      Phi[(i + 21 * (i36 + 18)) + 6] = b_R[i + 3 * i36];
+    }
+  }
+
+  for (i36 = 0; i36 < 21; i36++) {
+    for (i = 0; i < 3; i++) {
+      Phi[(i + 21 * i36) + 9] = 0.0;
+      Phi[(i + 21 * i36) + 12] = 0.0;
+      Phi[(i + 21 * i36) + 15] = 0.0;
+      Phi[(i + 21 * i36) + 18] = 0.0;
+    }
+
+    for (i = 0; i < 21; i++) {
+      b_Phi[i + 21 * i36] = P_xx_apr[i + 21 * i36] + Phi[i + 21 * i36] * dt;
+    }
+  }
+
+  b_processNoise_qw[0] = processNoise_qw;
+  b_processNoise_qw[1] = processNoise_qw;
+  b_processNoise_qw[2] = processNoise_qw;
+  b_processNoise_qw[3] = processNoise_qv;
+  b_processNoise_qw[4] = processNoise_qv;
+  b_processNoise_qw[5] = processNoise_qv;
+  b_processNoise_qw[6] = processNoise_qwo;
+  b_processNoise_qw[7] = processNoise_qwo;
+  b_processNoise_qw[8] = processNoise_qwo;
+  b_processNoise_qw[9] = 0.0 * processNoise_qao;
+  b_processNoise_qw[10] = processNoise_qao;
+  b_processNoise_qw[11] = 0.0 * processNoise_qao;
+  b_processNoise_qw[12] = processNoise_qR_ci;
+  b_processNoise_qw[13] = processNoise_qR_ci;
+  b_processNoise_qw[14] = processNoise_qR_ci;
+  b_diag(b_processNoise_qw, dv15);
+
+  //  covariance of the state
+  for (i36 = 0; i36 < 21; i36++) {
+    for (i = 0; i < 21; i++) {
+      Phi[i36 + 21 * i] = 0.0;
+      for (i37 = 0; i37 < 21; i37++) {
+        Phi[i36 + 21 * i] += b_Phi[i36 + 21 * i37] * P_apo[i37 + 91 * i];
+      }
+    }
+
+    for (i = 0; i < 15; i++) {
+      b_G[i36 + 21 * i] = 0.0;
+      for (i37 = 0; i37 < 15; i37++) {
+        b_G[i36 + 21 * i] += G[i36 + 21 * i37] * dv15[i37 + 15 * i];
+      }
+    }
+
+    for (i = 0; i < 21; i++) {
+      c_G[i36 + 21 * i] = 0.0;
+      for (i37 = 0; i37 < 15; i37++) {
+        c_G[i36 + 21 * i] += b_G[i36 + 21 * i37] * G[i + 21 * i37];
+      }
+
+      d8 = 0.0;
+      for (i37 = 0; i37 < 21; i37++) {
+        d8 += Phi[i36 + 21 * i37] * b_Phi[i + 21 * i37];
+      }
+
+      P_xx_apr[i36 + 21 * i] = d8 + c_G[i36 + 21 * i] * dt;
+    }
+
+    for (i = 0; i < 70; i++) {
+      P_xs_apr[i36 + 21 * i] = 0.0;
+      for (i37 = 0; i37 < 21; i37++) {
+        P_xs_apr[i36 + 21 * i] += b_Phi[i36 + 21 * i37] * P_apo[i37 + 91 * (21 +
+          i)];
+      }
+    }
+  }
+
+  //  covariance between current state and trails
+  for (i36 = 0; i36 < 21; i36++) {
+    for (i = 0; i < 21; i++) {
+      P_apo[i + 91 * i36] = (P_xx_apr[i + 21 * i36] + P_xx_apr[i36 + 21 * i]) /
+        2.0;
+    }
+  }
+
+  for (i36 = 0; i36 < 70; i36++) {
+    memcpy(&P_apo[i36 * 91 + 1911], &P_xs_apr[i36 * 21], 21U * sizeof(double));
+  }
+
+  for (i36 = 0; i36 < 21; i36++) {
+    for (i = 0; i < 70; i++) {
+      P_apo[(i + 91 * i36) + 21] = P_xs_apr[i36 + 21 * i];
+    }
+  }
+
+  for (i = 0; i < 3; i++) {
+    x->robot_state.pos[i] += x->robot_state.vel[i] * dt;
+    b_measurements_acc_duo[i] = w_c[i] * dt;
+  }
+
+  for (i = 0; i < 4; i++) {
+    c_x[i] = x->robot_state.att[i];
+  }
+
+  quatPlusThetaJ(b_measurements_acc_duo, dv16);
+  quatmultJ(dv16, c_x, x->robot_state.att);
+  for (i36 = 0; i36 < 3; i36++) {
+    d8 = 0.0;
+    for (i = 0; i < 3; i++) {
+      d8 += R_cw[i + 3 * i36] * a_c[i];
+    }
+
+    b_measurements_acc_duo[i36] = d8 - grav_origin[i36];
+    x->robot_state.vel[i36] += b_measurements_acc_duo[i36] * dt;
+  }
+
+  //  velocity
+  //  P_apr = (P_apr+P_apr')/2;
+}
+
+//
+// % Iterative Camera Pose optimization (EKF)
+// Arguments    : double P_apr[8281]
+//                g_struct_T *b_xt
+//                const double c_cameraParams_CameraParameters[2]
+//                const double d_cameraParams_CameraParameters[2]
+//                const double e_cameraParams_CameraParameters[3]
+//                const double f_cameraParams_CameraParameters[2]
+//                const double g_cameraParams_CameraParameters[2]
+//                const double h_cameraParams_CameraParameters[3]
+//                const double cameraParams_r_lr[3]
+//                const double cameraParams_R_lr[9]
+//                const double cameraParams_R_rl[9]
+//                int updateVect[40]
+//                double z_all_l[80]
+//                double z_all_r[80]
+//                double noiseParameters_image_noise
+//                double c_noiseParameters_inv_depth_ini
+//                const VIOParameters b_VIOParameters
+//                double h_u_apo[160]
+//                double b_map[120]
+//                double b_delayedStatus[40]
+// Return Type  : void
+//
+static void SLAM_upd(double P_apr[8281], g_struct_T *b_xt, const double
+                     c_cameraParams_CameraParameters[2], const double
+                     d_cameraParams_CameraParameters[2], const double
+                     e_cameraParams_CameraParameters[3], const double
+                     f_cameraParams_CameraParameters[2], const double
+                     g_cameraParams_CameraParameters[2], const double
+                     h_cameraParams_CameraParameters[3], const double
+                     cameraParams_r_lr[3], const double cameraParams_R_lr[9],
+                     const double cameraParams_R_rl[9], int updateVect[40],
+                     double z_all_l[80], double z_all_r[80], double
+                     noiseParameters_image_noise, double
                      c_noiseParameters_inv_depth_ini, const VIOParameters
-                     b_VIOParameters, float h_u_apo[160], float b_map[120],
-                     float b_delayedStatus[40])
+                     b_VIOParameters, double h_u_apo[160], double b_map[120],
+                     double b_delayedStatus[40])
 {
   boolean_T x[40];
   int i;
   int idx;
   int ii_data[40];
   int ixstart;
-  boolean_T exitg11;
+  boolean_T exitg6;
   boolean_T guard2 = false;
   int loop_ub;
-  emxArray_real32_T *ii;
-  int i23;
+  double b_ii_data[40];
+  int ii_size[1];
+  int i38;
   int ind_l2_size[1];
-  float ind_l2_data[80];
-  float status_ind_data[80];
-  float fx;
-  float fy;
-  float Cx;
-  float Cy;
-  float k1;
-  float k2;
-  float k3;
-  float c;
-  float h_cin[2];
-  float r_d_sq;
-  float r_u_sq;
-  boolean_T exitg10;
-  float mtmp;
-  float b_c;
-  float diff;
-  float coeff;
-  boolean_T exitg9;
+  double ind_l2_data[80];
+  double z_all_l_data[80];
+  int z_all_l_size[1];
+  double status_ind_data[80];
+  boolean_T exitg5;
   boolean_T guard1 = false;
-  signed char i_data[40];
-  emxArray_real32_T *qualities;
-  boolean_T exitg8;
+  int ii_size_idx_0;
+  int ind_r_size[1];
+  double ind_r_data[40];
+  int z_all_r_size[1];
   int anchorIdx;
   int featureIdx;
   boolean_T fix_new_feature;
-  float uncertainties[8];
+  double uncertainties[8];
   signed char active_feature[8];
   int iidx[8];
-  emxArray_real32_T *anchorInd;
-  emxArray_real32_T *featureInd;
+  emxArray_real_T *qualities;
+  emxArray_real_T *anchorInd;
+  emxArray_real_T *featureInd;
   emxArray_int32_T *b_iidx;
-  float new_m_data[240];
-  int c_triangulation_success_size_id;
+  double new_m_data[240];
   boolean_T triangulation_success_data[40];
-  float b_h_cin[2];
+  double z_curr_l[2];
+  double z_curr_r[2];
   boolean_T success;
-  float b_m[6];
-  float fp[3];
-  float new_origin_pos_rel[3];
+  double b_m[6];
+  double new_origin_pos_rel[3];
+  double m_l[3];
   boolean_T bv0[3];
-  float h_u_r[2];
-  float a[2];
-  float b_a[2];
+  double h_u_r[2];
+  double h_u_l[2];
+  double b_h_u_l[2];
   boolean_T b_guard1 = false;
-  int ix;
-  float triangulated_depths_data[40];
-  float triangulated_status_ind_data[40];
-  float b_triangulated_status_ind_data[40];
-  int c_triangulated_status_ind_size_;
+  double mtmp;
   int trueCount;
-  float untriangulated_depths_data[40];
-  emxArray_real32_T *auto_gen_tmp_4;
-  emxArray_real32_T *out;
+  double triangulated_depths_data[40];
+  signed char triangulated_status_ind_data[40];
+  signed char b_triangulated_status_ind_data[40];
+  int c_triangulated_status_ind_size_;
+  int ix;
+  double untriangulated_depths_data[40];
+  emxArray_real_T *untriangulated_idx;
   int tmp_data[40];
-  float untriangulated_status_ind_data[40];
-  float b_new_m_data[120];
-  float c_new_m_data[120];
+  signed char untriangulated_status_ind_data[40];
+  double b_new_m_data[120];
+  double c_new_m_data[120];
   int new_feature_idx;
-  boolean_T exitg6;
-  static float J[8281];
-  static const signed char iv11[8281] = { 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  boolean_T exitg3;
+  long i39;
+  static double J[8281];
+  static const signed char iv9[294] = { 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1
-  };
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 
-  static const signed char iv12[294] = { 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
-
-  static float b_J[8281];
-  boolean_T exitg7;
-  float b_uncertainties[40];
+  static double b_J[8281];
+  boolean_T exitg4;
+  double b_uncertainties[40];
   boolean_T has_active_features;
   int uncertainties_size[1];
-  float totalNumActiveFeatues;
-  float numDelayedFeatures;
-  float delayedIdx;
-  float numActivatedFeatures;
+  double median_uncertainty;
+  double totalNumActiveFeatues;
+  double numDelayedFeatures;
+  unsigned int delayedIdx;
+  double numActivatedFeatures;
   boolean_T request_new_features;
-  boolean_T exitg5;
-  float c_uncertainties[5];
-  float b_has_active_features[5];
-  float b_P_apr[36];
-  boolean_T exitg4;
+  boolean_T exitg2;
+  double c_uncertainties[5];
+  double b_has_active_features[5];
+  double b_P_apr[36];
+  boolean_T exitg1;
   char cv28[63];
   static const char cv29[63] = { 'P', 'i', 'c', 'k', 'e', 'd', ' ', 'a', 'n',
     ' ', 'a', 'n', 'c', 'h', 'o', 'r', ' ', 'w', 'i', 't', 'h', ' ', 'n', 'o',
@@ -3670,21 +3003,13 @@ static void SLAM_upd(float P_apr[8281], g_struct_T *b_xt, const float
     's', ' ', 'a', 's', ' ', 'o', 'r', 'i', 'g', 'i', 'n', ' ', '(', 'a', 'n',
     'c', 'h', 'o', 'r', ' ', '%', 'd', ')', '\x00' };
 
-  float new_origin_att_rel[9];
-  static const signed char iv13[18] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1,
-    0, 0, 0, 1 };
-
-  float c_xt[3];
-  float d_xt[9];
-  float c_c[9];
-  float varargin_1[4];
-  boolean_T exitg3;
-  float e_xt[9];
-  boolean_T exitg2;
-  float f_xt[9];
-  float g_xt[9];
-  boolean_T exitg1;
-  float radsq;
+  double new_origin_att_rel[9];
+  double c_xt[9];
+  double d_xt[3];
+  double e_xt[9];
+  double f_xt[9];
+  double g_xt[9];
+  double h_xt[9];
 
   //  undistort all valid points
   for (i = 0; i < 40; i++) {
@@ -3693,14 +3018,14 @@ static void SLAM_upd(float P_apr[8281], g_struct_T *b_xt, const float
 
   idx = 0;
   ixstart = 1;
-  exitg11 = false;
-  while ((!exitg11) && (ixstart < 41)) {
+  exitg6 = false;
+  while ((!exitg6) && (ixstart < 41)) {
     guard2 = false;
     if (x[ixstart - 1]) {
       idx++;
       ii_data[idx - 1] = ixstart;
       if (idx >= 40) {
-        exitg11 = true;
+        exitg6 = true;
       } else {
         guard2 = true;
       }
@@ -3719,77 +3044,24 @@ static void SLAM_upd(float P_apr[8281], g_struct_T *b_xt, const float
     loop_ub = idx;
   }
 
-  emxInit_real32_T(&ii, 1);
-  i23 = ii->size[0];
-  ii->size[0] = loop_ub;
-  emxEnsureCapacity((emxArray__common *)ii, i23, (int)sizeof(float));
-  for (i23 = 0; i23 < loop_ub; i23++) {
-    ii->data[i23] = (float)ii_data[i23];
+  ii_size[0] = loop_ub;
+  for (i38 = 0; i38 < loop_ub; i38++) {
+    b_ii_data[i38] = ii_data[i38];
   }
 
-  multiplyIdx(ii->data, ii->size, ind_l2_data, ind_l2_size);
-
-  // UNDISTORTPOINT Undistort a point (or points) that are from a camera with
-  // the calibration cameraparams
-  //    Undistort a point or set of points from one camera. Depending on the
-  //    camera model used to calibrate the camera, the appropriate undistortion
-  //    is applied
-  // % Plumb Bob
+  multiplyIdx(b_ii_data, ii_size, ind_l2_data, ind_l2_size);
+  z_all_l_size[0] = ind_l2_size[0];
   loop_ub = ind_l2_size[0];
-  emxFree_real32_T(&ii);
-  for (i23 = 0; i23 < loop_ub; i23++) {
-    status_ind_data[i23] = z_all_l[(int)ind_l2_data[i23] - 1];
+  for (i38 = 0; i38 < loop_ub; i38++) {
+    z_all_l_data[i38] = z_all_l[(int)ind_l2_data[i38] - 1];
   }
 
-  fx = c_cameraParams_CameraParameters[0];
-  fy = c_cameraParams_CameraParameters[1];
-  Cx = d_cameraParams_CameraParameters[0];
-  Cy = d_cameraParams_CameraParameters[1];
-  k1 = e_cameraParams_CameraParameters[0];
-  k2 = e_cameraParams_CameraParameters[1];
-  k3 = e_cameraParams_CameraParameters[2];
-  c = (float)ind_l2_size[0] / 2.0F;
-  for (i = 0; i < (int)c; i++) {
-    h_cin[0] = (z_all_l[(int)ind_l2_data[i << 1] - 1] - Cx) / fx;
-    h_cin[1] = (z_all_l[(int)ind_l2_data[(i << 1) + 1] - 1] - Cy) / fy;
-    r_d_sq = h_cin[0] * h_cin[0] + h_cin[1] * h_cin[1];
-
-    // get_r_u Get undistorted radius from distorted radius
-    //    Get the pixel radius of the undistorted pixels from a distorted pixel
-    //    radius and distortion parameters
-    r_u_sq = r_d_sq;
-    idx = 0;
-    exitg10 = false;
-    while ((!exitg10) && (idx < 100)) {
-      mtmp = ((1.0F + k1 * r_u_sq) + k2 * (r_u_sq * r_u_sq)) + k3 * rt_powf_snf
-        (r_u_sq, 3.0F);
-      b_c = (1.0F + k1 * r_u_sq) + k2 * (r_u_sq * r_u_sq) * k3 * rt_powf_snf
-        (r_u_sq, 3.0F);
-      diff = (r_u_sq * (mtmp * mtmp) - r_d_sq) / (b_c * b_c + 2.0F * r_u_sq *
-        (((1.0F + 2.0F * k1 * r_u_sq) + 2.0F * k2 * (r_u_sq * r_u_sq)) + 2.0F *
-         k3 * rt_powf_snf(r_u_sq, 3.0F)));
-      r_u_sq -= diff;
-      if ((diff < 1.0E-6F) && (diff > -1.0E-6F)) {
-        exitg10 = true;
-      } else {
-        idx++;
-      }
-    }
-
-    coeff = ((1.0F + k1 * r_u_sq) + k2 * (r_u_sq * r_u_sq)) + k3 * rt_powf_snf
-      (r_u_sq, 3.0F);
-    for (i23 = 0; i23 < 2; i23++) {
-      h_cin[i23] /= coeff;
-    }
-
-    idx = (i << 1) - 1;
-    status_ind_data[idx + 1] = h_cin[0] * fx + Cx;
-    status_ind_data[idx + 2] = h_cin[1] * fy + Cy;
-  }
-
-  loop_ub = ind_l2_size[0];
-  for (i23 = 0; i23 < loop_ub; i23++) {
-    z_all_l[(int)ind_l2_data[i23] - 1] = status_ind_data[i23];
+  undistortPoint(z_all_l_data, z_all_l_size, c_cameraParams_CameraParameters,
+                 d_cameraParams_CameraParameters,
+                 e_cameraParams_CameraParameters, status_ind_data, ii_size);
+  loop_ub = ii_size[0];
+  for (i38 = 0; i38 < loop_ub; i38++) {
+    z_all_l[(int)ind_l2_data[i38] - 1] = status_ind_data[i38];
   }
 
   for (i = 0; i < 40; i++) {
@@ -3798,14 +3070,14 @@ static void SLAM_upd(float P_apr[8281], g_struct_T *b_xt, const float
 
   idx = 0;
   ixstart = 1;
-  exitg9 = false;
-  while ((!exitg9) && (ixstart < 41)) {
+  exitg5 = false;
+  while ((!exitg5) && (ixstart < 41)) {
     guard1 = false;
     if (x[ixstart - 1]) {
       idx++;
       ii_data[idx - 1] = ixstart;
       if (idx >= 40) {
-        exitg9 = true;
+        exitg5 = true;
       } else {
         guard1 = true;
       }
@@ -3825,85 +3097,29 @@ static void SLAM_upd(float P_apr[8281], g_struct_T *b_xt, const float
   }
 
   if (1 > idx) {
-    ixstart = 0;
+    ii_size_idx_0 = 0;
   } else {
-    ixstart = idx;
+    ii_size_idx_0 = idx;
   }
 
-  for (i23 = 0; i23 < loop_ub; i23++) {
-    i_data[i23] = (signed char)ii_data[i23];
+  ind_r_size[0] = loop_ub;
+  for (i38 = 0; i38 < loop_ub; i38++) {
+    ind_r_data[i38] = ii_data[i38];
   }
 
-  emxInit_real32_T(&qualities, 1);
-  i23 = qualities->size[0];
-  qualities->size[0] = ixstart;
-  emxEnsureCapacity((emxArray__common *)qualities, i23, (int)sizeof(float));
-  for (i23 = 0; i23 < ixstart; i23++) {
-    qualities->data[i23] = i_data[i23];
+  multiplyIdx(ind_r_data, ind_r_size, ind_l2_data, ind_l2_size);
+  z_all_r_size[0] = ind_l2_size[0];
+  idx = ind_l2_size[0];
+  for (i38 = 0; i38 < idx; i38++) {
+    z_all_l_data[i38] = z_all_r[(int)ind_l2_data[i38] - 1];
   }
 
-  multiplyIdx(qualities->data, qualities->size, ind_l2_data, ind_l2_size);
-
-  // UNDISTORTPOINT Undistort a point (or points) that are from a camera with
-  // the calibration cameraparams
-  //    Undistort a point or set of points from one camera. Depending on the
-  //    camera model used to calibrate the camera, the appropriate undistortion
-  //    is applied
-  // % Plumb Bob
-  ixstart = ind_l2_size[0];
-  for (i23 = 0; i23 < ixstart; i23++) {
-    status_ind_data[i23] = z_all_r[(int)ind_l2_data[i23] - 1];
-  }
-
-  fx = f_cameraParams_CameraParameters[0];
-  fy = f_cameraParams_CameraParameters[1];
-  Cx = g_cameraParams_CameraParameters[0];
-  Cy = g_cameraParams_CameraParameters[1];
-  k1 = h_cameraParams_CameraParameters[0];
-  k2 = h_cameraParams_CameraParameters[1];
-  k3 = h_cameraParams_CameraParameters[2];
-  c = (float)ind_l2_size[0] / 2.0F;
-  for (i = 0; i < (int)c; i++) {
-    h_cin[0] = (z_all_r[(int)ind_l2_data[i << 1] - 1] - Cx) / fx;
-    h_cin[1] = (z_all_r[(int)ind_l2_data[(i << 1) + 1] - 1] - Cy) / fy;
-    r_d_sq = h_cin[0] * h_cin[0] + h_cin[1] * h_cin[1];
-
-    // get_r_u Get undistorted radius from distorted radius
-    //    Get the pixel radius of the undistorted pixels from a distorted pixel
-    //    radius and distortion parameters
-    r_u_sq = r_d_sq;
-    idx = 0;
-    exitg8 = false;
-    while ((!exitg8) && (idx < 100)) {
-      mtmp = ((1.0F + k1 * r_u_sq) + k2 * (r_u_sq * r_u_sq)) + k3 * rt_powf_snf
-        (r_u_sq, 3.0F);
-      b_c = (1.0F + k1 * r_u_sq) + k2 * (r_u_sq * r_u_sq) * k3 * rt_powf_snf
-        (r_u_sq, 3.0F);
-      diff = (r_u_sq * (mtmp * mtmp) - r_d_sq) / (b_c * b_c + 2.0F * r_u_sq *
-        (((1.0F + 2.0F * k1 * r_u_sq) + 2.0F * k2 * (r_u_sq * r_u_sq)) + 2.0F *
-         k3 * rt_powf_snf(r_u_sq, 3.0F)));
-      r_u_sq -= diff;
-      if ((diff < 1.0E-6F) && (diff > -1.0E-6F)) {
-        exitg8 = true;
-      } else {
-        idx++;
-      }
-    }
-
-    coeff = ((1.0F + k1 * r_u_sq) + k2 * (r_u_sq * r_u_sq)) + k3 * rt_powf_snf
-      (r_u_sq, 3.0F);
-    for (i23 = 0; i23 < 2; i23++) {
-      h_cin[i23] /= coeff;
-    }
-
-    idx = (i << 1) - 1;
-    status_ind_data[idx + 1] = h_cin[0] * fx + Cx;
-    status_ind_data[idx + 2] = h_cin[1] * fy + Cy;
-  }
-
-  ixstart = ind_l2_size[0];
-  for (i23 = 0; i23 < ixstart; i23++) {
-    z_all_r[(int)ind_l2_data[i23] - 1] = status_ind_data[i23];
+  undistortPoint(z_all_l_data, z_all_r_size, f_cameraParams_CameraParameters,
+                 g_cameraParams_CameraParameters,
+                 h_cameraParams_CameraParameters, status_ind_data, ii_size);
+  idx = ii_size[0];
+  for (i38 = 0; i38 < idx; i38++) {
+    z_all_r[(int)ind_l2_data[i38] - 1] = status_ind_data[i38];
   }
 
   //  check for lost features
@@ -3912,16 +3128,14 @@ static void SLAM_upd(float P_apr[8281], g_struct_T *b_xt, const float
       if ((b_xt->anchor_states[anchorIdx].feature_states[featureIdx].status != 0)
           && (updateVect[b_xt->anchor_states[anchorIdx]
               .feature_states[featureIdx].status_idx - 1] != 1)) {
-        ixstart = b_xt->anchor_states[anchorIdx].feature_states[featureIdx].
-          P_idx;
-        for (i23 = 0; i23 < 91; i23++) {
-          P_apr[(ixstart + 91 * i23) - 1] = 0.0F;
+        idx = b_xt->anchor_states[anchorIdx].feature_states[featureIdx].P_idx;
+        for (i38 = 0; i38 < 91; i38++) {
+          P_apr[(idx + 91 * i38) - 1] = 0.0;
         }
 
-        ixstart = b_xt->anchor_states[anchorIdx].feature_states[featureIdx].
-          P_idx;
-        for (i23 = 0; i23 < 91; i23++) {
-          P_apr[i23 + 91 * (ixstart - 1)] = 0.0F;
+        idx = b_xt->anchor_states[anchorIdx].feature_states[featureIdx].P_idx;
+        for (i38 = 0; i38 < 91; i38++) {
+          P_apr[i38 + 91 * (idx - 1)] = 0.0;
         }
 
         b_xt->anchor_states[anchorIdx].feature_states[featureIdx].status = 0;
@@ -3959,7 +3173,7 @@ static void SLAM_upd(float P_apr[8281], g_struct_T *b_xt, const float
              .feature_states[featureIdx].P_idx - 1)) - 1];
           active_feature[featureIdx] = 1;
         } else {
-          uncertainties[featureIdx] = 1000.0F;
+          uncertainties[featureIdx] = 1000.0;
 
           //  dont fix an inactive feature
         }
@@ -3967,32 +3181,25 @@ static void SLAM_upd(float P_apr[8281], g_struct_T *b_xt, const float
 
       sort(uncertainties, iidx);
       for (i = 0; i < 8; i++) {
-        uncertainties[i] = (float)iidx[i];
+        uncertainties[i] = iidx[i];
       }
 
       if (!(active_feature[(int)uncertainties[0] - 1] != 0)) {
         ros_error();
       }
 
-      mtmp = rt_roundf_snf(uncertainties[0]);
-      if (mtmp < 2.14748365E+9F) {
-        i23 = (int)mtmp;
-      } else {
-        i23 = MAX_int32_T;
-      }
-
-      b_xt->fixed_feature = i23;
-      ixstart = b_xt->anchor_states[b_xt->origin.anchor_idx - 1]
-        .feature_states[b_xt->fixed_feature - 1].P_idx;
-      for (i23 = 0; i23 < 91; i23++) {
-        P_apr[(ixstart + 91 * i23) - 1] = 0.0F;
+      b_xt->fixed_feature = (int)uncertainties[0];
+      idx = b_xt->anchor_states[b_xt->origin.anchor_idx - 1].feature_states
+        [b_xt->fixed_feature - 1].P_idx;
+      for (i38 = 0; i38 < 91; i38++) {
+        P_apr[(idx + 91 * i38) - 1] = 0.0;
       }
 
       //  fix the feature depth
-      ixstart = b_xt->anchor_states[b_xt->origin.anchor_idx - 1]
-        .feature_states[b_xt->fixed_feature - 1].P_idx;
-      for (i23 = 0; i23 < 91; i23++) {
-        P_apr[i23 + 91 * (ixstart - 1)] = 0.0F;
+      idx = b_xt->anchor_states[b_xt->origin.anchor_idx - 1].feature_states
+        [b_xt->fixed_feature - 1].P_idx;
+      for (i38 = 0; i38 < 91; i38++) {
+        P_apr[i38 + 91 * (idx - 1)] = 0.0;
       }
 
       b_ros_info(b_xt->anchor_states[b_xt->origin.anchor_idx - 1]
@@ -4016,84 +3223,80 @@ static void SLAM_upd(float P_apr[8281], g_struct_T *b_xt, const float
   }
 
   // % Initialize new anchors/features
-  emxInit_real32_T(&anchorInd, 1);
-  emxInit_real32_T(&featureInd, 1);
-  emxInit_int32_T(&b_iidx, 1);
-  if (loop_ub >= 4) {
+  emxInit_real_T(&qualities, 1);
+  emxInit_real_T(&anchorInd, 1);
+  emxInit_real_T(&featureInd, 1);
+  emxInit_int32_T1(&b_iidx, 1);
+  if (ii_size_idx_0 >= 4) {
     //  try to triangulate all new features
-    for (i23 = 0; i23 < loop_ub; i23++) {
-      ind_l2_data[i23] = 0.0F;
+    for (i38 = 0; i38 < ii_size_idx_0; i38++) {
+      ind_l2_data[i38] = 0.0;
     }
 
-    loop_ub = 3 * qualities->size[0];
-    for (i23 = 0; i23 < loop_ub; i23++) {
-      new_m_data[i23] = 0.0F;
+    idx = 3 * ii_size_idx_0;
+    for (i38 = 0; i38 < idx; i38++) {
+      new_m_data[i38] = 0.0;
     }
 
-    c_triangulation_success_size_id = qualities->size[0];
-    loop_ub = qualities->size[0];
-    for (i23 = 0; i23 < loop_ub; i23++) {
-      triangulation_success_data[i23] = false;
+    for (i38 = 0; i38 < ii_size_idx_0; i38++) {
+      triangulation_success_data[i38] = false;
     }
 
-    for (i = 0; i < qualities->size[0]; i++) {
-      c = (qualities->data[i] - 1.0F) * 2.0F;
-      for (i23 = 0; i23 < 2; i23++) {
-        h_cin[i23] = z_all_l[(int)(c + (1.0F + (float)i23)) - 1];
-      }
-
-      mtmp = (qualities->data[i] - 1.0F) * 2.0F;
-      for (i23 = 0; i23 < 2; i23++) {
-        b_h_cin[i23] = z_all_r[(int)(mtmp + (1.0F + (float)i23)) - 1];
+    for (i = 0; i < loop_ub; i++) {
+      idx = ((int)ind_r_data[i] - 1) * 2;
+      ixstart = ((int)ind_r_data[i] - 1) * 2;
+      for (i38 = 0; i38 < 2; i38++) {
+        z_curr_l[i38] = z_all_l[idx + i38];
+        z_curr_r[i38] = z_all_r[ixstart + i38];
       }
 
       if (!b_VIOParameters.mono) {
-        initializePoint(h_cin, b_h_cin, c_cameraParams_CameraParameters,
+        initializePoint(z_curr_l, z_curr_r, c_cameraParams_CameraParameters,
                         d_cameraParams_CameraParameters,
                         f_cameraParams_CameraParameters,
                         g_cameraParams_CameraParameters, cameraParams_r_lr,
-                        cameraParams_R_lr, fp, b_m, &success);
-        for (i23 = 0; i23 < 3; i23++) {
-          new_origin_pos_rel[i23] = b_m[i23];
+                        cameraParams_R_lr, new_origin_pos_rel, b_m, &success);
+        for (i38 = 0; i38 < 3; i38++) {
+          m_l[i38] = b_m[i38];
         }
 
         if (success) {
           //  perform further checks
           for (idx = 0; idx < 3; idx++) {
-            bv0[idx] = rtIsNaNF(fp[idx]);
+            bv0[idx] = rtIsNaN(new_origin_pos_rel[idx]);
           }
 
           if (b_any(bv0)) {
-            for (i23 = 0; i23 < 3; i23++) {
-              fp[i23] = b_m[i23];
+            for (i38 = 0; i38 < 3; i38++) {
+              new_origin_pos_rel[i38] = b_m[i38];
             }
 
             success = false;
           } else {
             //  check reprojection error
-            predictMeasurementStereo(fp, c_cameraParams_CameraParameters,
-              d_cameraParams_CameraParameters, f_cameraParams_CameraParameters,
-              g_cameraParams_CameraParameters, cameraParams_r_lr,
-              cameraParams_R_rl, a, h_u_r);
+            predictMeasurementStereo(new_origin_pos_rel,
+              c_cameraParams_CameraParameters, d_cameraParams_CameraParameters,
+              f_cameraParams_CameraParameters, g_cameraParams_CameraParameters,
+              cameraParams_r_lr, cameraParams_R_rl, h_u_l, h_u_r);
             for (idx = 0; idx < 2; idx++) {
-              b_a[idx] = a[idx] - h_cin[idx];
+              b_h_u_l[idx] = h_u_l[idx] - z_curr_l[idx];
             }
 
             b_guard1 = false;
-            if (c_norm(b_a) > 2.0F) {
+            if (c_norm(b_h_u_l) > 2.0) {
               b_guard1 = true;
             } else {
               for (idx = 0; idx < 2; idx++) {
-                a[idx] = h_u_r[idx] - b_h_cin[idx];
+                b_h_u_l[idx] = h_u_r[idx] - z_curr_r[idx];
               }
 
-              if (c_norm(a) > 2.0F) {
+              if (c_norm(b_h_u_l) > 2.0) {
                 b_guard1 = true;
               } else {
-                if (norm(fp) < 0.1F) {
+                if (norm(new_origin_pos_rel) < 0.1) {
                   //  feature triangulated very close
-                  for (i23 = 0; i23 < 3; i23++) {
-                    fp[i23] = b_m[i23];
+                  for (i38 = 0; i38 < 3; i38++) {
+                    new_origin_pos_rel[i38] = b_m[i38];
                   }
 
                   success = false;
@@ -4103,56 +3306,56 @@ static void SLAM_upd(float P_apr[8281], g_struct_T *b_xt, const float
 
             if (b_guard1) {
               //                          ros_info('Bad triangulation (reprojection error) for point %d', int8(ind_r(i))); 
-              for (i23 = 0; i23 < 3; i23++) {
-                fp[i23] = b_m[i23];
+              for (i38 = 0; i38 < 3; i38++) {
+                new_origin_pos_rel[i38] = b_m[i38];
               }
 
               success = false;
             }
           }
         } else {
-          for (i23 = 0; i23 < 3; i23++) {
-            fp[i23] = b_m[i23];
+          for (i38 = 0; i38 < 3; i38++) {
+            new_origin_pos_rel[i38] = b_m[i38];
           }
         }
       } else {
         //  mono
-        new_origin_pos_rel[0] = (z_all_l[(int)(c + 1.0F) - 1] -
-          d_cameraParams_CameraParameters[0]) / c_cameraParams_CameraParameters
-          [0];
-        new_origin_pos_rel[1] = (z_all_l[(int)(c + 2.0F) - 1] -
-          d_cameraParams_CameraParameters[1]) / c_cameraParams_CameraParameters
-          [1];
-        new_origin_pos_rel[2] = 1.0F;
-        mtmp = norm(new_origin_pos_rel);
+        m_l[0] = (z_all_l[((int)ind_r_data[i] - 1) * 2] -
+                  d_cameraParams_CameraParameters[0]) /
+          c_cameraParams_CameraParameters[0];
+        m_l[1] = (z_all_l[((int)ind_r_data[i] - 1) * 2 + 1] -
+                  d_cameraParams_CameraParameters[1]) /
+          c_cameraParams_CameraParameters[1];
+        m_l[2] = 1.0;
+        mtmp = norm(m_l);
         for (idx = 0; idx < 3; idx++) {
-          fp[idx] = new_origin_pos_rel[idx] / mtmp;
+          new_origin_pos_rel[idx] = m_l[idx] / mtmp;
         }
 
         success = true;
       }
 
-      ind_l2_data[i] = norm(fp);
-      for (i23 = 0; i23 < 3; i23++) {
-        new_m_data[i23 + 3 * i] = new_origin_pos_rel[i23];
+      ind_l2_data[i] = norm(new_origin_pos_rel);
+      for (i38 = 0; i38 < 3; i38++) {
+        new_m_data[i38 + 3 * i] = m_l[i38];
       }
 
       triangulation_success_data[i] = success;
     }
 
     idx = 0;
-    for (ixstart = 0; ixstart < c_triangulation_success_size_id; ixstart++) {
+    for (ixstart = 0; ixstart < ii_size_idx_0; ixstart++) {
       if (triangulation_success_data[ixstart]) {
         idx++;
       }
     }
 
-    d_ros_info(idx, c_triangulation_success_size_id);
-    idx = c_triangulation_success_size_id - 1;
-    ix = 0;
+    d_ros_info(idx, loop_ub);
+    idx = loop_ub - 1;
+    trueCount = 0;
     for (i = 0; i <= idx; i++) {
       if (triangulation_success_data[i]) {
-        ix++;
+        trueCount++;
       }
     }
 
@@ -4164,27 +3367,27 @@ static void SLAM_upd(float P_apr[8281], g_struct_T *b_xt, const float
       }
     }
 
-    i23 = anchorInd->size[0];
-    anchorInd->size[0] = ix;
-    emxEnsureCapacity((emxArray__common *)anchorInd, i23, (int)sizeof(float));
-    for (i23 = 0; i23 < ix; i23++) {
-      anchorInd->data[i23] = triangulated_depths_data[i23];
+    i38 = qualities->size[0];
+    qualities->size[0] = trueCount;
+    emxEnsureCapacity((emxArray__common *)qualities, i38, (int)sizeof(double));
+    for (i38 = 0; i38 < trueCount; i38++) {
+      qualities->data[i38] = triangulated_depths_data[i38];
     }
 
-    c_sort(anchorInd, b_iidx);
-    i23 = featureInd->size[0];
-    featureInd->size[0] = b_iidx->size[0];
-    emxEnsureCapacity((emxArray__common *)featureInd, i23, (int)sizeof(float));
-    loop_ub = b_iidx->size[0];
-    for (i23 = 0; i23 < loop_ub; i23++) {
-      featureInd->data[i23] = (float)b_iidx->data[i23];
+    c_sort(qualities, b_iidx);
+    i38 = anchorInd->size[0];
+    anchorInd->size[0] = b_iidx->size[0];
+    emxEnsureCapacity((emxArray__common *)anchorInd, i38, (int)sizeof(double));
+    idx = b_iidx->size[0];
+    for (i38 = 0; i38 < idx; i38++) {
+      anchorInd->data[i38] = b_iidx->data[i38];
     }
 
-    idx = c_triangulation_success_size_id - 1;
-    ix = 0;
+    idx = loop_ub - 1;
+    trueCount = 0;
     for (i = 0; i <= idx; i++) {
       if (triangulation_success_data[i]) {
-        ix++;
+        trueCount++;
       }
     }
 
@@ -4196,31 +3399,31 @@ static void SLAM_upd(float P_apr[8281], g_struct_T *b_xt, const float
       }
     }
 
-    idx = c_triangulation_success_size_id - 1;
+    idx = loop_ub - 1;
     ixstart = 0;
     for (i = 0; i <= idx; i++) {
       if (triangulation_success_data[i]) {
-        triangulated_status_ind_data[ixstart] = qualities->data[i];
+        triangulated_status_ind_data[ixstart] = (signed char)ind_r_data[i];
         ixstart++;
       }
     }
 
-    c_triangulated_status_ind_size_ = featureInd->size[0];
-    loop_ub = featureInd->size[0];
-    for (i23 = 0; i23 < loop_ub; i23++) {
-      b_triangulated_status_ind_data[i23] = triangulated_status_ind_data[(int)
-        featureInd->data[i23] - 1];
+    c_triangulated_status_ind_size_ = anchorInd->size[0];
+    idx = anchorInd->size[0];
+    for (i38 = 0; i38 < idx; i38++) {
+      b_triangulated_status_ind_data[i38] = triangulated_status_ind_data[(int)
+        anchorInd->data[i38] - 1];
     }
 
-    for (i23 = 0; i23 < c_triangulated_status_ind_size_; i23++) {
-      triangulated_status_ind_data[i23] = b_triangulated_status_ind_data[i23];
+    for (i38 = 0; i38 < c_triangulated_status_ind_size_; i38++) {
+      triangulated_status_ind_data[i38] = b_triangulated_status_ind_data[i38];
     }
 
-    idx = c_triangulation_success_size_id - 1;
-    trueCount = 0;
+    idx = loop_ub - 1;
+    ix = 0;
     for (i = 0; i <= idx; i++) {
       if (!triangulation_success_data[i]) {
-        trueCount++;
+        ix++;
       }
     }
 
@@ -4232,29 +3435,29 @@ static void SLAM_upd(float P_apr[8281], g_struct_T *b_xt, const float
       }
     }
 
-    emxInit_real32_T(&auto_gen_tmp_4, 1);
-    i23 = auto_gen_tmp_4->size[0];
-    auto_gen_tmp_4->size[0] = trueCount;
-    emxEnsureCapacity((emxArray__common *)auto_gen_tmp_4, i23, (int)sizeof(float));
-    for (i23 = 0; i23 < trueCount; i23++) {
-      auto_gen_tmp_4->data[i23] = untriangulated_depths_data[i23];
+    i38 = featureInd->size[0];
+    featureInd->size[0] = ix;
+    emxEnsureCapacity((emxArray__common *)featureInd, i38, (int)sizeof(double));
+    for (i38 = 0; i38 < ix; i38++) {
+      featureInd->data[i38] = untriangulated_depths_data[i38];
     }
 
-    emxInit_real32_T(&out, 1);
-    c_sort(auto_gen_tmp_4, b_iidx);
-    i23 = out->size[0];
-    out->size[0] = b_iidx->size[0];
-    emxEnsureCapacity((emxArray__common *)out, i23, (int)sizeof(float));
-    loop_ub = b_iidx->size[0];
-    for (i23 = 0; i23 < loop_ub; i23++) {
-      out->data[i23] = (float)b_iidx->data[i23];
+    emxInit_real_T(&untriangulated_idx, 1);
+    c_sort(featureInd, b_iidx);
+    i38 = untriangulated_idx->size[0];
+    untriangulated_idx->size[0] = b_iidx->size[0];
+    emxEnsureCapacity((emxArray__common *)untriangulated_idx, i38, (int)sizeof
+                      (double));
+    idx = b_iidx->size[0];
+    for (i38 = 0; i38 < idx; i38++) {
+      untriangulated_idx->data[i38] = b_iidx->data[i38];
     }
 
-    idx = c_triangulation_success_size_id - 1;
-    trueCount = 0;
+    idx = loop_ub - 1;
+    ix = 0;
     for (i = 0; i <= idx; i++) {
       if (!triangulation_success_data[i]) {
-        trueCount++;
+        ix++;
       }
     }
 
@@ -4266,96 +3469,97 @@ static void SLAM_upd(float P_apr[8281], g_struct_T *b_xt, const float
       }
     }
 
-    idx = c_triangulation_success_size_id - 1;
+    idx = loop_ub - 1;
     ixstart = 0;
     for (i = 0; i <= idx; i++) {
       if (!triangulation_success_data[i]) {
-        untriangulated_status_ind_data[ixstart] = qualities->data[i];
+        untriangulated_status_ind_data[ixstart] = (signed char)ind_r_data[i];
         ixstart++;
       }
     }
 
-    idx = out->size[0];
-    loop_ub = out->size[0];
-    for (i23 = 0; i23 < loop_ub; i23++) {
-      b_triangulated_status_ind_data[i23] = untriangulated_status_ind_data[(int)
-        out->data[i23] - 1];
+    idx = untriangulated_idx->size[0];
+    loop_ub = untriangulated_idx->size[0];
+    for (i38 = 0; i38 < loop_ub; i38++) {
+      b_triangulated_status_ind_data[i38] = untriangulated_status_ind_data[(int)
+        untriangulated_idx->data[i38] - 1];
     }
 
-    for (i23 = 0; i23 < idx; i23++) {
-      untriangulated_status_ind_data[i23] = b_triangulated_status_ind_data[i23];
+    for (i38 = 0; i38 < idx; i38++) {
+      untriangulated_status_ind_data[i38] = b_triangulated_status_ind_data[i38];
     }
 
-    ind_l2_size[0] = anchorInd->size[0] + auto_gen_tmp_4->size[0];
-    loop_ub = anchorInd->size[0];
-    for (i23 = 0; i23 < loop_ub; i23++) {
-      ind_l2_data[i23] = anchorInd->data[i23];
-    }
-
-    loop_ub = auto_gen_tmp_4->size[0];
-    for (i23 = 0; i23 < loop_ub; i23++) {
-      ind_l2_data[i23 + anchorInd->size[0]] = auto_gen_tmp_4->data[i23];
-    }
-
-    emxFree_real32_T(&auto_gen_tmp_4);
-    for (i23 = 0; i23 < ix; i23++) {
-      for (i = 0; i < 3; i++) {
-        b_new_m_data[i + 3 * i23] = new_m_data[i + 3 * (ii_data[i23] - 1)];
-      }
-    }
-
-    for (i23 = 0; i23 < trueCount; i23++) {
-      for (i = 0; i < 3; i++) {
-        c_new_m_data[i + 3 * i23] = new_m_data[i + 3 * (tmp_data[i23] - 1)];
-      }
+    ind_l2_size[0] = qualities->size[0] + featureInd->size[0];
+    loop_ub = qualities->size[0];
+    for (i38 = 0; i38 < loop_ub; i38++) {
+      ind_l2_data[i38] = qualities->data[i38];
     }
 
     loop_ub = featureInd->size[0];
-    for (i23 = 0; i23 < loop_ub; i23++) {
-      for (i = 0; i < 3; i++) {
-        new_m_data[i + 3 * i23] = b_new_m_data[i + 3 * ((int)featureInd->
-          data[i23] - 1)];
+    for (i38 = 0; i38 < loop_ub; i38++) {
+      ind_l2_data[i38 + qualities->size[0]] = featureInd->data[i38];
+    }
+
+    for (i38 = 0; i38 < trueCount; i38++) {
+      for (ixstart = 0; ixstart < 3; ixstart++) {
+        b_new_m_data[ixstart + 3 * i38] = new_m_data[ixstart + 3 * (ii_data[i38]
+          - 1)];
       }
     }
 
-    loop_ub = out->size[0];
-    for (i23 = 0; i23 < loop_ub; i23++) {
-      for (i = 0; i < 3; i++) {
-        new_m_data[i + 3 * (i23 + featureInd->size[0])] = c_new_m_data[i + 3 *
-          ((int)out->data[i23] - 1)];
+    for (i38 = 0; i38 < ix; i38++) {
+      for (ixstart = 0; ixstart < 3; ixstart++) {
+        c_new_m_data[ixstart + 3 * i38] = new_m_data[ixstart + 3 * (tmp_data[i38]
+          - 1)];
       }
     }
 
-    emxFree_real32_T(&out);
-    for (i23 = 0; i23 < c_triangulated_status_ind_size_; i23++) {
-      status_ind_data[i23] = triangulated_status_ind_data[i23];
+    loop_ub = anchorInd->size[0];
+    for (i38 = 0; i38 < loop_ub; i38++) {
+      for (ixstart = 0; ixstart < 3; ixstart++) {
+        new_m_data[ixstart + 3 * i38] = b_new_m_data[ixstart + 3 * ((int)
+          anchorInd->data[i38] - 1)];
+      }
     }
 
-    for (i23 = 0; i23 < idx; i23++) {
-      status_ind_data[i23 + c_triangulated_status_ind_size_] =
-        untriangulated_status_ind_data[i23];
+    loop_ub = untriangulated_idx->size[0];
+    for (i38 = 0; i38 < loop_ub; i38++) {
+      for (ixstart = 0; ixstart < 3; ixstart++) {
+        new_m_data[ixstart + 3 * (i38 + anchorInd->size[0])] =
+          c_new_m_data[ixstart + 3 * ((int)untriangulated_idx->data[i38] - 1)];
+      }
+    }
+
+    emxFree_real_T(&untriangulated_idx);
+    for (i38 = 0; i38 < c_triangulated_status_ind_size_; i38++) {
+      status_ind_data[i38] = triangulated_status_ind_data[i38];
+    }
+
+    for (i38 = 0; i38 < idx; i38++) {
+      status_ind_data[i38 + c_triangulated_status_ind_size_] =
+        untriangulated_status_ind_data[i38];
     }
 
     //  insert new features into the state. first the closest triangulated ones, 
     //  then the un-triangulated ones
     new_feature_idx = 0;
     anchorIdx = 0;
-    exitg6 = false;
-    while ((!exitg6) && (anchorIdx + 1 < 6)) {
+    exitg3 = false;
+    while ((!exitg3) && (anchorIdx + 1 < 6)) {
       //          if new_feature_idx > length(new_depths)
       idx = 0;
-      for (ixstart = 0; ixstart < c_triangulation_success_size_id; ixstart++) {
+      for (ixstart = 0; ixstart < ii_size_idx_0; ixstart++) {
         if (triangulation_success_data[ixstart]) {
           idx++;
         }
       }
 
-      if (((float)(new_feature_idx + 1) > idx) || ((float)ind_l2_size[0] -
-           ((float)(new_feature_idx + 1) - 1.0F) < 4.0F)) {
-        exitg6 = true;
+      if ((new_feature_idx + 1 > idx) || (ind_l2_size[0] - new_feature_idx < 4))
+      {
+        exitg3 = true;
       } else {
         if (getNumValidFeatures(b_xt->anchor_states[anchorIdx].feature_states) <
-            4.0F) {
+            4.0) {
           //  anchor needs to be initialized
           //  free up updateVect
           for (featureIdx = 0; featureIdx < 8; featureIdx++) {
@@ -4376,103 +3580,106 @@ static void SLAM_upd(float P_apr[8281], g_struct_T *b_xt, const float
             e_ros_info(anchorIdx + 1);
           }
 
-          for (i23 = 0; i23 < 3; i23++) {
-            b_xt->anchor_states[anchorIdx].pos[i23] = b_xt->robot_state.pos[i23];
+          for (i38 = 0; i38 < 3; i38++) {
+            b_xt->anchor_states[anchorIdx].pos[i38] = b_xt->robot_state.pos[i38];
           }
 
-          for (i23 = 0; i23 < 4; i23++) {
-            b_xt->anchor_states[anchorIdx].att[i23] = b_xt->robot_state.att[i23];
+          for (i38 = 0; i38 < 4; i38++) {
+            b_xt->anchor_states[anchorIdx].att[i38] = b_xt->robot_state.att[i38];
           }
 
-          idx = anchorIdx * 14 + 21;
-          for (i23 = 0; i23 < 6; i23++) {
-            b_xt->anchor_states[anchorIdx].P_idx[i23] = (i23 + idx) + 1;
+          i38 = anchorIdx * 14;
+          for (ixstart = 0; ixstart < 6; ixstart++) {
+            b_xt->anchor_states[anchorIdx].P_idx[ixstart] = (ixstart + i38) + 22;
           }
 
-          for (i23 = 0; i23 < 91; i23++) {
-            for (i = 0; i < 6; i++) {
-              P_apr[(b_xt->anchor_states[anchorIdx].P_idx[i] + 91 * i23) - 1] =
-                0.0F;
+          for (i38 = 0; i38 < 91; i38++) {
+            for (ixstart = 0; ixstart < 6; ixstart++) {
+              P_apr[(b_xt->anchor_states[anchorIdx].P_idx[ixstart] + 91 * i38) -
+                1] = 0.0;
             }
           }
 
-          for (i23 = 0; i23 < 6; i23++) {
-            for (i = 0; i < 91; i++) {
-              P_apr[i + 91 * (b_xt->anchor_states[anchorIdx].P_idx[i23] - 1)] =
-                0.0F;
+          for (i38 = 0; i38 < 6; i38++) {
+            for (ixstart = 0; ixstart < 91; ixstart++) {
+              P_apr[ixstart + 91 * (b_xt->anchor_states[anchorIdx].P_idx[i38] -
+                                    1)] = 0.0;
             }
           }
 
-          ixstart = b_xt->anchor_states[anchorIdx].P_idx[5];
-          for (i23 = 0; i23 < 91; i23++) {
-            for (i = 0; i < 8; i++) {
-              idx = 1 + i;
-              ix = ixstart + idx;
-              if ((ixstart > 0) && (ix <= 0)) {
-                ix = MAX_int32_T;
+          idx = b_xt->anchor_states[anchorIdx].P_idx[5];
+          for (i38 = 0; i38 < 91; i38++) {
+            for (ixstart = 0; ixstart < 8; ixstart++) {
+              i39 = (long)idx + (1 + ixstart);
+              if (i39 > 2147483647L) {
+                i39 = 2147483647L;
+              } else {
+                if (i39 < -2147483648L) {
+                  i39 = -2147483648L;
+                }
               }
 
-              P_apr[(ix + 91 * i23) - 1] = 0.0F;
+              P_apr[((int)i39 + 91 * i38) - 1] = 0.0;
             }
           }
 
-          ixstart = b_xt->anchor_states[anchorIdx].P_idx[5];
-          for (i23 = 0; i23 < 8; i23++) {
-            for (i = 0; i < 91; i++) {
-              idx = 1 + i23;
-              ix = ixstart + idx;
-              if ((ixstart > 0) && (ix <= 0)) {
-                ix = MAX_int32_T;
+          idx = b_xt->anchor_states[anchorIdx].P_idx[5];
+          for (i38 = 0; i38 < 8; i38++) {
+            for (ixstart = 0; ixstart < 91; ixstart++) {
+              i39 = (long)idx + (1 + i38);
+              if (i39 > 2147483647L) {
+                i39 = 2147483647L;
+              } else {
+                if (i39 < -2147483648L) {
+                  i39 = -2147483648L;
+                }
               }
 
-              P_apr[i + 91 * (ix - 1)] = 0.0F;
+              P_apr[ixstart + 91 * ((int)i39 - 1)] = 0.0;
             }
           }
 
-          for (i23 = 0; i23 < 8281; i23++) {
-            J[i23] = iv11[i23];
+          d_eye(J);
+          i38 = anchorIdx * 14;
+          for (ixstart = 0; ixstart < 91; ixstart++) {
+            memset(&J[(i38 + 91 * ixstart) + 21], 0, 14U * sizeof(double));
           }
 
-          idx = anchorIdx * 14 + 21;
-          for (i23 = 0; i23 < 91; i23++) {
-            for (i = 0; i < 14; i++) {
-              J[(i + idx) + 91 * i23] = 0.0F;
+          i38 = anchorIdx * 14;
+          for (ixstart = 0; ixstart < 21; ixstart++) {
+            for (idx = 0; idx < 14; idx++) {
+              J[((idx + i38) + 91 * ixstart) + 21] = iv9[idx + 14 * ixstart];
             }
           }
 
-          idx = anchorIdx * 14 + 21;
-          for (i23 = 0; i23 < 21; i23++) {
-            for (i = 0; i < 14; i++) {
-              J[(i + idx) + 91 * i23] = iv12[i + 14 * i23];
-            }
-          }
-
-          for (i23 = 0; i23 < 91; i23++) {
-            for (i = 0; i < 91; i++) {
-              b_J[i23 + 91 * i] = 0.0F;
+          for (i38 = 0; i38 < 91; i38++) {
+            for (ixstart = 0; ixstart < 91; ixstart++) {
+              b_J[i38 + 91 * ixstart] = 0.0;
               for (idx = 0; idx < 91; idx++) {
-                b_J[i23 + 91 * i] += J[i23 + 91 * idx] * P_apr[idx + 91 * i];
+                b_J[i38 + 91 * ixstart] += J[i38 + 91 * idx] * P_apr[idx + 91 *
+                  ixstart];
               }
             }
           }
 
-          for (i23 = 0; i23 < 91; i23++) {
-            for (i = 0; i < 91; i++) {
-              P_apr[i23 + 91 * i] = 0.0F;
+          for (i38 = 0; i38 < 91; i38++) {
+            for (ixstart = 0; ixstart < 91; ixstart++) {
+              P_apr[i38 + 91 * ixstart] = 0.0;
               for (idx = 0; idx < 91; idx++) {
-                P_apr[i23 + 91 * i] += b_J[i23 + 91 * idx] * J[i + 91 * idx];
+                P_apr[i38 + 91 * ixstart] += b_J[i38 + 91 * idx] * J[ixstart +
+                  91 * idx];
               }
             }
           }
 
           featureIdx = 0;
-          exitg7 = false;
-          while ((!exitg7) && (featureIdx + 1 < 9)) {
+          exitg4 = false;
+          while ((!exitg4) && (featureIdx + 1 < 9)) {
             b_xt->anchor_states[anchorIdx].feature_states[featureIdx].
-              inverse_depth = 1.0F / ind_l2_data[new_feature_idx];
-            for (i23 = 0; i23 < 3; i23++) {
-              b_xt->anchor_states[anchorIdx].feature_states[featureIdx].m[i23] =
-                new_m_data[i23 + 3 * new_feature_idx];
+              inverse_depth = 1.0 / ind_l2_data[new_feature_idx];
+            for (i38 = 0; i38 < 3; i38++) {
+              b_xt->anchor_states[anchorIdx].feature_states[featureIdx].m[i38] =
+                new_m_data[i38 + 3 * new_feature_idx];
             }
 
             if (b_VIOParameters.delayed_initialization) {
@@ -4483,38 +3690,24 @@ static void SLAM_upd(float P_apr[8281], g_struct_T *b_xt, const float
                 1;
             }
 
-            mtmp = rt_roundf_snf(status_ind_data[new_feature_idx]);
-            if (mtmp < 2.14748365E+9F) {
-              if (mtmp >= -2.14748365E+9F) {
-                i23 = (int)mtmp;
-              } else {
-                i23 = MIN_int32_T;
-              }
-            } else if (mtmp >= 2.14748365E+9F) {
-              i23 = MAX_int32_T;
-            } else {
-              i23 = 0;
-            }
-
             b_xt->anchor_states[anchorIdx].feature_states[featureIdx].status_idx
-              = i23;
+              = (int)status_ind_data[new_feature_idx];
             b_xt->anchor_states[anchorIdx].feature_states[featureIdx].P_idx =
               (anchorIdx * 14 + featureIdx) + 28;
             idx = 0;
-            for (ixstart = 0; ixstart < c_triangulation_success_size_id; ixstart
-                 ++) {
+            for (ixstart = 0; ixstart < ii_size_idx_0; ixstart++) {
               if (triangulation_success_data[ixstart]) {
                 idx++;
               }
             }
 
-            if ((float)(new_feature_idx + 1) > idx) {
+            if (new_feature_idx + 1 > idx) {
               f_ros_info(b_xt->anchor_states[anchorIdx]
                          .feature_states[featureIdx].status_idx);
               P_apr[(b_xt->anchor_states[anchorIdx].feature_states[featureIdx].
                      P_idx + 91 * (b_xt->anchor_states[anchorIdx]
                                    .feature_states[featureIdx].P_idx - 1)) - 1] =
-                c_noiseParameters_inv_depth_ini * 10.0F;
+                c_noiseParameters_inv_depth_ini * 10.0;
 
               //  TODO: Maybe push the mean value further away?
             } else {
@@ -4526,34 +3719,21 @@ static void SLAM_upd(float P_apr[8281], g_struct_T *b_xt, const float
               // *new_depths(new_feature_idx);
             }
 
-            mtmp = rt_roundf_snf(status_ind_data[new_feature_idx]);
-            if (mtmp < 2.14748365E+9F) {
-              if (mtmp >= -2.14748365E+9F) {
-                i23 = (int)mtmp;
-              } else {
-                i23 = MIN_int32_T;
-              }
-            } else if (mtmp >= 2.14748365E+9F) {
-              i23 = MAX_int32_T;
-            } else {
-              i23 = 0;
-            }
-
-            g_ros_info(i23, featureIdx + 1, anchorIdx + 1);
+            g_ros_info((int)status_ind_data[new_feature_idx], featureIdx + 1,
+                       anchorIdx + 1);
             updateVect[(int)status_ind_data[new_feature_idx] - 1] = 1;
             new_feature_idx++;
 
             //                  if new_feature_idx > length(new_depths)
             idx = 0;
-            for (ixstart = 0; ixstart < c_triangulation_success_size_id; ixstart
-                 ++) {
+            for (ixstart = 0; ixstart < ii_size_idx_0; ixstart++) {
               if (triangulation_success_data[ixstart]) {
                 idx++;
               }
             }
 
-            if ((float)(new_feature_idx + 1) > idx) {
-              exitg7 = true;
+            if (new_feature_idx + 1 > idx) {
+              exitg4 = true;
             } else {
               featureIdx++;
             }
@@ -4577,7 +3757,7 @@ static void SLAM_upd(float P_apr[8281], g_struct_T *b_xt, const float
     //  get the median uncertainty of the active features as a benchmark on
     //  the delayed features
     for (i = 0; i < 40; i++) {
-      b_uncertainties[i] = -1.0F;
+      b_uncertainties[i] = -1.0;
     }
 
     has_active_features = false;
@@ -4596,27 +3776,27 @@ static void SLAM_upd(float P_apr[8281], g_struct_T *b_xt, const float
     }
 
     if (has_active_features) {
-      ix = 0;
+      trueCount = 0;
       for (i = 0; i < 40; i++) {
-        if (b_uncertainties[i] > 0.0F) {
-          ix++;
+        if (b_uncertainties[i] > 0.0) {
+          trueCount++;
         }
       }
 
       ixstart = 0;
       for (i = 0; i < 40; i++) {
-        if (b_uncertainties[i] > 0.0F) {
+        if (b_uncertainties[i] > 0.0) {
           ii_data[ixstart] = i + 1;
           ixstart++;
         }
       }
 
-      uncertainties_size[0] = ix;
-      for (i23 = 0; i23 < ix; i23++) {
-        b_triangulated_status_ind_data[i23] = b_uncertainties[ii_data[i23] - 1];
+      uncertainties_size[0] = trueCount;
+      for (i38 = 0; i38 < trueCount; i38++) {
+        b_ii_data[i38] = b_uncertainties[ii_data[i38] - 1];
       }
 
-      mtmp = median(b_triangulated_status_ind_data, uncertainties_size);
+      median_uncertainty = median(b_ii_data, uncertainties_size);
 
       //  because coder does not support nanflag
       //  check if a delayed initialization feature has converged
@@ -4627,10 +3807,10 @@ static void SLAM_upd(float P_apr[8281], g_struct_T *b_xt, const float
                              .feature_states[featureIdx].P_idx + 91 *
                              (b_xt->anchor_states[anchorIdx]
                               .feature_states[featureIdx].P_idx - 1)) - 1] <
-                      mtmp * 2.0F)) {
+                      median_uncertainty * 2.0)) {
             //  this feature is not active yet
             if (b_xt->anchor_states[anchorIdx].feature_states[featureIdx].
-                inverse_depth < 0.0F) {
+                inverse_depth < 0.0) {
               b_xt->anchor_states[anchorIdx].feature_states[featureIdx].status =
                 0;
               updateVect[b_xt->anchor_states[anchorIdx]
@@ -4648,35 +3828,35 @@ static void SLAM_upd(float P_apr[8281], g_struct_T *b_xt, const float
     //  check if delayed features need to be forced active due to too few active 
     //  features
     totalNumActiveFeatues = getTotalNumActiveFeatures(b_xt->anchor_states);
-    if (totalNumActiveFeatues < 16.0F) {
+    if (totalNumActiveFeatues < 16.0) {
       //  find the best features and activate them
       numDelayedFeatures = getTotalNumDelayedFeatures(b_xt->anchor_states);
-      i23 = qualities->size[0];
+      i38 = qualities->size[0];
       qualities->size[0] = (int)numDelayedFeatures;
-      emxEnsureCapacity((emxArray__common *)qualities, i23, (int)sizeof(float));
+      emxEnsureCapacity((emxArray__common *)qualities, i38, (int)sizeof(double));
       loop_ub = (int)numDelayedFeatures;
-      for (i23 = 0; i23 < loop_ub; i23++) {
-        qualities->data[i23] = 0.0F;
+      for (i38 = 0; i38 < loop_ub; i38++) {
+        qualities->data[i38] = 0.0;
       }
 
       //  quality measures of each delayed feature
-      i23 = anchorInd->size[0];
-      anchorInd->size[0] = qualities->size[0];
-      emxEnsureCapacity((emxArray__common *)anchorInd, i23, (int)sizeof(float));
-      loop_ub = qualities->size[0];
-      for (i23 = 0; i23 < loop_ub; i23++) {
-        anchorInd->data[i23] = qualities->data[i23];
+      i38 = anchorInd->size[0];
+      anchorInd->size[0] = (int)numDelayedFeatures;
+      emxEnsureCapacity((emxArray__common *)anchorInd, i38, (int)sizeof(double));
+      loop_ub = (int)numDelayedFeatures;
+      for (i38 = 0; i38 < loop_ub; i38++) {
+        anchorInd->data[i38] = 0.0;
       }
 
-      i23 = featureInd->size[0];
-      featureInd->size[0] = qualities->size[0];
-      emxEnsureCapacity((emxArray__common *)featureInd, i23, (int)sizeof(float));
-      loop_ub = qualities->size[0];
-      for (i23 = 0; i23 < loop_ub; i23++) {
-        featureInd->data[i23] = qualities->data[i23];
+      i38 = featureInd->size[0];
+      featureInd->size[0] = (int)numDelayedFeatures;
+      emxEnsureCapacity((emxArray__common *)featureInd, i38, (int)sizeof(double));
+      loop_ub = (int)numDelayedFeatures;
+      for (i38 = 0; i38 < loop_ub; i38++) {
+        featureInd->data[i38] = 0.0;
       }
 
-      delayedIdx = 1.0F;
+      delayedIdx = 1U;
       for (anchorIdx = 0; anchorIdx < 5; anchorIdx++) {
         for (featureIdx = 0; featureIdx < 8; featureIdx++) {
           if (b_xt->anchor_states[anchorIdx].feature_states[featureIdx].status ==
@@ -4685,52 +3865,45 @@ static void SLAM_upd(float P_apr[8281], g_struct_T *b_xt, const float
               anchor_states[anchorIdx].feature_states[featureIdx].P_idx + 91 *
               (b_xt->anchor_states[anchorIdx].feature_states[featureIdx].P_idx -
                1)) - 1] / c_noiseParameters_inv_depth_ini;
-            anchorInd->data[(int)delayedIdx - 1] = (float)anchorIdx + 1.0F;
-            featureInd->data[(int)delayedIdx - 1] = (float)featureIdx + 1.0F;
+            anchorInd->data[(int)delayedIdx - 1] = (double)anchorIdx + 1.0;
+            featureInd->data[(int)delayedIdx - 1] = (double)featureIdx + 1.0;
             delayedIdx++;
           }
         }
       }
 
       c_sort(qualities, b_iidx);
-      i23 = qualities->size[0];
+      i38 = qualities->size[0];
       qualities->size[0] = b_iidx->size[0];
-      emxEnsureCapacity((emxArray__common *)qualities, i23, (int)sizeof(float));
+      emxEnsureCapacity((emxArray__common *)qualities, i38, (int)sizeof(double));
       loop_ub = b_iidx->size[0];
-      for (i23 = 0; i23 < loop_ub; i23++) {
-        qualities->data[i23] = (float)b_iidx->data[i23];
+      for (i38 = 0; i38 < loop_ub; i38++) {
+        qualities->data[i38] = b_iidx->data[i38];
       }
 
-      numActivatedFeatures = 0.0F;
+      numActivatedFeatures = 0.0;
       i = 0;
-      while ((i <= (int)(float)qualities->size[0] - 1) &&
-             (!(numActivatedFeatures > (float)ceil((double)(16.0F -
-                 totalNumActiveFeatues)))) && (!(numActivatedFeatures >
+      while ((i <= qualities->size[0] - 1) && (!(numActivatedFeatures > 16.0F -
+               (float)totalNumActiveFeatues)) && (!(numActivatedFeatures >
                numDelayedFeatures))) {
-        if (b_xt->anchor_states[(int)anchorInd->data[(int)qualities->data[(int)
-            (1.0F + (float)i) - 1] - 1] - 1].feature_states[(int)
-            featureInd->data[(int)qualities->data[(int)(1.0F + (float)i) - 1] -
-            1] - 1].inverse_depth < 0.0F) {
-          b_xt->anchor_states[(int)anchorInd->data[(int)qualities->data[(int)
-            (1.0F + (float)i) - 1] - 1] - 1].feature_states[(int)
-            featureInd->data[(int)qualities->data[(int)(1.0F + (float)i) - 1] -
+        if (b_xt->anchor_states[(int)anchorInd->data[(int)qualities->data[i] - 1]
+            - 1].feature_states[(int)featureInd->data[(int)qualities->data[i] -
+            1] - 1].inverse_depth < 0.0) {
+          b_xt->anchor_states[(int)anchorInd->data[(int)qualities->data[i] - 1]
+            - 1].feature_states[(int)featureInd->data[(int)qualities->data[i] -
             1] - 1].status = 0;
           updateVect[b_xt->anchor_states[(int)anchorInd->data[(int)
-            qualities->data[(int)(1.0F + (float)i) - 1] - 1] - 1]
-            .feature_states[(int)featureInd->data[(int)qualities->data[(int)
-            (1.0F + (float)i) - 1] - 1] - 1].status_idx - 1] = 0;
+            qualities->data[i] - 1] - 1].feature_states[(int)featureInd->data
+            [(int)qualities->data[i] - 1] - 1].status_idx - 1] = 0;
         } else {
-          b_xt->anchor_states[(int)anchorInd->data[(int)qualities->data[(int)
-            (1.0F + (float)i) - 1] - 1] - 1].feature_states[(int)
-            featureInd->data[(int)qualities->data[(int)(1.0F + (float)i) - 1] -
+          b_xt->anchor_states[(int)anchorInd->data[(int)qualities->data[i] - 1]
+            - 1].feature_states[(int)featureInd->data[(int)qualities->data[i] -
             1] - 1].status = 1;
           h_ros_info(b_xt->anchor_states[(int)anchorInd->data[(int)
-                     qualities->data[(int)(1.0F + (float)i) - 1] - 1] - 1].
-                     feature_states[(int)featureInd->data[(int)qualities->data
-                     [(int)(1.0F + (float)i) - 1] - 1] - 1].status_idx,
-                     featureInd->data[(int)qualities->data[(int)(1.0F + (float)i)
-                     - 1] - 1], anchorInd->data[(int)qualities->data[(int)(1.0F
-                      + (float)i) - 1] - 1]);
+                     qualities->data[i] - 1] - 1].feature_states[(int)
+                     featureInd->data[(int)qualities->data[i] - 1] - 1].
+                     status_idx, featureInd->data[(int)qualities->data[i] - 1],
+                     anchorInd->data[(int)qualities->data[i] - 1]);
           numActivatedFeatures++;
         }
 
@@ -4740,9 +3913,9 @@ static void SLAM_upd(float P_apr[8281], g_struct_T *b_xt, const float
   }
 
   emxFree_int32_T(&b_iidx);
-  emxFree_real32_T(&featureInd);
-  emxFree_real32_T(&anchorInd);
-  emxFree_real32_T(&qualities);
+  emxFree_real_T(&featureInd);
+  emxFree_real_T(&anchorInd);
+  emxFree_real_T(&qualities);
 
   //  check if new features need to be requested
   request_new_features = false;
@@ -4753,15 +3926,15 @@ static void SLAM_upd(float P_apr[8281], g_struct_T *b_xt, const float
     }
   }
 
-  if (idx > 4.0F) {
+  if (idx > 4) {
     //  if a new anchor can be filled enough
     anchorIdx = 1;
-    exitg5 = false;
-    while ((!exitg5) && (anchorIdx < 6)) {
+    exitg2 = false;
+    while ((!exitg2) && (anchorIdx < 6)) {
       if (getNumValidFeatures(b_xt->anchor_states[anchorIdx - 1].feature_states)
-          < 4.0F) {
+          < 4.0) {
         request_new_features = true;
-        exitg5 = true;
+        exitg2 = true;
       } else {
         anchorIdx++;
       }
@@ -4789,20 +3962,21 @@ static void SLAM_upd(float P_apr[8281], g_struct_T *b_xt, const float
     //  choose the best anchor as the new origin anchor
     //  uncertainties of the anchors reduced to a scalar
     for (anchorIdx = 0; anchorIdx < 5; anchorIdx++) {
-      b_has_active_features[anchorIdx] = 0.0F;
+      b_has_active_features[anchorIdx] = 0.0;
       if (anyActiveAnchorFeatures(b_xt->anchor_states[anchorIdx].feature_states))
       {
-        for (i23 = 0; i23 < 6; i23++) {
-          for (i = 0; i < 6; i++) {
-            b_P_apr[i + 6 * i23] = P_apr[(b_xt->anchor_states[anchorIdx].P_idx[i]
-              + 91 * (b_xt->anchor_states[anchorIdx].P_idx[i23] - 1)) - 1];
+        for (i38 = 0; i38 < 6; i38++) {
+          for (ixstart = 0; ixstart < 6; ixstart++) {
+            b_P_apr[ixstart + 6 * i38] = P_apr[(b_xt->anchor_states[anchorIdx].
+              P_idx[ixstart] + 91 * (b_xt->anchor_states[anchorIdx].P_idx[i38] -
+              1)) - 1];
           }
         }
 
         c_uncertainties[anchorIdx] = det(b_P_apr);
-        b_has_active_features[anchorIdx] = 1.0F;
+        b_has_active_features[anchorIdx] = 1.0;
       } else {
-        c_uncertainties[anchorIdx] = 1000.0F;
+        c_uncertainties[anchorIdx] = 1000.0;
 
         //  dont fix an anchor with no active features
       }
@@ -4814,15 +3988,15 @@ static void SLAM_upd(float P_apr[8281], g_struct_T *b_xt, const float
       ixstart = 1;
       mtmp = c_uncertainties[0];
       idx = 1;
-      if (rtIsNaNF(c_uncertainties[0])) {
+      if (rtIsNaN(c_uncertainties[0])) {
         ix = 2;
-        exitg4 = false;
-        while ((!exitg4) && (ix < 6)) {
+        exitg1 = false;
+        while ((!exitg1) && (ix < 6)) {
           ixstart = ix;
-          if (!rtIsNaNF(c_uncertainties[ix - 1])) {
+          if (!rtIsNaN(c_uncertainties[ix - 1])) {
             mtmp = c_uncertainties[ix - 1];
             idx = ix;
-            exitg4 = true;
+            exitg1 = true;
           } else {
             ix++;
           }
@@ -4841,21 +4015,17 @@ static void SLAM_upd(float P_apr[8281], g_struct_T *b_xt, const float
       }
 
       b_xt->origin.anchor_idx = idx;
-      if (!(b_has_active_features[b_xt->origin.anchor_idx - 1] != 0.0F)) {
+      if (!(b_has_active_features[b_xt->origin.anchor_idx - 1] != 0.0)) {
         //  debug check
         // #coder
         // ROS_ERROR Print to ROS_ERROR in ROS or to console in Matlab
-        for (i23 = 0; i23 < 63; i23++) {
-          cv28[i23] = cv29[i23];
+        for (i38 = 0; i38 < 63; i38++) {
+          cv28[i38] = cv29[i38];
         }
 
         ROS_ERROR(cv28, b_xt->origin.anchor_idx);
       } else {
         i_ros_info(b_xt->origin.anchor_idx);
-        for (i = 0; i < 3; i++) {
-          new_origin_pos_rel[i] = b_xt->anchor_states[b_xt->origin.anchor_idx -
-            1].pos[i];
-        }
 
         //  in old origin frame
         //  if ~all(size(q) == [4, 1])
@@ -4872,17 +4042,17 @@ static void SLAM_upd(float P_apr[8281], g_struct_T *b_xt, const float
           b_xt->anchor_states[b_xt->origin.anchor_idx - 1].att[2]) +
           b_xt->anchor_states[b_xt->origin.anchor_idx - 1].att[3] *
           b_xt->anchor_states[b_xt->origin.anchor_idx - 1].att[3];
-        new_origin_att_rel[3] = 2.0F * (b_xt->anchor_states
+        new_origin_att_rel[3] = 2.0 * (b_xt->anchor_states
           [b_xt->origin.anchor_idx - 1].att[0] * b_xt->anchor_states
           [b_xt->origin.anchor_idx - 1].att[1] + b_xt->anchor_states
           [b_xt->origin.anchor_idx - 1].att[2] * b_xt->anchor_states
           [b_xt->origin.anchor_idx - 1].att[3]);
-        new_origin_att_rel[6] = 2.0F * (b_xt->anchor_states
+        new_origin_att_rel[6] = 2.0 * (b_xt->anchor_states
           [b_xt->origin.anchor_idx - 1].att[0] * b_xt->anchor_states
           [b_xt->origin.anchor_idx - 1].att[2] - b_xt->anchor_states
           [b_xt->origin.anchor_idx - 1].att[1] * b_xt->anchor_states
           [b_xt->origin.anchor_idx - 1].att[3]);
-        new_origin_att_rel[1] = 2.0F * (b_xt->anchor_states
+        new_origin_att_rel[1] = 2.0 * (b_xt->anchor_states
           [b_xt->origin.anchor_idx - 1].att[0] * b_xt->anchor_states
           [b_xt->origin.anchor_idx - 1].att[1] - b_xt->anchor_states
           [b_xt->origin.anchor_idx - 1].att[2] * b_xt->anchor_states
@@ -4895,17 +4065,17 @@ static void SLAM_upd(float P_apr[8281], g_struct_T *b_xt, const float
           b_xt->anchor_states[b_xt->origin.anchor_idx - 1].att[2]) +
           b_xt->anchor_states[b_xt->origin.anchor_idx - 1].att[3] *
           b_xt->anchor_states[b_xt->origin.anchor_idx - 1].att[3];
-        new_origin_att_rel[7] = 2.0F * (b_xt->anchor_states
+        new_origin_att_rel[7] = 2.0 * (b_xt->anchor_states
           [b_xt->origin.anchor_idx - 1].att[1] * b_xt->anchor_states
           [b_xt->origin.anchor_idx - 1].att[2] + b_xt->anchor_states
           [b_xt->origin.anchor_idx - 1].att[0] * b_xt->anchor_states
           [b_xt->origin.anchor_idx - 1].att[3]);
-        new_origin_att_rel[2] = 2.0F * (b_xt->anchor_states
+        new_origin_att_rel[2] = 2.0 * (b_xt->anchor_states
           [b_xt->origin.anchor_idx - 1].att[0] * b_xt->anchor_states
           [b_xt->origin.anchor_idx - 1].att[2] + b_xt->anchor_states
           [b_xt->origin.anchor_idx - 1].att[1] * b_xt->anchor_states
           [b_xt->origin.anchor_idx - 1].att[3]);
-        new_origin_att_rel[5] = 2.0F * (b_xt->anchor_states
+        new_origin_att_rel[5] = 2.0 * (b_xt->anchor_states
           [b_xt->origin.anchor_idx - 1].att[1] * b_xt->anchor_states
           [b_xt->origin.anchor_idx - 1].att[2] - b_xt->anchor_states
           [b_xt->origin.anchor_idx - 1].att[0] * b_xt->anchor_states
@@ -4920,69 +4090,67 @@ static void SLAM_upd(float P_apr[8281], g_struct_T *b_xt, const float
           b_xt->anchor_states[b_xt->origin.anchor_idx - 1].att[3];
 
         //  in old origin frame, = R_o{k+1}o{k}
-        for (i23 = 0; i23 < 8281; i23++) {
-          J[i23] = iv11[i23];
-        }
+        d_eye(J);
 
         //  robot position and orientation
-        for (i23 = 0; i23 < 3; i23++) {
-          for (i = 0; i < 3; i++) {
-            J[i + 91 * i23] = new_origin_att_rel[i + 3 * i23];
-            J[i + 91 * (i23 + 3)] = 0.0F;
+        eye(c_xt);
+        for (i = 0; i < 3; i++) {
+          new_origin_pos_rel[i] = b_xt->anchor_states[b_xt->origin.anchor_idx -
+            1].pos[i];
+          for (i38 = 0; i38 < 3; i38++) {
+            J[i38 + 91 * i] = new_origin_att_rel[i38 + 3 * i];
+            J[i38 + 91 * (i + 3)] = 0.0;
+            J[(i38 + 91 * i) + 3] = 0.0;
+            J[(i38 + 91 * (i + 3)) + 3] = c_xt[i38 + 3 * i];
           }
+
+          d_xt[i] = b_xt->robot_state.pos[i] - b_xt->anchor_states
+            [b_xt->origin.anchor_idx - 1].pos[i];
         }
 
-        for (i23 = 0; i23 < 6; i23++) {
-          for (i = 0; i < 3; i++) {
-            J[(i + 91 * i23) + 3] = iv13[i + 3 * i23];
-          }
-        }
-
-        for (i23 = 0; i23 < 3; i23++) {
-          c_xt[i23] = b_xt->robot_state.pos[i23] - b_xt->anchor_states
-            [b_xt->origin.anchor_idx - 1].pos[i23];
-        }
-
-        for (i23 = 0; i23 < 3; i23++) {
-          fp[i23] = 0.0F;
-          for (i = 0; i < 3; i++) {
-            J[i + 91 * (b_xt->anchor_states[b_xt->origin.anchor_idx - 1]
-                        .P_idx[i23] - 1)] = -new_origin_att_rel[i + 3 * i23];
-            J[(i + 91 * (b_xt->anchor_states[b_xt->origin.anchor_idx - 1]
-                         .P_idx[i23] - 1)) + 3] = 0.0F;
-            fp[i23] += new_origin_att_rel[i23 + 3 * i] * c_xt[i];
+        for (i38 = 0; i38 < 3; i38++) {
+          m_l[i38] = 0.0;
+          for (ixstart = 0; ixstart < 3; ixstart++) {
+            J[ixstart + 91 * (b_xt->anchor_states[b_xt->origin.anchor_idx - 1].
+                              P_idx[i38] - 1)] = -new_origin_att_rel[ixstart + 3
+              * i38];
+            J[(ixstart + 91 * (b_xt->anchor_states[b_xt->origin.anchor_idx - 1].
+                               P_idx[i38] - 1)) + 3] = 0.0;
+            m_l[i38] += new_origin_att_rel[i38 + 3 * ixstart] * d_xt[ixstart];
           }
         }
 
         J[91 * (b_xt->anchor_states[b_xt->origin.anchor_idx - 1].P_idx[3] - 1)] =
-          0.0F;
+          0.0;
         J[91 * (b_xt->anchor_states[b_xt->origin.anchor_idx - 1].P_idx[4] - 1)] =
-          -fp[2];
+          -m_l[2];
         J[91 * (b_xt->anchor_states[b_xt->origin.anchor_idx - 1].P_idx[5] - 1)] =
-          fp[1];
+          m_l[1];
         J[1 + 91 * (b_xt->anchor_states[b_xt->origin.anchor_idx - 1].P_idx[3] -
-                    1)] = fp[2];
+                    1)] = m_l[2];
         J[1 + 91 * (b_xt->anchor_states[b_xt->origin.anchor_idx - 1].P_idx[4] -
-                    1)] = 0.0F;
+                    1)] = 0.0;
         J[1 + 91 * (b_xt->anchor_states[b_xt->origin.anchor_idx - 1].P_idx[5] -
-                    1)] = -fp[0];
+                    1)] = -m_l[0];
         J[2 + 91 * (b_xt->anchor_states[b_xt->origin.anchor_idx - 1].P_idx[3] -
-                    1)] = -fp[1];
+                    1)] = -m_l[1];
         J[2 + 91 * (b_xt->anchor_states[b_xt->origin.anchor_idx - 1].P_idx[4] -
-                    1)] = fp[0];
+                    1)] = m_l[0];
         J[2 + 91 * (b_xt->anchor_states[b_xt->origin.anchor_idx - 1].P_idx[5] -
-                    1)] = 0.0F;
+                    1)] = 0.0;
 
         //  robot velocity
         //  velocity
         //  origin rotation
-        for (i23 = 0; i23 < 3; i23++) {
-          for (i = 0; i < 3; i++) {
-            J[(i + 91 * (b_xt->anchor_states[b_xt->origin.anchor_idx - 1]
-                         .P_idx[i23 + 3] - 1)) + 3] = -new_origin_att_rel[i23 +
-              3 * i];
-            J[(i + 91 * (6 + i23)) + 6] = new_origin_att_rel[i + 3 * i23];
-            J[(i + 91 * (15 + i23)) + 15] = new_origin_att_rel[i + 3 * i23];
+        for (i38 = 0; i38 < 3; i38++) {
+          for (ixstart = 0; ixstart < 3; ixstart++) {
+            J[(ixstart + 91 * (b_xt->anchor_states[b_xt->origin.anchor_idx - 1].
+                               P_idx[i38 + 3] - 1)) + 3] =
+              -new_origin_att_rel[i38 + 3 * ixstart];
+            J[(ixstart + 91 * (6 + i38)) + 6] = new_origin_att_rel[ixstart + 3 *
+              i38];
+            J[(ixstart + 91 * (15 + i38)) + 15] = new_origin_att_rel[ixstart + 3
+              * i38];
           }
         }
 
@@ -4990,101 +4158,108 @@ static void SLAM_upd(float P_apr[8281], g_struct_T *b_xt, const float
         for (anchorIdx = 0; anchorIdx < 5; anchorIdx++) {
           if (anchorIdx + 1 == b_xt->origin.anchor_idx) {
             //  remove yaw uncertainty, but not pitch or roll
-            for (i23 = 0; i23 < 6; i23++) {
-              for (i = 0; i < 6; i++) {
-                J[(b_xt->anchor_states[anchorIdx].P_idx[i] + 91 *
-                   (b_xt->anchor_states[anchorIdx].P_idx[i23] - 1)) - 1] = 0.0F;
+            for (i38 = 0; i38 < 6; i38++) {
+              for (ixstart = 0; ixstart < 6; ixstart++) {
+                J[(b_xt->anchor_states[anchorIdx].P_idx[ixstart] + 91 *
+                   (b_xt->anchor_states[anchorIdx].P_idx[i38] - 1)) - 1] = 0.0;
               }
             }
 
             //  TODO: allow roll/pitch uncertainty
           } else {
-            for (i23 = 0; i23 < 3; i23++) {
-              for (i = 0; i < 3; i++) {
-                J[(b_xt->anchor_states[anchorIdx].P_idx[i] + 91 *
-                   (b_xt->anchor_states[anchorIdx].P_idx[i23] - 1)) - 1] =
-                  new_origin_att_rel[i + 3 * i23];
+            eye(c_xt);
+            for (i38 = 0; i38 < 3; i38++) {
+              for (ixstart = 0; ixstart < 3; ixstart++) {
+                J[(b_xt->anchor_states[anchorIdx].P_idx[ixstart] + 91 *
+                   (b_xt->anchor_states[anchorIdx].P_idx[i38] - 1)) - 1] =
+                  new_origin_att_rel[ixstart + 3 * i38];
               }
             }
 
-            for (i23 = 0; i23 < 3; i23++) {
-              for (i = 0; i < 3; i++) {
-                J[(b_xt->anchor_states[anchorIdx].P_idx[i] + 91 *
-                   (b_xt->anchor_states[anchorIdx].P_idx[i23 + 3] - 1)) - 1] =
-                  0.0F;
+            for (i38 = 0; i38 < 3; i38++) {
+              for (ixstart = 0; ixstart < 3; ixstart++) {
+                J[(b_xt->anchor_states[anchorIdx].P_idx[ixstart] + 91 *
+                   (b_xt->anchor_states[anchorIdx].P_idx[i38 + 3] - 1)) - 1] =
+                  0.0;
               }
             }
 
-            for (i23 = 0; i23 < 6; i23++) {
-              for (i = 0; i < 3; i++) {
-                J[(b_xt->anchor_states[anchorIdx].P_idx[i + 3] + 91 *
-                   (b_xt->anchor_states[anchorIdx].P_idx[i23] - 1)) - 1] =
-                  iv13[i + 3 * i23];
+            for (i38 = 0; i38 < 3; i38++) {
+              for (ixstart = 0; ixstart < 3; ixstart++) {
+                J[(b_xt->anchor_states[anchorIdx].P_idx[ixstart + 3] + 91 *
+                   (b_xt->anchor_states[anchorIdx].P_idx[i38] - 1)) - 1] = 0.0;
               }
             }
 
-            for (i23 = 0; i23 < 3; i23++) {
-              c_xt[i23] = b_xt->anchor_states[anchorIdx].pos[i23] -
-                new_origin_pos_rel[i23];
+            for (i38 = 0; i38 < 3; i38++) {
+              for (ixstart = 0; ixstart < 3; ixstart++) {
+                J[(b_xt->anchor_states[anchorIdx].P_idx[ixstart + 3] + 91 *
+                   (b_xt->anchor_states[anchorIdx].P_idx[i38 + 3] - 1)) - 1] =
+                  c_xt[ixstart + 3 * i38];
+              }
+
+              d_xt[i38] = b_xt->anchor_states[anchorIdx].pos[i38] -
+                new_origin_pos_rel[i38];
             }
 
-            for (i23 = 0; i23 < 3; i23++) {
-              fp[i23] = 0.0F;
-              for (i = 0; i < 3; i++) {
-                J[(b_xt->anchor_states[anchorIdx].P_idx[i] + 91 *
-                   (b_xt->anchor_states[b_xt->origin.anchor_idx - 1].P_idx[i23]
-                    - 1)) - 1] = -new_origin_att_rel[i + 3 * i23];
-                fp[i23] += new_origin_att_rel[i23 + 3 * i] * c_xt[i];
+            for (i38 = 0; i38 < 3; i38++) {
+              m_l[i38] = 0.0;
+              for (ixstart = 0; ixstart < 3; ixstart++) {
+                J[(b_xt->anchor_states[anchorIdx].P_idx[ixstart] + 91 *
+                   (b_xt->anchor_states[b_xt->origin.anchor_idx - 1].P_idx[i38]
+                    - 1)) - 1] = -new_origin_att_rel[ixstart + 3 * i38];
+                m_l[i38] += new_origin_att_rel[i38 + 3 * ixstart] * d_xt[ixstart];
               }
             }
 
             J[(b_xt->anchor_states[anchorIdx].P_idx[0] + 91 *
                (b_xt->anchor_states[b_xt->origin.anchor_idx - 1].P_idx[3] - 1))
-              - 1] = 0.0F;
+              - 1] = 0.0;
             J[(b_xt->anchor_states[anchorIdx].P_idx[0] + 91 *
                (b_xt->anchor_states[b_xt->origin.anchor_idx - 1].P_idx[4] - 1))
-              - 1] = -fp[2];
+              - 1] = -m_l[2];
             J[(b_xt->anchor_states[anchorIdx].P_idx[0] + 91 *
                (b_xt->anchor_states[b_xt->origin.anchor_idx - 1].P_idx[5] - 1))
-              - 1] = fp[1];
+              - 1] = m_l[1];
             J[(b_xt->anchor_states[anchorIdx].P_idx[1] + 91 *
                (b_xt->anchor_states[b_xt->origin.anchor_idx - 1].P_idx[3] - 1))
-              - 1] = fp[2];
+              - 1] = m_l[2];
             J[(b_xt->anchor_states[anchorIdx].P_idx[1] + 91 *
                (b_xt->anchor_states[b_xt->origin.anchor_idx - 1].P_idx[4] - 1))
-              - 1] = 0.0F;
+              - 1] = 0.0;
             J[(b_xt->anchor_states[anchorIdx].P_idx[1] + 91 *
                (b_xt->anchor_states[b_xt->origin.anchor_idx - 1].P_idx[5] - 1))
-              - 1] = -fp[0];
+              - 1] = -m_l[0];
             J[(b_xt->anchor_states[anchorIdx].P_idx[2] + 91 *
                (b_xt->anchor_states[b_xt->origin.anchor_idx - 1].P_idx[3] - 1))
-              - 1] = -fp[1];
+              - 1] = -m_l[1];
             J[(b_xt->anchor_states[anchorIdx].P_idx[2] + 91 *
                (b_xt->anchor_states[b_xt->origin.anchor_idx - 1].P_idx[4] - 1))
-              - 1] = fp[0];
+              - 1] = m_l[0];
             J[(b_xt->anchor_states[anchorIdx].P_idx[2] + 91 *
                (b_xt->anchor_states[b_xt->origin.anchor_idx - 1].P_idx[5] - 1))
-              - 1] = 0.0F;
-            for (i23 = 0; i23 < 3; i23++) {
-              for (i = 0; i < 3; i++) {
-                J[(b_xt->anchor_states[anchorIdx].P_idx[i + 3] + 91 *
-                   (b_xt->anchor_states[b_xt->origin.anchor_idx - 1].P_idx[i23]
-                    - 1)) - 1] = 0.0F;
+              - 1] = 0.0;
+            for (i38 = 0; i38 < 3; i38++) {
+              for (ixstart = 0; ixstart < 3; ixstart++) {
+                J[(b_xt->anchor_states[anchorIdx].P_idx[ixstart + 3] + 91 *
+                   (b_xt->anchor_states[b_xt->origin.anchor_idx - 1].P_idx[i38]
+                    - 1)) - 1] = 0.0;
               }
             }
 
-            for (i23 = 0; i23 < 3; i23++) {
-              for (i = 0; i < 3; i++) {
-                J[(b_xt->anchor_states[anchorIdx].P_idx[i + 3] + 91 *
-                   (b_xt->anchor_states[b_xt->origin.anchor_idx - 1].P_idx[i23 +
-                    3] - 1)) - 1] = -new_origin_att_rel[i23 + 3 * i];
+            for (i38 = 0; i38 < 3; i38++) {
+              for (ixstart = 0; ixstart < 3; ixstart++) {
+                J[(b_xt->anchor_states[anchorIdx].P_idx[ixstart + 3] + 91 *
+                   (b_xt->anchor_states[b_xt->origin.anchor_idx - 1].P_idx[i38 +
+                    3] - 1)) - 1] = -new_origin_att_rel[i38 + 3 * ixstart];
               }
             }
           }
 
           for (i = 0; i < 3; i++) {
-            fp[i] = b_xt->anchor_states[anchorIdx].pos[i] - new_origin_pos_rel[i];
-            b_xt->anchor_states[anchorIdx].pos[i] = 0.0F;
+            m_l[i] = b_xt->anchor_states[anchorIdx].pos[i] -
+              new_origin_pos_rel[i];
+            b_xt->anchor_states[anchorIdx].pos[i] = 0.0;
           }
 
           //  if ~all(size(q) == [4, 1])
@@ -5093,7 +4268,7 @@ static void SLAM_upd(float P_apr[8281], g_struct_T *b_xt, const float
           //  if abs(norm(q) - 1) > 1e-3
           //      error('The provided quaternion is not a valid rotation quaternion because it does not have norm 1') 
           //  end
-          d_xt[0] = ((b_xt->anchor_states[anchorIdx].att[0] *
+          e_xt[0] = ((b_xt->anchor_states[anchorIdx].att[0] *
                       b_xt->anchor_states[anchorIdx].att[0] -
                       b_xt->anchor_states[anchorIdx].att[1] *
                       b_xt->anchor_states[anchorIdx].att[1]) -
@@ -5101,19 +4276,19 @@ static void SLAM_upd(float P_apr[8281], g_struct_T *b_xt, const float
                      anchor_states[anchorIdx].att[2]) + b_xt->
             anchor_states[anchorIdx].att[3] * b_xt->anchor_states[anchorIdx]
             .att[3];
-          d_xt[3] = 2.0F * (b_xt->anchor_states[anchorIdx].att[0] *
-                            b_xt->anchor_states[anchorIdx].att[1] +
-                            b_xt->anchor_states[anchorIdx].att[2] *
-                            b_xt->anchor_states[anchorIdx].att[3]);
-          d_xt[6] = 2.0F * (b_xt->anchor_states[anchorIdx].att[0] *
-                            b_xt->anchor_states[anchorIdx].att[2] -
-                            b_xt->anchor_states[anchorIdx].att[1] *
-                            b_xt->anchor_states[anchorIdx].att[3]);
-          d_xt[1] = 2.0F * (b_xt->anchor_states[anchorIdx].att[0] *
-                            b_xt->anchor_states[anchorIdx].att[1] -
-                            b_xt->anchor_states[anchorIdx].att[2] *
-                            b_xt->anchor_states[anchorIdx].att[3]);
-          d_xt[4] = ((-(b_xt->anchor_states[anchorIdx].att[0] *
+          e_xt[3] = 2.0 * (b_xt->anchor_states[anchorIdx].att[0] *
+                           b_xt->anchor_states[anchorIdx].att[1] +
+                           b_xt->anchor_states[anchorIdx].att[2] *
+                           b_xt->anchor_states[anchorIdx].att[3]);
+          e_xt[6] = 2.0 * (b_xt->anchor_states[anchorIdx].att[0] *
+                           b_xt->anchor_states[anchorIdx].att[2] -
+                           b_xt->anchor_states[anchorIdx].att[1] *
+                           b_xt->anchor_states[anchorIdx].att[3]);
+          e_xt[1] = 2.0 * (b_xt->anchor_states[anchorIdx].att[0] *
+                           b_xt->anchor_states[anchorIdx].att[1] -
+                           b_xt->anchor_states[anchorIdx].att[2] *
+                           b_xt->anchor_states[anchorIdx].att[3]);
+          e_xt[4] = ((-(b_xt->anchor_states[anchorIdx].att[0] *
                         b_xt->anchor_states[anchorIdx].att[0]) +
                       b_xt->anchor_states[anchorIdx].att[1] *
                       b_xt->anchor_states[anchorIdx].att[1]) -
@@ -5121,19 +4296,19 @@ static void SLAM_upd(float P_apr[8281], g_struct_T *b_xt, const float
                      anchor_states[anchorIdx].att[2]) + b_xt->
             anchor_states[anchorIdx].att[3] * b_xt->anchor_states[anchorIdx]
             .att[3];
-          d_xt[7] = 2.0F * (b_xt->anchor_states[anchorIdx].att[1] *
-                            b_xt->anchor_states[anchorIdx].att[2] +
-                            b_xt->anchor_states[anchorIdx].att[0] *
-                            b_xt->anchor_states[anchorIdx].att[3]);
-          d_xt[2] = 2.0F * (b_xt->anchor_states[anchorIdx].att[0] *
-                            b_xt->anchor_states[anchorIdx].att[2] +
-                            b_xt->anchor_states[anchorIdx].att[1] *
-                            b_xt->anchor_states[anchorIdx].att[3]);
-          d_xt[5] = 2.0F * (b_xt->anchor_states[anchorIdx].att[1] *
-                            b_xt->anchor_states[anchorIdx].att[2] -
-                            b_xt->anchor_states[anchorIdx].att[0] *
-                            b_xt->anchor_states[anchorIdx].att[3]);
-          d_xt[8] = ((-(b_xt->anchor_states[anchorIdx].att[0] *
+          e_xt[7] = 2.0 * (b_xt->anchor_states[anchorIdx].att[1] *
+                           b_xt->anchor_states[anchorIdx].att[2] +
+                           b_xt->anchor_states[anchorIdx].att[0] *
+                           b_xt->anchor_states[anchorIdx].att[3]);
+          e_xt[2] = 2.0 * (b_xt->anchor_states[anchorIdx].att[0] *
+                           b_xt->anchor_states[anchorIdx].att[2] +
+                           b_xt->anchor_states[anchorIdx].att[1] *
+                           b_xt->anchor_states[anchorIdx].att[3]);
+          e_xt[5] = 2.0 * (b_xt->anchor_states[anchorIdx].att[1] *
+                           b_xt->anchor_states[anchorIdx].att[2] -
+                           b_xt->anchor_states[anchorIdx].att[0] *
+                           b_xt->anchor_states[anchorIdx].att[3]);
+          e_xt[8] = ((-(b_xt->anchor_states[anchorIdx].att[0] *
                         b_xt->anchor_states[anchorIdx].att[0]) -
                       b_xt->anchor_states[anchorIdx].att[1] *
                       b_xt->anchor_states[anchorIdx].att[1]) +
@@ -5141,167 +4316,44 @@ static void SLAM_upd(float P_apr[8281], g_struct_T *b_xt, const float
                      anchor_states[anchorIdx].att[2]) + b_xt->
             anchor_states[anchorIdx].att[3] * b_xt->anchor_states[anchorIdx]
             .att[3];
-          for (i23 = 0; i23 < 3; i23++) {
-            b_xt->anchor_states[anchorIdx].pos[i23] = 0.0F;
-            for (i = 0; i < 3; i++) {
-              b_xt->anchor_states[anchorIdx].pos[i23] += new_origin_att_rel[i23
-                + 3 * i] * fp[i];
-              c_c[i23 + 3 * i] = 0.0F;
+          for (i38 = 0; i38 < 3; i38++) {
+            b_xt->anchor_states[anchorIdx].pos[i38] = 0.0;
+            for (ixstart = 0; ixstart < 3; ixstart++) {
+              b_xt->anchor_states[anchorIdx].pos[i38] += new_origin_att_rel[i38
+                + 3 * ixstart] * m_l[ixstart];
+              c_xt[i38 + 3 * ixstart] = 0.0;
               for (idx = 0; idx < 3; idx++) {
-                c_c[i23 + 3 * i] += d_xt[i23 + 3 * idx] * new_origin_att_rel[i +
-                  3 * idx];
+                c_xt[i38 + 3 * ixstart] += e_xt[i38 + 3 * idx] *
+                  new_origin_att_rel[ixstart + 3 * idx];
               }
             }
           }
 
-          //  THIS IS OK, It is according to the NASA memo found
-          //  https://claraty.jpl.nasa.gov/man/software/development/conventions/standards_docs/unadopted/JPL_Quaternions_Breckenridge.pdf 
-          // QUATFROMROTJ Get equivalent quaternion of the rotation matrix R
-          //    Returns a quaternion in JPL notation
-          //  The implementation is copied from qGetQ(R), but we are careful about the 
-          //  ordering of the output vector
-          //  Q = [0;0;0;1];
-          //  % [r,c] = size( R );
-          //  % if( r ~= 3 || c ~= 3 )
-          //  %     error( 'R must be a 3x3 matrix\n\r' );
-          //  % end
-          //
-          //  if abs(det(R) - 1) > 1e-2
-          //      error('The provided matrix is not a valid rotation matrix. It must have det(R) = 1, but is %i.', det(R)) 
-          //  end
-          //  T = R(1,1)+R(2,2)+R(3,3);
-          //  pivot = zeros(4,1);
-          //  pivot(1) = sqrt(max(1+2*R(1,1)-T, eps))/2;
-          //  pivot(2) = sqrt(max(1+2*R(2,2)-T, eps))/2;
-          //  pivot(3) = sqrt(max(1+2*R(3,3)-T, eps))/2;
-          //  pivot(4) = sqrt(max(1+T, eps))/2;
-          //  if ~all(isreal(pivot))
-          //      error('complex')
-          //  end
-          //  index = round(find(pivot==max(pivot)));
-          //  if(index(1)==1)
-          //      Q(1) = sqrt(1+2*R(1,1)-T)/2;
-          //      Q(2) = (R(1,2)+R(2,1))/(4*(Q(1)));
-          //      Q(3) = (R(1,3)+R(3,1))/(4*(Q(1)));
-          //      Q(4) = (R(2,3)-R(3,2))/(4*(Q(1)));
-          //  elseif(index(1)==2)
-          //      Q(2) = sqrt(1+2*R(2,2)-T)/2;
-          //      Q(1) = (R(1,2)+R(2,1))/(4*Q(2));
-          //      Q(3) = (R(2,3)+R(3,2))/(4*Q(2));
-          //      Q(4) = (R(3,1)-R(1,3))/(4*Q(2));
-          //  elseif(index(1)==3)
-          //      Q(3) = sqrt(1+2*R(3,3)-T)/2;
-          //      Q(1) = (R(1,3)+R(3,1))/(4*Q(3));
-          //      Q(2) = (R(2,3)+R(3,2))/(4*Q(3));
-          //      Q(4) = (R(1,2)-R(2,1))/(4*Q(3));
-          //  elseif(index(1)==4)
-          //      Q(4) = sqrt(1+T)/2;
-          //      Q(1) = (R(2,3)-R(3,2))/(4*Q(4));
-          //      Q(2) = (R(3,1)-R(1,3))/(4*Q(4));
-          //      Q(3) = (R(1,2)-R(2,1))/(4*Q(4));
-          //  end
-          // % speed optimization
-          varargin_1[0] = (1.0F + c_c[0]) - (c_c[4] + c_c[8]);
-          varargin_1[1] = (1.0F + c_c[4]) - (c_c[0] + c_c[8]);
-          varargin_1[2] = (1.0F + c_c[8]) - (c_c[0] + c_c[4]);
-          varargin_1[3] = 1.0F + ((c_c[0] + c_c[4]) + c_c[8]);
-          ixstart = 1;
-          mtmp = varargin_1[0];
-          idx = 1;
-          if (rtIsNaNF(varargin_1[0])) {
-            ix = 2;
-            exitg3 = false;
-            while ((!exitg3) && (ix < 5)) {
-              ixstart = ix;
-              if (!rtIsNaNF(varargin_1[ix - 1])) {
-                mtmp = varargin_1[ix - 1];
-                idx = ix;
-                exitg3 = true;
-              } else {
-                ix++;
-              }
-            }
-          }
-
-          if (ixstart < 4) {
-            while (ixstart + 1 < 5) {
-              if (varargin_1[ixstart] > mtmp) {
-                mtmp = varargin_1[ixstart];
-                idx = ixstart + 1;
-              }
-
-              ixstart++;
-            }
-          }
-
-          if (idx == 1) {
-            b_xt->anchor_states[anchorIdx].att[0] = (float)sqrt((double)((1.0F +
-              2.0F * c_c[0]) - ((c_c[0] + c_c[4]) + c_c[8]))) / 2.0F;
-            b_xt->anchor_states[anchorIdx].att[1] = (c_c[3] + c_c[1]) / (4.0F *
-              ((float)sqrt((double)((1.0F + 2.0F * c_c[0]) - ((c_c[0] + c_c[4])
-              + c_c[8]))) / 2.0F));
-            b_xt->anchor_states[anchorIdx].att[2] = (c_c[6] + c_c[2]) / (4.0F *
-              ((float)sqrt((double)((1.0F + 2.0F * c_c[0]) - ((c_c[0] + c_c[4])
-              + c_c[8]))) / 2.0F));
-            b_xt->anchor_states[anchorIdx].att[3] = (c_c[7] - c_c[5]) / (4.0F *
-              ((float)sqrt((double)((1.0F + 2.0F * c_c[0]) - ((c_c[0] + c_c[4])
-              + c_c[8]))) / 2.0F));
-          } else if (idx == 2) {
-            b_xt->anchor_states[anchorIdx].att[0] = (c_c[3] + c_c[1]) / (4.0F *
-              ((float)sqrt((double)((1.0F + 2.0F * c_c[4]) - ((c_c[0] + c_c[4])
-              + c_c[8]))) / 2.0F));
-            b_xt->anchor_states[anchorIdx].att[1] = (float)sqrt((double)((1.0F +
-              2.0F * c_c[4]) - ((c_c[0] + c_c[4]) + c_c[8]))) / 2.0F;
-            b_xt->anchor_states[anchorIdx].att[2] = (c_c[7] + c_c[5]) / (4.0F *
-              ((float)sqrt((double)((1.0F + 2.0F * c_c[4]) - ((c_c[0] + c_c[4])
-              + c_c[8]))) / 2.0F));
-            b_xt->anchor_states[anchorIdx].att[3] = (c_c[2] - c_c[6]) / (4.0F *
-              ((float)sqrt((double)((1.0F + 2.0F * c_c[4]) - ((c_c[0] + c_c[4])
-              + c_c[8]))) / 2.0F));
-          } else if (idx == 3) {
-            b_xt->anchor_states[anchorIdx].att[0] = (c_c[6] + c_c[2]) / (4.0F *
-              ((float)sqrt((double)((1.0F + 2.0F * c_c[8]) - ((c_c[0] + c_c[4])
-              + c_c[8]))) / 2.0F));
-            b_xt->anchor_states[anchorIdx].att[1] = (c_c[7] + c_c[5]) / (4.0F *
-              ((float)sqrt((double)((1.0F + 2.0F * c_c[8]) - ((c_c[0] + c_c[4])
-              + c_c[8]))) / 2.0F));
-            b_xt->anchor_states[anchorIdx].att[2] = (float)sqrt((double)((1.0F +
-              2.0F * c_c[8]) - ((c_c[0] + c_c[4]) + c_c[8]))) / 2.0F;
-            b_xt->anchor_states[anchorIdx].att[3] = (c_c[3] - c_c[1]) / (4.0F *
-              ((float)sqrt((double)((1.0F + 2.0F * c_c[8]) - ((c_c[0] + c_c[4])
-              + c_c[8]))) / 2.0F));
-          } else {
-            b_xt->anchor_states[anchorIdx].att[0] = (c_c[7] - c_c[5]) / (4.0F *
-              ((float)sqrt((double)(1.0F + ((c_c[0] + c_c[4]) + c_c[8]))) / 2.0F));
-            b_xt->anchor_states[anchorIdx].att[1] = (c_c[2] - c_c[6]) / (4.0F *
-              ((float)sqrt((double)(1.0F + ((c_c[0] + c_c[4]) + c_c[8]))) / 2.0F));
-            b_xt->anchor_states[anchorIdx].att[2] = (c_c[3] - c_c[1]) / (4.0F *
-              ((float)sqrt((double)(1.0F + ((c_c[0] + c_c[4]) + c_c[8]))) / 2.0F));
-            b_xt->anchor_states[anchorIdx].att[3] = (float)sqrt((double)(1.0F +
-              ((c_c[0] + c_c[4]) + c_c[8]))) / 2.0F;
-          }
+          QuatFromRotJ(c_xt, b_xt->anchor_states[anchorIdx].att);
         }
 
-        for (i23 = 0; i23 < 91; i23++) {
-          for (i = 0; i < 91; i++) {
-            b_J[i23 + 91 * i] = 0.0F;
+        for (i38 = 0; i38 < 91; i38++) {
+          for (ixstart = 0; ixstart < 91; ixstart++) {
+            b_J[i38 + 91 * ixstart] = 0.0;
             for (idx = 0; idx < 91; idx++) {
-              b_J[i23 + 91 * i] += J[i23 + 91 * idx] * P_apr[idx + 91 * i];
+              b_J[i38 + 91 * ixstart] += J[i38 + 91 * idx] * P_apr[idx + 91 *
+                ixstart];
             }
           }
         }
 
-        for (i23 = 0; i23 < 91; i23++) {
-          for (i = 0; i < 91; i++) {
-            P_apr[i23 + 91 * i] = 0.0F;
+        for (i38 = 0; i38 < 91; i38++) {
+          for (ixstart = 0; ixstart < 91; ixstart++) {
+            P_apr[i38 + 91 * ixstart] = 0.0;
             for (idx = 0; idx < 91; idx++) {
-              P_apr[i23 + 91 * i] += b_J[i23 + 91 * idx] * J[i + 91 * idx];
+              P_apr[i38 + 91 * ixstart] += b_J[i38 + 91 * idx] * J[ixstart + 91 *
+                idx];
             }
           }
         }
 
-        for (i23 = 0; i23 < 3; i23++) {
-          c_xt[i23] = b_xt->robot_state.pos[i23] - new_origin_pos_rel[i23];
+        for (i38 = 0; i38 < 3; i38++) {
+          d_xt[i38] = b_xt->robot_state.pos[i38] - new_origin_pos_rel[i38];
         }
 
         //  if ~all(size(q) == [4, 1])
@@ -5310,175 +4362,49 @@ static void SLAM_upd(float P_apr[8281], g_struct_T *b_xt, const float
         //  if abs(norm(q) - 1) > 1e-3
         //      error('The provided quaternion is not a valid rotation quaternion because it does not have norm 1') 
         //  end
-        e_xt[0] = ((b_xt->robot_state.att[0] * b_xt->robot_state.att[0] -
+        f_xt[0] = ((b_xt->robot_state.att[0] * b_xt->robot_state.att[0] -
                     b_xt->robot_state.att[1] * b_xt->robot_state.att[1]) -
                    b_xt->robot_state.att[2] * b_xt->robot_state.att[2]) +
           b_xt->robot_state.att[3] * b_xt->robot_state.att[3];
-        e_xt[3] = 2.0F * (b_xt->robot_state.att[0] * b_xt->robot_state.att[1] +
-                          b_xt->robot_state.att[2] * b_xt->robot_state.att[3]);
-        e_xt[6] = 2.0F * (b_xt->robot_state.att[0] * b_xt->robot_state.att[2] -
-                          b_xt->robot_state.att[1] * b_xt->robot_state.att[3]);
-        e_xt[1] = 2.0F * (b_xt->robot_state.att[0] * b_xt->robot_state.att[1] -
-                          b_xt->robot_state.att[2] * b_xt->robot_state.att[3]);
-        e_xt[4] = ((-(b_xt->robot_state.att[0] * b_xt->robot_state.att[0]) +
+        f_xt[3] = 2.0 * (b_xt->robot_state.att[0] * b_xt->robot_state.att[1] +
+                         b_xt->robot_state.att[2] * b_xt->robot_state.att[3]);
+        f_xt[6] = 2.0 * (b_xt->robot_state.att[0] * b_xt->robot_state.att[2] -
+                         b_xt->robot_state.att[1] * b_xt->robot_state.att[3]);
+        f_xt[1] = 2.0 * (b_xt->robot_state.att[0] * b_xt->robot_state.att[1] -
+                         b_xt->robot_state.att[2] * b_xt->robot_state.att[3]);
+        f_xt[4] = ((-(b_xt->robot_state.att[0] * b_xt->robot_state.att[0]) +
                     b_xt->robot_state.att[1] * b_xt->robot_state.att[1]) -
                    b_xt->robot_state.att[2] * b_xt->robot_state.att[2]) +
           b_xt->robot_state.att[3] * b_xt->robot_state.att[3];
-        e_xt[7] = 2.0F * (b_xt->robot_state.att[1] * b_xt->robot_state.att[2] +
-                          b_xt->robot_state.att[0] * b_xt->robot_state.att[3]);
-        e_xt[2] = 2.0F * (b_xt->robot_state.att[0] * b_xt->robot_state.att[2] +
-                          b_xt->robot_state.att[1] * b_xt->robot_state.att[3]);
-        e_xt[5] = 2.0F * (b_xt->robot_state.att[1] * b_xt->robot_state.att[2] -
-                          b_xt->robot_state.att[0] * b_xt->robot_state.att[3]);
-        e_xt[8] = ((-(b_xt->robot_state.att[0] * b_xt->robot_state.att[0]) -
+        f_xt[7] = 2.0 * (b_xt->robot_state.att[1] * b_xt->robot_state.att[2] +
+                         b_xt->robot_state.att[0] * b_xt->robot_state.att[3]);
+        f_xt[2] = 2.0 * (b_xt->robot_state.att[0] * b_xt->robot_state.att[2] +
+                         b_xt->robot_state.att[1] * b_xt->robot_state.att[3]);
+        f_xt[5] = 2.0 * (b_xt->robot_state.att[1] * b_xt->robot_state.att[2] -
+                         b_xt->robot_state.att[0] * b_xt->robot_state.att[3]);
+        f_xt[8] = ((-(b_xt->robot_state.att[0] * b_xt->robot_state.att[0]) -
                     b_xt->robot_state.att[1] * b_xt->robot_state.att[1]) +
                    b_xt->robot_state.att[2] * b_xt->robot_state.att[2]) +
           b_xt->robot_state.att[3] * b_xt->robot_state.att[3];
-        for (i23 = 0; i23 < 3; i23++) {
-          b_xt->robot_state.pos[i23] = 0.0F;
-          for (i = 0; i < 3; i++) {
-            b_xt->robot_state.pos[i23] += new_origin_att_rel[i23 + 3 * i] *
-              c_xt[i];
-            c_c[i23 + 3 * i] = 0.0F;
+        for (i38 = 0; i38 < 3; i38++) {
+          b_xt->robot_state.pos[i38] = 0.0;
+          for (ixstart = 0; ixstart < 3; ixstart++) {
+            b_xt->robot_state.pos[i38] += new_origin_att_rel[i38 + 3 * ixstart] *
+              d_xt[ixstart];
+            c_xt[i38 + 3 * ixstart] = 0.0;
             for (idx = 0; idx < 3; idx++) {
-              c_c[i23 + 3 * i] += e_xt[i23 + 3 * idx] * new_origin_att_rel[i + 3
-                * idx];
+              c_xt[i38 + 3 * ixstart] += f_xt[i38 + 3 * idx] *
+                new_origin_att_rel[ixstart + 3 * idx];
             }
           }
         }
 
-        //  THIS IS OK, It is according to the NASA memo found
-        //  https://claraty.jpl.nasa.gov/man/software/development/conventions/standards_docs/unadopted/JPL_Quaternions_Breckenridge.pdf 
-        // QUATFROMROTJ Get equivalent quaternion of the rotation matrix R
-        //    Returns a quaternion in JPL notation
-        //  The implementation is copied from qGetQ(R), but we are careful about the 
-        //  ordering of the output vector
-        //  Q = [0;0;0;1];
-        //  % [r,c] = size( R );
-        //  % if( r ~= 3 || c ~= 3 )
-        //  %     error( 'R must be a 3x3 matrix\n\r' );
-        //  % end
-        //
-        //  if abs(det(R) - 1) > 1e-2
-        //      error('The provided matrix is not a valid rotation matrix. It must have det(R) = 1, but is %i.', det(R)) 
-        //  end
-        //  T = R(1,1)+R(2,2)+R(3,3);
-        //  pivot = zeros(4,1);
-        //  pivot(1) = sqrt(max(1+2*R(1,1)-T, eps))/2;
-        //  pivot(2) = sqrt(max(1+2*R(2,2)-T, eps))/2;
-        //  pivot(3) = sqrt(max(1+2*R(3,3)-T, eps))/2;
-        //  pivot(4) = sqrt(max(1+T, eps))/2;
-        //  if ~all(isreal(pivot))
-        //      error('complex')
-        //  end
-        //  index = round(find(pivot==max(pivot)));
-        //  if(index(1)==1)
-        //      Q(1) = sqrt(1+2*R(1,1)-T)/2;
-        //      Q(2) = (R(1,2)+R(2,1))/(4*(Q(1)));
-        //      Q(3) = (R(1,3)+R(3,1))/(4*(Q(1)));
-        //      Q(4) = (R(2,3)-R(3,2))/(4*(Q(1)));
-        //  elseif(index(1)==2)
-        //      Q(2) = sqrt(1+2*R(2,2)-T)/2;
-        //      Q(1) = (R(1,2)+R(2,1))/(4*Q(2));
-        //      Q(3) = (R(2,3)+R(3,2))/(4*Q(2));
-        //      Q(4) = (R(3,1)-R(1,3))/(4*Q(2));
-        //  elseif(index(1)==3)
-        //      Q(3) = sqrt(1+2*R(3,3)-T)/2;
-        //      Q(1) = (R(1,3)+R(3,1))/(4*Q(3));
-        //      Q(2) = (R(2,3)+R(3,2))/(4*Q(3));
-        //      Q(4) = (R(1,2)-R(2,1))/(4*Q(3));
-        //  elseif(index(1)==4)
-        //      Q(4) = sqrt(1+T)/2;
-        //      Q(1) = (R(2,3)-R(3,2))/(4*Q(4));
-        //      Q(2) = (R(3,1)-R(1,3))/(4*Q(4));
-        //      Q(3) = (R(1,2)-R(2,1))/(4*Q(4));
-        //  end
-        // % speed optimization
-        varargin_1[0] = (1.0F + c_c[0]) - (c_c[4] + c_c[8]);
-        varargin_1[1] = (1.0F + c_c[4]) - (c_c[0] + c_c[8]);
-        varargin_1[2] = (1.0F + c_c[8]) - (c_c[0] + c_c[4]);
-        varargin_1[3] = 1.0F + ((c_c[0] + c_c[4]) + c_c[8]);
-        ixstart = 1;
-        mtmp = varargin_1[0];
-        idx = 1;
-        if (rtIsNaNF(varargin_1[0])) {
-          ix = 2;
-          exitg2 = false;
-          while ((!exitg2) && (ix < 5)) {
-            ixstart = ix;
-            if (!rtIsNaNF(varargin_1[ix - 1])) {
-              mtmp = varargin_1[ix - 1];
-              idx = ix;
-              exitg2 = true;
-            } else {
-              ix++;
-            }
-          }
-        }
-
-        if (ixstart < 4) {
-          while (ixstart + 1 < 5) {
-            if (varargin_1[ixstart] > mtmp) {
-              mtmp = varargin_1[ixstart];
-              idx = ixstart + 1;
-            }
-
-            ixstart++;
-          }
-        }
-
-        if (idx == 1) {
-          b_xt->robot_state.att[0] = (float)sqrt((double)((1.0F + 2.0F * c_c[0])
-            - ((c_c[0] + c_c[4]) + c_c[8]))) / 2.0F;
-          b_xt->robot_state.att[1] = (c_c[3] + c_c[1]) / (4.0F * ((float)sqrt
-            ((double)((1.0F + 2.0F * c_c[0]) - ((c_c[0] + c_c[4]) + c_c[8]))) /
-            2.0F));
-          b_xt->robot_state.att[2] = (c_c[6] + c_c[2]) / (4.0F * ((float)sqrt
-            ((double)((1.0F + 2.0F * c_c[0]) - ((c_c[0] + c_c[4]) + c_c[8]))) /
-            2.0F));
-          b_xt->robot_state.att[3] = (c_c[7] - c_c[5]) / (4.0F * ((float)sqrt
-            ((double)((1.0F + 2.0F * c_c[0]) - ((c_c[0] + c_c[4]) + c_c[8]))) /
-            2.0F));
-        } else if (idx == 2) {
-          b_xt->robot_state.att[0] = (c_c[3] + c_c[1]) / (4.0F * ((float)sqrt
-            ((double)((1.0F + 2.0F * c_c[4]) - ((c_c[0] + c_c[4]) + c_c[8]))) /
-            2.0F));
-          b_xt->robot_state.att[1] = (float)sqrt((double)((1.0F + 2.0F * c_c[4])
-            - ((c_c[0] + c_c[4]) + c_c[8]))) / 2.0F;
-          b_xt->robot_state.att[2] = (c_c[7] + c_c[5]) / (4.0F * ((float)sqrt
-            ((double)((1.0F + 2.0F * c_c[4]) - ((c_c[0] + c_c[4]) + c_c[8]))) /
-            2.0F));
-          b_xt->robot_state.att[3] = (c_c[2] - c_c[6]) / (4.0F * ((float)sqrt
-            ((double)((1.0F + 2.0F * c_c[4]) - ((c_c[0] + c_c[4]) + c_c[8]))) /
-            2.0F));
-        } else if (idx == 3) {
-          b_xt->robot_state.att[0] = (c_c[6] + c_c[2]) / (4.0F * ((float)sqrt
-            ((double)((1.0F + 2.0F * c_c[8]) - ((c_c[0] + c_c[4]) + c_c[8]))) /
-            2.0F));
-          b_xt->robot_state.att[1] = (c_c[7] + c_c[5]) / (4.0F * ((float)sqrt
-            ((double)((1.0F + 2.0F * c_c[8]) - ((c_c[0] + c_c[4]) + c_c[8]))) /
-            2.0F));
-          b_xt->robot_state.att[2] = (float)sqrt((double)((1.0F + 2.0F * c_c[8])
-            - ((c_c[0] + c_c[4]) + c_c[8]))) / 2.0F;
-          b_xt->robot_state.att[3] = (c_c[3] - c_c[1]) / (4.0F * ((float)sqrt
-            ((double)((1.0F + 2.0F * c_c[8]) - ((c_c[0] + c_c[4]) + c_c[8]))) /
-            2.0F));
-        } else {
-          b_xt->robot_state.att[0] = (c_c[7] - c_c[5]) / (4.0F * ((float)sqrt
-            ((double)(1.0F + ((c_c[0] + c_c[4]) + c_c[8]))) / 2.0F));
-          b_xt->robot_state.att[1] = (c_c[2] - c_c[6]) / (4.0F * ((float)sqrt
-            ((double)(1.0F + ((c_c[0] + c_c[4]) + c_c[8]))) / 2.0F));
-          b_xt->robot_state.att[2] = (c_c[3] - c_c[1]) / (4.0F * ((float)sqrt
-            ((double)(1.0F + ((c_c[0] + c_c[4]) + c_c[8]))) / 2.0F));
-          b_xt->robot_state.att[3] = (float)sqrt((double)(1.0F + ((c_c[0] + c_c
-            [4]) + c_c[8]))) / 2.0F;
-        }
-
-        for (i23 = 0; i23 < 3; i23++) {
-          c_xt[i23] = 0.0F;
-          for (i = 0; i < 3; i++) {
-            c_xt[i23] += new_origin_att_rel[i23 + 3 * i] * b_xt->
-              robot_state.vel[i];
+        QuatFromRotJ(c_xt, b_xt->robot_state.att);
+        for (i38 = 0; i38 < 3; i38++) {
+          d_xt[i38] = 0.0;
+          for (ixstart = 0; ixstart < 3; ixstart++) {
+            d_xt[i38] += new_origin_att_rel[i38 + 3 * ixstart] *
+              b_xt->robot_state.vel[ixstart];
           }
         }
 
@@ -5488,27 +4414,27 @@ static void SLAM_upd(float P_apr[8281], g_struct_T *b_xt, const float
         //  if abs(norm(q) - 1) > 1e-3
         //      error('The provided quaternion is not a valid rotation quaternion because it does not have norm 1') 
         //  end
-        f_xt[0] = ((b_xt->origin.att[0] * b_xt->origin.att[0] - b_xt->
+        g_xt[0] = ((b_xt->origin.att[0] * b_xt->origin.att[0] - b_xt->
                     origin.att[1] * b_xt->origin.att[1]) - b_xt->origin.att[2] *
                    b_xt->origin.att[2]) + b_xt->origin.att[3] * b_xt->
           origin.att[3];
-        f_xt[1] = 2.0F * (b_xt->origin.att[0] * b_xt->origin.att[1] +
-                          b_xt->origin.att[2] * b_xt->origin.att[3]);
-        f_xt[2] = 2.0F * (b_xt->origin.att[0] * b_xt->origin.att[2] -
-                          b_xt->origin.att[1] * b_xt->origin.att[3]);
-        f_xt[3] = 2.0F * (b_xt->origin.att[0] * b_xt->origin.att[1] -
-                          b_xt->origin.att[2] * b_xt->origin.att[3]);
-        f_xt[4] = ((-(b_xt->origin.att[0] * b_xt->origin.att[0]) +
+        g_xt[1] = 2.0 * (b_xt->origin.att[0] * b_xt->origin.att[1] +
+                         b_xt->origin.att[2] * b_xt->origin.att[3]);
+        g_xt[2] = 2.0 * (b_xt->origin.att[0] * b_xt->origin.att[2] -
+                         b_xt->origin.att[1] * b_xt->origin.att[3]);
+        g_xt[3] = 2.0 * (b_xt->origin.att[0] * b_xt->origin.att[1] -
+                         b_xt->origin.att[2] * b_xt->origin.att[3]);
+        g_xt[4] = ((-(b_xt->origin.att[0] * b_xt->origin.att[0]) +
                     b_xt->origin.att[1] * b_xt->origin.att[1]) -
                    b_xt->origin.att[2] * b_xt->origin.att[2]) + b_xt->
           origin.att[3] * b_xt->origin.att[3];
-        f_xt[5] = 2.0F * (b_xt->origin.att[1] * b_xt->origin.att[2] +
-                          b_xt->origin.att[0] * b_xt->origin.att[3]);
-        f_xt[6] = 2.0F * (b_xt->origin.att[0] * b_xt->origin.att[2] +
-                          b_xt->origin.att[1] * b_xt->origin.att[3]);
-        f_xt[7] = 2.0F * (b_xt->origin.att[1] * b_xt->origin.att[2] -
-                          b_xt->origin.att[0] * b_xt->origin.att[3]);
-        f_xt[8] = ((-(b_xt->origin.att[0] * b_xt->origin.att[0]) -
+        g_xt[5] = 2.0 * (b_xt->origin.att[1] * b_xt->origin.att[2] +
+                         b_xt->origin.att[0] * b_xt->origin.att[3]);
+        g_xt[6] = 2.0 * (b_xt->origin.att[0] * b_xt->origin.att[2] +
+                         b_xt->origin.att[1] * b_xt->origin.att[3]);
+        g_xt[7] = 2.0 * (b_xt->origin.att[1] * b_xt->origin.att[2] -
+                         b_xt->origin.att[0] * b_xt->origin.att[3]);
+        g_xt[8] = ((-(b_xt->origin.att[0] * b_xt->origin.att[0]) -
                     b_xt->origin.att[1] * b_xt->origin.att[1]) +
                    b_xt->origin.att[2] * b_xt->origin.att[2]) + b_xt->
           origin.att[3] * b_xt->origin.att[3];
@@ -5520,162 +4446,46 @@ static void SLAM_upd(float P_apr[8281], g_struct_T *b_xt, const float
         //  if abs(norm(q) - 1) > 1e-3
         //      error('The provided quaternion is not a valid rotation quaternion because it does not have norm 1') 
         //  end
-        g_xt[0] = ((b_xt->origin.att[0] * b_xt->origin.att[0] - b_xt->
+        h_xt[0] = ((b_xt->origin.att[0] * b_xt->origin.att[0] - b_xt->
                     origin.att[1] * b_xt->origin.att[1]) - b_xt->origin.att[2] *
                    b_xt->origin.att[2]) + b_xt->origin.att[3] * b_xt->
           origin.att[3];
-        g_xt[3] = 2.0F * (b_xt->origin.att[0] * b_xt->origin.att[1] +
-                          b_xt->origin.att[2] * b_xt->origin.att[3]);
-        g_xt[6] = 2.0F * (b_xt->origin.att[0] * b_xt->origin.att[2] -
-                          b_xt->origin.att[1] * b_xt->origin.att[3]);
-        g_xt[1] = 2.0F * (b_xt->origin.att[0] * b_xt->origin.att[1] -
-                          b_xt->origin.att[2] * b_xt->origin.att[3]);
-        g_xt[4] = ((-(b_xt->origin.att[0] * b_xt->origin.att[0]) +
+        h_xt[3] = 2.0 * (b_xt->origin.att[0] * b_xt->origin.att[1] +
+                         b_xt->origin.att[2] * b_xt->origin.att[3]);
+        h_xt[6] = 2.0 * (b_xt->origin.att[0] * b_xt->origin.att[2] -
+                         b_xt->origin.att[1] * b_xt->origin.att[3]);
+        h_xt[1] = 2.0 * (b_xt->origin.att[0] * b_xt->origin.att[1] -
+                         b_xt->origin.att[2] * b_xt->origin.att[3]);
+        h_xt[4] = ((-(b_xt->origin.att[0] * b_xt->origin.att[0]) +
                     b_xt->origin.att[1] * b_xt->origin.att[1]) -
                    b_xt->origin.att[2] * b_xt->origin.att[2]) + b_xt->
           origin.att[3] * b_xt->origin.att[3];
-        g_xt[7] = 2.0F * (b_xt->origin.att[1] * b_xt->origin.att[2] +
-                          b_xt->origin.att[0] * b_xt->origin.att[3]);
-        g_xt[2] = 2.0F * (b_xt->origin.att[0] * b_xt->origin.att[2] +
-                          b_xt->origin.att[1] * b_xt->origin.att[3]);
-        g_xt[5] = 2.0F * (b_xt->origin.att[1] * b_xt->origin.att[2] -
-                          b_xt->origin.att[0] * b_xt->origin.att[3]);
-        g_xt[8] = ((-(b_xt->origin.att[0] * b_xt->origin.att[0]) -
+        h_xt[7] = 2.0 * (b_xt->origin.att[1] * b_xt->origin.att[2] +
+                         b_xt->origin.att[0] * b_xt->origin.att[3]);
+        h_xt[2] = 2.0 * (b_xt->origin.att[0] * b_xt->origin.att[2] +
+                         b_xt->origin.att[1] * b_xt->origin.att[3]);
+        h_xt[5] = 2.0 * (b_xt->origin.att[1] * b_xt->origin.att[2] -
+                         b_xt->origin.att[0] * b_xt->origin.att[3]);
+        h_xt[8] = ((-(b_xt->origin.att[0] * b_xt->origin.att[0]) -
                     b_xt->origin.att[1] * b_xt->origin.att[1]) +
                    b_xt->origin.att[2] * b_xt->origin.att[2]) + b_xt->
           origin.att[3] * b_xt->origin.att[3];
-        for (i23 = 0; i23 < 3; i23++) {
-          b_xt->robot_state.vel[i23] = c_xt[i23];
-          mtmp = 0.0F;
-          for (i = 0; i < 3; i++) {
-            mtmp += f_xt[i23 + 3 * i] * new_origin_pos_rel[i];
-            c_c[i23 + 3 * i] = 0.0F;
+        for (i38 = 0; i38 < 3; i38++) {
+          b_xt->robot_state.vel[i38] = d_xt[i38];
+          mtmp = 0.0;
+          for (ixstart = 0; ixstart < 3; ixstart++) {
+            mtmp += g_xt[i38 + 3 * ixstart] * new_origin_pos_rel[ixstart];
+            c_xt[i38 + 3 * ixstart] = 0.0;
             for (idx = 0; idx < 3; idx++) {
-              c_c[i23 + 3 * i] += new_origin_att_rel[i23 + 3 * idx] * g_xt[idx +
-                3 * i];
+              c_xt[i38 + 3 * ixstart] += new_origin_att_rel[i38 + 3 * idx] *
+                h_xt[idx + 3 * ixstart];
             }
           }
 
-          b_xt->origin.pos[i23] += mtmp;
+          b_xt->origin.pos[i38] += mtmp;
         }
 
-        //  THIS IS OK, It is according to the NASA memo found
-        //  https://claraty.jpl.nasa.gov/man/software/development/conventions/standards_docs/unadopted/JPL_Quaternions_Breckenridge.pdf 
-        // QUATFROMROTJ Get equivalent quaternion of the rotation matrix R
-        //    Returns a quaternion in JPL notation
-        //  The implementation is copied from qGetQ(R), but we are careful about the 
-        //  ordering of the output vector
-        //  Q = [0;0;0;1];
-        //  % [r,c] = size( R );
-        //  % if( r ~= 3 || c ~= 3 )
-        //  %     error( 'R must be a 3x3 matrix\n\r' );
-        //  % end
-        //
-        //  if abs(det(R) - 1) > 1e-2
-        //      error('The provided matrix is not a valid rotation matrix. It must have det(R) = 1, but is %i.', det(R)) 
-        //  end
-        //  T = R(1,1)+R(2,2)+R(3,3);
-        //  pivot = zeros(4,1);
-        //  pivot(1) = sqrt(max(1+2*R(1,1)-T, eps))/2;
-        //  pivot(2) = sqrt(max(1+2*R(2,2)-T, eps))/2;
-        //  pivot(3) = sqrt(max(1+2*R(3,3)-T, eps))/2;
-        //  pivot(4) = sqrt(max(1+T, eps))/2;
-        //  if ~all(isreal(pivot))
-        //      error('complex')
-        //  end
-        //  index = round(find(pivot==max(pivot)));
-        //  if(index(1)==1)
-        //      Q(1) = sqrt(1+2*R(1,1)-T)/2;
-        //      Q(2) = (R(1,2)+R(2,1))/(4*(Q(1)));
-        //      Q(3) = (R(1,3)+R(3,1))/(4*(Q(1)));
-        //      Q(4) = (R(2,3)-R(3,2))/(4*(Q(1)));
-        //  elseif(index(1)==2)
-        //      Q(2) = sqrt(1+2*R(2,2)-T)/2;
-        //      Q(1) = (R(1,2)+R(2,1))/(4*Q(2));
-        //      Q(3) = (R(2,3)+R(3,2))/(4*Q(2));
-        //      Q(4) = (R(3,1)-R(1,3))/(4*Q(2));
-        //  elseif(index(1)==3)
-        //      Q(3) = sqrt(1+2*R(3,3)-T)/2;
-        //      Q(1) = (R(1,3)+R(3,1))/(4*Q(3));
-        //      Q(2) = (R(2,3)+R(3,2))/(4*Q(3));
-        //      Q(4) = (R(1,2)-R(2,1))/(4*Q(3));
-        //  elseif(index(1)==4)
-        //      Q(4) = sqrt(1+T)/2;
-        //      Q(1) = (R(2,3)-R(3,2))/(4*Q(4));
-        //      Q(2) = (R(3,1)-R(1,3))/(4*Q(4));
-        //      Q(3) = (R(1,2)-R(2,1))/(4*Q(4));
-        //  end
-        // % speed optimization
-        varargin_1[0] = (1.0F + c_c[0]) - (c_c[4] + c_c[8]);
-        varargin_1[1] = (1.0F + c_c[4]) - (c_c[0] + c_c[8]);
-        varargin_1[2] = (1.0F + c_c[8]) - (c_c[0] + c_c[4]);
-        varargin_1[3] = 1.0F + ((c_c[0] + c_c[4]) + c_c[8]);
-        ixstart = 1;
-        mtmp = varargin_1[0];
-        idx = 1;
-        if (rtIsNaNF(varargin_1[0])) {
-          ix = 2;
-          exitg1 = false;
-          while ((!exitg1) && (ix < 5)) {
-            ixstart = ix;
-            if (!rtIsNaNF(varargin_1[ix - 1])) {
-              mtmp = varargin_1[ix - 1];
-              idx = ix;
-              exitg1 = true;
-            } else {
-              ix++;
-            }
-          }
-        }
-
-        if (ixstart < 4) {
-          while (ixstart + 1 < 5) {
-            if (varargin_1[ixstart] > mtmp) {
-              mtmp = varargin_1[ixstart];
-              idx = ixstart + 1;
-            }
-
-            ixstart++;
-          }
-        }
-
-        if (idx == 1) {
-          b_xt->origin.att[0] = (float)sqrt((double)((1.0F + 2.0F * c_c[0]) -
-            ((c_c[0] + c_c[4]) + c_c[8]))) / 2.0F;
-          b_xt->origin.att[1] = (c_c[3] + c_c[1]) / (4.0F * ((float)sqrt((double)
-            ((1.0F + 2.0F * c_c[0]) - ((c_c[0] + c_c[4]) + c_c[8]))) / 2.0F));
-          b_xt->origin.att[2] = (c_c[6] + c_c[2]) / (4.0F * ((float)sqrt((double)
-            ((1.0F + 2.0F * c_c[0]) - ((c_c[0] + c_c[4]) + c_c[8]))) / 2.0F));
-          b_xt->origin.att[3] = (c_c[7] - c_c[5]) / (4.0F * ((float)sqrt((double)
-            ((1.0F + 2.0F * c_c[0]) - ((c_c[0] + c_c[4]) + c_c[8]))) / 2.0F));
-        } else if (idx == 2) {
-          b_xt->origin.att[0] = (c_c[3] + c_c[1]) / (4.0F * ((float)sqrt((double)
-            ((1.0F + 2.0F * c_c[4]) - ((c_c[0] + c_c[4]) + c_c[8]))) / 2.0F));
-          b_xt->origin.att[1] = (float)sqrt((double)((1.0F + 2.0F * c_c[4]) -
-            ((c_c[0] + c_c[4]) + c_c[8]))) / 2.0F;
-          b_xt->origin.att[2] = (c_c[7] + c_c[5]) / (4.0F * ((float)sqrt((double)
-            ((1.0F + 2.0F * c_c[4]) - ((c_c[0] + c_c[4]) + c_c[8]))) / 2.0F));
-          b_xt->origin.att[3] = (c_c[2] - c_c[6]) / (4.0F * ((float)sqrt((double)
-            ((1.0F + 2.0F * c_c[4]) - ((c_c[0] + c_c[4]) + c_c[8]))) / 2.0F));
-        } else if (idx == 3) {
-          b_xt->origin.att[0] = (c_c[6] + c_c[2]) / (4.0F * ((float)sqrt((double)
-            ((1.0F + 2.0F * c_c[8]) - ((c_c[0] + c_c[4]) + c_c[8]))) / 2.0F));
-          b_xt->origin.att[1] = (c_c[7] + c_c[5]) / (4.0F * ((float)sqrt((double)
-            ((1.0F + 2.0F * c_c[8]) - ((c_c[0] + c_c[4]) + c_c[8]))) / 2.0F));
-          b_xt->origin.att[2] = (float)sqrt((double)((1.0F + 2.0F * c_c[8]) -
-            ((c_c[0] + c_c[4]) + c_c[8]))) / 2.0F;
-          b_xt->origin.att[3] = (c_c[3] - c_c[1]) / (4.0F * ((float)sqrt((double)
-            ((1.0F + 2.0F * c_c[8]) - ((c_c[0] + c_c[4]) + c_c[8]))) / 2.0F));
-        } else {
-          b_xt->origin.att[0] = (c_c[7] - c_c[5]) / (4.0F * ((float)sqrt((double)
-            (1.0F + ((c_c[0] + c_c[4]) + c_c[8]))) / 2.0F));
-          b_xt->origin.att[1] = (c_c[2] - c_c[6]) / (4.0F * ((float)sqrt((double)
-            (1.0F + ((c_c[0] + c_c[4]) + c_c[8]))) / 2.0F));
-          b_xt->origin.att[2] = (c_c[3] - c_c[1]) / (4.0F * ((float)sqrt((double)
-            (1.0F + ((c_c[0] + c_c[4]) + c_c[8]))) / 2.0F));
-          b_xt->origin.att[3] = (float)sqrt((double)(1.0F + ((c_c[0] + c_c[4]) +
-            c_c[8]))) / 2.0F;
-        }
+        QuatFromRotJ(c_xt, b_xt->origin.att);
 
         //  in world frame
       }
@@ -5689,103 +4499,67 @@ static void SLAM_upd(float P_apr[8281], g_struct_T *b_xt, const float
   getScaledMap(b_xt);
 
   //  update the scaled map for measurement prediction
-  memset(&h_u_apo[0], 0, 160U * sizeof(float));
-  memset(&b_delayedStatus[0], 0, 40U * sizeof(float));
+  memset(&h_u_apo[0], 0, 160U * sizeof(double));
+  memset(&b_delayedStatus[0], 0, 40U * sizeof(double));
   for (anchorIdx = 0; anchorIdx < 5; anchorIdx++) {
     for (featureIdx = 0; featureIdx < 8; featureIdx++) {
       if (b_xt->anchor_states[anchorIdx].feature_states[featureIdx].status != 0)
       {
-        // PREDICTMEASUREMENT Predict the measurement of a feature given in the left 
-        // camera frame
-        //    Get the pixel coordinates where a feature given in the left camera 
-        //    frame would be visible in both cameras. Depending on the
-        //    camera model used to calibrate the camera, the appropriate undistortion 
-        //    is applied
-        mtmp = b_xt->anchor_states[anchorIdx].feature_states[featureIdx].
-          scaled_map_point[2];
-        for (i23 = 0; i23 < 2; i23++) {
-          h_cin[i23] = b_xt->anchor_states[anchorIdx].feature_states[featureIdx]
-            .scaled_map_point[i23] / mtmp;
-        }
-
-        radsq = h_cin[0] * h_cin[0] + h_cin[1] * h_cin[1];
-        c = ((1.0F + e_cameraParams_CameraParameters[0] * radsq) +
-             e_cameraParams_CameraParameters[1] * (radsq * radsq)) +
-          e_cameraParams_CameraParameters[2] * rt_powf_snf(radsq, 4.0F);
-        for (i23 = 0; i23 < 2; i23++) {
-          h_cin[i23] *= c;
-        }
-
-        for (i23 = 0; i23 < 3; i23++) {
-          mtmp = 0.0F;
-          for (i = 0; i < 3; i++) {
-            mtmp += cameraParams_R_rl[i23 + 3 * i] * b_xt->
-              anchor_states[anchorIdx].feature_states[featureIdx].
-              scaled_map_point[i];
+        c_predictMeasurementStereoDisto(b_xt->anchor_states[anchorIdx].
+          feature_states[featureIdx].scaled_map_point,
+          c_cameraParams_CameraParameters, d_cameraParams_CameraParameters,
+          e_cameraParams_CameraParameters, f_cameraParams_CameraParameters,
+          g_cameraParams_CameraParameters, h_cameraParams_CameraParameters,
+          cameraParams_r_lr, cameraParams_R_rl, h_u_l, h_u_r);
+        i39 = b_xt->anchor_states[anchorIdx].feature_states[featureIdx].
+          status_idx - 1L;
+        if (i39 > 2147483647L) {
+          i39 = 2147483647L;
+        } else {
+          if (i39 < -2147483648L) {
+            i39 = -2147483648L;
           }
+        }
 
-          new_origin_pos_rel[i23] = mtmp - cameraParams_r_lr[i23];
+        i38 = (int)i39;
+        if (i38 > 536870911) {
+          idx = MAX_int32_T;
+        } else if (i38 <= -536870912) {
+          idx = MIN_int32_T;
+        } else {
+          idx = i38 << 2;
         }
 
         for (i = 0; i < 2; i++) {
-          b_h_cin[i] = new_origin_pos_rel[i] / new_origin_pos_rel[2];
+          i39 = (long)idx + (i + 1);
+          if (i39 > 2147483647L) {
+            i39 = 2147483647L;
+          } else {
+            if (i39 < -2147483648L) {
+              i39 = -2147483648L;
+            }
+          }
+
+          h_u_apo[(int)i39 - 1] = h_u_l[i];
         }
 
-        radsq = b_h_cin[0] * b_h_cin[0] + b_h_cin[1] * b_h_cin[1];
-        c = ((1.0F + h_cameraParams_CameraParameters[0] * radsq) +
-             h_cameraParams_CameraParameters[1] * (radsq * radsq)) +
-          h_cameraParams_CameraParameters[2] * rt_powf_snf(radsq, 4.0F);
-        for (i23 = 0; i23 < 2; i23++) {
-          b_h_cin[i23] *= c;
+        for (i = 0; i < 2; i++) {
+          i39 = (long)idx + (i + 3);
+          if (i39 > 2147483647L) {
+            i39 = 2147483647L;
+          } else {
+            if (i39 < -2147483648L) {
+              i39 = -2147483648L;
+            }
+          }
+
+          h_u_apo[(int)i39 - 1] = h_u_r[i];
         }
 
-        idx = b_xt->anchor_states[anchorIdx].feature_states[featureIdx].
-          status_idx;
-        ix = idx - 1;
-        if ((idx < 0) && (ix >= 0)) {
-          ix = MIN_int32_T;
-        }
-
-        if (ix > 536870911) {
-          idx = MAX_int32_T;
-        } else if (ix <= -536870912) {
-          idx = MIN_int32_T;
-        } else {
-          idx = ix << 2;
-        }
-
-        ix = idx + 1;
-        if ((idx > 0) && (ix <= 0)) {
-          ix = MAX_int32_T;
-        }
-
-        h_u_apo[ix - 1] = d_cameraParams_CameraParameters[0] +
-          c_cameraParams_CameraParameters[0] * h_cin[0];
-        ix = idx + 2;
-        if ((idx > 0) && (ix <= 0)) {
-          ix = MAX_int32_T;
-        }
-
-        h_u_apo[ix - 1] = d_cameraParams_CameraParameters[1] +
-          c_cameraParams_CameraParameters[1] * h_cin[1];
-        ix = idx + 3;
-        if ((idx > 0) && (ix <= 0)) {
-          ix = MAX_int32_T;
-        }
-
-        h_u_apo[ix - 1] = g_cameraParams_CameraParameters[0] +
-          f_cameraParams_CameraParameters[0] * b_h_cin[0];
-        ix = idx + 4;
-        if ((idx > 0) && (ix <= 0)) {
-          ix = MAX_int32_T;
-        }
-
-        h_u_apo[ix - 1] = g_cameraParams_CameraParameters[1] +
-          f_cameraParams_CameraParameters[1] * b_h_cin[1];
         if (b_xt->anchor_states[anchorIdx].feature_states[featureIdx].status ==
             2) {
           b_delayedStatus[b_xt->anchor_states[anchorIdx]
-            .feature_states[featureIdx].status_idx - 1] = 1.0F;
+            .feature_states[featureIdx].status_idx - 1] = 1.0;
         }
       }
     }
@@ -5866,6 +4640,33 @@ static boolean_T b_any(const boolean_T x[3])
 }
 
 //
+// Arguments    : const double v[15]
+//                double d[225]
+// Return Type  : void
+//
+static void b_diag(const double v[15], double d[225])
+{
+  int j;
+  memset(&d[0], 0, 225U * sizeof(double));
+  for (j = 0; j < 15; j++) {
+    d[j + 15 * j] = v[j];
+  }
+}
+
+//
+// Arguments    : double I[441]
+// Return Type  : void
+//
+static void b_eye(double I[441])
+{
+  int k;
+  memset(&I[0], 0, 441U * sizeof(double));
+  for (k = 0; k < 21; k++) {
+    I[k + 21 * k] = 1.0;
+  }
+}
+
+//
 // Arguments    : void
 // Return Type  : double
 //
@@ -5891,17 +4692,16 @@ static double b_fprintf()
 
 //
 // Arguments    : emxArray_int32_T *idx
-//                emxArray_real32_T *x
+//                emxArray_real_T *x
 //                int offset
 //                int np
 //                int nq
 //                emxArray_int32_T *iwork
-//                emxArray_real32_T *xwork
+//                emxArray_real_T *xwork
 // Return Type  : void
 //
-static void b_merge(emxArray_int32_T *idx, emxArray_real32_T *x, int offset, int
-                    np, int nq, emxArray_int32_T *iwork, emxArray_real32_T
-                    *xwork)
+static void b_merge(emxArray_int32_T *idx, emxArray_real_T *x, int offset, int
+                    np, int nq, emxArray_int32_T *iwork, emxArray_real_T *xwork)
 {
   int n;
   int qend;
@@ -5952,23 +4752,48 @@ static void b_merge(emxArray_int32_T *idx, emxArray_real32_T *x, int offset, int
 }
 
 //
-// Arguments    : const float x[4]
-// Return Type  : float
+// Arguments    : const double A[2]
+//                const double B[4]
+//                double y[2]
+// Return Type  : void
 //
-static float b_norm(const float x[4])
+static void b_mrdivide(const double A[2], const double B[4], double y[2])
 {
-  float y;
-  float scale;
+  int r1;
+  int r2;
+  double a21;
+  if (fabs(B[1]) > fabs(B[0])) {
+    r1 = 1;
+    r2 = 0;
+  } else {
+    r1 = 0;
+    r2 = 1;
+  }
+
+  a21 = B[r2] / B[r1];
+  y[r1] = A[0] / B[r1];
+  y[r2] = (A[1] - y[r1] * B[2 + r1]) / (B[2 + r2] - a21 * B[2 + r1]);
+  y[r1] -= y[r2] * a21;
+}
+
+//
+// Arguments    : const double x[4]
+// Return Type  : double
+//
+static double b_norm(const double x[4])
+{
+  double y;
+  double scale;
   int k;
-  float absxk;
-  float t;
-  y = 0.0F;
-  scale = 1.17549435E-38F;
+  double absxk;
+  double t;
+  y = 0.0;
+  scale = 2.2250738585072014E-308;
   for (k = 0; k < 4; k++) {
-    absxk = (float)fabs((double)x[k]);
+    absxk = fabs(x[k]);
     if (absxk > scale) {
       t = scale / absxk;
-      y = 1.0F + y * t * t;
+      y = 1.0 + y * t * t;
       scale = absxk;
     } else {
       t = absxk / scale;
@@ -5976,7 +4801,7 @@ static float b_norm(const float x[4])
     }
   }
 
-  return scale * (float)sqrt((double)y);
+  return scale * sqrt(y);
 }
 
 //
@@ -5988,12 +4813,12 @@ static float b_norm(const float x[4])
 static void b_ros_error()
 {
   char cv12[14];
-  int i12;
+  int i16;
   static const char cv13[14] = { 'i', 'n', 'c', 'o', 'n', 's', 'i', 's', 't',
     'e', 'n', 'c', 'y', '\x00' };
 
-  for (i12 = 0; i12 < 14; i12++) {
-    cv12[i12] = cv13[i12];
+  for (i16 = 0; i16 < 14; i16++) {
+    cv12[i16] = cv13[i16];
   }
 
   ROS_ERROR(cv12);
@@ -6010,16 +4835,16 @@ static void b_ros_error()
 static void b_ros_info(int varargin_1, int varargin_2, int varargin_3)
 {
   char cv10[44];
-  int i11;
+  int i14;
   static const char cv11[44] = { 'F', 'i', 'x', 'i', 'n', 'g', ' ', 'f', 'e',
     'a', 't', 'u', 'r', 'e', ' ', '%', 'i', ' ', '(', 'f', 'e', 'a', 't', 'u',
     'r', 'e', ' ', '%', 'i', ' ', 'o', 'n', ' ', 'a', 'n', 'c', 'h', 'o', 'r',
     ' ', '%', 'i', ')', '\x00' };
 
   //  debug_level == 0: print errors, == 1: print warnings, == 2: print info
-  if (debug_level >= 2.0F) {
-    for (i11 = 0; i11 < 44; i11++) {
-      cv10[i11] = cv11[i11];
+  if (debug_level >= 2.0) {
+    for (i14 = 0; i14 < 44; i14++) {
+      cv10[i14] = cv11[i14];
     }
 
     ROS_INFO(cv10, varargin_1, varargin_2, varargin_3);
@@ -6027,16 +4852,16 @@ static void b_ros_info(int varargin_1, int varargin_2, int varargin_3)
 }
 
 //
-// Arguments    : float x[8]
+// Arguments    : double x[8]
 //                int idx[8]
 // Return Type  : void
 //
-static void b_sort(float x[8], int idx[8])
+static void b_sort(double x[8], int idx[8])
 {
   int b_m;
-  float x4[4];
+  double x4[4];
   signed char idx4[4];
-  float xwork[8];
+  double xwork[8];
   int nNaNs;
   int ib;
   int k;
@@ -6050,18 +4875,15 @@ static void b_sort(float x[8], int idx[8])
   }
 
   for (b_m = 0; b_m < 4; b_m++) {
-    x4[b_m] = 0.0F;
+    x4[b_m] = 0.0;
     idx4[b_m] = 0;
   }
 
-  for (b_m = 0; b_m < 8; b_m++) {
-    xwork[b_m] = 0.0F;
-  }
-
+  memset(&xwork[0], 0, sizeof(double) << 3);
   nNaNs = -7;
   ib = 0;
   for (k = 0; k < 8; k++) {
-    if (rtIsNaNF(x[k])) {
+    if (rtIsNaN(x[k])) {
       idx[-nNaNs] = k + 1;
       xwork[-nNaNs] = x[k];
       nNaNs++;
@@ -6231,28 +5053,28 @@ static void b_sort(float x[8], int idx[8])
 }
 
 //
-// Arguments    : float A[30]
-//                float tau[5]
+// Arguments    : double A[30]
+//                double tau[5]
 //                int jpvt[5]
 // Return Type  : void
 //
-static void b_xgeqp3(float A[30], float tau[5], int jpvt[5])
+static void b_xgeqp3(double A[30], double tau[5], int jpvt[5])
 {
-  float vn1[5];
-  float vn2[5];
+  double vn1[5];
+  double vn2[5];
   int k;
   int iy;
-  float work[5];
-  float smax;
-  float temp2;
+  double work[5];
+  double smax;
+  double temp2;
   int itemp;
-  float absxk;
-  float t;
+  double absxk;
+  double t;
   int i;
   int i_i;
   int ix;
   int pvt;
-  int i32;
+  int i49;
   int i_ip1;
   int lastv;
   int lastc;
@@ -6261,14 +5083,14 @@ static void b_xgeqp3(float A[30], float tau[5], int jpvt[5])
   k = 1;
   for (iy = 0; iy < 5; iy++) {
     jpvt[iy] = 1 + iy;
-    work[iy] = 0.0F;
-    smax = 0.0F;
-    temp2 = 1.17549435E-38F;
+    work[iy] = 0.0;
+    smax = 0.0;
+    temp2 = 2.2250738585072014E-308;
     for (itemp = k; itemp <= k + 5; itemp++) {
-      absxk = (float)fabs((double)A[itemp - 1]);
+      absxk = fabs(A[itemp - 1]);
       if (absxk > temp2) {
         t = temp2 / absxk;
-        smax = 1.0F + smax * t * t;
+        smax = 1.0 + smax * t * t;
         temp2 = absxk;
       } else {
         t = absxk / temp2;
@@ -6276,7 +5098,7 @@ static void b_xgeqp3(float A[30], float tau[5], int jpvt[5])
       }
     }
 
-    smax = temp2 * (float)sqrt((double)smax);
+    smax = temp2 * sqrt(smax);
     vn1[iy] = smax;
     vn2[iy] = vn1[iy];
     k += 6;
@@ -6317,49 +5139,49 @@ static void b_xgeqp3(float A[30], float tau[5], int jpvt[5])
     }
 
     absxk = A[i_i];
-    temp2 = 0.0F;
+    temp2 = 0.0;
     smax = c_xnrm2(5 - i, A, i_i + 2);
-    if (smax != 0.0F) {
-      smax = rt_hypotf_snf(A[i_i], smax);
-      if (A[i_i] >= 0.0F) {
+    if (smax != 0.0) {
+      smax = hypot(A[i_i], smax);
+      if (A[i_i] >= 0.0) {
         smax = -smax;
       }
 
-      if ((float)fabs((double)smax) < 9.86076132E-32F) {
+      if (fabs(smax) < 1.0020841800044864E-292) {
         itemp = 0;
         do {
           itemp++;
-          i32 = i_i - i;
-          for (k = i_i + 1; k + 1 <= i32 + 6; k++) {
-            A[k] *= 1.01412048E+31F;
+          i49 = i_i - i;
+          for (k = i_i + 1; k + 1 <= i49 + 6; k++) {
+            A[k] *= 9.9792015476736E+291;
           }
 
-          smax *= 1.01412048E+31F;
-          absxk *= 1.01412048E+31F;
-        } while (!((float)fabs((double)smax) >= 9.86076132E-32F));
+          smax *= 9.9792015476736E+291;
+          absxk *= 9.9792015476736E+291;
+        } while (!(fabs(smax) >= 1.0020841800044864E-292));
 
-        smax = rt_hypotf_snf(absxk, c_xnrm2(5 - i, A, i_i + 2));
-        if (absxk >= 0.0F) {
+        smax = hypot(absxk, c_xnrm2(5 - i, A, i_i + 2));
+        if (absxk >= 0.0) {
           smax = -smax;
         }
 
         temp2 = (smax - absxk) / smax;
-        absxk = 1.0F / (absxk - smax);
-        i32 = i_i - i;
-        for (k = i_i + 1; k + 1 <= i32 + 6; k++) {
+        absxk = 1.0 / (absxk - smax);
+        i49 = i_i - i;
+        for (k = i_i + 1; k + 1 <= i49 + 6; k++) {
           A[k] *= absxk;
         }
 
         for (k = 1; k <= itemp; k++) {
-          smax *= 9.86076132E-32F;
+          smax *= 1.0020841800044864E-292;
         }
 
         absxk = smax;
       } else {
         temp2 = (smax - A[i_i]) / smax;
-        absxk = 1.0F / (A[i_i] - smax);
-        i32 = i_i - i;
-        for (k = i_i + 1; k + 1 <= i32 + 6; k++) {
+        absxk = 1.0 / (A[i_i] - smax);
+        i49 = i_i - i;
+        for (k = i_i + 1; k + 1 <= i49 + 6; k++) {
           A[k] *= absxk;
         }
 
@@ -6371,12 +5193,12 @@ static void b_xgeqp3(float A[30], float tau[5], int jpvt[5])
     A[i_i] = absxk;
     if (i + 1 < 5) {
       absxk = A[i_i];
-      A[i_i] = 1.0F;
+      A[i_i] = 1.0;
       i_ip1 = (i + (i + 1) * 6) + 1;
-      if (tau[i] != 0.0F) {
+      if (tau[i] != 0.0) {
         lastv = 6 - i;
         itemp = i_i - i;
-        while ((lastv > 0) && (A[itemp + 5] == 0.0F)) {
+        while ((lastv > 0) && (A[itemp + 5] == 0.0)) {
           lastv--;
           itemp--;
         }
@@ -6389,7 +5211,7 @@ static void b_xgeqp3(float A[30], float tau[5], int jpvt[5])
           do {
             exitg1 = 0;
             if (k <= (itemp + lastv) - 1) {
-              if (A[k - 1] != 0.0F) {
+              if (A[k - 1] != 0.0) {
                 exitg1 = 1;
               } else {
                 k++;
@@ -6413,14 +5235,14 @@ static void b_xgeqp3(float A[30], float tau[5], int jpvt[5])
         if (lastc == 0) {
         } else {
           for (iy = 1; iy <= lastc; iy++) {
-            work[iy - 1] = 0.0F;
+            work[iy - 1] = 0.0;
           }
 
           iy = 0;
-          i32 = i_ip1 + 6 * (lastc - 1);
-          for (itemp = i_ip1; itemp <= i32; itemp += 6) {
+          i49 = i_ip1 + 6 * (lastc - 1);
+          for (itemp = i_ip1; itemp <= i49; itemp += 6) {
             ix = i_i;
-            smax = 0.0F;
+            smax = 0.0;
             pvt = (itemp + lastv) - 1;
             for (k = itemp; k <= pvt; k++) {
               smax += A[k - 1] * A[ix];
@@ -6432,16 +5254,16 @@ static void b_xgeqp3(float A[30], float tau[5], int jpvt[5])
           }
         }
 
-        if (-tau[i] == 0.0F) {
+        if (-tau[i] == 0.0) {
         } else {
           itemp = i_ip1 - 1;
           pvt = 0;
           for (iy = 1; iy <= lastc; iy++) {
-            if (work[pvt] != 0.0F) {
+            if (work[pvt] != 0.0) {
               smax = work[pvt] * -tau[i];
               ix = i_i;
-              i32 = lastv + itemp;
-              for (k = itemp; k + 1 <= i32; k++) {
+              i49 = lastv + itemp;
+              for (k = itemp; k + 1 <= i49; k++) {
                 A[k] += A[ix] * smax;
                 ix++;
               }
@@ -6458,27 +5280,27 @@ static void b_xgeqp3(float A[30], float tau[5], int jpvt[5])
 
     for (iy = i + 1; iy + 1 < 6; iy++) {
       itemp = (i + 6 * iy) + 1;
-      if (vn1[iy] != 0.0F) {
-        smax = (float)fabs((double)A[i + 6 * iy]) / vn1[iy];
-        smax = 1.0F - smax * smax;
-        if (smax < 0.0F) {
-          smax = 0.0F;
+      if (vn1[iy] != 0.0) {
+        smax = fabs(A[i + 6 * iy]) / vn1[iy];
+        smax = 1.0 - smax * smax;
+        if (smax < 0.0) {
+          smax = 0.0;
         }
 
         temp2 = vn1[iy] / vn2[iy];
         temp2 = smax * (temp2 * temp2);
-        if (temp2 <= 0.000345266977F) {
-          smax = 0.0F;
+        if (temp2 <= 1.4901161193847656E-8) {
+          smax = 0.0;
           if (5 - i == 1) {
-            smax = (float)fabs((double)A[itemp]);
+            smax = fabs(A[itemp]);
           } else {
-            temp2 = 1.17549435E-38F;
+            temp2 = 2.2250738585072014E-308;
             pvt = (itemp - i) + 5;
             while (itemp + 1 <= pvt) {
-              absxk = (float)fabs((double)A[itemp]);
+              absxk = fabs(A[itemp]);
               if (absxk > temp2) {
                 t = temp2 / absxk;
-                smax = 1.0F + smax * t * t;
+                smax = 1.0 + smax * t * t;
                 temp2 = absxk;
               } else {
                 t = absxk / temp2;
@@ -6488,13 +5310,13 @@ static void b_xgeqp3(float A[30], float tau[5], int jpvt[5])
               itemp++;
             }
 
-            smax = temp2 * (float)sqrt((double)smax);
+            smax = temp2 * sqrt(smax);
           }
 
           vn1[iy] = smax;
           vn2[iy] = vn1[iy];
         } else {
-          vn1[iy] *= (float)sqrt((double)smax);
+          vn1[iy] *= sqrt(smax);
         }
       }
     }
@@ -6503,30 +5325,30 @@ static void b_xgeqp3(float A[30], float tau[5], int jpvt[5])
 
 //
 // Arguments    : int n
-//                const emxArray_real32_T *x
+//                const emxArray_real_T *x
 //                int ix0
-// Return Type  : float
+// Return Type  : double
 //
-static float b_xnrm2(int n, const emxArray_real32_T *x, int ix0)
+static double b_xnrm2(int n, const emxArray_real_T *x, int ix0)
 {
-  float y;
-  float scale;
+  double y;
+  double scale;
   int kend;
   int k;
-  float absxk;
-  float t;
-  y = 0.0F;
+  double absxk;
+  double t;
+  y = 0.0;
   if (n < 1) {
   } else if (n == 1) {
-    y = (float)fabs((double)x->data[ix0 - 1]);
+    y = fabs(x->data[ix0 - 1]);
   } else {
-    scale = 1.17549435E-38F;
+    scale = 2.2250738585072014E-308;
     kend = (ix0 + n) - 1;
     for (k = ix0; k <= kend; k++) {
-      absxk = (float)fabs((double)x->data[k - 1]);
+      absxk = fabs(x->data[k - 1]);
       if (absxk > scale) {
         t = scale / absxk;
-        y = 1.0F + y * t * t;
+        y = 1.0 + y * t * t;
         scale = absxk;
       } else {
         t = absxk / scale;
@@ -6534,17 +5356,17 @@ static float b_xnrm2(int n, const emxArray_real32_T *x, int ix0)
       }
     }
 
-    y = scale * (float)sqrt((double)y);
+    y = scale * sqrt(y);
   }
 
   return y;
 }
 
 //
-// Arguments    : const float x[5]
+// Arguments    : const double x[5]
 // Return Type  : boolean_T
 //
-static boolean_T c_any(const float x[5])
+static boolean_T c_any(const double x[5])
 {
   boolean_T y;
   int k;
@@ -6554,7 +5376,7 @@ static boolean_T c_any(const float x[5])
   k = 0;
   exitg1 = false;
   while ((!exitg1) && (k < 5)) {
-    if ((x[k] == 0.0F) || rtIsNaNF(x[k])) {
+    if ((x[k] == 0.0) || rtIsNaN(x[k])) {
       b0 = true;
     } else {
       b0 = false;
@@ -6572,10 +5394,23 @@ static boolean_T c_any(const float x[5])
 }
 
 //
-// Arguments    : float varargin_1
+// Arguments    : double I[8281]
+// Return Type  : void
+//
+static void c_eye(double I[8281])
+{
+  int k;
+  memset(&I[0], 0, 8281U * sizeof(double));
+  for (k = 0; k < 91; k++) {
+    I[k + 91 * k] = 1.0;
+  }
+}
+
+//
+// Arguments    : double varargin_1
 // Return Type  : double
 //
-static double c_fprintf(float varargin_1)
+static double c_fprintf(double varargin_1)
 {
   int nbytesint;
   FILE * b_NULL;
@@ -6596,23 +5431,23 @@ static double c_fprintf(float varargin_1)
 }
 
 //
-// Arguments    : const float x[2]
-// Return Type  : float
+// Arguments    : const double x[2]
+// Return Type  : double
 //
-static float c_norm(const float x[2])
+static double c_norm(const double x[2])
 {
-  float y;
-  float scale;
+  double y;
+  double scale;
   int k;
-  float absxk;
-  float t;
-  y = 0.0F;
-  scale = 1.17549435E-38F;
+  double absxk;
+  double t;
+  y = 0.0;
+  scale = 2.2250738585072014E-308;
   for (k = 0; k < 2; k++) {
-    absxk = (float)fabs((double)x[k]);
+    absxk = fabs(x[k]);
     if (absxk > scale) {
       t = scale / absxk;
-      y = 1.0F + y * t * t;
+      y = 1.0 + y * t * t;
       scale = absxk;
     } else {
       t = absxk / scale;
@@ -6620,7 +5455,56 @@ static float c_norm(const float x[2])
     }
   }
 
-  return scale * (float)sqrt((double)y);
+  return scale * sqrt(y);
+}
+
+//
+// PREDICTMEASUREMENT Predict the measurement of a feature given in the left
+// camera frame
+//    Get the pixel coordinates where a feature given in the left camera
+//    frame would be visible in both cameras. Depending on the
+//    camera model used to calibrate the camera, the appropriate undistortion
+//    is applied
+// Arguments    : const double fp_l[3]
+//                const double c_stereoParams_CameraParameters[2]
+//                const double d_stereoParams_CameraParameters[2]
+//                const double e_stereoParams_CameraParameters[3]
+//                const double f_stereoParams_CameraParameters[2]
+//                const double g_stereoParams_CameraParameters[2]
+//                const double h_stereoParams_CameraParameters[3]
+//                const double stereoParams_r_lr[3]
+//                const double stereoParams_R_rl[9]
+//                double h_d_l[2]
+//                double h_d_r[2]
+// Return Type  : void
+//
+static void c_predictMeasurementStereoDisto(const double fp_l[3], const double
+  c_stereoParams_CameraParameters[2], const double
+  d_stereoParams_CameraParameters[2], const double
+  e_stereoParams_CameraParameters[3], const double
+  f_stereoParams_CameraParameters[2], const double
+  g_stereoParams_CameraParameters[2], const double
+  h_stereoParams_CameraParameters[3], const double stereoParams_r_lr[3], const
+  double stereoParams_R_rl[9], double h_d_l[2], double h_d_r[2])
+{
+  double b_stereoParams_R_rl[3];
+  int i27;
+  double d3;
+  int i28;
+  predictMeasurementDistortedPB(fp_l, c_stereoParams_CameraParameters,
+    d_stereoParams_CameraParameters, e_stereoParams_CameraParameters, h_d_l);
+  for (i27 = 0; i27 < 3; i27++) {
+    d3 = 0.0;
+    for (i28 = 0; i28 < 3; i28++) {
+      d3 += stereoParams_R_rl[i27 + 3 * i28] * fp_l[i28];
+    }
+
+    b_stereoParams_R_rl[i27] = d3 - stereoParams_r_lr[i27];
+  }
+
+  predictMeasurementDistortedPB(b_stereoParams_R_rl,
+    f_stereoParams_CameraParameters, g_stereoParams_CameraParameters,
+    h_stereoParams_CameraParameters, h_d_r);
 }
 
 //
@@ -6634,15 +5518,15 @@ static float c_norm(const float x[2])
 static void c_ros_info(int varargin_1, int varargin_2, int varargin_3)
 {
   char cv14[24];
-  int i13;
+  int i17;
   static const char cv15[24] = { 'R', 'e', 'j', 'e', 'c', 't', 'i', 'n', 'g',
     ' ', '%', 'i', ' ', '(', '%', 'i', ' ', 'o', 'n', ' ', '%', 'i', ')', '\x00'
   };
 
   //  debug_level == 0: print errors, == 1: print warnings, == 2: print info
-  if (debug_level >= 2.0F) {
-    for (i13 = 0; i13 < 24; i13++) {
-      cv14[i13] = cv15[i13];
+  if (debug_level >= 2.0) {
+    for (i17 = 0; i17 < 24; i17++) {
+      cv14[i17] = cv15[i17];
     }
 
     ROS_INFO(cv14, varargin_1, varargin_2, varargin_3);
@@ -6650,11 +5534,11 @@ static void c_ros_info(int varargin_1, int varargin_2, int varargin_3)
 }
 
 //
-// Arguments    : emxArray_real32_T *x
+// Arguments    : emxArray_real_T *x
 //                emxArray_int32_T *idx
 // Return Type  : void
 //
-static void c_sort(emxArray_real32_T *x, emxArray_int32_T *idx)
+static void c_sort(emxArray_real_T *x, emxArray_int32_T *idx)
 {
   int dim;
   dim = 2;
@@ -6667,29 +5551,29 @@ static void c_sort(emxArray_real32_T *x, emxArray_int32_T *idx)
 
 //
 // Arguments    : int n
-//                const float x[30]
+//                const double x[30]
 //                int ix0
-// Return Type  : float
+// Return Type  : double
 //
-static float c_xnrm2(int n, const float x[30], int ix0)
+static double c_xnrm2(int n, const double x[30], int ix0)
 {
-  float y;
-  float scale;
+  double y;
+  double scale;
   int kend;
   int k;
-  float absxk;
-  float t;
-  y = 0.0F;
+  double absxk;
+  double t;
+  y = 0.0;
   if (n == 1) {
-    y = (float)fabs((double)x[ix0 - 1]);
+    y = fabs(x[ix0 - 1]);
   } else {
-    scale = 1.17549435E-38F;
+    scale = 2.2250738585072014E-308;
     kend = (ix0 + n) - 1;
     for (k = ix0; k <= kend; k++) {
-      absxk = (float)fabs((double)x[k - 1]);
+      absxk = fabs(x[k - 1]);
       if (absxk > scale) {
         t = scale / absxk;
-        y = 1.0F + y * t * t;
+        y = 1.0 + y * t * t;
         scale = absxk;
       } else {
         t = absxk / scale;
@@ -6697,7 +5581,7 @@ static float c_xnrm2(int n, const float x[30], int ix0)
       }
     }
 
-    y = scale * (float)sqrt((double)y);
+    y = scale * sqrt(y);
   }
 
   return y;
@@ -6724,12 +5608,12 @@ static void cast(const struct_T x[5], AnchorPose y[5])
 }
 
 //
-// Arguments    : const float a[3]
-//                const float b[3]
-//                float c[3]
+// Arguments    : const double a[3]
+//                const double b[3]
+//                double c[3]
 // Return Type  : void
 //
-static void cross(const float a[3], const float b[3], float c[3])
+static void cross(const double a[3], const double b[3], double c[3])
 {
   c[0] = a[1] * b[2] - a[2] * b[1];
   c[1] = a[2] * b[0] - a[0] * b[2];
@@ -6737,10 +5621,23 @@ static void cross(const float a[3], const float b[3], float c[3])
 }
 
 //
-// Arguments    : float varargin_1
+// Arguments    : double I[8281]
+// Return Type  : void
+//
+static void d_eye(double I[8281])
+{
+  int k;
+  memset(&I[0], 0, 8281U * sizeof(double));
+  for (k = 0; k < 91; k++) {
+    I[k + 91 * k] = 1.0;
+  }
+}
+
+//
+// Arguments    : double varargin_1
 // Return Type  : double
 //
-static double d_fprintf(float varargin_1)
+static double d_fprintf(double varargin_1)
 {
   int nbytesint;
   FILE * b_NULL;
@@ -6770,16 +5667,16 @@ static double d_fprintf(float varargin_1)
 static void d_ros_info(int varargin_1, int varargin_2)
 {
   char cv16[44];
-  int i16;
+  int i20;
   static const char cv17[44] = { 's', 'u', 'c', 'c', 'e', 's', 's', 'f', 'u',
     'l', 'l', 'y', ' ', 't', 'r', 'i', 'a', 'n', 'g', 'u', 'l', 'a', 't', 'e',
     'd', ' ', '%', 'd', ' ', 'o', 'f', ' ', '%', 'd', ' ', 'f', 'e', 'a', 't',
     'u', 'r', 'e', 's', '\x00' };
 
   //  debug_level == 0: print errors, == 1: print warnings, == 2: print info
-  if (debug_level >= 2.0F) {
-    for (i16 = 0; i16 < 44; i16++) {
-      cv16[i16] = cv17[i16];
+  if (debug_level >= 2.0) {
+    for (i20 = 0; i20 < 44; i20++) {
+      cv16[i20] = cv17[i20];
     }
 
     ROS_INFO(cv16, varargin_1, varargin_2);
@@ -6787,29 +5684,29 @@ static void d_ros_info(int varargin_1, int varargin_2)
 }
 
 //
-// Arguments    : emxArray_real32_T *x
+// Arguments    : emxArray_real_T *x
 //                int dim
 //                emxArray_int32_T *idx
 // Return Type  : void
 //
-static void d_sort(emxArray_real32_T *x, int dim, emxArray_int32_T *idx)
+static void d_sort(emxArray_real_T *x, int dim, emxArray_int32_T *idx)
 {
-  int i33;
-  emxArray_real32_T *vwork;
+  int i50;
+  emxArray_real_T *vwork;
   int vstride;
   int x_idx_0;
   int j;
   emxArray_int32_T *iidx;
   if (dim <= 1) {
-    i33 = x->size[0];
+    i50 = x->size[0];
   } else {
-    i33 = 1;
+    i50 = 1;
   }
 
-  emxInit_real32_T(&vwork, 1);
+  emxInit_real_T(&vwork, 1);
   vstride = vwork->size[0];
-  vwork->size[0] = i33;
-  emxEnsureCapacity((emxArray__common *)vwork, vstride, (int)sizeof(float));
+  vwork->size[0] = i50;
+  emxEnsureCapacity((emxArray__common *)vwork, vstride, (int)sizeof(double));
   x_idx_0 = x->size[0];
   vstride = idx->size[0];
   idx->size[0] = x_idx_0;
@@ -6822,14 +5719,14 @@ static void d_sort(emxArray_real32_T *x, int dim, emxArray_int32_T *idx)
   }
 
   j = 0;
-  emxInit_int32_T(&iidx, 1);
+  emxInit_int32_T1(&iidx, 1);
   while (j + 1 <= vstride) {
-    for (x_idx_0 = 0; x_idx_0 + 1 <= i33; x_idx_0++) {
+    for (x_idx_0 = 0; x_idx_0 + 1 <= i50; x_idx_0++) {
       vwork->data[x_idx_0] = x->data[j + x_idx_0 * vstride];
     }
 
     sortIdx(vwork, iidx);
-    for (x_idx_0 = 0; x_idx_0 + 1 <= i33; x_idx_0++) {
+    for (x_idx_0 = 0; x_idx_0 + 1 <= i50; x_idx_0++) {
       x->data[j + x_idx_0 * vstride] = vwork->data[x_idx_0];
       idx->data[j + x_idx_0 * vstride] = iidx->data[x_idx_0];
     }
@@ -6838,49 +5735,49 @@ static void d_sort(emxArray_real32_T *x, int dim, emxArray_int32_T *idx)
   }
 
   emxFree_int32_T(&iidx);
-  emxFree_real32_T(&vwork);
+  emxFree_real_T(&vwork);
 }
 
 //
-// Arguments    : const float x[36]
-// Return Type  : float
+// Arguments    : const double x[36]
+// Return Type  : double
 //
-static float det(const float x[36])
+static double det(const double x[36])
 {
-  float y;
-  float A[36];
+  double y;
+  double A[36];
   signed char ipiv[6];
-  int i21;
+  int i25;
   int j;
   int c;
   int iy;
   int ix;
-  float smax;
+  double smax;
   int jy;
-  float s;
+  double s;
   int b_j;
   int ijA;
   boolean_T isodd;
-  memcpy(&A[0], &x[0], 36U * sizeof(float));
-  for (i21 = 0; i21 < 6; i21++) {
-    ipiv[i21] = (signed char)(1 + i21);
+  memcpy(&A[0], &x[0], 36U * sizeof(double));
+  for (i25 = 0; i25 < 6; i25++) {
+    ipiv[i25] = (signed char)(1 + i25);
   }
 
   for (j = 0; j < 5; j++) {
     c = j * 7;
     iy = 0;
     ix = c;
-    smax = (float)fabs((double)A[c]);
+    smax = fabs(A[c]);
     for (jy = 1; jy + 1 <= 6 - j; jy++) {
       ix++;
-      s = (float)fabs((double)A[ix]);
+      s = fabs(A[ix]);
       if (s > smax) {
         iy = jy;
         smax = s;
       }
     }
 
-    if (A[c + iy] != 0.0F) {
+    if (A[c + iy] != 0.0) {
       if (iy != 0) {
         ipiv[j] = (signed char)((j + iy) + 1);
         ix = j;
@@ -6894,8 +5791,8 @@ static float det(const float x[36])
         }
       }
 
-      i21 = (c - j) + 6;
-      for (iy = c + 1; iy + 1 <= i21; iy++) {
+      i25 = (c - j) + 6;
+      for (iy = c + 1; iy + 1 <= i25; iy++) {
         A[iy] /= A[c];
       }
     }
@@ -6904,10 +5801,10 @@ static float det(const float x[36])
     jy = c + 6;
     for (b_j = 1; b_j <= 5 - j; b_j++) {
       smax = A[jy];
-      if (A[jy] != 0.0F) {
+      if (A[jy] != 0.0) {
         ix = c + 1;
-        i21 = (iy - j) + 12;
-        for (ijA = 7 + iy; ijA + 1 <= i21; ijA++) {
+        i25 = (iy - j) + 12;
+        for (ijA = 7 + iy; ijA + 1 <= i25; ijA++) {
           A[ijA] += A[ix] * -smax;
           ix++;
         }
@@ -6935,27 +5832,24 @@ static float det(const float x[36])
 }
 
 //
-// Arguments    : const float v[3]
-//                float d[9]
+// Arguments    : const double v[3]
+//                double d[9]
 // Return Type  : void
 //
-static void diag(const float v[3], float d[9])
+static void diag(const double v[3], double d[9])
 {
   int j;
-  for (j = 0; j < 9; j++) {
-    d[j] = 0.0F;
-  }
-
+  memset(&d[0], 0, 9U * sizeof(double));
   for (j = 0; j < 3; j++) {
     d[j + 3 * j] = v[j];
   }
 }
 
 //
-// Arguments    : float varargin_1
+// Arguments    : double varargin_1
 // Return Type  : double
 //
-static double e_fprintf(float varargin_1)
+static double e_fprintf(double varargin_1)
 {
   int nbytesint;
   FILE * b_NULL;
@@ -6985,16 +5879,16 @@ static double e_fprintf(float varargin_1)
 static void e_ros_info(int varargin_1)
 {
   char cv18[52];
-  int i17;
+  int i21;
   static const char cv19[52] = { 'I', 'n', 'i', 't', 'i', 'a', 'l', 'i', 'z',
     'i', 'n', 'g', ' ', 'a', 'n', 'c', 'h', 'o', 'r', ' ', '%', 'i', ',', ' ',
     'w', 'h', 'i', 'c', 'h', ' ', 'w', 'a', 's', ' ', 't', 'h', 'e', ' ', 'o',
     'r', 'i', 'g', 'i', 'n', ' ', 'a', 'n', 'c', 'h', 'o', 'r', '\x00' };
 
   //  debug_level == 0: print errors, == 1: print warnings, == 2: print info
-  if (debug_level >= 2.0F) {
-    for (i17 = 0; i17 < 52; i17++) {
-      cv18[i17] = cv19[i17];
+  if (debug_level >= 2.0) {
+    for (i21 = 0; i21 < 52; i21++) {
+      cv18[i21] = cv19[i21];
     }
 
     ROS_INFO(cv18, varargin_1);
@@ -7090,19 +5984,19 @@ static void emxFree_int32_T(emxArray_int32_T **pEmxArray)
 }
 
 //
-// Arguments    : emxArray_real32_T **pEmxArray
+// Arguments    : emxArray_real_T **pEmxArray
 // Return Type  : void
 //
-static void emxFree_real32_T(emxArray_real32_T **pEmxArray)
+static void emxFree_real_T(emxArray_real_T **pEmxArray)
 {
-  if (*pEmxArray != (emxArray_real32_T *)NULL) {
-    if (((*pEmxArray)->data != (float *)NULL) && (*pEmxArray)->canFreeData) {
+  if (*pEmxArray != (emxArray_real_T *)NULL) {
+    if (((*pEmxArray)->data != (double *)NULL) && (*pEmxArray)->canFreeData) {
       free((void *)(*pEmxArray)->data);
     }
 
     free((void *)(*pEmxArray)->size);
     free((void *)*pEmxArray);
-    *pEmxArray = (emxArray_real32_T *)NULL;
+    *pEmxArray = (emxArray_real_T *)NULL;
   }
 }
 
@@ -7149,17 +6043,17 @@ static void emxInit_int32_T1(emxArray_int32_T **pEmxArray, int b_numDimensions)
 }
 
 //
-// Arguments    : emxArray_real32_T **pEmxArray
+// Arguments    : emxArray_real_T **pEmxArray
 //                int b_numDimensions
 // Return Type  : void
 //
-static void emxInit_real32_T(emxArray_real32_T **pEmxArray, int b_numDimensions)
+static void emxInit_real_T(emxArray_real_T **pEmxArray, int b_numDimensions)
 {
-  emxArray_real32_T *emxArray;
+  emxArray_real_T *emxArray;
   int i;
-  *pEmxArray = (emxArray_real32_T *)malloc(sizeof(emxArray_real32_T));
+  *pEmxArray = (emxArray_real_T *)malloc(sizeof(emxArray_real_T));
   emxArray = *pEmxArray;
-  emxArray->data = (float *)NULL;
+  emxArray->data = (double *)NULL;
   emxArray->numDimensions = b_numDimensions;
   emxArray->size = (int *)malloc((unsigned int)(sizeof(int) * b_numDimensions));
   emxArray->allocatedSize = 0;
@@ -7170,17 +6064,17 @@ static void emxInit_real32_T(emxArray_real32_T **pEmxArray, int b_numDimensions)
 }
 
 //
-// Arguments    : emxArray_real32_T **pEmxArray
+// Arguments    : emxArray_real_T **pEmxArray
 //                int b_numDimensions
 // Return Type  : void
 //
-static void emxInit_real32_T1(emxArray_real32_T **pEmxArray, int b_numDimensions)
+static void emxInit_real_T1(emxArray_real_T **pEmxArray, int b_numDimensions)
 {
-  emxArray_real32_T *emxArray;
+  emxArray_real_T *emxArray;
   int i;
-  *pEmxArray = (emxArray_real32_T *)malloc(sizeof(emxArray_real32_T));
+  *pEmxArray = (emxArray_real_T *)malloc(sizeof(emxArray_real_T));
   emxArray = *pEmxArray;
-  emxArray->data = (float *)NULL;
+  emxArray->data = (double *)NULL;
   emxArray->numDimensions = b_numDimensions;
   emxArray->size = (int *)malloc((unsigned int)(sizeof(int) * b_numDimensions));
   emxArray->allocatedSize = 0;
@@ -7191,10 +6085,23 @@ static void emxInit_real32_T1(emxArray_real32_T **pEmxArray, int b_numDimensions
 }
 
 //
-// Arguments    : float varargin_1
+// Arguments    : double I[9]
+// Return Type  : void
+//
+static void eye(double I[9])
+{
+  int k;
+  memset(&I[0], 0, 9U * sizeof(double));
+  for (k = 0; k < 3; k++) {
+    I[k + 3 * k] = 1.0;
+  }
+}
+
+//
+// Arguments    : double varargin_1
 // Return Type  : double
 //
-static double f_fprintf(float varargin_1)
+static double f_fprintf(double varargin_1)
 {
   int nbytesint;
   FILE * b_NULL;
@@ -7224,16 +6131,16 @@ static double f_fprintf(float varargin_1)
 static void f_ros_info(int varargin_1)
 {
   char cv20[45];
-  int i18;
+  int i22;
   static const char cv21[45] = { 'F', 'e', 'a', 't', 'u', 'r', 'e', ' ', '%',
     'd', ' ', 'i', 's', ' ', 't', 'o', 'o', ' ', 'f', 'a', 'r', ' ', 'a', 'w',
     'a', 'y', ' ', 't', 'o', ' ', 't', 'r', 'i', 'a', 'n', 'g', 'u', 'l', 'a',
     't', 'e', '.', '\\', 'n', '\x00' };
 
   //  debug_level == 0: print errors, == 1: print warnings, == 2: print info
-  if (debug_level >= 2.0F) {
-    for (i18 = 0; i18 < 45; i18++) {
-      cv20[i18] = cv21[i18];
+  if (debug_level >= 2.0) {
+    for (i22 = 0; i22 < 45; i22++) {
+      cv20[i22] = cv21[i22];
     }
 
     ROS_INFO(cv20, varargin_1);
@@ -7252,10 +6159,10 @@ static void fileManager(FILE * *f, boolean_T *a)
 }
 
 //
-// Arguments    : float varargin_1
+// Arguments    : double varargin_1
 // Return Type  : double
 //
-static double g_fprintf(float varargin_1)
+static double g_fprintf(double varargin_1)
 {
   int nbytesint;
   FILE * b_NULL;
@@ -7287,16 +6194,16 @@ static double g_fprintf(float varargin_1)
 static void g_ros_info(int varargin_1, int varargin_2, int varargin_3)
 {
   char cv22[48];
-  int i19;
+  int i23;
   static const char cv23[48] = { 'I', 'n', 's', 'e', 'r', 't', 'i', 'n', 'g',
     ' ', 'f', 'e', 'a', 't', 'u', 'r', 'e', ' ', '%', 'd', ' ', 'a', 's', ' ',
     'f', 'e', 'a', 't', 'u', 'r', 'e', ' ', '%', 'i', ' ', 'o', 'n', ' ', 'a',
     'n', 'c', 'h', 'o', 'r', ' ', '%', 'i', '\x00' };
 
   //  debug_level == 0: print errors, == 1: print warnings, == 2: print info
-  if (debug_level >= 2.0F) {
-    for (i19 = 0; i19 < 48; i19++) {
-      cv22[i19] = cv23[i19];
+  if (debug_level >= 2.0) {
+    for (i23 = 0; i23 < 48; i23++) {
+      cv22[i23] = cv23[i23];
     }
 
     ROS_INFO(cv22, varargin_1, varargin_2, varargin_3);
@@ -7305,32 +6212,24 @@ static void g_ros_info(int varargin_1, int varargin_2, int varargin_3)
 
 //
 // getAnchorPoses Get the anchor poses in the world frame
-// Arguments    : const float xt_origin_pos[3]
-//                const float xt_origin_att[4]
+// Arguments    : const double xt_origin_pos[3]
+//                const double xt_origin_att[4]
 //                const f_struct_T xt_anchor_states[5]
 //                struct_T anchor_poses[5]
 // Return Type  : void
 //
-static void getAnchorPoses(const float xt_origin_pos[3], const float
+static void getAnchorPoses(const double xt_origin_pos[3], const double
   xt_origin_att[4], const f_struct_T xt_anchor_states[5], struct_T anchor_poses
   [5])
 {
-  float R_ow[9];
+  double R_ow[9];
   int anchorIdx;
-  static const struct_T rv0[5] = { { { 0.0F, 0.0F, 0.0F }, { 0.0F, 0.0F, 0.0F,
-        0.0F } }, { { 0.0F, 0.0F, 0.0F }, { 0.0F, 0.0F, 0.0F, 0.0F } }, { { 0.0F,
-        0.0F, 0.0F }, { 0.0F, 0.0F, 0.0F, 0.0F } }, { { 0.0F, 0.0F, 0.0F }, {
-        0.0F, 0.0F, 0.0F, 0.0F } }, { { 0.0F, 0.0F, 0.0F }, { 0.0F, 0.0F, 0.0F,
-        0.0F } } };
-
-  float b_xt_anchor_states[9];
-  int ixstart;
-  float mtmp;
-  int itmp;
-  float c[9];
-  int ix;
-  float varargin_1[4];
-  boolean_T exitg1;
+  double b_xt_anchor_states[9];
+  double c_xt_anchor_states[9];
+  int i31;
+  double d5;
+  int i32;
+  int i33;
 
   //  if ~all(size(q) == [4, 1])
   //      error('q does not have the size of a quaternion')
@@ -7341,197 +6240,79 @@ static void getAnchorPoses(const float xt_origin_pos[3], const float
   R_ow[0] = ((xt_origin_att[0] * xt_origin_att[0] - xt_origin_att[1] *
               xt_origin_att[1]) - xt_origin_att[2] * xt_origin_att[2]) +
     xt_origin_att[3] * xt_origin_att[3];
-  R_ow[3] = 2.0F * (xt_origin_att[0] * xt_origin_att[1] + xt_origin_att[2] *
-                    xt_origin_att[3]);
-  R_ow[6] = 2.0F * (xt_origin_att[0] * xt_origin_att[2] - xt_origin_att[1] *
-                    xt_origin_att[3]);
-  R_ow[1] = 2.0F * (xt_origin_att[0] * xt_origin_att[1] - xt_origin_att[2] *
-                    xt_origin_att[3]);
+  R_ow[3] = 2.0 * (xt_origin_att[0] * xt_origin_att[1] + xt_origin_att[2] *
+                   xt_origin_att[3]);
+  R_ow[6] = 2.0 * (xt_origin_att[0] * xt_origin_att[2] - xt_origin_att[1] *
+                   xt_origin_att[3]);
+  R_ow[1] = 2.0 * (xt_origin_att[0] * xt_origin_att[1] - xt_origin_att[2] *
+                   xt_origin_att[3]);
   R_ow[4] = ((-(xt_origin_att[0] * xt_origin_att[0]) + xt_origin_att[1] *
               xt_origin_att[1]) - xt_origin_att[2] * xt_origin_att[2]) +
     xt_origin_att[3] * xt_origin_att[3];
-  R_ow[7] = 2.0F * (xt_origin_att[1] * xt_origin_att[2] + xt_origin_att[0] *
-                    xt_origin_att[3]);
-  R_ow[2] = 2.0F * (xt_origin_att[0] * xt_origin_att[2] + xt_origin_att[1] *
-                    xt_origin_att[3]);
-  R_ow[5] = 2.0F * (xt_origin_att[1] * xt_origin_att[2] - xt_origin_att[0] *
-                    xt_origin_att[3]);
+  R_ow[7] = 2.0 * (xt_origin_att[1] * xt_origin_att[2] + xt_origin_att[0] *
+                   xt_origin_att[3]);
+  R_ow[2] = 2.0 * (xt_origin_att[0] * xt_origin_att[2] + xt_origin_att[1] *
+                   xt_origin_att[3]);
+  R_ow[5] = 2.0 * (xt_origin_att[1] * xt_origin_att[2] - xt_origin_att[0] *
+                   xt_origin_att[3]);
   R_ow[8] = ((-(xt_origin_att[0] * xt_origin_att[0]) - xt_origin_att[1] *
               xt_origin_att[1]) + xt_origin_att[2] * xt_origin_att[2]) +
     xt_origin_att[3] * xt_origin_att[3];
   for (anchorIdx = 0; anchorIdx < 5; anchorIdx++) {
-    anchor_poses[anchorIdx] = rv0[anchorIdx];
-
     //  if ~all(size(q) == [4, 1])
     //      error('q does not have the size of a quaternion')
     //  end
     //  if abs(norm(q) - 1) > 1e-3
     //      error('The provided quaternion is not a valid rotation quaternion because it does not have norm 1') 
     //  end
-    b_xt_anchor_states[0] = ((xt_anchor_states[anchorIdx].att[0] *
+    c_xt_anchor_states[0] = ((xt_anchor_states[anchorIdx].att[0] *
       xt_anchor_states[anchorIdx].att[0] - xt_anchor_states[anchorIdx].att[1] *
       xt_anchor_states[anchorIdx].att[1]) - xt_anchor_states[anchorIdx].att[2] *
       xt_anchor_states[anchorIdx].att[2]) + xt_anchor_states[anchorIdx].att[3] *
       xt_anchor_states[anchorIdx].att[3];
-    b_xt_anchor_states[3] = 2.0F * (xt_anchor_states[anchorIdx].att[0] *
+    c_xt_anchor_states[3] = 2.0 * (xt_anchor_states[anchorIdx].att[0] *
       xt_anchor_states[anchorIdx].att[1] + xt_anchor_states[anchorIdx].att[2] *
       xt_anchor_states[anchorIdx].att[3]);
-    b_xt_anchor_states[6] = 2.0F * (xt_anchor_states[anchorIdx].att[0] *
+    c_xt_anchor_states[6] = 2.0 * (xt_anchor_states[anchorIdx].att[0] *
       xt_anchor_states[anchorIdx].att[2] - xt_anchor_states[anchorIdx].att[1] *
       xt_anchor_states[anchorIdx].att[3]);
-    b_xt_anchor_states[1] = 2.0F * (xt_anchor_states[anchorIdx].att[0] *
+    c_xt_anchor_states[1] = 2.0 * (xt_anchor_states[anchorIdx].att[0] *
       xt_anchor_states[anchorIdx].att[1] - xt_anchor_states[anchorIdx].att[2] *
       xt_anchor_states[anchorIdx].att[3]);
-    b_xt_anchor_states[4] = ((-(xt_anchor_states[anchorIdx].att[0] *
+    c_xt_anchor_states[4] = ((-(xt_anchor_states[anchorIdx].att[0] *
       xt_anchor_states[anchorIdx].att[0]) + xt_anchor_states[anchorIdx].att[1] *
       xt_anchor_states[anchorIdx].att[1]) - xt_anchor_states[anchorIdx].att[2] *
       xt_anchor_states[anchorIdx].att[2]) + xt_anchor_states[anchorIdx].att[3] *
       xt_anchor_states[anchorIdx].att[3];
-    b_xt_anchor_states[7] = 2.0F * (xt_anchor_states[anchorIdx].att[1] *
+    c_xt_anchor_states[7] = 2.0 * (xt_anchor_states[anchorIdx].att[1] *
       xt_anchor_states[anchorIdx].att[2] + xt_anchor_states[anchorIdx].att[0] *
       xt_anchor_states[anchorIdx].att[3]);
-    b_xt_anchor_states[2] = 2.0F * (xt_anchor_states[anchorIdx].att[0] *
+    c_xt_anchor_states[2] = 2.0 * (xt_anchor_states[anchorIdx].att[0] *
       xt_anchor_states[anchorIdx].att[2] + xt_anchor_states[anchorIdx].att[1] *
       xt_anchor_states[anchorIdx].att[3]);
-    b_xt_anchor_states[5] = 2.0F * (xt_anchor_states[anchorIdx].att[1] *
+    c_xt_anchor_states[5] = 2.0 * (xt_anchor_states[anchorIdx].att[1] *
       xt_anchor_states[anchorIdx].att[2] - xt_anchor_states[anchorIdx].att[0] *
       xt_anchor_states[anchorIdx].att[3]);
-    b_xt_anchor_states[8] = ((-(xt_anchor_states[anchorIdx].att[0] *
+    c_xt_anchor_states[8] = ((-(xt_anchor_states[anchorIdx].att[0] *
       xt_anchor_states[anchorIdx].att[0]) - xt_anchor_states[anchorIdx].att[1] *
       xt_anchor_states[anchorIdx].att[1]) + xt_anchor_states[anchorIdx].att[2] *
       xt_anchor_states[anchorIdx].att[2]) + xt_anchor_states[anchorIdx].att[3] *
       xt_anchor_states[anchorIdx].att[3];
-    for (ixstart = 0; ixstart < 3; ixstart++) {
-      mtmp = 0.0F;
-      for (itmp = 0; itmp < 3; itmp++) {
-        mtmp += R_ow[itmp + 3 * ixstart] * xt_anchor_states[anchorIdx].pos[itmp];
-        c[ixstart + 3 * itmp] = 0.0F;
-        for (ix = 0; ix < 3; ix++) {
-          c[ixstart + 3 * itmp] += b_xt_anchor_states[ixstart + 3 * ix] *
-            R_ow[ix + 3 * itmp];
+    for (i31 = 0; i31 < 3; i31++) {
+      d5 = 0.0;
+      for (i32 = 0; i32 < 3; i32++) {
+        d5 += R_ow[i32 + 3 * i31] * xt_anchor_states[anchorIdx].pos[i32];
+        b_xt_anchor_states[i31 + 3 * i32] = 0.0;
+        for (i33 = 0; i33 < 3; i33++) {
+          b_xt_anchor_states[i31 + 3 * i32] += c_xt_anchor_states[i31 + 3 * i33]
+            * R_ow[i33 + 3 * i32];
         }
       }
 
-      anchor_poses[anchorIdx].pos[ixstart] = xt_origin_pos[ixstart] + mtmp;
+      anchor_poses[anchorIdx].pos[i31] = xt_origin_pos[i31] + d5;
     }
 
-    //  THIS IS OK, It is according to the NASA memo found
-    //  https://claraty.jpl.nasa.gov/man/software/development/conventions/standards_docs/unadopted/JPL_Quaternions_Breckenridge.pdf 
-    // QUATFROMROTJ Get equivalent quaternion of the rotation matrix R
-    //    Returns a quaternion in JPL notation
-    //  The implementation is copied from qGetQ(R), but we are careful about the 
-    //  ordering of the output vector
-    //  Q = [0;0;0;1];
-    //  % [r,c] = size( R );
-    //  % if( r ~= 3 || c ~= 3 )
-    //  %     error( 'R must be a 3x3 matrix\n\r' );
-    //  % end
-    //
-    //  if abs(det(R) - 1) > 1e-2
-    //      error('The provided matrix is not a valid rotation matrix. It must have det(R) = 1, but is %i.', det(R)) 
-    //  end
-    //  T = R(1,1)+R(2,2)+R(3,3);
-    //  pivot = zeros(4,1);
-    //  pivot(1) = sqrt(max(1+2*R(1,1)-T, eps))/2;
-    //  pivot(2) = sqrt(max(1+2*R(2,2)-T, eps))/2;
-    //  pivot(3) = sqrt(max(1+2*R(3,3)-T, eps))/2;
-    //  pivot(4) = sqrt(max(1+T, eps))/2;
-    //  if ~all(isreal(pivot))
-    //      error('complex')
-    //  end
-    //  index = round(find(pivot==max(pivot)));
-    //  if(index(1)==1)
-    //      Q(1) = sqrt(1+2*R(1,1)-T)/2;
-    //      Q(2) = (R(1,2)+R(2,1))/(4*(Q(1)));
-    //      Q(3) = (R(1,3)+R(3,1))/(4*(Q(1)));
-    //      Q(4) = (R(2,3)-R(3,2))/(4*(Q(1)));
-    //  elseif(index(1)==2)
-    //      Q(2) = sqrt(1+2*R(2,2)-T)/2;
-    //      Q(1) = (R(1,2)+R(2,1))/(4*Q(2));
-    //      Q(3) = (R(2,3)+R(3,2))/(4*Q(2));
-    //      Q(4) = (R(3,1)-R(1,3))/(4*Q(2));
-    //  elseif(index(1)==3)
-    //      Q(3) = sqrt(1+2*R(3,3)-T)/2;
-    //      Q(1) = (R(1,3)+R(3,1))/(4*Q(3));
-    //      Q(2) = (R(2,3)+R(3,2))/(4*Q(3));
-    //      Q(4) = (R(1,2)-R(2,1))/(4*Q(3));
-    //  elseif(index(1)==4)
-    //      Q(4) = sqrt(1+T)/2;
-    //      Q(1) = (R(2,3)-R(3,2))/(4*Q(4));
-    //      Q(2) = (R(3,1)-R(1,3))/(4*Q(4));
-    //      Q(3) = (R(1,2)-R(2,1))/(4*Q(4));
-    //  end
-    // % speed optimization
-    varargin_1[0] = (1.0F + c[0]) - (c[4] + c[8]);
-    varargin_1[1] = (1.0F + c[4]) - (c[0] + c[8]);
-    varargin_1[2] = (1.0F + c[8]) - (c[0] + c[4]);
-    varargin_1[3] = 1.0F + ((c[0] + c[4]) + c[8]);
-    ixstart = 1;
-    mtmp = varargin_1[0];
-    itmp = 1;
-    if (rtIsNaNF(varargin_1[0])) {
-      ix = 2;
-      exitg1 = false;
-      while ((!exitg1) && (ix < 5)) {
-        ixstart = ix;
-        if (!rtIsNaNF(varargin_1[ix - 1])) {
-          mtmp = varargin_1[ix - 1];
-          itmp = ix;
-          exitg1 = true;
-        } else {
-          ix++;
-        }
-      }
-    }
-
-    if (ixstart < 4) {
-      while (ixstart + 1 < 5) {
-        if (varargin_1[ixstart] > mtmp) {
-          mtmp = varargin_1[ixstart];
-          itmp = ixstart + 1;
-        }
-
-        ixstart++;
-      }
-    }
-
-    if (itmp == 1) {
-      anchor_poses[anchorIdx].att[0] = (float)sqrt((double)((1.0F + 2.0F * c[0])
-        - ((c[0] + c[4]) + c[8]))) / 2.0F;
-      anchor_poses[anchorIdx].att[1] = (c[3] + c[1]) / (4.0F * ((float)sqrt
-        ((double)((1.0F + 2.0F * c[0]) - ((c[0] + c[4]) + c[8]))) / 2.0F));
-      anchor_poses[anchorIdx].att[2] = (c[6] + c[2]) / (4.0F * ((float)sqrt
-        ((double)((1.0F + 2.0F * c[0]) - ((c[0] + c[4]) + c[8]))) / 2.0F));
-      anchor_poses[anchorIdx].att[3] = (c[7] - c[5]) / (4.0F * ((float)sqrt
-        ((double)((1.0F + 2.0F * c[0]) - ((c[0] + c[4]) + c[8]))) / 2.0F));
-    } else if (itmp == 2) {
-      anchor_poses[anchorIdx].att[0] = (c[3] + c[1]) / (4.0F * ((float)sqrt
-        ((double)((1.0F + 2.0F * c[4]) - ((c[0] + c[4]) + c[8]))) / 2.0F));
-      anchor_poses[anchorIdx].att[1] = (float)sqrt((double)((1.0F + 2.0F * c[4])
-        - ((c[0] + c[4]) + c[8]))) / 2.0F;
-      anchor_poses[anchorIdx].att[2] = (c[7] + c[5]) / (4.0F * ((float)sqrt
-        ((double)((1.0F + 2.0F * c[4]) - ((c[0] + c[4]) + c[8]))) / 2.0F));
-      anchor_poses[anchorIdx].att[3] = (c[2] - c[6]) / (4.0F * ((float)sqrt
-        ((double)((1.0F + 2.0F * c[4]) - ((c[0] + c[4]) + c[8]))) / 2.0F));
-    } else if (itmp == 3) {
-      anchor_poses[anchorIdx].att[0] = (c[6] + c[2]) / (4.0F * ((float)sqrt
-        ((double)((1.0F + 2.0F * c[8]) - ((c[0] + c[4]) + c[8]))) / 2.0F));
-      anchor_poses[anchorIdx].att[1] = (c[7] + c[5]) / (4.0F * ((float)sqrt
-        ((double)((1.0F + 2.0F * c[8]) - ((c[0] + c[4]) + c[8]))) / 2.0F));
-      anchor_poses[anchorIdx].att[2] = (float)sqrt((double)((1.0F + 2.0F * c[8])
-        - ((c[0] + c[4]) + c[8]))) / 2.0F;
-      anchor_poses[anchorIdx].att[3] = (c[3] - c[1]) / (4.0F * ((float)sqrt
-        ((double)((1.0F + 2.0F * c[8]) - ((c[0] + c[4]) + c[8]))) / 2.0F));
-    } else {
-      anchor_poses[anchorIdx].att[0] = (c[7] - c[5]) / (4.0F * ((float)sqrt
-        ((double)(1.0F + ((c[0] + c[4]) + c[8]))) / 2.0F));
-      anchor_poses[anchorIdx].att[1] = (c[2] - c[6]) / (4.0F * ((float)sqrt
-        ((double)(1.0F + ((c[0] + c[4]) + c[8]))) / 2.0F));
-      anchor_poses[anchorIdx].att[2] = (c[3] - c[1]) / (4.0F * ((float)sqrt
-        ((double)(1.0F + ((c[0] + c[4]) + c[8]))) / 2.0F));
-      anchor_poses[anchorIdx].att[3] = (float)sqrt((double)(1.0F + ((c[0] + c[4])
-        + c[8]))) / 2.0F;
-    }
+    QuatFromRotJ(b_xt_anchor_states, anchor_poses[anchorIdx].att);
   }
 }
 
@@ -7558,55 +6339,58 @@ static void getAnchorPoses(const float xt_origin_pos[3], const float
 //  - H_xc: The Jacobian of the measurement function with respect to the camera states (residualDim*M x length(xt))
 //
 //  where M =  length(indMeas) is the number of valid points in the image
-// Arguments    : const float xt_robot_state_pos[3]
-//                const float xt_robot_state_att[4]
+// Arguments    : const double xt_robot_state_pos[3]
+//                const double xt_robot_state_att[4]
 //                const f_struct_T xt_anchor_states[5]
-//                const float z_all_l[80]
+//                const double z_all_l[80]
 //                const boolean_T b_status[40]
-//                const float cameraparams_FocalLength[2]
-//                const float cameraparams_PrincipalPoint[2]
-//                float noiseParameters_image_noise
-//                emxArray_real32_T *r
-//                emxArray_real32_T *H
-//                emxArray_real32_T *R
+//                const double cameraparams_FocalLength[2]
+//                const double cameraparams_PrincipalPoint[2]
+//                double noiseParameters_image_noise
+//                emxArray_real_T *r
+//                emxArray_real_T *H
+//                emxArray_real_T *R
 // Return Type  : void
 //
-static void getH_R_res(const float xt_robot_state_pos[3], const float
-  xt_robot_state_att[4], const f_struct_T xt_anchor_states[5], const float
-  z_all_l[80], const boolean_T b_status[40], const float
-  cameraparams_FocalLength[2], const float cameraparams_PrincipalPoint[2], float
-  noiseParameters_image_noise, emxArray_real32_T *r, emxArray_real32_T *H,
-  emxArray_real32_T *R)
+static void getH_R_res(const double xt_robot_state_pos[3], const double
+  xt_robot_state_att[4], const f_struct_T xt_anchor_states[5], const double
+  z_all_l[80], const boolean_T b_status[40], const double
+  cameraparams_FocalLength[2], const double cameraparams_PrincipalPoint[2],
+  double noiseParameters_image_noise, emxArray_real_T *r, emxArray_real_T *H,
+  emxArray_real_T *R)
 {
-  float fx;
-  float fy;
+  double fx;
+  double fy;
   int n;
   int k;
-  float R_cw[9];
-  float c;
+  double R_cw[9];
   int ia;
-  emxArray_real32_T *b_h_u;
-  float res_idx;
+  emxArray_real_T *b_h_u;
+  double res_idx;
   int anchorIdx;
-  float anchorRot[9];
+  double anchorRot[9];
   int featureIdx;
-  int outsize_idx_1;
-  int b_c;
-  float h_c_n_l[2];
-  float h_u_To_h_ci_l[6];
-  float h_ci_l_To_R_cw[9];
+  long i15;
+  double z_curr_l[2];
+  double h_c_n_l[2];
+  double varargin_2;
+  double h_u_To_h_ci_l[6];
+  double h_ci_l_To_R_cw[9];
+  int br;
+  double H_robot[63];
+  double b_xt_anchor_states[3];
+  double y[3];
+  double h_ci_l_To_rho[3];
   int ar;
-  float H_robot[63];
-  float b_xt_anchor_states[3];
-  float c_c[3];
-  float h_ci_l_To_rho[3];
   int ib;
-  float H_map_data[63];
-  float b_R_cw[9];
-  float fv0[9];
-  float c_R_cw[9];
-  float b_data[462];
-  float C_data[308];
+  double H_map_data[63];
+  double b_R_cw[9];
+  double dv0[9];
+  double c_R_cw[9];
+  int iv0[2];
+  int outsize_idx_1;
+  double b_data[462];
+  double C_data[308];
   int ic;
   fx = cameraparams_FocalLength[0];
   fy = cameraparams_FocalLength[1];
@@ -7627,56 +6411,53 @@ static void getH_R_res(const float xt_robot_state_pos[3], const float
               xt_robot_state_att[1] * xt_robot_state_att[1]) -
              xt_robot_state_att[2] * xt_robot_state_att[2]) +
     xt_robot_state_att[3] * xt_robot_state_att[3];
-  R_cw[3] = 2.0F * (xt_robot_state_att[0] * xt_robot_state_att[1] +
-                    xt_robot_state_att[2] * xt_robot_state_att[3]);
-  R_cw[6] = 2.0F * (xt_robot_state_att[0] * xt_robot_state_att[2] -
-                    xt_robot_state_att[1] * xt_robot_state_att[3]);
-  R_cw[1] = 2.0F * (xt_robot_state_att[0] * xt_robot_state_att[1] -
-                    xt_robot_state_att[2] * xt_robot_state_att[3]);
+  R_cw[3] = 2.0 * (xt_robot_state_att[0] * xt_robot_state_att[1] +
+                   xt_robot_state_att[2] * xt_robot_state_att[3]);
+  R_cw[6] = 2.0 * (xt_robot_state_att[0] * xt_robot_state_att[2] -
+                   xt_robot_state_att[1] * xt_robot_state_att[3]);
+  R_cw[1] = 2.0 * (xt_robot_state_att[0] * xt_robot_state_att[1] -
+                   xt_robot_state_att[2] * xt_robot_state_att[3]);
   R_cw[4] = ((-(xt_robot_state_att[0] * xt_robot_state_att[0]) +
               xt_robot_state_att[1] * xt_robot_state_att[1]) -
              xt_robot_state_att[2] * xt_robot_state_att[2]) +
     xt_robot_state_att[3] * xt_robot_state_att[3];
-  R_cw[7] = 2.0F * (xt_robot_state_att[1] * xt_robot_state_att[2] +
-                    xt_robot_state_att[0] * xt_robot_state_att[3]);
-  R_cw[2] = 2.0F * (xt_robot_state_att[0] * xt_robot_state_att[2] +
-                    xt_robot_state_att[1] * xt_robot_state_att[3]);
-  R_cw[5] = 2.0F * (xt_robot_state_att[1] * xt_robot_state_att[2] -
-                    xt_robot_state_att[0] * xt_robot_state_att[3]);
+  R_cw[7] = 2.0 * (xt_robot_state_att[1] * xt_robot_state_att[2] +
+                   xt_robot_state_att[0] * xt_robot_state_att[3]);
+  R_cw[2] = 2.0 * (xt_robot_state_att[0] * xt_robot_state_att[2] +
+                   xt_robot_state_att[1] * xt_robot_state_att[3]);
+  R_cw[5] = 2.0 * (xt_robot_state_att[1] * xt_robot_state_att[2] -
+                   xt_robot_state_att[0] * xt_robot_state_att[3]);
   R_cw[8] = ((-(xt_robot_state_att[0] * xt_robot_state_att[0]) -
               xt_robot_state_att[1] * xt_robot_state_att[1]) +
              xt_robot_state_att[2] * xt_robot_state_att[2]) +
     xt_robot_state_att[3] * xt_robot_state_att[3];
-  c = (float)n * 2.0F;
   ia = H->size[0] * H->size[1];
-  H->size[0] = (int)c;
+  H->size[0] = (int)((double)n * 2.0);
   H->size[1] = 91;
-  emxEnsureCapacity((emxArray__common *)H, ia, (int)sizeof(float));
-  k = (int)c * 91;
+  emxEnsureCapacity((emxArray__common *)H, ia, (int)sizeof(double));
+  k = (int)((double)n * 2.0) * 91;
   for (ia = 0; ia < k; ia++) {
-    H->data[ia] = 0.0F;
+    H->data[ia] = 0.0;
   }
 
-  c = (float)n * 2.0F;
   ia = r->size[0];
-  r->size[0] = (int)c;
-  emxEnsureCapacity((emxArray__common *)r, ia, (int)sizeof(float));
-  k = (int)c;
+  r->size[0] = (int)((double)n * 2.0);
+  emxEnsureCapacity((emxArray__common *)r, ia, (int)sizeof(double));
+  k = (int)((double)n * 2.0);
   for (ia = 0; ia < k; ia++) {
-    r->data[ia] = 0.0F;
+    r->data[ia] = 0.0;
   }
 
-  emxInit_real32_T(&b_h_u, 1);
-  c = (float)n * 2.0F;
+  emxInit_real_T(&b_h_u, 1);
   ia = b_h_u->size[0];
-  b_h_u->size[0] = (int)c;
-  emxEnsureCapacity((emxArray__common *)b_h_u, ia, (int)sizeof(float));
-  k = (int)c;
+  b_h_u->size[0] = (int)((double)n * 2.0);
+  emxEnsureCapacity((emxArray__common *)b_h_u, ia, (int)sizeof(double));
+  k = (int)((double)n * 2.0);
   for (ia = 0; ia < k; ia++) {
-    b_h_u->data[ia] = 0.0F;
+    b_h_u->data[ia] = 0.0;
   }
 
-  res_idx = 1.0F;
+  res_idx = 1.0;
   for (anchorIdx = 0; anchorIdx < 5; anchorIdx++) {
     //  if ~all(size(q) == [4, 1])
     //      error('q does not have the size of a quaternion')
@@ -7691,15 +6472,18 @@ static void getH_R_res(const float xt_robot_state_pos[3], const float
                     xt_anchor_states[anchorIdx].att[2] *
                     xt_anchor_states[anchorIdx].att[2]) +
       xt_anchor_states[anchorIdx].att[3] * xt_anchor_states[anchorIdx].att[3];
-    anchorRot[3] = 2.0F * (xt_anchor_states[anchorIdx].att[0] *
-      xt_anchor_states[anchorIdx].att[1] + xt_anchor_states[anchorIdx].att[2] *
-      xt_anchor_states[anchorIdx].att[3]);
-    anchorRot[6] = 2.0F * (xt_anchor_states[anchorIdx].att[0] *
-      xt_anchor_states[anchorIdx].att[2] - xt_anchor_states[anchorIdx].att[1] *
-      xt_anchor_states[anchorIdx].att[3]);
-    anchorRot[1] = 2.0F * (xt_anchor_states[anchorIdx].att[0] *
-      xt_anchor_states[anchorIdx].att[1] - xt_anchor_states[anchorIdx].att[2] *
-      xt_anchor_states[anchorIdx].att[3]);
+    anchorRot[3] = 2.0 * (xt_anchor_states[anchorIdx].att[0] *
+                          xt_anchor_states[anchorIdx].att[1] +
+                          xt_anchor_states[anchorIdx].att[2] *
+                          xt_anchor_states[anchorIdx].att[3]);
+    anchorRot[6] = 2.0 * (xt_anchor_states[anchorIdx].att[0] *
+                          xt_anchor_states[anchorIdx].att[2] -
+                          xt_anchor_states[anchorIdx].att[1] *
+                          xt_anchor_states[anchorIdx].att[3]);
+    anchorRot[1] = 2.0 * (xt_anchor_states[anchorIdx].att[0] *
+                          xt_anchor_states[anchorIdx].att[1] -
+                          xt_anchor_states[anchorIdx].att[2] *
+                          xt_anchor_states[anchorIdx].att[3]);
     anchorRot[4] = ((-(xt_anchor_states[anchorIdx].att[0] *
                        xt_anchor_states[anchorIdx].att[0]) +
                      xt_anchor_states[anchorIdx].att[1] *
@@ -7707,15 +6491,18 @@ static void getH_R_res(const float xt_robot_state_pos[3], const float
                     xt_anchor_states[anchorIdx].att[2] *
                     xt_anchor_states[anchorIdx].att[2]) +
       xt_anchor_states[anchorIdx].att[3] * xt_anchor_states[anchorIdx].att[3];
-    anchorRot[7] = 2.0F * (xt_anchor_states[anchorIdx].att[1] *
-      xt_anchor_states[anchorIdx].att[2] + xt_anchor_states[anchorIdx].att[0] *
-      xt_anchor_states[anchorIdx].att[3]);
-    anchorRot[2] = 2.0F * (xt_anchor_states[anchorIdx].att[0] *
-      xt_anchor_states[anchorIdx].att[2] + xt_anchor_states[anchorIdx].att[1] *
-      xt_anchor_states[anchorIdx].att[3]);
-    anchorRot[5] = 2.0F * (xt_anchor_states[anchorIdx].att[1] *
-      xt_anchor_states[anchorIdx].att[2] - xt_anchor_states[anchorIdx].att[0] *
-      xt_anchor_states[anchorIdx].att[3]);
+    anchorRot[7] = 2.0 * (xt_anchor_states[anchorIdx].att[1] *
+                          xt_anchor_states[anchorIdx].att[2] +
+                          xt_anchor_states[anchorIdx].att[0] *
+                          xt_anchor_states[anchorIdx].att[3]);
+    anchorRot[2] = 2.0 * (xt_anchor_states[anchorIdx].att[0] *
+                          xt_anchor_states[anchorIdx].att[2] +
+                          xt_anchor_states[anchorIdx].att[1] *
+                          xt_anchor_states[anchorIdx].att[3]);
+    anchorRot[5] = 2.0 * (xt_anchor_states[anchorIdx].att[1] *
+                          xt_anchor_states[anchorIdx].att[2] -
+                          xt_anchor_states[anchorIdx].att[0] *
+                          xt_anchor_states[anchorIdx].att[3]);
     anchorRot[8] = ((-(xt_anchor_states[anchorIdx].att[0] *
                        xt_anchor_states[anchorIdx].att[0]) -
                      xt_anchor_states[anchorIdx].att[1] *
@@ -7727,18 +6514,23 @@ static void getH_R_res(const float xt_robot_state_pos[3], const float
       if ((xt_anchor_states[anchorIdx].feature_states[featureIdx].status != 0) &&
           b_status[xt_anchor_states[anchorIdx].feature_states[featureIdx].
           status_idx - 1]) {
-        k = xt_anchor_states[anchorIdx].feature_states[featureIdx].status_idx;
-        outsize_idx_1 = k - 1;
-        if ((k < 0) && (outsize_idx_1 >= 0)) {
-          outsize_idx_1 = MIN_int32_T;
+        i15 = xt_anchor_states[anchorIdx].feature_states[featureIdx].status_idx
+          - 1L;
+        if (i15 > 2147483647L) {
+          i15 = 2147483647L;
+        } else {
+          if (i15 < -2147483648L) {
+            i15 = -2147483648L;
+          }
         }
 
-        if (outsize_idx_1 > 1073741823) {
-          b_c = MAX_int32_T;
-        } else if (outsize_idx_1 <= -1073741824) {
-          b_c = MIN_int32_T;
+        ia = (int)i15;
+        if (ia > 1073741823) {
+          k = MAX_int32_T;
+        } else if (ia <= -1073741824) {
+          k = MIN_int32_T;
         } else {
-          b_c = outsize_idx_1 << 1;
+          k = ia << 1;
         }
 
         // predictMeasurementLeft Predict the measurement of a feature given in the left 
@@ -7746,37 +6538,41 @@ static void getH_R_res(const float xt_robot_state_pos[3], const float
         //    Get the normalized pixel coordinates where a feature given in the left camera 
         //    frame
         for (ia = 0; ia < 2; ia++) {
+          i15 = (long)k + (1 + ia);
+          if (i15 > 2147483647L) {
+            i15 = 2147483647L;
+          } else {
+            if (i15 < -2147483648L) {
+              i15 = -2147483648L;
+            }
+          }
+
+          z_curr_l[ia] = z_all_l[(int)i15 - 1];
           h_c_n_l[ia] = xt_anchor_states[anchorIdx].feature_states[featureIdx].
             scaled_map_point[ia] / xt_anchor_states[anchorIdx]
             .feature_states[featureIdx].scaled_map_point[2];
         }
 
         //  normalized feature in camera frame
-        c = (res_idx - 1.0F) * 2.0F;
-        b_h_u->data[(int)(c + 1.0F) - 1] = h_c_n_l[0] *
+        varargin_2 = (res_idx - 1.0) * 2.0;
+        b_h_u->data[(int)(varargin_2 + 1.0) - 1] = h_c_n_l[0] *
           cameraparams_FocalLength[0] + cameraparams_PrincipalPoint[0];
-        b_h_u->data[(int)(c + 2.0F) - 1] = h_c_n_l[1] *
+        b_h_u->data[(int)(varargin_2 + 2.0) - 1] = h_c_n_l[1] *
           cameraparams_FocalLength[1] + cameraparams_PrincipalPoint[1];
-        c = (res_idx - 1.0F) * 2.0F;
+        varargin_2 = (res_idx - 1.0) * 2.0;
         for (ia = 0; ia < 2; ia++) {
-          k = 1 + ia;
-          outsize_idx_1 = b_c + k;
-          if ((b_c > 0) && (outsize_idx_1 <= 0)) {
-            outsize_idx_1 = MAX_int32_T;
-          }
-
-          r->data[(int)(c + (1.0F + (float)ia)) - 1] = z_all_l[outsize_idx_1 - 1];
+          r->data[(int)(varargin_2 + (1.0 + (double)ia)) - 1] = z_curr_l[ia];
         }
 
         h_u_To_h_ci_l[0] = fx / xt_anchor_states[anchorIdx]
           .feature_states[featureIdx].scaled_map_point[2];
-        h_u_To_h_ci_l[2] = 0.0F;
+        h_u_To_h_ci_l[2] = 0.0;
         h_u_To_h_ci_l[4] = -fx * xt_anchor_states[anchorIdx]
           .feature_states[featureIdx].scaled_map_point[0] /
           (xt_anchor_states[anchorIdx].feature_states[featureIdx].
            scaled_map_point[2] * xt_anchor_states[anchorIdx]
            .feature_states[featureIdx].scaled_map_point[2]);
-        h_u_To_h_ci_l[1] = 0.0F;
+        h_u_To_h_ci_l[1] = 0.0;
         h_u_To_h_ci_l[3] = fy / xt_anchor_states[anchorIdx]
           .feature_states[featureIdx].scaled_map_point[2];
         h_u_To_h_ci_l[5] = -fy * xt_anchor_states[anchorIdx]
@@ -7784,59 +6580,59 @@ static void getH_R_res(const float xt_robot_state_pos[3], const float
           (xt_anchor_states[anchorIdx].feature_states[featureIdx].
            scaled_map_point[2] * xt_anchor_states[anchorIdx]
            .feature_states[featureIdx].scaled_map_point[2]);
-        h_ci_l_To_R_cw[0] = 0.0F;
+        h_ci_l_To_R_cw[0] = 0.0;
         h_ci_l_To_R_cw[3] = -xt_anchor_states[anchorIdx]
           .feature_states[featureIdx].scaled_map_point[2];
         h_ci_l_To_R_cw[6] = xt_anchor_states[anchorIdx]
           .feature_states[featureIdx].scaled_map_point[1];
         h_ci_l_To_R_cw[1] = xt_anchor_states[anchorIdx]
           .feature_states[featureIdx].scaled_map_point[2];
-        h_ci_l_To_R_cw[4] = 0.0F;
+        h_ci_l_To_R_cw[4] = 0.0;
         h_ci_l_To_R_cw[7] = -xt_anchor_states[anchorIdx]
           .feature_states[featureIdx].scaled_map_point[0];
         h_ci_l_To_R_cw[2] = -xt_anchor_states[anchorIdx]
           .feature_states[featureIdx].scaled_map_point[1];
         h_ci_l_To_R_cw[5] = xt_anchor_states[anchorIdx]
           .feature_states[featureIdx].scaled_map_point[0];
-        h_ci_l_To_R_cw[8] = 0.0F;
+        h_ci_l_To_R_cw[8] = 0.0;
         if ((xt_anchor_states[anchorIdx].feature_states[featureIdx].status == 2)
             || (xt_anchor_states[anchorIdx].feature_states[featureIdx].
-                inverse_depth < 0.0F)) {
+                inverse_depth < 0.0)) {
           //  delayed initialization or feature behind anchor
           for (ia = 0; ia < 3; ia++) {
-            for (ar = 0; ar < 3; ar++) {
-              H_robot[ar + 3 * ia] = 0.0F;
-              H_robot[ar + 3 * (ia + 3)] = 0.0F * h_ci_l_To_R_cw[ar + 3 * ia];
+            for (br = 0; br < 3; br++) {
+              H_robot[br + 3 * ia] = 0.0;
+              H_robot[br + 3 * (ia + 3)] = 0.0 * h_ci_l_To_R_cw[br + 3 * ia];
             }
           }
 
           for (ia = 0; ia < 15; ia++) {
-            for (ar = 0; ar < 3; ar++) {
-              H_robot[ar + 3 * (ia + 6)] = 0.0F;
+            for (br = 0; br < 3; br++) {
+              H_robot[br + 3 * (ia + 6)] = 0.0;
             }
           }
         } else {
           for (ia = 0; ia < 3; ia++) {
-            for (ar = 0; ar < 3; ar++) {
-              H_robot[ar + 3 * ia] = -xt_anchor_states[anchorIdx]
-                .feature_states[featureIdx].inverse_depth * R_cw[ar + 3 * ia];
-              H_robot[ar + 3 * (ia + 3)] = h_ci_l_To_R_cw[ar + 3 * ia];
+            for (br = 0; br < 3; br++) {
+              H_robot[br + 3 * ia] = -xt_anchor_states[anchorIdx]
+                .feature_states[featureIdx].inverse_depth * R_cw[br + 3 * ia];
+              H_robot[br + 3 * (ia + 3)] = h_ci_l_To_R_cw[br + 3 * ia];
             }
           }
 
           for (ia = 0; ia < 15; ia++) {
-            for (ar = 0; ar < 3; ar++) {
-              H_robot[ar + 3 * (ia + 6)] = 0.0F;
+            for (br = 0; br < 3; br++) {
+              H_robot[br + 3 * (ia + 6)] = 0.0;
             }
           }
         }
 
         //             %% anchor state derivatives
         for (ia = 0; ia < 3; ia++) {
-          c_c[ia] = 0.0F;
-          for (ar = 0; ar < 3; ar++) {
-            c_c[ia] += anchorRot[ar + 3 * ia] * xt_anchor_states[anchorIdx].
-              feature_states[featureIdx].m[ar];
+          y[ia] = 0.0;
+          for (br = 0; br < 3; br++) {
+            y[ia] += anchorRot[br + 3 * ia] * xt_anchor_states[anchorIdx].
+              feature_states[featureIdx].m[br];
           }
 
           b_xt_anchor_states[ia] = xt_anchor_states[anchorIdx].pos[ia] -
@@ -7844,74 +6640,73 @@ static void getH_R_res(const float xt_robot_state_pos[3], const float
         }
 
         for (ia = 0; ia < 3; ia++) {
-          h_ci_l_To_rho[ia] = 0.0F;
-          for (ar = 0; ar < 3; ar++) {
-            h_ci_l_To_rho[ia] += R_cw[ia + 3 * ar] * b_xt_anchor_states[ar];
+          h_ci_l_To_rho[ia] = 0.0;
+          for (br = 0; br < 3; br++) {
+            h_ci_l_To_rho[ia] += R_cw[ia + 3 * br] * b_xt_anchor_states[br];
           }
         }
 
         if ((xt_anchor_states[anchorIdx].feature_states[featureIdx].status == 2)
             || (xt_anchor_states[anchorIdx].feature_states[featureIdx].
-                inverse_depth < 0.0F)) {
+                inverse_depth < 0.0)) {
           //  delayed initialization or feature behind anchor
-          b_c = -featureIdx;
-          ib = (featureIdx + b_c) + 14;
-          k = featureIdx + 6;
-          for (ia = 0; ia < k; ia++) {
-            for (ar = 0; ar < 3; ar++) {
-              H_map_data[ar + 3 * ia] = 0.0F;
+          ar = featureIdx + 6;
+          k = 7 - featureIdx;
+          ib = (ar + k) + 1;
+          for (ia = 0; ia < ar; ia++) {
+            for (br = 0; br < 3; br++) {
+              H_map_data[br + 3 * ia] = 0.0;
             }
           }
 
           for (ia = 0; ia < 3; ia++) {
-            H_map_data[ia + 3 * (featureIdx + 6)] = h_ci_l_To_rho[ia];
+            H_map_data[ia + 3 * ar] = h_ci_l_To_rho[ia];
           }
 
-          k = b_c + 7;
           for (ia = 0; ia < k; ia++) {
-            for (ar = 0; ar < 3; ar++) {
-              H_map_data[ar + 3 * ((ia + featureIdx) + 7)] = 0.0F;
+            for (br = 0; br < 3; br++) {
+              H_map_data[br + 3 * ((ia + ar) + 1)] = 0.0;
             }
           }
         } else {
-          b_c = -featureIdx;
           for (ia = 0; ia < 3; ia++) {
-            for (ar = 0; ar < 3; ar++) {
-              b_R_cw[ar + 3 * ia] = -R_cw[ar + 3 * ia];
+            for (br = 0; br < 3; br++) {
+              b_R_cw[br + 3 * ia] = -R_cw[br + 3 * ia];
             }
           }
 
-          fv0[0] = 0.0F;
-          fv0[3] = -c_c[2];
-          fv0[6] = c_c[1];
-          fv0[1] = c_c[2];
-          fv0[4] = 0.0F;
-          fv0[7] = -c_c[0];
-          fv0[2] = -c_c[1];
-          fv0[5] = c_c[0];
-          fv0[8] = 0.0F;
-          ib = (featureIdx + b_c) + 14;
+          dv0[0] = 0.0;
+          dv0[3] = -y[2];
+          dv0[6] = y[1];
+          dv0[1] = y[2];
+          dv0[4] = 0.0;
+          dv0[7] = -y[0];
+          dv0[2] = -y[1];
+          dv0[5] = y[0];
+          dv0[8] = 0.0;
+          ar = 7 - featureIdx;
+          ib = (featureIdx + ar) + 7;
           for (ia = 0; ia < 3; ia++) {
-            for (ar = 0; ar < 3; ar++) {
-              c_R_cw[ia + 3 * ar] = 0.0F;
+            for (br = 0; br < 3; br++) {
+              c_R_cw[ia + 3 * br] = 0.0;
               for (k = 0; k < 3; k++) {
-                c_R_cw[ia + 3 * ar] += b_R_cw[ia + 3 * k] * fv0[k + 3 * ar];
+                c_R_cw[ia + 3 * br] += b_R_cw[ia + 3 * k] * dv0[k + 3 * br];
               }
 
-              H_map_data[ar + 3 * ia] = xt_anchor_states[anchorIdx].
-                feature_states[featureIdx].inverse_depth * R_cw[ar + 3 * ia];
+              H_map_data[br + 3 * ia] = xt_anchor_states[anchorIdx].
+                feature_states[featureIdx].inverse_depth * R_cw[br + 3 * ia];
             }
           }
 
           for (ia = 0; ia < 3; ia++) {
-            for (ar = 0; ar < 3; ar++) {
-              H_map_data[ar + 3 * (ia + 3)] = c_R_cw[ar + 3 * ia];
+            for (br = 0; br < 3; br++) {
+              H_map_data[br + 3 * (ia + 3)] = c_R_cw[br + 3 * ia];
             }
           }
 
           for (ia = 0; ia < featureIdx; ia++) {
-            for (ar = 0; ar < 3; ar++) {
-              H_map_data[ar + 3 * (ia + 6)] = 0.0F;
+            for (br = 0; br < 3; br++) {
+              H_map_data[br + 3 * (ia + 6)] = 0.0;
             }
           }
 
@@ -7919,62 +6714,65 @@ static void getH_R_res(const float xt_robot_state_pos[3], const float
             H_map_data[ia + 3 * (6 + featureIdx)] = h_ci_l_To_rho[ia];
           }
 
-          k = b_c + 7;
-          for (ia = 0; ia < k; ia++) {
-            for (ar = 0; ar < 3; ar++) {
-              H_map_data[ar + 3 * ((ia + featureIdx) + 7)] = 0.0F;
+          for (ia = 0; ia < ar; ia++) {
+            for (br = 0; br < 3; br++) {
+              H_map_data[br + 3 * ((ia + featureIdx) + 7)] = 0.0;
             }
           }
         }
 
-        c = (res_idx - 1.0F) * 2.0F;
-        b_c = anchorIdx * 14;
+        varargin_2 = (res_idx - 1.0) * 2.0;
+        for (ia = 0; ia < 2; ia++) {
+          iv0[ia] = (int)(varargin_2 + (1.0 + (double)ia)) - 1;
+        }
+
+        ar = anchorIdx * 14;
         k = (4 - anchorIdx) * 14;
-        outsize_idx_1 = ((b_c + ib) + k) + 21;
+        outsize_idx_1 = ((ar + ib) + k) + 21;
         for (ia = 0; ia < 21; ia++) {
-          for (ar = 0; ar < 3; ar++) {
-            b_data[ar + 3 * ia] = H_robot[ar + 3 * ia];
+          for (br = 0; br < 3; br++) {
+            b_data[br + 3 * ia] = H_robot[br + 3 * ia];
           }
         }
 
-        for (ia = 0; ia < b_c; ia++) {
-          for (ar = 0; ar < 3; ar++) {
-            b_data[ar + 3 * (ia + 21)] = 0.0F;
+        for (ia = 0; ia < ar; ia++) {
+          for (br = 0; br < 3; br++) {
+            b_data[br + 3 * (ia + 21)] = 0.0;
           }
         }
 
         for (ia = 0; ia < ib; ia++) {
-          for (ar = 0; ar < 3; ar++) {
-            b_data[ar + 3 * ((ia + b_c) + 21)] = H_map_data[ar + 3 * ia];
+          for (br = 0; br < 3; br++) {
+            b_data[br + 3 * ((ia + ar) + 21)] = H_map_data[br + 3 * ia];
           }
         }
 
         for (ia = 0; ia < k; ia++) {
-          for (ar = 0; ar < 3; ar++) {
-            b_data[ar + 3 * (((ia + b_c) + ib) + 21)] = 0.0F;
+          for (br = 0; br < 3; br++) {
+            b_data[br + 3 * (((ia + ar) + ib) + 21)] = 0.0;
           }
         }
 
         for (ia = 0; ia < outsize_idx_1; ia++) {
-          for (ar = 0; ar < 2; ar++) {
-            C_data[ar + (ia << 1)] = 0.0F;
+          for (br = 0; br < 2; br++) {
+            C_data[br + (ia << 1)] = 0.0;
           }
         }
 
-        b_c = (outsize_idx_1 - 1) << 1;
-        for (k = 0; k <= b_c; k += 2) {
-          for (ic = k; ic + 1 <= k + 2; ic++) {
-            C_data[ic] = 0.0F;
+        k = (outsize_idx_1 - 1) << 1;
+        for (outsize_idx_1 = 0; outsize_idx_1 <= k; outsize_idx_1 += 2) {
+          for (ic = outsize_idx_1; ic + 1 <= outsize_idx_1 + 2; ic++) {
+            C_data[ic] = 0.0;
           }
         }
 
-        outsize_idx_1 = 0;
-        for (k = 0; k <= b_c; k += 2) {
+        br = 0;
+        for (outsize_idx_1 = 0; outsize_idx_1 <= k; outsize_idx_1 += 2) {
           ar = 0;
-          for (ib = outsize_idx_1; ib + 1 <= outsize_idx_1 + 3; ib++) {
-            if (b_data[ib] != 0.0F) {
+          for (ib = br; ib + 1 <= br + 3; ib++) {
+            if (b_data[ib] != 0.0) {
               ia = ar;
-              for (ic = k; ic + 1 <= k + 2; ic++) {
+              for (ic = outsize_idx_1; ic + 1 <= outsize_idx_1 + 2; ic++) {
                 ia++;
                 C_data[ic] += b_data[ib] * h_u_To_h_ci_l[ia - 1];
               }
@@ -7983,13 +6781,12 @@ static void getH_R_res(const float xt_robot_state_pos[3], const float
             ar += 2;
           }
 
-          outsize_idx_1 += 3;
+          br += 3;
         }
 
         for (ia = 0; ia < 91; ia++) {
-          for (ar = 0; ar < 2; ar++) {
-            H->data[((int)(c + (1.0F + (float)ar)) + H->size[0] * ia) - 1] =
-              C_data[ar + 2 * ia];
+          for (br = 0; br < 2; br++) {
+            H->data[iv0[br] + H->size[0] * ia] = C_data[br + 2 * ia];
           }
         }
 
@@ -7999,22 +6796,22 @@ static void getH_R_res(const float xt_robot_state_pos[3], const float
   }
 
   ia = r->size[0];
-  emxEnsureCapacity((emxArray__common *)r, ia, (int)sizeof(float));
+  emxEnsureCapacity((emxArray__common *)r, ia, (int)sizeof(double));
   k = r->size[0];
   for (ia = 0; ia < k; ia++) {
     r->data[ia] -= b_h_u->data[ia];
   }
 
-  emxFree_real32_T(&b_h_u);
-  c = (float)n * 2.0F;
-  outsize_idx_1 = (int)((float)n * 2.0F);
+  emxFree_real_T(&b_h_u);
+  varargin_2 = (double)n * 2.0;
+  outsize_idx_1 = (int)((double)n * 2.0);
   ia = R->size[0] * R->size[1];
-  R->size[0] = (int)c;
-  R->size[1] = (int)c;
-  emxEnsureCapacity((emxArray__common *)R, ia, (int)sizeof(float));
-  k = (int)c * (int)c;
+  R->size[0] = (int)varargin_2;
+  R->size[1] = (int)varargin_2;
+  emxEnsureCapacity((emxArray__common *)R, ia, (int)sizeof(double));
+  k = (int)varargin_2 * (int)varargin_2;
   for (ia = 0; ia < k; ia++) {
-    R->data[ia] = 0.0F;
+    R->data[ia] = 0.0;
   }
 
   for (k = 0; k + 1 <= outsize_idx_1; k++) {
@@ -8043,27 +6840,27 @@ static void getH_R_res(const float xt_robot_state_pos[3], const float
 //  - anchorInd:            A vector describing which anchor each feature belongs to
 //  - featureAnchorInd:     A vector describing the index of each feature in its
 //                          anchor
-// Arguments    : const float xt_origin_pos[3]
-//                const float xt_origin_att[4]
+// Arguments    : const double xt_origin_pos[3]
+//                const double xt_origin_att[4]
 //                const f_struct_T xt_anchor_states[5]
-//                float b_map[120]
+//                double b_map[120]
 // Return Type  : void
 //
-static void getMap(const float xt_origin_pos[3], const float xt_origin_att[4],
-                   const f_struct_T xt_anchor_states[5], float b_map[120])
+static void getMap(const double xt_origin_pos[3], const double xt_origin_att[4],
+                   const f_struct_T xt_anchor_states[5], double b_map[120])
 {
-  float R_ow[9];
-  float anchorRot[9];
+  double R_ow[9];
+  double anchorRot[9];
   int anchorIdx;
-  float b_xt_anchor_states[9];
-  float anchorPos[3];
+  double b_xt_anchor_states[9];
+  double anchorPos[3];
   int i0;
-  float f0;
-  int qY;
-  int q0;
+  double d0;
+  int i1;
+  int y;
   int featureIdx;
-  int c;
-  float b_anchorPos[3];
+  long i2;
+  double b_anchorPos[3];
 
   //  if ~all(size(q) == [4, 1])
   //      error('q does not have the size of a quaternion')
@@ -8074,25 +6871,25 @@ static void getMap(const float xt_origin_pos[3], const float xt_origin_att[4],
   R_ow[0] = ((xt_origin_att[0] * xt_origin_att[0] - xt_origin_att[1] *
               xt_origin_att[1]) - xt_origin_att[2] * xt_origin_att[2]) +
     xt_origin_att[3] * xt_origin_att[3];
-  R_ow[3] = 2.0F * (xt_origin_att[0] * xt_origin_att[1] + xt_origin_att[2] *
-                    xt_origin_att[3]);
-  R_ow[6] = 2.0F * (xt_origin_att[0] * xt_origin_att[2] - xt_origin_att[1] *
-                    xt_origin_att[3]);
-  R_ow[1] = 2.0F * (xt_origin_att[0] * xt_origin_att[1] - xt_origin_att[2] *
-                    xt_origin_att[3]);
+  R_ow[3] = 2.0 * (xt_origin_att[0] * xt_origin_att[1] + xt_origin_att[2] *
+                   xt_origin_att[3]);
+  R_ow[6] = 2.0 * (xt_origin_att[0] * xt_origin_att[2] - xt_origin_att[1] *
+                   xt_origin_att[3]);
+  R_ow[1] = 2.0 * (xt_origin_att[0] * xt_origin_att[1] - xt_origin_att[2] *
+                   xt_origin_att[3]);
   R_ow[4] = ((-(xt_origin_att[0] * xt_origin_att[0]) + xt_origin_att[1] *
               xt_origin_att[1]) - xt_origin_att[2] * xt_origin_att[2]) +
     xt_origin_att[3] * xt_origin_att[3];
-  R_ow[7] = 2.0F * (xt_origin_att[1] * xt_origin_att[2] + xt_origin_att[0] *
-                    xt_origin_att[3]);
-  R_ow[2] = 2.0F * (xt_origin_att[0] * xt_origin_att[2] + xt_origin_att[1] *
-                    xt_origin_att[3]);
-  R_ow[5] = 2.0F * (xt_origin_att[1] * xt_origin_att[2] - xt_origin_att[0] *
-                    xt_origin_att[3]);
+  R_ow[7] = 2.0 * (xt_origin_att[1] * xt_origin_att[2] + xt_origin_att[0] *
+                   xt_origin_att[3]);
+  R_ow[2] = 2.0 * (xt_origin_att[0] * xt_origin_att[2] + xt_origin_att[1] *
+                   xt_origin_att[3]);
+  R_ow[5] = 2.0 * (xt_origin_att[1] * xt_origin_att[2] - xt_origin_att[0] *
+                   xt_origin_att[3]);
   R_ow[8] = ((-(xt_origin_att[0] * xt_origin_att[0]) - xt_origin_att[1] *
               xt_origin_att[1]) + xt_origin_att[2] * xt_origin_att[2]) +
     xt_origin_att[3] * xt_origin_att[3];
-  memset(&b_map[0], 0, 120U * sizeof(float));
+  memset(&b_map[0], 0, 120U * sizeof(double));
   for (anchorIdx = 0; anchorIdx < 5; anchorIdx++) {
     //  if ~all(size(q) == [4, 1])
     //      error('q does not have the size of a quaternion')
@@ -8105,13 +6902,13 @@ static void getMap(const float xt_origin_pos[3], const float xt_origin_att[4],
       xt_anchor_states[anchorIdx].att[1]) - xt_anchor_states[anchorIdx].att[2] *
       xt_anchor_states[anchorIdx].att[2]) + xt_anchor_states[anchorIdx].att[3] *
       xt_anchor_states[anchorIdx].att[3];
-    b_xt_anchor_states[3] = 2.0F * (xt_anchor_states[anchorIdx].att[0] *
+    b_xt_anchor_states[3] = 2.0 * (xt_anchor_states[anchorIdx].att[0] *
       xt_anchor_states[anchorIdx].att[1] + xt_anchor_states[anchorIdx].att[2] *
       xt_anchor_states[anchorIdx].att[3]);
-    b_xt_anchor_states[6] = 2.0F * (xt_anchor_states[anchorIdx].att[0] *
+    b_xt_anchor_states[6] = 2.0 * (xt_anchor_states[anchorIdx].att[0] *
       xt_anchor_states[anchorIdx].att[2] - xt_anchor_states[anchorIdx].att[1] *
       xt_anchor_states[anchorIdx].att[3]);
-    b_xt_anchor_states[1] = 2.0F * (xt_anchor_states[anchorIdx].att[0] *
+    b_xt_anchor_states[1] = 2.0 * (xt_anchor_states[anchorIdx].att[0] *
       xt_anchor_states[anchorIdx].att[1] - xt_anchor_states[anchorIdx].att[2] *
       xt_anchor_states[anchorIdx].att[3]);
     b_xt_anchor_states[4] = ((-(xt_anchor_states[anchorIdx].att[0] *
@@ -8119,13 +6916,13 @@ static void getMap(const float xt_origin_pos[3], const float xt_origin_att[4],
       xt_anchor_states[anchorIdx].att[1]) - xt_anchor_states[anchorIdx].att[2] *
       xt_anchor_states[anchorIdx].att[2]) + xt_anchor_states[anchorIdx].att[3] *
       xt_anchor_states[anchorIdx].att[3];
-    b_xt_anchor_states[7] = 2.0F * (xt_anchor_states[anchorIdx].att[1] *
+    b_xt_anchor_states[7] = 2.0 * (xt_anchor_states[anchorIdx].att[1] *
       xt_anchor_states[anchorIdx].att[2] + xt_anchor_states[anchorIdx].att[0] *
       xt_anchor_states[anchorIdx].att[3]);
-    b_xt_anchor_states[2] = 2.0F * (xt_anchor_states[anchorIdx].att[0] *
+    b_xt_anchor_states[2] = 2.0 * (xt_anchor_states[anchorIdx].att[0] *
       xt_anchor_states[anchorIdx].att[2] + xt_anchor_states[anchorIdx].att[1] *
       xt_anchor_states[anchorIdx].att[3]);
-    b_xt_anchor_states[5] = 2.0F * (xt_anchor_states[anchorIdx].att[1] *
+    b_xt_anchor_states[5] = 2.0 * (xt_anchor_states[anchorIdx].att[1] *
       xt_anchor_states[anchorIdx].att[2] - xt_anchor_states[anchorIdx].att[0] *
       xt_anchor_states[anchorIdx].att[3]);
     b_xt_anchor_states[8] = ((-(xt_anchor_states[anchorIdx].att[0] *
@@ -8134,44 +6931,60 @@ static void getMap(const float xt_origin_pos[3], const float xt_origin_att[4],
       xt_anchor_states[anchorIdx].att[2]) + xt_anchor_states[anchorIdx].att[3] *
       xt_anchor_states[anchorIdx].att[3];
     for (i0 = 0; i0 < 3; i0++) {
-      f0 = 0.0F;
-      for (qY = 0; qY < 3; qY++) {
-        f0 += R_ow[qY + 3 * i0] * xt_anchor_states[anchorIdx].pos[qY];
-        anchorRot[i0 + 3 * qY] = 0.0F;
-        for (q0 = 0; q0 < 3; q0++) {
-          anchorRot[i0 + 3 * qY] += b_xt_anchor_states[i0 + 3 * q0] * R_ow[q0 +
-            3 * qY];
+      d0 = 0.0;
+      for (i1 = 0; i1 < 3; i1++) {
+        d0 += R_ow[i1 + 3 * i0] * xt_anchor_states[anchorIdx].pos[i1];
+        anchorRot[i0 + 3 * i1] = 0.0;
+        for (y = 0; y < 3; y++) {
+          anchorRot[i0 + 3 * i1] += b_xt_anchor_states[i0 + 3 * y] * R_ow[y + 3 *
+            i1];
         }
       }
 
-      anchorPos[i0] = xt_origin_pos[i0] + f0;
+      anchorPos[i0] = xt_origin_pos[i0] + d0;
     }
 
     for (featureIdx = 0; featureIdx < 8; featureIdx++) {
       if (xt_anchor_states[anchorIdx].feature_states[featureIdx].status != 0) {
-        q0 = xt_anchor_states[anchorIdx].feature_states[featureIdx].status_idx;
-        qY = q0 - 1;
-        if ((q0 < 0) && (qY >= 0)) {
-          qY = MIN_int32_T;
+        i2 = xt_anchor_states[anchorIdx].feature_states[featureIdx].status_idx -
+          1L;
+        if (i2 > 2147483647L) {
+          i2 = 2147483647L;
+        } else {
+          if (i2 < -2147483648L) {
+            i2 = -2147483648L;
+          }
         }
 
-        c = mul_s32_s32_s32_sat(qY, 3);
+        i2 = (int)i2 * 3L;
+        if (i2 > 2147483647L) {
+          i2 = 2147483647L;
+        } else {
+          if (i2 < -2147483648L) {
+            i2 = -2147483648L;
+          }
+        }
+
+        y = (int)i2;
         for (i0 = 0; i0 < 3; i0++) {
-          f0 = 0.0F;
-          for (qY = 0; qY < 3; qY++) {
-            f0 += anchorRot[qY + 3 * i0] * xt_anchor_states[anchorIdx].
-              feature_states[featureIdx].m[qY];
+          d0 = 0.0;
+          for (i1 = 0; i1 < 3; i1++) {
+            d0 += anchorRot[i1 + 3 * i0] * xt_anchor_states[anchorIdx].
+              feature_states[featureIdx].m[i1];
           }
 
-          b_anchorPos[i0] = anchorPos[i0] + f0 / xt_anchor_states[anchorIdx].
+          b_anchorPos[i0] = anchorPos[i0] + d0 / xt_anchor_states[anchorIdx].
             feature_states[featureIdx].inverse_depth;
-          q0 = 1 + i0;
-          qY = c + q0;
-          if ((c > 0) && (qY <= 0)) {
-            qY = MAX_int32_T;
+          i2 = (long)y + (1 + i0);
+          if (i2 > 2147483647L) {
+            i2 = 2147483647L;
+          } else {
+            if (i2 < -2147483648L) {
+              i2 = -2147483648L;
+            }
           }
 
-          b_map[qY - 1] = b_anchorPos[i0];
+          b_map[(int)i2 - 1] = b_anchorPos[i0];
         }
       }
     }
@@ -8181,11 +6994,11 @@ static void getMap(const float xt_origin_pos[3], const float xt_origin_att[4],
 //
 // getNumValidFeatures Get the number of valid features of an anchor
 // Arguments    : const e_struct_T anchor_state_feature_states[8]
-// Return Type  : float
+// Return Type  : double
 //
-static float getNumValidFeatures(const e_struct_T anchor_state_feature_states[8])
+static double getNumValidFeatures(const e_struct_T anchor_state_feature_states[8])
 {
-  float n;
+  double n;
   int featureIdx;
   boolean_T x[2];
   int k;
@@ -8194,7 +7007,7 @@ static float getNumValidFeatures(const e_struct_T anchor_state_feature_states[8]
 
   // getNumFeaturesOfType Get the number of features of type type of an anchor
   //  type can be a scalar or a row vector of types
-  n = 0.0F;
+  n = 0.0;
   for (featureIdx = 0; featureIdx < 8; featureIdx++) {
     for (k = 0; k < 2; k++) {
       x[k] = (anchor_state_feature_states[featureIdx].status == 1 + k);
@@ -8245,14 +7058,14 @@ static float getNumValidFeatures(const e_struct_T anchor_state_feature_states[8]
 //
 static void getScaledMap(g_struct_T *b_xt)
 {
-  float R_cw[9];
+  double R_cw[9];
   int anchorIdx;
-  float anchorRot[9];
+  double anchorRot[9];
   int featureIdx;
-  float c_xt[3];
-  int i26;
-  float f4;
-  int i27;
+  double c_xt[3];
+  int i43;
+  double d10;
+  int i44;
 
   //  if ~all(size(q) == [4, 1])
   //      error('q does not have the size of a quaternion')
@@ -8264,22 +7077,22 @@ static void getScaledMap(g_struct_T *b_xt)
               b_xt->robot_state.att[1] * b_xt->robot_state.att[1]) -
              b_xt->robot_state.att[2] * b_xt->robot_state.att[2]) +
     b_xt->robot_state.att[3] * b_xt->robot_state.att[3];
-  R_cw[3] = 2.0F * (b_xt->robot_state.att[0] * b_xt->robot_state.att[1] +
-                    b_xt->robot_state.att[2] * b_xt->robot_state.att[3]);
-  R_cw[6] = 2.0F * (b_xt->robot_state.att[0] * b_xt->robot_state.att[2] -
-                    b_xt->robot_state.att[1] * b_xt->robot_state.att[3]);
-  R_cw[1] = 2.0F * (b_xt->robot_state.att[0] * b_xt->robot_state.att[1] -
-                    b_xt->robot_state.att[2] * b_xt->robot_state.att[3]);
+  R_cw[3] = 2.0 * (b_xt->robot_state.att[0] * b_xt->robot_state.att[1] +
+                   b_xt->robot_state.att[2] * b_xt->robot_state.att[3]);
+  R_cw[6] = 2.0 * (b_xt->robot_state.att[0] * b_xt->robot_state.att[2] -
+                   b_xt->robot_state.att[1] * b_xt->robot_state.att[3]);
+  R_cw[1] = 2.0 * (b_xt->robot_state.att[0] * b_xt->robot_state.att[1] -
+                   b_xt->robot_state.att[2] * b_xt->robot_state.att[3]);
   R_cw[4] = ((-(b_xt->robot_state.att[0] * b_xt->robot_state.att[0]) +
               b_xt->robot_state.att[1] * b_xt->robot_state.att[1]) -
              b_xt->robot_state.att[2] * b_xt->robot_state.att[2]) +
     b_xt->robot_state.att[3] * b_xt->robot_state.att[3];
-  R_cw[7] = 2.0F * (b_xt->robot_state.att[1] * b_xt->robot_state.att[2] +
-                    b_xt->robot_state.att[0] * b_xt->robot_state.att[3]);
-  R_cw[2] = 2.0F * (b_xt->robot_state.att[0] * b_xt->robot_state.att[2] +
-                    b_xt->robot_state.att[1] * b_xt->robot_state.att[3]);
-  R_cw[5] = 2.0F * (b_xt->robot_state.att[1] * b_xt->robot_state.att[2] -
-                    b_xt->robot_state.att[0] * b_xt->robot_state.att[3]);
+  R_cw[7] = 2.0 * (b_xt->robot_state.att[1] * b_xt->robot_state.att[2] +
+                   b_xt->robot_state.att[0] * b_xt->robot_state.att[3]);
+  R_cw[2] = 2.0 * (b_xt->robot_state.att[0] * b_xt->robot_state.att[2] +
+                   b_xt->robot_state.att[1] * b_xt->robot_state.att[3]);
+  R_cw[5] = 2.0 * (b_xt->robot_state.att[1] * b_xt->robot_state.att[2] -
+                   b_xt->robot_state.att[0] * b_xt->robot_state.att[3]);
   R_cw[8] = ((-(b_xt->robot_state.att[0] * b_xt->robot_state.att[0]) -
               b_xt->robot_state.att[1] * b_xt->robot_state.att[1]) +
              b_xt->robot_state.att[2] * b_xt->robot_state.att[2]) +
@@ -8298,15 +7111,18 @@ static void getScaledMap(g_struct_T *b_xt)
                     anchor_states[anchorIdx].att[2] * b_xt->
                     anchor_states[anchorIdx].att[2]) + b_xt->
       anchor_states[anchorIdx].att[3] * b_xt->anchor_states[anchorIdx].att[3];
-    anchorRot[3] = 2.0F * (b_xt->anchor_states[anchorIdx].att[0] *
-      b_xt->anchor_states[anchorIdx].att[1] + b_xt->anchor_states[anchorIdx]
-      .att[2] * b_xt->anchor_states[anchorIdx].att[3]);
-    anchorRot[6] = 2.0F * (b_xt->anchor_states[anchorIdx].att[0] *
-      b_xt->anchor_states[anchorIdx].att[2] - b_xt->anchor_states[anchorIdx]
-      .att[1] * b_xt->anchor_states[anchorIdx].att[3]);
-    anchorRot[1] = 2.0F * (b_xt->anchor_states[anchorIdx].att[0] *
-      b_xt->anchor_states[anchorIdx].att[1] - b_xt->anchor_states[anchorIdx]
-      .att[2] * b_xt->anchor_states[anchorIdx].att[3]);
+    anchorRot[3] = 2.0 * (b_xt->anchor_states[anchorIdx].att[0] *
+                          b_xt->anchor_states[anchorIdx].att[1] +
+                          b_xt->anchor_states[anchorIdx].att[2] *
+                          b_xt->anchor_states[anchorIdx].att[3]);
+    anchorRot[6] = 2.0 * (b_xt->anchor_states[anchorIdx].att[0] *
+                          b_xt->anchor_states[anchorIdx].att[2] -
+                          b_xt->anchor_states[anchorIdx].att[1] *
+                          b_xt->anchor_states[anchorIdx].att[3]);
+    anchorRot[1] = 2.0 * (b_xt->anchor_states[anchorIdx].att[0] *
+                          b_xt->anchor_states[anchorIdx].att[1] -
+                          b_xt->anchor_states[anchorIdx].att[2] *
+                          b_xt->anchor_states[anchorIdx].att[3]);
     anchorRot[4] = ((-(b_xt->anchor_states[anchorIdx].att[0] *
                        b_xt->anchor_states[anchorIdx].att[0]) +
                      b_xt->anchor_states[anchorIdx].att[1] * b_xt->
@@ -8314,15 +7130,18 @@ static void getScaledMap(g_struct_T *b_xt)
                     anchor_states[anchorIdx].att[2] * b_xt->
                     anchor_states[anchorIdx].att[2]) + b_xt->
       anchor_states[anchorIdx].att[3] * b_xt->anchor_states[anchorIdx].att[3];
-    anchorRot[7] = 2.0F * (b_xt->anchor_states[anchorIdx].att[1] *
-      b_xt->anchor_states[anchorIdx].att[2] + b_xt->anchor_states[anchorIdx]
-      .att[0] * b_xt->anchor_states[anchorIdx].att[3]);
-    anchorRot[2] = 2.0F * (b_xt->anchor_states[anchorIdx].att[0] *
-      b_xt->anchor_states[anchorIdx].att[2] + b_xt->anchor_states[anchorIdx]
-      .att[1] * b_xt->anchor_states[anchorIdx].att[3]);
-    anchorRot[5] = 2.0F * (b_xt->anchor_states[anchorIdx].att[1] *
-      b_xt->anchor_states[anchorIdx].att[2] - b_xt->anchor_states[anchorIdx]
-      .att[0] * b_xt->anchor_states[anchorIdx].att[3]);
+    anchorRot[7] = 2.0 * (b_xt->anchor_states[anchorIdx].att[1] *
+                          b_xt->anchor_states[anchorIdx].att[2] +
+                          b_xt->anchor_states[anchorIdx].att[0] *
+                          b_xt->anchor_states[anchorIdx].att[3]);
+    anchorRot[2] = 2.0 * (b_xt->anchor_states[anchorIdx].att[0] *
+                          b_xt->anchor_states[anchorIdx].att[2] +
+                          b_xt->anchor_states[anchorIdx].att[1] *
+                          b_xt->anchor_states[anchorIdx].att[3]);
+    anchorRot[5] = 2.0 * (b_xt->anchor_states[anchorIdx].att[1] *
+                          b_xt->anchor_states[anchorIdx].att[2] -
+                          b_xt->anchor_states[anchorIdx].att[0] *
+                          b_xt->anchor_states[anchorIdx].att[3]);
     anchorRot[8] = ((-(b_xt->anchor_states[anchorIdx].att[0] *
                        b_xt->anchor_states[anchorIdx].att[0]) -
                      b_xt->anchor_states[anchorIdx].att[1] * b_xt->
@@ -8333,25 +7152,25 @@ static void getScaledMap(g_struct_T *b_xt)
     for (featureIdx = 0; featureIdx < 8; featureIdx++) {
       if (b_xt->anchor_states[anchorIdx].feature_states[featureIdx].status != 0)
       {
-        for (i26 = 0; i26 < 3; i26++) {
-          f4 = 0.0F;
-          for (i27 = 0; i27 < 3; i27++) {
-            f4 += anchorRot[i27 + 3 * i26] * b_xt->anchor_states[anchorIdx].
-              feature_states[featureIdx].m[i27];
+        for (i43 = 0; i43 < 3; i43++) {
+          d10 = 0.0;
+          for (i44 = 0; i44 < 3; i44++) {
+            d10 += anchorRot[i44 + 3 * i43] * b_xt->anchor_states[anchorIdx].
+              feature_states[featureIdx].m[i44];
           }
 
-          c_xt[i26] = (b_xt->anchor_states[anchorIdx].feature_states[featureIdx]
-                       .inverse_depth * b_xt->anchor_states[anchorIdx].pos[i26]
-                       + f4) - b_xt->robot_state.pos[i26] * b_xt->
+          c_xt[i43] = (b_xt->anchor_states[anchorIdx].feature_states[featureIdx]
+                       .inverse_depth * b_xt->anchor_states[anchorIdx].pos[i43]
+                       + d10) - b_xt->robot_state.pos[i43] * b_xt->
             anchor_states[anchorIdx].feature_states[featureIdx].inverse_depth;
         }
 
-        for (i26 = 0; i26 < 3; i26++) {
+        for (i43 = 0; i43 < 3; i43++) {
           b_xt->anchor_states[anchorIdx].feature_states[featureIdx].
-            scaled_map_point[i26] = 0.0F;
-          for (i27 = 0; i27 < 3; i27++) {
+            scaled_map_point[i43] = 0.0;
+          for (i44 = 0; i44 < 3; i44++) {
             b_xt->anchor_states[anchorIdx].feature_states[featureIdx].
-              scaled_map_point[i26] += R_cw[i26 + 3 * i27] * c_xt[i27];
+              scaled_map_point[i43] += R_cw[i43 + 3 * i44] * c_xt[i44];
           }
         }
       }
@@ -8362,20 +7181,20 @@ static void getScaledMap(g_struct_T *b_xt)
 //
 // getTotalNumActiveFeatures Get the number of active features of all anchors
 // Arguments    : const f_struct_T xt_anchor_states[5]
-// Return Type  : float
+// Return Type  : double
 //
-static float getTotalNumActiveFeatures(const f_struct_T xt_anchor_states[5])
+static double getTotalNumActiveFeatures(const f_struct_T xt_anchor_states[5])
 {
-  float n;
+  double n;
   int anchorIdx;
-  float b_n;
+  double b_n;
   int featureIdx;
-  n = 0.0F;
+  n = 0.0;
   for (anchorIdx = 0; anchorIdx < 5; anchorIdx++) {
     // getNumActiveFeatures Get the number of active features of an anchor
     // getNumFeaturesOfType Get the number of features of type type of an anchor 
     //  type can be a scalar or a row vector of types
-    b_n = 0.0F;
+    b_n = 0.0;
     for (featureIdx = 0; featureIdx < 8; featureIdx++) {
       if (!!(xt_anchor_states[anchorIdx].feature_states[featureIdx].status == 1))
       {
@@ -8392,19 +7211,19 @@ static float getTotalNumActiveFeatures(const f_struct_T xt_anchor_states[5])
 //
 // getTotalNumDelayedFeatures Get the number of delayed features of all anchors
 // Arguments    : const f_struct_T xt_anchor_states[5]
-// Return Type  : float
+// Return Type  : double
 //
-static float getTotalNumDelayedFeatures(const f_struct_T xt_anchor_states[5])
+static double getTotalNumDelayedFeatures(const f_struct_T xt_anchor_states[5])
 {
-  float n;
+  double n;
   int anchorIdx;
-  float b_n;
+  double b_n;
   int featureIdx;
-  n = 0.0F;
+  n = 0.0;
   for (anchorIdx = 0; anchorIdx < 5; anchorIdx++) {
     // getNumFeaturesOfType Get the number of features of type type of an anchor 
     //  type can be a scalar or a row vector of types
-    b_n = 0.0F;
+    b_n = 0.0;
     for (featureIdx = 0; featureIdx < 8; featureIdx++) {
       if (!!(xt_anchor_states[anchorIdx].feature_states[featureIdx].status == 2))
       {
@@ -8420,41 +7239,39 @@ static float getTotalNumDelayedFeatures(const f_struct_T xt_anchor_states[5])
 
 //
 // getWorldState Get the state of the robot in the world frame
-// Arguments    : const float xt_robot_state_IMU_pos[3]
-//                const float xt_robot_state_IMU_att[4]
-//                const float xt_robot_state_IMU_gyro_bias[3]
-//                const float xt_robot_state_IMU_acc_bias[3]
-//                const float xt_robot_state_pos[3]
-//                const float xt_robot_state_att[4]
-//                const float xt_origin_pos[3]
-//                const float xt_origin_att[4]
-//                float world_state_pos[3]
-//                float world_state_att[4]
-//                float world_state_vel[3]
-//                float world_state_IMU_gyro_bias[3]
-//                float world_state_IMU_acc_bias[3]
-//                float world_state_IMU_pos[3]
-//                float world_state_IMU_att[4]
+// Arguments    : const double xt_robot_state_IMU_pos[3]
+//                const double xt_robot_state_IMU_att[4]
+//                const double xt_robot_state_IMU_gyro_bias[3]
+//                const double xt_robot_state_IMU_acc_bias[3]
+//                const double xt_robot_state_pos[3]
+//                const double xt_robot_state_att[4]
+//                const double xt_origin_pos[3]
+//                const double xt_origin_att[4]
+//                double world_state_pos[3]
+//                double world_state_att[4]
+//                double world_state_vel[3]
+//                double world_state_IMU_gyro_bias[3]
+//                double world_state_IMU_acc_bias[3]
+//                double world_state_IMU_pos[3]
+//                double world_state_IMU_att[4]
 // Return Type  : void
 //
-static void getWorldState(const float xt_robot_state_IMU_pos[3], const float
-  xt_robot_state_IMU_att[4], const float xt_robot_state_IMU_gyro_bias[3], const
-  float xt_robot_state_IMU_acc_bias[3], const float xt_robot_state_pos[3], const
-  float xt_robot_state_att[4], const float xt_origin_pos[3], const float
-  xt_origin_att[4], float world_state_pos[3], float world_state_att[4], float
-  world_state_vel[3], float world_state_IMU_gyro_bias[3], float
-  world_state_IMU_acc_bias[3], float world_state_IMU_pos[3], float
+static void getWorldState(const double xt_robot_state_IMU_pos[3], const double
+  xt_robot_state_IMU_att[4], const double xt_robot_state_IMU_gyro_bias[3], const
+  double xt_robot_state_IMU_acc_bias[3], const double xt_robot_state_pos[3],
+  const double xt_robot_state_att[4], const double xt_origin_pos[3], const
+  double xt_origin_att[4], double world_state_pos[3], double world_state_att[4],
+  double world_state_vel[3], double world_state_IMU_gyro_bias[3], double
+  world_state_IMU_acc_bias[3], double world_state_IMU_pos[3], double
   world_state_IMU_att[4])
 {
-  float R_ow[9];
-  float b_xt_robot_state_att[9];
-  int ix;
-  float mtmp;
-  int ixstart;
-  float c[9];
-  int itmp;
-  float varargin_1[4];
-  boolean_T exitg1;
+  double R_ow[9];
+  double b_xt_robot_state_att[9];
+  double c_xt_robot_state_att[9];
+  int i;
+  double d4;
+  int i29;
+  int i30;
 
   //  if ~all(size(q) == [4, 1])
   //      error('q does not have the size of a quaternion')
@@ -8471,200 +7288,80 @@ static void getWorldState(const float xt_robot_state_IMU_pos[3], const float
   R_ow[0] = ((xt_origin_att[0] * xt_origin_att[0] - xt_origin_att[1] *
               xt_origin_att[1]) - xt_origin_att[2] * xt_origin_att[2]) +
     xt_origin_att[3] * xt_origin_att[3];
-  R_ow[3] = 2.0F * (xt_origin_att[0] * xt_origin_att[1] + xt_origin_att[2] *
-                    xt_origin_att[3]);
-  R_ow[6] = 2.0F * (xt_origin_att[0] * xt_origin_att[2] - xt_origin_att[1] *
-                    xt_origin_att[3]);
-  R_ow[1] = 2.0F * (xt_origin_att[0] * xt_origin_att[1] - xt_origin_att[2] *
-                    xt_origin_att[3]);
+  R_ow[3] = 2.0 * (xt_origin_att[0] * xt_origin_att[1] + xt_origin_att[2] *
+                   xt_origin_att[3]);
+  R_ow[6] = 2.0 * (xt_origin_att[0] * xt_origin_att[2] - xt_origin_att[1] *
+                   xt_origin_att[3]);
+  R_ow[1] = 2.0 * (xt_origin_att[0] * xt_origin_att[1] - xt_origin_att[2] *
+                   xt_origin_att[3]);
   R_ow[4] = ((-(xt_origin_att[0] * xt_origin_att[0]) + xt_origin_att[1] *
               xt_origin_att[1]) - xt_origin_att[2] * xt_origin_att[2]) +
     xt_origin_att[3] * xt_origin_att[3];
-  R_ow[7] = 2.0F * (xt_origin_att[1] * xt_origin_att[2] + xt_origin_att[0] *
-                    xt_origin_att[3]);
-  R_ow[2] = 2.0F * (xt_origin_att[0] * xt_origin_att[2] + xt_origin_att[1] *
-                    xt_origin_att[3]);
-  R_ow[5] = 2.0F * (xt_origin_att[1] * xt_origin_att[2] - xt_origin_att[0] *
-                    xt_origin_att[3]);
+  R_ow[7] = 2.0 * (xt_origin_att[1] * xt_origin_att[2] + xt_origin_att[0] *
+                   xt_origin_att[3]);
+  R_ow[2] = 2.0 * (xt_origin_att[0] * xt_origin_att[2] + xt_origin_att[1] *
+                   xt_origin_att[3]);
+  R_ow[5] = 2.0 * (xt_origin_att[1] * xt_origin_att[2] - xt_origin_att[0] *
+                   xt_origin_att[3]);
   R_ow[8] = ((-(xt_origin_att[0] * xt_origin_att[0]) - xt_origin_att[1] *
               xt_origin_att[1]) + xt_origin_att[2] * xt_origin_att[2]) +
     xt_origin_att[3] * xt_origin_att[3];
-  b_xt_robot_state_att[0] = ((xt_robot_state_att[0] * xt_robot_state_att[0] -
+  c_xt_robot_state_att[0] = ((xt_robot_state_att[0] * xt_robot_state_att[0] -
     xt_robot_state_att[1] * xt_robot_state_att[1]) - xt_robot_state_att[2] *
     xt_robot_state_att[2]) + xt_robot_state_att[3] * xt_robot_state_att[3];
-  b_xt_robot_state_att[3] = 2.0F * (xt_robot_state_att[0] * xt_robot_state_att[1]
+  c_xt_robot_state_att[3] = 2.0 * (xt_robot_state_att[0] * xt_robot_state_att[1]
     + xt_robot_state_att[2] * xt_robot_state_att[3]);
-  b_xt_robot_state_att[6] = 2.0F * (xt_robot_state_att[0] * xt_robot_state_att[2]
+  c_xt_robot_state_att[6] = 2.0 * (xt_robot_state_att[0] * xt_robot_state_att[2]
     - xt_robot_state_att[1] * xt_robot_state_att[3]);
-  b_xt_robot_state_att[1] = 2.0F * (xt_robot_state_att[0] * xt_robot_state_att[1]
+  c_xt_robot_state_att[1] = 2.0 * (xt_robot_state_att[0] * xt_robot_state_att[1]
     - xt_robot_state_att[2] * xt_robot_state_att[3]);
-  b_xt_robot_state_att[4] = ((-(xt_robot_state_att[0] * xt_robot_state_att[0]) +
+  c_xt_robot_state_att[4] = ((-(xt_robot_state_att[0] * xt_robot_state_att[0]) +
     xt_robot_state_att[1] * xt_robot_state_att[1]) - xt_robot_state_att[2] *
     xt_robot_state_att[2]) + xt_robot_state_att[3] * xt_robot_state_att[3];
-  b_xt_robot_state_att[7] = 2.0F * (xt_robot_state_att[1] * xt_robot_state_att[2]
+  c_xt_robot_state_att[7] = 2.0 * (xt_robot_state_att[1] * xt_robot_state_att[2]
     + xt_robot_state_att[0] * xt_robot_state_att[3]);
-  b_xt_robot_state_att[2] = 2.0F * (xt_robot_state_att[0] * xt_robot_state_att[2]
+  c_xt_robot_state_att[2] = 2.0 * (xt_robot_state_att[0] * xt_robot_state_att[2]
     + xt_robot_state_att[1] * xt_robot_state_att[3]);
-  b_xt_robot_state_att[5] = 2.0F * (xt_robot_state_att[1] * xt_robot_state_att[2]
+  c_xt_robot_state_att[5] = 2.0 * (xt_robot_state_att[1] * xt_robot_state_att[2]
     - xt_robot_state_att[0] * xt_robot_state_att[3]);
-  b_xt_robot_state_att[8] = ((-(xt_robot_state_att[0] * xt_robot_state_att[0]) -
+  c_xt_robot_state_att[8] = ((-(xt_robot_state_att[0] * xt_robot_state_att[0]) -
     xt_robot_state_att[1] * xt_robot_state_att[1]) + xt_robot_state_att[2] *
     xt_robot_state_att[2]) + xt_robot_state_att[3] * xt_robot_state_att[3];
-  for (ix = 0; ix < 3; ix++) {
-    mtmp = 0.0F;
-    for (ixstart = 0; ixstart < 3; ixstart++) {
-      mtmp += R_ow[ixstart + 3 * ix] * xt_robot_state_pos[ixstart];
-      c[ix + 3 * ixstart] = 0.0F;
-      for (itmp = 0; itmp < 3; itmp++) {
-        c[ix + 3 * ixstart] += b_xt_robot_state_att[ix + 3 * itmp] * R_ow[itmp +
-          3 * ixstart];
+  for (i = 0; i < 3; i++) {
+    d4 = 0.0;
+    for (i29 = 0; i29 < 3; i29++) {
+      d4 += R_ow[i29 + 3 * i] * xt_robot_state_pos[i29];
+      b_xt_robot_state_att[i + 3 * i29] = 0.0;
+      for (i30 = 0; i30 < 3; i30++) {
+        b_xt_robot_state_att[i + 3 * i29] += c_xt_robot_state_att[i + 3 * i30] *
+          R_ow[i30 + 3 * i29];
       }
     }
 
-    world_state_pos[ix] = xt_origin_pos[ix] + mtmp;
-  }
-
-  //  THIS IS OK, It is according to the NASA memo found
-  //  https://claraty.jpl.nasa.gov/man/software/development/conventions/standards_docs/unadopted/JPL_Quaternions_Breckenridge.pdf 
-  // QUATFROMROTJ Get equivalent quaternion of the rotation matrix R
-  //    Returns a quaternion in JPL notation
-  //  The implementation is copied from qGetQ(R), but we are careful about the
-  //  ordering of the output vector
-  //  Q = [0;0;0;1];
-  //  % [r,c] = size( R );
-  //  % if( r ~= 3 || c ~= 3 )
-  //  %     error( 'R must be a 3x3 matrix\n\r' );
-  //  % end
-  //
-  //  if abs(det(R) - 1) > 1e-2
-  //      error('The provided matrix is not a valid rotation matrix. It must have det(R) = 1, but is %i.', det(R)) 
-  //  end
-  //  T = R(1,1)+R(2,2)+R(3,3);
-  //  pivot = zeros(4,1);
-  //  pivot(1) = sqrt(max(1+2*R(1,1)-T, eps))/2;
-  //  pivot(2) = sqrt(max(1+2*R(2,2)-T, eps))/2;
-  //  pivot(3) = sqrt(max(1+2*R(3,3)-T, eps))/2;
-  //  pivot(4) = sqrt(max(1+T, eps))/2;
-  //  if ~all(isreal(pivot))
-  //      error('complex')
-  //  end
-  //  index = round(find(pivot==max(pivot)));
-  //  if(index(1)==1)
-  //      Q(1) = sqrt(1+2*R(1,1)-T)/2;
-  //      Q(2) = (R(1,2)+R(2,1))/(4*(Q(1)));
-  //      Q(3) = (R(1,3)+R(3,1))/(4*(Q(1)));
-  //      Q(4) = (R(2,3)-R(3,2))/(4*(Q(1)));
-  //  elseif(index(1)==2)
-  //      Q(2) = sqrt(1+2*R(2,2)-T)/2;
-  //      Q(1) = (R(1,2)+R(2,1))/(4*Q(2));
-  //      Q(3) = (R(2,3)+R(3,2))/(4*Q(2));
-  //      Q(4) = (R(3,1)-R(1,3))/(4*Q(2));
-  //  elseif(index(1)==3)
-  //      Q(3) = sqrt(1+2*R(3,3)-T)/2;
-  //      Q(1) = (R(1,3)+R(3,1))/(4*Q(3));
-  //      Q(2) = (R(2,3)+R(3,2))/(4*Q(3));
-  //      Q(4) = (R(1,2)-R(2,1))/(4*Q(3));
-  //  elseif(index(1)==4)
-  //      Q(4) = sqrt(1+T)/2;
-  //      Q(1) = (R(2,3)-R(3,2))/(4*Q(4));
-  //      Q(2) = (R(3,1)-R(1,3))/(4*Q(4));
-  //      Q(3) = (R(1,2)-R(2,1))/(4*Q(4));
-  //  end
-  // % speed optimization
-  varargin_1[0] = (1.0F + c[0]) - (c[4] + c[8]);
-  varargin_1[1] = (1.0F + c[4]) - (c[0] + c[8]);
-  varargin_1[2] = (1.0F + c[8]) - (c[0] + c[4]);
-  varargin_1[3] = 1.0F + ((c[0] + c[4]) + c[8]);
-  ixstart = 1;
-  mtmp = varargin_1[0];
-  itmp = 1;
-  if (rtIsNaNF(varargin_1[0])) {
-    ix = 2;
-    exitg1 = false;
-    while ((!exitg1) && (ix < 5)) {
-      ixstart = ix;
-      if (!rtIsNaNF(varargin_1[ix - 1])) {
-        mtmp = varargin_1[ix - 1];
-        itmp = ix;
-        exitg1 = true;
-      } else {
-        ix++;
-      }
-    }
-  }
-
-  if (ixstart < 4) {
-    while (ixstart + 1 < 5) {
-      if (varargin_1[ixstart] > mtmp) {
-        mtmp = varargin_1[ixstart];
-        itmp = ixstart + 1;
-      }
-
-      ixstart++;
-    }
-  }
-
-  if (itmp == 1) {
-    world_state_att[0] = (float)sqrt((double)((1.0F + 2.0F * c[0]) - ((c[0] + c
-      [4]) + c[8]))) / 2.0F;
-    world_state_att[1] = (c[3] + c[1]) / (4.0F * ((float)sqrt((double)((1.0F +
-      2.0F * c[0]) - ((c[0] + c[4]) + c[8]))) / 2.0F));
-    world_state_att[2] = (c[6] + c[2]) / (4.0F * ((float)sqrt((double)((1.0F +
-      2.0F * c[0]) - ((c[0] + c[4]) + c[8]))) / 2.0F));
-    world_state_att[3] = (c[7] - c[5]) / (4.0F * ((float)sqrt((double)((1.0F +
-      2.0F * c[0]) - ((c[0] + c[4]) + c[8]))) / 2.0F));
-  } else if (itmp == 2) {
-    world_state_att[0] = (c[3] + c[1]) / (4.0F * ((float)sqrt((double)((1.0F +
-      2.0F * c[4]) - ((c[0] + c[4]) + c[8]))) / 2.0F));
-    world_state_att[1] = (float)sqrt((double)((1.0F + 2.0F * c[4]) - ((c[0] + c
-      [4]) + c[8]))) / 2.0F;
-    world_state_att[2] = (c[7] + c[5]) / (4.0F * ((float)sqrt((double)((1.0F +
-      2.0F * c[4]) - ((c[0] + c[4]) + c[8]))) / 2.0F));
-    world_state_att[3] = (c[2] - c[6]) / (4.0F * ((float)sqrt((double)((1.0F +
-      2.0F * c[4]) - ((c[0] + c[4]) + c[8]))) / 2.0F));
-  } else if (itmp == 3) {
-    world_state_att[0] = (c[6] + c[2]) / (4.0F * ((float)sqrt((double)((1.0F +
-      2.0F * c[8]) - ((c[0] + c[4]) + c[8]))) / 2.0F));
-    world_state_att[1] = (c[7] + c[5]) / (4.0F * ((float)sqrt((double)((1.0F +
-      2.0F * c[8]) - ((c[0] + c[4]) + c[8]))) / 2.0F));
-    world_state_att[2] = (float)sqrt((double)((1.0F + 2.0F * c[8]) - ((c[0] + c
-      [4]) + c[8]))) / 2.0F;
-    world_state_att[3] = (c[3] - c[1]) / (4.0F * ((float)sqrt((double)((1.0F +
-      2.0F * c[8]) - ((c[0] + c[4]) + c[8]))) / 2.0F));
-  } else {
-    world_state_att[0] = (c[7] - c[5]) / (4.0F * ((float)sqrt((double)(1.0F +
-      ((c[0] + c[4]) + c[8]))) / 2.0F));
-    world_state_att[1] = (c[2] - c[6]) / (4.0F * ((float)sqrt((double)(1.0F +
-      ((c[0] + c[4]) + c[8]))) / 2.0F));
-    world_state_att[2] = (c[3] - c[1]) / (4.0F * ((float)sqrt((double)(1.0F +
-      ((c[0] + c[4]) + c[8]))) / 2.0F));
-    world_state_att[3] = (float)sqrt((double)(1.0F + ((c[0] + c[4]) + c[8]))) /
-      2.0F;
-  }
-
-  for (ixstart = 0; ixstart < 3; ixstart++) {
-    world_state_vel[ixstart] = 0.0F;
-    for (ix = 0; ix < 3; ix++) {
-      world_state_vel[ixstart] += R_ow[ix + 3 * ixstart] * xt_robot_state_pos[ix];
+    world_state_pos[i] = xt_origin_pos[i] + d4;
+    world_state_vel[i] = 0.0;
+    for (i29 = 0; i29 < 3; i29++) {
+      world_state_vel[i] += R_ow[i29 + 3 * i] * xt_robot_state_pos[i29];
     }
 
-    world_state_IMU_gyro_bias[ixstart] = xt_robot_state_IMU_gyro_bias[ixstart];
-    world_state_IMU_acc_bias[ixstart] = xt_robot_state_IMU_acc_bias[ixstart];
-    world_state_IMU_pos[ixstart] = xt_robot_state_IMU_pos[ixstart];
+    world_state_IMU_gyro_bias[i] = xt_robot_state_IMU_gyro_bias[i];
+    world_state_IMU_acc_bias[i] = xt_robot_state_IMU_acc_bias[i];
+    world_state_IMU_pos[i] = xt_robot_state_IMU_pos[i];
   }
 
-  for (ixstart = 0; ixstart < 4; ixstart++) {
-    world_state_IMU_att[ixstart] = xt_robot_state_IMU_att[ixstart];
+  QuatFromRotJ(b_xt_robot_state_att, world_state_att);
+  for (i = 0; i < 4; i++) {
+    world_state_IMU_att[i] = xt_robot_state_IMU_att[i];
   }
 }
 
 //
-// Arguments    : float varargin_1
-//                float varargin_2
-//                float varargin_3
+// Arguments    : double varargin_1
+//                double varargin_2
+//                double varargin_3
 // Return Type  : double
 //
-static double h_fprintf(float varargin_1, float varargin_2, float varargin_3)
+static double h_fprintf(double varargin_1, double varargin_2, double varargin_3)
 {
   int nbytesint;
   FILE * b_NULL;
@@ -8690,23 +7387,23 @@ static double h_fprintf(float varargin_1, float varargin_2, float varargin_3)
 // #coder
 // ROS_INFO Print to ROS_INFO in ROS or to console in Matlab
 // Arguments    : int varargin_1
-//                float varargin_2
-//                float varargin_3
+//                double varargin_2
+//                double varargin_3
 // Return Type  : void
 //
-static void h_ros_info(int varargin_1, float varargin_2, float varargin_3)
+static void h_ros_info(int varargin_1, double varargin_2, double varargin_3)
 {
   char cv24[51];
-  int i20;
+  int i24;
   static const char cv25[51] = { 'F', 'o', 'r', 'c', 'i', 'n', 'g', ' ', 'a',
     'c', 't', 'i', 'v', 'a', 't', 'i', 'o', 'n', ' ', 'o', 'f', ' ', 'f', 'e',
     'a', 't', 'u', 'r', 'e', ' ', '%', 'i', ' ', '(', '%', 'i', ' ', 'o', 'n',
     ' ', 'a', 'n', 'c', 'h', 'o', 'r', ' ', '%', 'i', ')', '\x00' };
 
   //  debug_level == 0: print errors, == 1: print warnings, == 2: print info
-  if (debug_level >= 2.0F) {
-    for (i20 = 0; i20 < 51; i20++) {
-      cv24[i20] = cv25[i20];
+  if (debug_level >= 2.0) {
+    for (i24 = 0; i24 < 51; i24++) {
+      cv24[i24] = cv25[i24];
     }
 
     ROS_INFO(cv24, varargin_1, varargin_2, varargin_3);
@@ -8714,12 +7411,12 @@ static void h_ros_info(int varargin_1, float varargin_2, float varargin_3)
 }
 
 //
-// Arguments    : float varargin_1
-//                float varargin_2
-//                float varargin_3
+// Arguments    : double varargin_1
+//                double varargin_2
+//                double varargin_3
 // Return Type  : double
 //
-static double i_fprintf(float varargin_1, float varargin_2, float varargin_3)
+static double i_fprintf(double varargin_1, double varargin_2, double varargin_3)
 {
   int nbytesint;
   FILE * b_NULL;
@@ -8750,15 +7447,15 @@ static double i_fprintf(float varargin_1, float varargin_2, float varargin_3)
 static void i_ros_info(int varargin_1)
 {
   char cv26[28];
-  int i22;
+  int i26;
   static const char cv27[28] = { 'S', 'e', 't', 't', 'i', 'n', 'g', ' ', 'a',
     'n', 'c', 'h', 'o', 'r', ' ', '%', 'i', ' ', 'a', 's', ' ', 'o', 'r', 'i',
     'g', 'i', 'n', '\x00' };
 
   //  debug_level == 0: print errors, == 1: print warnings, == 2: print info
-  if (debug_level >= 2.0F) {
-    for (i22 = 0; i22 < 28; i22++) {
-      cv26[i22] = cv27[i22];
+  if (debug_level >= 2.0) {
+    for (i26 = 0; i26 < 28; i26++) {
+      cv26[i26] = cv27[i26];
     }
 
     ROS_INFO(cv26, varargin_1);
@@ -8776,83 +7473,82 @@ static void i_ros_info(int varargin_1)
 //  OUTPUT ARGUMENTS:
 //  - fp: The feature point in the camera frame
 //  - m:  The ray in the left and right camera frame to the feature
-// Arguments    : const float z_u_l[2]
-//                const float z_u_r[2]
-//                const float c_cameraparams_CameraParameters[2]
-//                const float d_cameraparams_CameraParameters[2]
-//                const float e_cameraparams_CameraParameters[2]
-//                const float f_cameraparams_CameraParameters[2]
-//                const float cameraparams_r_lr[3]
-//                const float cameraparams_R_lr[9]
-//                float fp[3]
-//                float b_m[6]
+// Arguments    : const double z_u_l[2]
+//                const double z_u_r[2]
+//                const double c_cameraparams_CameraParameters[2]
+//                const double d_cameraparams_CameraParameters[2]
+//                const double e_cameraparams_CameraParameters[2]
+//                const double f_cameraparams_CameraParameters[2]
+//                const double cameraparams_r_lr[3]
+//                const double cameraparams_R_lr[9]
+//                double fp[3]
+//                double b_m[6]
 //                boolean_T *success
 // Return Type  : void
 //
-static void initializePoint(const float z_u_l[2], const float z_u_r[2], const
-  float c_cameraparams_CameraParameters[2], const float
-  d_cameraparams_CameraParameters[2], const float
-  e_cameraparams_CameraParameters[2], const float
-  f_cameraparams_CameraParameters[2], const float cameraparams_r_lr[3], const
-  float cameraparams_R_lr[9], float fp[3], float b_m[6], boolean_T *success)
+static void initializePoint(const double z_u_l[2], const double z_u_r[2], const
+  double c_cameraparams_CameraParameters[2], const double
+  d_cameraparams_CameraParameters[2], const double
+  e_cameraparams_CameraParameters[2], const double
+  f_cameraparams_CameraParameters[2], const double cameraparams_r_lr[3], const
+  double cameraparams_R_lr[9], double fp[3], double b_m[6], boolean_T *success)
 {
-  float ml[3];
-  float mr[3];
-  float tol;
-  float fcnOutput;
-  float b_pos[6];
-  int i;
-  int i14;
-  static const signed char iv0[9] = { 1, 0, 0, 0, 1, 0, 0, 0, 1 };
+  double ml[3];
+  double mr[3];
+  double tol;
+  double B;
+  double b_pos[6];
+  int k;
+  int i18;
+  static const signed char iv1[9] = { 1, 0, 0, 0, 1, 0, 0, 0, 1 };
 
-  float rot[18];
-  float A[30];
-  float b[6];
+  double rot[18];
+  double A[30];
+  double b[6];
   int anchorIdx;
   int rankR;
+  double b_rot[9];
+  signed char I[9];
   int j;
-  float b_rot[9];
-  static const signed char iv1[9] = { -1, 0, 0, 0, -1, 0, 0, 0, -1 };
-
   int jpvt[5];
-  float tau[5];
-  float x[5];
+  double tau[5];
+  double x[5];
   ml[0] = (z_u_l[0] - d_cameraparams_CameraParameters[0]) /
     c_cameraparams_CameraParameters[0];
   ml[1] = (z_u_l[1] - d_cameraparams_CameraParameters[1]) /
     c_cameraparams_CameraParameters[1];
-  ml[2] = 1.0F;
+  ml[2] = 1.0;
   mr[0] = (z_u_r[0] - f_cameraparams_CameraParameters[0]) /
     e_cameraparams_CameraParameters[0];
   mr[1] = (z_u_r[1] - f_cameraparams_CameraParameters[1]) /
     e_cameraparams_CameraParameters[1];
-  mr[2] = 1.0F;
+  mr[2] = 1.0;
   tol = norm(ml);
-  fcnOutput = norm(mr);
-  for (i = 0; i < 3; i++) {
-    b_pos[i] = 0.0F;
-    b_pos[3 + i] = cameraparams_r_lr[i];
-    for (i14 = 0; i14 < 3; i14++) {
-      rot[i14 + 3 * i] = iv0[i14 + 3 * i];
-      rot[i14 + 3 * (i + 3)] = cameraparams_R_lr[i + 3 * i14];
+  B = norm(mr);
+  for (k = 0; k < 3; k++) {
+    b_pos[k] = 0.0;
+    b_pos[3 + k] = cameraparams_r_lr[k];
+    for (i18 = 0; i18 < 3; i18++) {
+      rot[i18 + 3 * k] = iv1[i18 + 3 * k];
+      rot[i18 + 3 * (k + 3)] = cameraparams_R_lr[k + 3 * i18];
     }
 
-    b_m[i] = ml[i] / tol;
-    b_m[3 + i] = mr[i] / fcnOutput;
+    b_m[k] = ml[k] / tol;
+    b_m[3 + k] = mr[k] / B;
   }
 
   //  normalized rays in left frame
-  for (i = 0; i < 3; i++) {
-    ml[i] = 0.0F;
-    for (i14 = 0; i14 < 3; i14++) {
-      ml[i] += cameraparams_R_lr[i + 3 * i14] * b_m[3 + i14];
+  for (k = 0; k < 3; k++) {
+    ml[k] = 0.0;
+    for (i18 = 0; i18 < 3; i18++) {
+      ml[k] += cameraparams_R_lr[k + 3 * i18] * b_m[3 + i18];
     }
   }
 
-  if (b_m[2] * ml[0] - b_m[0] * ml[2] > 0.0F) {
+  if (b_m[2] * ml[0] - b_m[0] * ml[2] > 0.0) {
     *success = false;
-    for (i = 0; i < 3; i++) {
-      fp[i] = b_m[i];
+    for (k = 0; k < 3; k++) {
+      fp[k] = b_m[k];
     }
   } else {
     *success = true;
@@ -8872,78 +7568,86 @@ static void initializePoint(const float z_u_l[2], const float z_u_r[2], const
     //  pf: the feature position in world coordinates
     //  condition: the condition number of the least squares problem. High
     //      numbers mean a badly conditiond problem and a bad result
-    memset(&A[0], 0, 30U * sizeof(float));
-    for (i = 0; i < 6; i++) {
-      b[i] = ((real32_T)rtNaN);
+    memset(&A[0], 0, 30U * sizeof(double));
+    for (k = 0; k < 6; k++) {
+      b[k] = rtNaN;
     }
 
     for (anchorIdx = 0; anchorIdx < 2; anchorIdx++) {
       rankR = anchorIdx * 3;
-      j = anchorIdx * 3;
-      for (i = 0; i < 3; i++) {
-        for (i14 = 0; i14 < 3; i14++) {
-          b_rot[i14 + 3 * i] = rot[i + 3 * (i14 + rankR)];
-        }
-      }
-
-      for (i = 0; i < 3; i++) {
-        A[(i + j) + 6 * anchorIdx] = 0.0F;
-        for (i14 = 0; i14 < 3; i14++) {
-          A[(i + j) + 6 * anchorIdx] += b_rot[i + 3 * i14] * b_m[i14 + 3 *
-            anchorIdx];
+      for (k = 0; k < 3; k++) {
+        for (i18 = 0; i18 < 3; i18++) {
+          b_rot[i18 + 3 * k] = rot[k + 3 * (i18 + rankR)];
         }
       }
 
       rankR = anchorIdx * 3;
+      for (k = 0; k < 3; k++) {
+        A[(k + rankR) + 6 * anchorIdx] = 0.0;
+        for (i18 = 0; i18 < 3; i18++) {
+          A[(k + rankR) + 6 * anchorIdx] += b_rot[k + 3 * i18] * b_m[i18 + 3 *
+            anchorIdx];
+        }
+      }
+
+      for (k = 0; k < 9; k++) {
+        I[k] = 0;
+      }
+
+      for (k = 0; k < 3; k++) {
+        I[k + 3 * k] = 1;
+      }
+
+      rankR = anchorIdx * 3;
       j = anchorIdx * 3;
-      for (i = 0; i < 3; i++) {
-        for (i14 = 0; i14 < 3; i14++) {
-          A[(i14 + rankR) + 6 * (2 + i)] = iv1[i14 + 3 * i];
+      for (k = 0; k < 3; k++) {
+        for (i18 = 0; i18 < 3; i18++) {
+          A[(i18 + rankR) + 6 * (2 + k)] = -(double)I[i18 + 3 * k];
         }
 
-        b[i + j] = -b_pos[i + 3 * anchorIdx];
+        b[k + j] = -b_pos[k + 3 * anchorIdx];
       }
     }
 
     //  condition = cond(A);
     b_xgeqp3(A, tau, jpvt);
     rankR = 0;
-    tol = 6.0F * (float)fabs((double)A[0]) * 1.1920929E-7F;
-    while ((rankR < 5) && ((float)fabs((double)A[rankR + 6 * rankR]) >= tol)) {
+    tol = 6.0 * fabs(A[0]) * 2.2204460492503131E-16;
+    while ((rankR < 5) && (fabs(A[rankR + 6 * rankR]) >= tol)) {
       rankR++;
     }
 
     for (j = 0; j < 5; j++) {
-      x[j] = 0.0F;
-      if (tau[j] != 0.0F) {
+      x[j] = 0.0;
+      if (tau[j] != 0.0) {
         tol = b[j];
-        for (i = j + 1; i + 1 < 7; i++) {
-          tol += A[i + 6 * j] * b[i];
+        for (k = j + 1; k + 1 < 7; k++) {
+          tol += A[k + 6 * j] * b[k];
         }
 
         tol *= tau[j];
-        if (tol != 0.0F) {
+        if (tol != 0.0) {
           b[j] -= tol;
-          for (i = j + 1; i + 1 < 7; i++) {
-            b[i] -= A[i + 6 * j] * tol;
+          for (k = j + 1; k + 1 < 7; k++) {
+            b[k] -= A[k + 6 * j] * tol;
           }
         }
       }
     }
 
-    for (i = 0; i + 1 <= rankR; i++) {
-      x[jpvt[i] - 1] = b[i];
+    for (k = 0; k + 1 <= rankR; k++) {
+      x[jpvt[k] - 1] = b[k];
     }
 
     for (j = rankR - 1; j + 1 > 0; j--) {
       x[jpvt[j] - 1] /= A[j + 6 * j];
-      for (i = 0; i + 1 <= j; i++) {
-        x[jpvt[i] - 1] -= x[jpvt[j] - 1] * A[i + 6 * j];
+      for (k = 0; k + 1 <= j; k++) {
+        x[jpvt[k] - 1] -= x[jpvt[j] - 1] * A[k + 6 * j];
       }
     }
 
-    for (i = 0; i < 3; i++) {
-      fp[i] = x[i + 2];
+    for (k = 0; k < 3; k++) {
+      fp[k] = x[k + 2];
     }
 
     //  is this better?
@@ -8955,10 +7659,10 @@ static void initializePoint(const float z_u_l[2], const float z_u_r[2], const
 }
 
 //
-// Arguments    : float varargin_1
+// Arguments    : double varargin_1
 // Return Type  : double
 //
-static double j_fprintf(float varargin_1)
+static double j_fprintf(double varargin_1)
 {
   int nbytesint;
   FILE * b_NULL;
@@ -8980,10 +7684,10 @@ static double j_fprintf(float varargin_1)
 }
 
 //
-// Arguments    : float varargin_1
+// Arguments    : double varargin_1
 // Return Type  : double
 //
-static double k_fprintf(float varargin_1)
+static double k_fprintf(double varargin_1)
 {
   int nbytesint;
   FILE * b_NULL;
@@ -9031,51 +7735,51 @@ static double l_fprintf(int varargin_1)
 }
 
 //
-// Arguments    : const emxArray_real32_T *A
-//                emxArray_real32_T *B
+// Arguments    : const emxArray_real_T *A
+//                emxArray_real_T *B
 // Return Type  : void
 //
-static void lusolve(const emxArray_real32_T *A, emxArray_real32_T *B)
+static void lusolve(const emxArray_real_T *A, emxArray_real_T *B)
 {
-  emxArray_real32_T *b_A;
+  emxArray_real_T *b_A;
   int n;
-  int i28;
+  int i45;
   int iy;
   emxArray_int32_T *ipiv;
   int j;
   int mmj;
   int c;
   int ix;
-  float smax;
+  double smax;
   int k;
-  float s;
-  int i29;
+  double s;
+  int i46;
   int i;
   int jAcol;
   int jA;
-  emxInit_real32_T1(&b_A, 2);
+  emxInit_real_T1(&b_A, 2);
   n = A->size[1];
-  i28 = b_A->size[0] * b_A->size[1];
+  i45 = b_A->size[0] * b_A->size[1];
   b_A->size[0] = A->size[0];
   b_A->size[1] = A->size[1];
-  emxEnsureCapacity((emxArray__common *)b_A, i28, (int)sizeof(float));
+  emxEnsureCapacity((emxArray__common *)b_A, i45, (int)sizeof(double));
   iy = A->size[0] * A->size[1];
-  for (i28 = 0; i28 < iy; i28++) {
-    b_A->data[i28] = A->data[i28];
+  for (i45 = 0; i45 < iy; i45++) {
+    b_A->data[i45] = A->data[i45];
   }
 
-  emxInit_int32_T1(&ipiv, 2);
+  emxInit_int32_T(&ipiv, 2);
   iy = A->size[1];
   eml_signed_integer_colon(iy, ipiv);
   if (A->size[1] < 1) {
   } else {
     if (A->size[1] - 1 <= A->size[1]) {
-      i28 = A->size[1] - 1;
+      i45 = A->size[1] - 1;
     } else {
-      i28 = A->size[1];
+      i45 = A->size[1];
     }
 
-    for (j = 0; j + 1 <= i28; j++) {
+    for (j = 0; j + 1 <= i45; j++) {
       mmj = n - j;
       c = j * (n + 1);
       if (mmj < 1) {
@@ -9084,10 +7788,10 @@ static void lusolve(const emxArray_real32_T *A, emxArray_real32_T *B)
         iy = 0;
         if (mmj > 1) {
           ix = c;
-          smax = (float)fabs((double)b_A->data[c]);
+          smax = fabs(b_A->data[c]);
           for (k = 1; k + 1 <= mmj; k++) {
             ix++;
-            s = (float)fabs((double)b_A->data[ix]);
+            s = fabs(b_A->data[ix]);
             if (s > smax) {
               iy = k;
               smax = s;
@@ -9096,7 +7800,7 @@ static void lusolve(const emxArray_real32_T *A, emxArray_real32_T *B)
         }
       }
 
-      if (b_A->data[c + iy] != 0.0F) {
+      if (b_A->data[c + iy] != 0.0) {
         if (iy != 0) {
           ipiv->data[j] = (j + iy) + 1;
           ix = j;
@@ -9110,8 +7814,8 @@ static void lusolve(const emxArray_real32_T *A, emxArray_real32_T *B)
           }
         }
 
-        i29 = c + mmj;
-        for (i = c + 1; i + 1 <= i29; i++) {
+        i46 = c + mmj;
+        for (i = c + 1; i + 1 <= i46; i++) {
           b_A->data[i] /= b_A->data[c];
         }
       }
@@ -9121,10 +7825,10 @@ static void lusolve(const emxArray_real32_T *A, emxArray_real32_T *B)
       iy = c + n;
       for (i = 1; i <= jAcol; i++) {
         smax = b_A->data[iy];
-        if (b_A->data[iy] != 0.0F) {
+        if (b_A->data[iy] != 0.0) {
           ix = c + 1;
-          i29 = mmj + jA;
-          for (k = 1 + jA; k + 1 <= i29; k++) {
+          i46 = mmj + jA;
+          for (k = 1 + jA; k + 1 <= i46; k++) {
             b_A->data[k] += b_A->data[ix] * -smax;
             ix++;
           }
@@ -9143,14 +7847,14 @@ static void lusolve(const emxArray_real32_T *A, emxArray_real32_T *B)
       jAcol = n * j;
       for (k = 0; k + 1 <= j; k++) {
         jA = 91 * k;
-        if (b_A->data[k + jAcol] != 0.0F) {
+        if (b_A->data[k + jAcol] != 0.0) {
           for (i = 0; i < 91; i++) {
             B->data[i + iy] -= b_A->data[k + jAcol] * B->data[i + jA];
           }
         }
       }
 
-      smax = 1.0F / b_A->data[j + jAcol];
+      smax = 1.0 / b_A->data[j + jAcol];
       for (i = 0; i < 91; i++) {
         B->data[i + iy] *= smax;
       }
@@ -9164,7 +7868,7 @@ static void lusolve(const emxArray_real32_T *A, emxArray_real32_T *B)
       jAcol = n * (j - 1);
       for (k = j; k + 1 <= n; k++) {
         jA = 91 * k;
-        if (b_A->data[k + jAcol] != 0.0F) {
+        if (b_A->data[k + jAcol] != 0.0) {
           for (i = 0; i < 91; i++) {
             B->data[i + iy] -= b_A->data[k + jAcol] * B->data[i + jA];
           }
@@ -9173,7 +7877,7 @@ static void lusolve(const emxArray_real32_T *A, emxArray_real32_T *B)
     }
   }
 
-  emxFree_real32_T(&b_A);
+  emxFree_real_T(&b_A);
   for (iy = A->size[1] - 2; iy + 1 > 0; iy--) {
     if (ipiv->data[iy] != iy + 1) {
       jAcol = ipiv->data[iy] - 1;
@@ -9215,13 +7919,13 @@ static double m_fprintf(int varargin_1)
 }
 
 //
-// Arguments    : const float x_data[]
+// Arguments    : const double x_data[]
 //                const int x_size[1]
-// Return Type  : float
+// Return Type  : double
 //
-static float median(const float x_data[], const int x_size[1])
+static double median(const double x_data[], const int x_size[1])
 {
-  float y;
+  double y;
   int k;
   int midm1;
   int i;
@@ -9238,7 +7942,7 @@ static float median(const float x_data[], const int x_size[1])
   int qEnd;
   int kEnd;
   if (x_size[0] == 0) {
-    y = ((real32_T)rtNaN);
+    y = rtNaN;
   } else {
     k = x_size[0];
     midm1 = k / 2;
@@ -9247,7 +7951,7 @@ static float median(const float x_data[], const int x_size[1])
       idx_data[k] = 0;
     }
 
-    emxInit_int32_T(&iwork, 1);
+    emxInit_int32_T1(&iwork, 1);
     n = x_size[0] + 1;
     k = iwork->size[0];
     iwork->size[0] = (signed char)x_size[0];
@@ -9259,7 +7963,7 @@ static float median(const float x_data[], const int x_size[1])
 
     emxFree_int32_T(&iwork);
     for (k = 1; k <= n - 2; k += 2) {
-      if ((x_data[k - 1] <= x_data[k]) || rtIsNaNF(x_data[k])) {
+      if ((x_data[k - 1] <= x_data[k]) || rtIsNaN(x_data[k])) {
         p = true;
       } else {
         p = false;
@@ -9294,7 +7998,7 @@ static float median(const float x_data[], const int x_size[1])
         kEnd = qEnd - j;
         while (k + 1 <= kEnd) {
           if ((x_data[idx_data[b_p - 1] - 1] <= x_data[idx_data[q] - 1]) ||
-              rtIsNaNF(x_data[idx_data[q] - 1])) {
+              rtIsNaN(x_data[idx_data[q] - 1])) {
             p = true;
           } else {
             p = false;
@@ -9335,17 +8039,17 @@ static float median(const float x_data[], const int x_size[1])
       i = i2;
     }
 
-    if (rtIsNaNF(x_data[idx_data[(signed char)x_size[0] - 1] - 1])) {
+    if (rtIsNaN(x_data[idx_data[(signed char)x_size[0] - 1] - 1])) {
       y = x_data[idx_data[(signed char)x_size[0] - 1] - 1];
     } else if (midm1 << 1 == x_size[0]) {
-      if (((x_data[idx_data[midm1 - 1] - 1] < 0.0F) && (x_data[idx_data[midm1] -
-            1] >= 0.0F)) || rtIsInfF(x_data[idx_data[midm1 - 1] - 1]) ||
-          rtIsInfF(x_data[idx_data[midm1] - 1])) {
+      if (((x_data[idx_data[midm1 - 1] - 1] < 0.0) && (x_data[idx_data[midm1] -
+            1] >= 0.0)) || rtIsInf(x_data[idx_data[midm1 - 1] - 1]) || rtIsInf
+          (x_data[idx_data[midm1] - 1])) {
         y = (x_data[idx_data[midm1 - 1] - 1] + x_data[idx_data[midm1] - 1]) /
-          2.0F;
+          2.0;
       } else {
         y = x_data[idx_data[midm1 - 1] - 1] + (x_data[idx_data[midm1] - 1] -
-          x_data[idx_data[midm1 - 1] - 1]) / 2.0F;
+          x_data[idx_data[midm1 - 1] - 1]) / 2.0;
       }
     } else {
       y = x_data[idx_data[midm1] - 1];
@@ -9357,16 +8061,16 @@ static float median(const float x_data[], const int x_size[1])
 
 //
 // Arguments    : int idx[8]
-//                float x[8]
+//                double x[8]
 //                int offset
 //                int np
 //                int nq
 //                int iwork[8]
-//                float xwork[8]
+//                double xwork[8]
 // Return Type  : void
 //
-static void merge(int idx[8], float x[8], int offset, int np, int nq, int iwork
-                  [8], float xwork[8])
+static void merge(int idx[8], double x[8], int offset, int np, int nq, int
+                  iwork[8], double xwork[8])
 {
   int n;
   int qend;
@@ -9418,16 +8122,16 @@ static void merge(int idx[8], float x[8], int offset, int np, int nq, int iwork
 
 //
 // Arguments    : emxArray_int32_T *idx
-//                emxArray_real32_T *x
+//                emxArray_real_T *x
 //                int offset
 //                int n
 //                int preSortLevel
 //                emxArray_int32_T *iwork
-//                emxArray_real32_T *xwork
+//                emxArray_real_T *xwork
 // Return Type  : void
 //
-static void merge_block(emxArray_int32_T *idx, emxArray_real32_T *x, int offset,
-  int n, int preSortLevel, emxArray_int32_T *iwork, emxArray_real32_T *xwork)
+static void merge_block(emxArray_int32_T *idx, emxArray_real_T *x, int offset,
+  int n, int preSortLevel, emxArray_int32_T *iwork, emxArray_real_T *xwork)
 {
   int nPairs;
   int bLen;
@@ -9461,93 +8165,167 @@ static void merge_block(emxArray_int32_T *idx, emxArray_real32_T *x, int offset,
 }
 
 //
-// Arguments    : int a
-//                int b
-// Return Type  : int
-//
-static int mul_s32_s32_s32_sat(int a, int b)
-{
-  int result;
-  unsigned int u32_clo;
-  unsigned int u32_chi;
-  mul_wide_s32(a, b, &u32_chi, &u32_clo);
-  if (((int)u32_chi > 0) || ((u32_chi == 0U) && (u32_clo >= 2147483648U))) {
-    result = MAX_int32_T;
-  } else if (((int)u32_chi < -1) || (((int)u32_chi == -1) && (u32_clo <
-               2147483648U))) {
-    result = MIN_int32_T;
-  } else {
-    result = (int)u32_clo;
-  }
-
-  return result;
-}
-
-//
-// Arguments    : int in0
-//                int in1
-//                unsigned int *ptrOutBitsHi
-//                unsigned int *ptrOutBitsLo
+// Arguments    : const emxArray_real_T *A
+//                const emxArray_real_T *B
+//                emxArray_real_T *y
 // Return Type  : void
 //
-static void mul_wide_s32(int in0, int in1, unsigned int *ptrOutBitsHi, unsigned
-  int *ptrOutBitsLo)
+static void mrdivide(const emxArray_real_T *A, const emxArray_real_T *B,
+                     emxArray_real_T *y)
 {
-  unsigned int absIn0;
-  unsigned int absIn1;
-  int negativeProduct;
-  int in0Hi;
-  int in0Lo;
-  int in1Hi;
-  int in1Lo;
-  unsigned int productLoHi;
-  unsigned int productLoLo;
-  unsigned int outBitsLo;
-  if (in0 < 0) {
-    absIn0 = (unsigned int)-in0;
+  emxArray_real_T *Y;
+  emxArray_real_T *b_A;
+  emxArray_real_T *tau;
+  emxArray_int32_T *jpvt;
+  emxArray_real_T *b_B;
+  unsigned int unnamed_idx_1;
+  int b_m;
+  int maxmn;
+  int minmn;
+  int i;
+  int rankR;
+  double tol;
+  int mn;
+  emxInit_real_T1(&Y, 2);
+  emxInit_real_T1(&b_A, 2);
+  emxInit_real_T(&tau, 1);
+  emxInit_int32_T(&jpvt, 2);
+  emxInit_real_T1(&b_B, 2);
+  if ((A->size[1] == 0) || ((B->size[0] == 0) || (B->size[1] == 0))) {
+    unnamed_idx_1 = (unsigned int)B->size[0];
+    b_m = y->size[0] * y->size[1];
+    y->size[0] = 91;
+    y->size[1] = (int)unnamed_idx_1;
+    emxEnsureCapacity((emxArray__common *)y, b_m, (int)sizeof(double));
+    maxmn = 91 * (int)unnamed_idx_1;
+    for (b_m = 0; b_m < maxmn; b_m++) {
+      y->data[b_m] = 0.0;
+    }
+  } else if (B->size[0] == B->size[1]) {
+    b_m = y->size[0] * y->size[1];
+    y->size[0] = 91;
+    y->size[1] = A->size[1];
+    emxEnsureCapacity((emxArray__common *)y, b_m, (int)sizeof(double));
+    maxmn = A->size[0] * A->size[1];
+    for (b_m = 0; b_m < maxmn; b_m++) {
+      y->data[b_m] = A->data[b_m];
+    }
+
+    lusolve(B, y);
   } else {
-    absIn0 = (unsigned int)in0;
-  }
+    b_m = b_A->size[0] * b_A->size[1];
+    b_A->size[0] = B->size[1];
+    b_A->size[1] = B->size[0];
+    emxEnsureCapacity((emxArray__common *)b_A, b_m, (int)sizeof(double));
+    maxmn = B->size[0];
+    for (b_m = 0; b_m < maxmn; b_m++) {
+      minmn = B->size[1];
+      for (i = 0; i < minmn; i++) {
+        b_A->data[i + b_A->size[0] * b_m] = B->data[b_m + B->size[0] * i];
+      }
+    }
 
-  if (in1 < 0) {
-    absIn1 = (unsigned int)-in1;
-  } else {
-    absIn1 = (unsigned int)in1;
-  }
+    xgeqp3(b_A, tau, jpvt);
+    rankR = 0;
+    if (b_A->size[0] < b_A->size[1]) {
+      minmn = b_A->size[0];
+      maxmn = b_A->size[1];
+    } else {
+      minmn = b_A->size[1];
+      maxmn = b_A->size[0];
+    }
 
-  negativeProduct = !((in0 == 0) || ((in1 == 0) || ((in0 > 0) == (in1 > 0))));
-  in0Hi = (int)(absIn0 >> 16U);
-  in0Lo = (int)(absIn0 & 65535U);
-  in1Hi = (int)(absIn1 >> 16U);
-  in1Lo = (int)(absIn1 & 65535U);
-  absIn0 = (unsigned int)in0Hi * in1Hi;
-  absIn1 = (unsigned int)in0Hi * in1Lo;
-  productLoHi = (unsigned int)in0Lo * in1Hi;
-  productLoLo = (unsigned int)in0Lo * in1Lo;
-  in0Hi = 0;
-  outBitsLo = productLoLo + (productLoHi << 16U);
-  if (outBitsLo < productLoLo) {
-    in0Hi = 1;
-  }
+    if (minmn > 0) {
+      tol = (double)maxmn * fabs(b_A->data[0]) * 2.2204460492503131E-16;
+      while ((rankR < minmn) && (fabs(b_A->data[rankR + b_A->size[0] * rankR]) >=
+              tol)) {
+        rankR++;
+      }
+    }
 
-  productLoLo = outBitsLo;
-  outBitsLo += absIn1 << 16U;
-  if (outBitsLo < productLoLo) {
-    in0Hi++;
-  }
+    minmn = b_A->size[1];
+    b_m = Y->size[0] * Y->size[1];
+    Y->size[0] = minmn;
+    Y->size[1] = 91;
+    emxEnsureCapacity((emxArray__common *)Y, b_m, (int)sizeof(double));
+    maxmn = minmn * 91;
+    for (b_m = 0; b_m < maxmn; b_m++) {
+      Y->data[b_m] = 0.0;
+    }
 
-  absIn0 = ((in0Hi + absIn0) + (productLoHi >> 16U)) + (absIn1 >> 16U);
-  if (negativeProduct) {
-    absIn0 = ~absIn0;
-    outBitsLo = ~outBitsLo;
-    outBitsLo++;
-    if (outBitsLo == 0U) {
-      absIn0++;
+    b_m = b_B->size[0] * b_B->size[1];
+    b_B->size[0] = A->size[1];
+    b_B->size[1] = 91;
+    emxEnsureCapacity((emxArray__common *)b_B, b_m, (int)sizeof(double));
+    for (b_m = 0; b_m < 91; b_m++) {
+      maxmn = A->size[1];
+      for (i = 0; i < maxmn; i++) {
+        b_B->data[i + b_B->size[0] * b_m] = A->data[b_m + A->size[0] * i];
+      }
+    }
+
+    b_m = b_A->size[0];
+    minmn = b_A->size[0];
+    mn = b_A->size[1];
+    if (minmn <= mn) {
+      mn = minmn;
+    }
+
+    for (minmn = 0; minmn + 1 <= mn; minmn++) {
+      if (tau->data[minmn] != 0.0) {
+        for (maxmn = 0; maxmn < 91; maxmn++) {
+          tol = b_B->data[minmn + b_B->size[0] * maxmn];
+          for (i = minmn + 1; i + 1 <= b_m; i++) {
+            tol += b_A->data[i + b_A->size[0] * minmn] * b_B->data[i + b_B->
+              size[0] * maxmn];
+          }
+
+          tol *= tau->data[minmn];
+          if (tol != 0.0) {
+            b_B->data[minmn + b_B->size[0] * maxmn] -= tol;
+            for (i = minmn + 1; i + 1 <= b_m; i++) {
+              b_B->data[i + b_B->size[0] * maxmn] -= b_A->data[i + b_A->size[0] *
+                minmn] * tol;
+            }
+          }
+        }
+      }
+    }
+
+    for (maxmn = 0; maxmn < 91; maxmn++) {
+      for (i = 0; i + 1 <= rankR; i++) {
+        Y->data[(jpvt->data[i] + Y->size[0] * maxmn) - 1] = b_B->data[i +
+          b_B->size[0] * maxmn];
+      }
+
+      for (minmn = rankR - 1; minmn + 1 > 0; minmn--) {
+        Y->data[(jpvt->data[minmn] + Y->size[0] * maxmn) - 1] /= b_A->data[minmn
+          + b_A->size[0] * minmn];
+        for (i = 0; i + 1 <= minmn; i++) {
+          Y->data[(jpvt->data[i] + Y->size[0] * maxmn) - 1] -= Y->data
+            [(jpvt->data[minmn] + Y->size[0] * maxmn) - 1] * b_A->data[i +
+            b_A->size[0] * minmn];
+        }
+      }
+    }
+
+    b_m = y->size[0] * y->size[1];
+    y->size[0] = 91;
+    y->size[1] = Y->size[0];
+    emxEnsureCapacity((emxArray__common *)y, b_m, (int)sizeof(double));
+    maxmn = Y->size[0];
+    for (b_m = 0; b_m < maxmn; b_m++) {
+      for (i = 0; i < 91; i++) {
+        y->data[i + y->size[0] * b_m] = Y->data[b_m + Y->size[0] * i];
+      }
     }
   }
 
-  *ptrOutBitsHi = absIn0;
-  *ptrOutBitsLo = outBitsLo;
+  emxFree_real_T(&b_B);
+  emxFree_int32_T(&jpvt);
+  emxFree_real_T(&tau);
+  emxFree_real_T(&b_A);
+  emxFree_real_T(&Y);
 }
 
 //
@@ -9556,29 +8334,28 @@ static void mul_wide_s32(int in0, int in1, unsigned int *ptrOutBitsHi, unsigned
 //    for example:
 //    idx_mult = multiplyIdx([1 4 5], 2)
 //    idx_mult = [1 2 7 8 9 10]
-// Arguments    : const float idx_data[]
+// Arguments    : const double idx_data[]
 //                const int idx_size[1]
-//                float idx_mult_data[]
+//                double idx_mult_data[]
 //                int idx_mult_size[1]
 // Return Type  : void
 //
-static void multiplyIdx(const float idx_data[], const int idx_size[1], float
+static void multiplyIdx(const double idx_data[], const int idx_size[1], double
   idx_mult_data[], int idx_mult_size[1])
 {
-  int c;
-  int i8;
+  int loop_ub;
+  int i10;
   int i;
   int j;
-  c = idx_size[0] << 1;
-  idx_mult_size[0] = c;
-  for (i8 = 0; i8 < c; i8++) {
-    idx_mult_data[i8] = 0.0F;
+  idx_mult_size[0] = idx_size[0] << 1;
+  loop_ub = idx_size[0] << 1;
+  for (i10 = 0; i10 < loop_ub; i10++) {
+    idx_mult_data[i10] = 0.0;
   }
 
   for (i = 0; i < idx_size[0]; i++) {
     for (j = 0; j < 2; j++) {
-      idx_mult_data[(i << 1) + j] = (idx_data[i] - 1.0F) * 2.0F + (1.0F + (float)
-        j);
+      idx_mult_data[(i << 1) + j] = (idx_data[i] - 1.0) * 2.0 + (1.0 + (double)j);
     }
   }
 }
@@ -9610,23 +8387,23 @@ static double n_fprintf(int varargin_1)
 }
 
 //
-// Arguments    : const float x[3]
-// Return Type  : float
+// Arguments    : const double x[3]
+// Return Type  : double
 //
-static float norm(const float x[3])
+static double norm(const double x[3])
 {
-  float y;
-  float scale;
+  double y;
+  double scale;
   int k;
-  float absxk;
-  float t;
-  y = 0.0F;
-  scale = 1.17549435E-38F;
+  double absxk;
+  double t;
+  y = 0.0;
+  scale = 2.2250738585072014E-308;
   for (k = 0; k < 3; k++) {
-    absxk = (float)fabs((double)x[k]);
+    absxk = fabs(x[k]);
     if (absxk > scale) {
       t = scale / absxk;
-      y = 1.0F + y * t * t;
+      y = 1.0 + y * t * t;
       scale = absxk;
     } else {
       t = absxk / scale;
@@ -9634,7 +8411,7 @@ static float norm(const float x[3])
     }
   }
 
-  return scale * (float)sqrt((double)y);
+  return scale * sqrt(y);
 }
 
 //
@@ -9649,7 +8426,7 @@ static double o_fprintf(const char varargin_1_data[], const int varargin_1_size
   FILE * b_NULL;
   boolean_T autoflush;
   FILE * filestar;
-  int i2;
+  int i4;
   char varargout_1_data[6];
   static const char cfmt[28] = { 'd', 'e', 'l', 'a', 'y', 'e', 'd', '_', 'i',
     'n', 'i', 't', 'i', 'a', 'l', 'i', 'z', 'a', 't', 'i', 'o', 'n', ':', ' ',
@@ -9661,8 +8438,8 @@ static double o_fprintf(const char varargin_1_data[], const int varargin_1_size
   if (filestar == b_NULL) {
   } else {
     nbytesint = varargin_1_size[1];
-    for (i2 = 0; i2 < nbytesint; i2++) {
-      varargout_1_data[i2] = varargin_1_data[i2];
+    for (i4 = 0; i4 < nbytesint; i4++) {
+      varargout_1_data[i4] = varargin_1_data[i4];
     }
 
     varargout_1_data[varargin_1_size[1]] = '\x00';
@@ -9685,7 +8462,7 @@ static double p_fprintf(const char varargin_1_data[], const int varargin_1_size
   FILE * b_NULL;
   boolean_T autoflush;
   FILE * filestar;
-  int i3;
+  int i5;
   char varargout_1_data[6];
   static const char cfmt[19] = { 'f', 'i', 'x', 'e', 'd', '_', 'f', 'e', 'a',
     't', 'u', 'r', 'e', ':', ' ', '%', 's', '\x0a', '\x00' };
@@ -9696,8 +8473,8 @@ static double p_fprintf(const char varargin_1_data[], const int varargin_1_size
   if (filestar == b_NULL) {
   } else {
     nbytesint = varargin_1_size[1];
-    for (i3 = 0; i3 < nbytesint; i3++) {
-      varargout_1_data[i3] = varargin_1_data[i3];
+    for (i5 = 0; i5 < nbytesint; i5++) {
+      varargout_1_data[i5] = varargin_1_data[i5];
     }
 
     varargout_1_data[varargin_1_size[1]] = '\x00';
@@ -9709,33 +8486,95 @@ static double p_fprintf(const char varargin_1_data[], const int varargin_1_size
 }
 
 //
+// Arguments    : const double fp[3]
+//                const double cameraParams_FocalLength[2]
+//                const double cameraParams_PrincipalPoint[2]
+//                const double cameraParams_RadialDistortion[3]
+//                double h_d[2]
+// Return Type  : void
+//
+static void predictMeasurementDistortedPB(const double fp[3], const double
+  cameraParams_FocalLength[2], const double cameraParams_PrincipalPoint[2],
+  const double cameraParams_RadialDistortion[3], double h_d[2])
+{
+  double h_cin[2];
+  int i;
+  double radsq;
+  double b;
+  for (i = 0; i < 2; i++) {
+    h_cin[i] = fp[i] / fp[2];
+  }
+
+  radsq = h_cin[0] * h_cin[0] + h_cin[1] * h_cin[1];
+  b = ((1.0 + cameraParams_RadialDistortion[0] * radsq) +
+       cameraParams_RadialDistortion[1] * (radsq * radsq)) +
+    cameraParams_RadialDistortion[2] * rt_powd_snf(radsq, 4.0);
+  for (i = 0; i < 2; i++) {
+    h_cin[i] *= b;
+  }
+
+  h_d[0] = cameraParams_PrincipalPoint[0] + cameraParams_FocalLength[0] * h_cin
+    [0];
+  h_d[1] = cameraParams_PrincipalPoint[1] + cameraParams_FocalLength[1] * h_cin
+    [1];
+}
+
+//
+// predictMeasurementLeft Predict the measurement of a feature given in the left
+// camera frame
+//    Get the normalized pixel coordinates where a feature given in the left camera
+//    frame
+// Arguments    : const double fp[3]
+//                const double cameraparams_FocalLength[2]
+//                const double cameraparams_PrincipalPoint[2]
+//                double px[2]
+// Return Type  : void
+//
+static void predictMeasurementMono(const double fp[3], const double
+  cameraparams_FocalLength[2], const double cameraparams_PrincipalPoint[2],
+  double px[2])
+{
+  double h_c_n_l[2];
+  int i;
+  for (i = 0; i < 2; i++) {
+    h_c_n_l[i] = fp[i] / fp[2];
+  }
+
+  //  normalized feature in camera frame
+  px[0] = h_c_n_l[0] * cameraparams_FocalLength[0] +
+    cameraparams_PrincipalPoint[0];
+  px[1] = h_c_n_l[1] * cameraparams_FocalLength[1] +
+    cameraparams_PrincipalPoint[1];
+}
+
+//
 // predictMeasurementStereo Predict the measurement of a feature given in the left
 // camera frame
 //    Get the pixel undistorted coordinates where a feature given in the left camera
 //    frame would be visible in both cameras
-// Arguments    : const float fp_l[3]
-//                const float c_stereoParams_CameraParameters[2]
-//                const float d_stereoParams_CameraParameters[2]
-//                const float e_stereoParams_CameraParameters[2]
-//                const float f_stereoParams_CameraParameters[2]
-//                const float stereoParams_r_lr[3]
-//                const float stereoParams_R_rl[9]
-//                float h_cin_l[2]
-//                float h_cin_r[2]
+// Arguments    : const double fp_l[3]
+//                const double c_stereoParams_CameraParameters[2]
+//                const double d_stereoParams_CameraParameters[2]
+//                const double e_stereoParams_CameraParameters[2]
+//                const double f_stereoParams_CameraParameters[2]
+//                const double stereoParams_r_lr[3]
+//                const double stereoParams_R_rl[9]
+//                double h_cin_l[2]
+//                double h_cin_r[2]
 // Return Type  : void
 //
-static void predictMeasurementStereo(const float fp_l[3], const float
-  c_stereoParams_CameraParameters[2], const float
-  d_stereoParams_CameraParameters[2], const float
-  e_stereoParams_CameraParameters[2], const float
-  f_stereoParams_CameraParameters[2], const float stereoParams_r_lr[3], const
-  float stereoParams_R_rl[9], float h_cin_l[2], float h_cin_r[2])
+static void predictMeasurementStereo(const double fp_l[3], const double
+  c_stereoParams_CameraParameters[2], const double
+  d_stereoParams_CameraParameters[2], const double
+  e_stereoParams_CameraParameters[2], const double
+  f_stereoParams_CameraParameters[2], const double stereoParams_r_lr[3], const
+  double stereoParams_R_rl[9], double h_cin_l[2], double h_cin_r[2])
 {
-  float h_c_n_l[2];
+  double h_c_n_l[2];
   int i;
-  float fp_r[3];
-  float f1;
-  int i15;
+  double fp_r[3];
+  double d2;
+  int i19;
 
   // predictMeasurementLeft Predict the measurement of a feature given in the left 
   // camera frame
@@ -9751,12 +8590,12 @@ static void predictMeasurementStereo(const float fp_l[3], const float
   h_cin_l[1] = h_c_n_l[1] * c_stereoParams_CameraParameters[1] +
     d_stereoParams_CameraParameters[1];
   for (i = 0; i < 3; i++) {
-    f1 = 0.0F;
-    for (i15 = 0; i15 < 3; i15++) {
-      f1 += stereoParams_R_rl[i + 3 * i15] * fp_l[i15];
+    d2 = 0.0;
+    for (i19 = 0; i19 < 3; i19++) {
+      d2 += stereoParams_R_rl[i + 3 * i19] * fp_l[i19];
     }
 
-    fp_r[i] = f1 - stereoParams_r_lr[i];
+    fp_r[i] = d2 - stereoParams_r_lr[i];
   }
 
   // predictMeasurementLeft Predict the measurement of a feature given in the left 
@@ -9776,15 +8615,15 @@ static void predictMeasurementStereo(const float fp_l[3], const float
 
 //
 // print all parameters for debug check
-// Arguments    : float c_noiseParameters_process_noise
-//                float d_noiseParameters_process_noise
-//                float e_noiseParameters_process_noise
-//                float f_noiseParameters_process_noise
-//                float g_noiseParameters_process_noise
-//                const float c_noiseParameters_gyro_bias_ini[3]
-//                const float c_noiseParameters_acc_bias_init[3]
-//                float noiseParameters_image_noise
-//                float c_noiseParameters_inv_depth_ini
+// Arguments    : double c_noiseParameters_process_noise
+//                double d_noiseParameters_process_noise
+//                double e_noiseParameters_process_noise
+//                double f_noiseParameters_process_noise
+//                double g_noiseParameters_process_noise
+//                const double c_noiseParameters_gyro_bias_ini[3]
+//                const double c_noiseParameters_acc_bias_init[3]
+//                double noiseParameters_image_noise
+//                double c_noiseParameters_inv_depth_ini
 //                int c_VIOParameters_num_points_per_
 //                int VIOParameters_num_anchors
 //                int c_VIOParameters_max_ekf_iterati
@@ -9794,18 +8633,18 @@ static void predictMeasurementStereo(const float fp_l[3], const float
 //                boolean_T VIOParameters_RANSAC
 // Return Type  : void
 //
-static void printParams(float c_noiseParameters_process_noise, float
-  d_noiseParameters_process_noise, float e_noiseParameters_process_noise, float
-  f_noiseParameters_process_noise, float g_noiseParameters_process_noise, const
-  float c_noiseParameters_gyro_bias_ini[3], const float
-  c_noiseParameters_acc_bias_init[3], float noiseParameters_image_noise, float
+static void printParams(double c_noiseParameters_process_noise, double
+  d_noiseParameters_process_noise, double e_noiseParameters_process_noise,
+  double f_noiseParameters_process_noise, double g_noiseParameters_process_noise,
+  const double c_noiseParameters_gyro_bias_ini[3], const double
+  c_noiseParameters_acc_bias_init[3], double noiseParameters_image_noise, double
   c_noiseParameters_inv_depth_ini, int c_VIOParameters_num_points_per_, int
   VIOParameters_num_anchors, int c_VIOParameters_max_ekf_iterati, boolean_T
   VIOParameters_fixed_feature, boolean_T c_VIOParameters_delayed_initial,
   boolean_T VIOParameters_mono, boolean_T VIOParameters_RANSAC)
 {
   char cv0[18];
-  int i1;
+  int i3;
   static const char cv1[18] = { 'N', 'o', 'i', 's', 'e', ' ', 'p', 'a', 'r', 'a',
     'm', 'e', 't', 'e', 'r', 's', ':', '\x00' };
 
@@ -9824,9 +8663,9 @@ static void printParams(float c_noiseParameters_process_noise, float
   // #coder
   // ROS_INFO Print to ROS_INFO in ROS or to console in Matlab
   //  debug_level == 0: print errors, == 1: print warnings, == 2: print info
-  if (debug_level >= 2.0F) {
-    for (i1 = 0; i1 < 18; i1++) {
-      cv0[i1] = cv1[i1];
+  if (debug_level >= 2.0) {
+    for (i3 = 0; i3 < 18; i3++) {
+      cv0[i3] = cv1[i3];
     }
 
     ROS_INFO(cv0);
@@ -9848,9 +8687,9 @@ static void printParams(float c_noiseParameters_process_noise, float
   // #coder
   // ROS_INFO Print to ROS_INFO in ROS or to console in Matlab
   //  debug_level == 0: print errors, == 1: print warnings, == 2: print info
-  if (debug_level >= 2.0F) {
-    for (i1 = 0; i1 < 15; i1++) {
-      cv2[i1] = cv3[i1];
+  if (debug_level >= 2.0) {
+    for (i3 = 0; i3 < 15; i3++) {
+      cv2[i3] = cv3[i3];
     }
 
     ROS_INFO(cv2);
@@ -9862,14 +8701,14 @@ static void printParams(float c_noiseParameters_process_noise, float
   if (c_VIOParameters_delayed_initial) {
     s_size[0] = 1;
     s_size[1] = 4;
-    for (i1 = 0; i1 < 4; i1++) {
-      s_data[i1] = cv4[i1];
+    for (i3 = 0; i3 < 4; i3++) {
+      s_data[i3] = cv4[i3];
     }
   } else {
     s_size[0] = 1;
     s_size[1] = 5;
-    for (i1 = 0; i1 < 5; i1++) {
-      s_data[i1] = cv5[i1];
+    for (i3 = 0; i3 < 5; i3++) {
+      s_data[i3] = cv5[i3];
     }
   }
 
@@ -9877,14 +8716,14 @@ static void printParams(float c_noiseParameters_process_noise, float
   if (VIOParameters_fixed_feature) {
     s_size[0] = 1;
     s_size[1] = 4;
-    for (i1 = 0; i1 < 4; i1++) {
-      s_data[i1] = cv4[i1];
+    for (i3 = 0; i3 < 4; i3++) {
+      s_data[i3] = cv4[i3];
     }
   } else {
     s_size[0] = 1;
     s_size[1] = 5;
-    for (i1 = 0; i1 < 5; i1++) {
-      s_data[i1] = cv5[i1];
+    for (i3 = 0; i3 < 5; i3++) {
+      s_data[i3] = cv5[i3];
     }
   }
 
@@ -9892,14 +8731,14 @@ static void printParams(float c_noiseParameters_process_noise, float
   if (VIOParameters_mono) {
     s_size[0] = 1;
     s_size[1] = 4;
-    for (i1 = 0; i1 < 4; i1++) {
-      s_data[i1] = cv4[i1];
+    for (i3 = 0; i3 < 4; i3++) {
+      s_data[i3] = cv4[i3];
     }
   } else {
     s_size[0] = 1;
     s_size[1] = 5;
-    for (i1 = 0; i1 < 5; i1++) {
-      s_data[i1] = cv5[i1];
+    for (i3 = 0; i3 < 5; i3++) {
+      s_data[i3] = cv5[i3];
     }
   }
 
@@ -9907,14 +8746,14 @@ static void printParams(float c_noiseParameters_process_noise, float
   if (VIOParameters_RANSAC) {
     s_size[0] = 1;
     s_size[1] = 4;
-    for (i1 = 0; i1 < 4; i1++) {
-      s_data[i1] = cv4[i1];
+    for (i3 = 0; i3 < 4; i3++) {
+      s_data[i3] = cv4[i3];
     }
   } else {
     s_size[0] = 1;
     s_size[1] = 5;
-    for (i1 = 0; i1 < 5; i1++) {
-      s_data[i1] = cv5[i1];
+    for (i3 = 0; i3 < 5; i3++) {
+      s_data[i3] = cv5[i3];
     }
   }
 
@@ -9934,7 +8773,7 @@ static double q_fprintf(const char varargin_1_data[], const int varargin_1_size
   FILE * b_NULL;
   boolean_T autoflush;
   FILE * filestar;
-  int i4;
+  int i6;
   char varargout_1_data[6];
   static const char cfmt[10] = { 'm', 'o', 'n', 'o', ':', ' ', '%', 's', '\x0a',
     '\x00' };
@@ -9945,8 +8784,8 @@ static double q_fprintf(const char varargin_1_data[], const int varargin_1_size
   if (filestar == b_NULL) {
   } else {
     nbytesint = varargin_1_size[1];
-    for (i4 = 0; i4 < nbytesint; i4++) {
-      varargout_1_data[i4] = varargin_1_data[i4];
+    for (i6 = 0; i6 < nbytesint; i6++) {
+      varargout_1_data[i6] = varargin_1_data[i6];
     }
 
     varargout_1_data[varargin_1_size[1]] = '\x00';
@@ -9958,18 +8797,48 @@ static double q_fprintf(const char varargin_1_data[], const int varargin_1_size
 }
 
 //
-// Arguments    : const float q[4]
-//                const float p[4]
-//                float qp[4]
+// Arguments    : const double dtheta[3]
+//                double dq[4]
 // Return Type  : void
 //
-static void quatmultJ(const float q[4], const float p[4], float qp[4])
+static void quatPlusThetaJ(const double dtheta[3], double dq[4])
 {
-  float b_p[16];
-  float b_q[4];
-  int i6;
-  int i7;
-  float fcnOutput;
+  double theta;
+  int i;
+  double B;
+  theta = norm(dtheta) * 0.5;
+  if (theta < 0.244) {
+    for (i = 0; i < 3; i++) {
+      dq[i] = 0.5 * dtheta[i];
+    }
+
+    dq[3] = 1.0;
+  } else {
+    dq[0] = 0.5 * dtheta[0] * sin(theta) / theta;
+    dq[1] = 0.5 * dtheta[1] * sin(theta) / theta;
+    dq[2] = 0.5 * dtheta[2] * sin(theta) / theta;
+    dq[3] = cos(theta);
+  }
+
+  B = b_norm(dq);
+  for (i = 0; i < 4; i++) {
+    dq[i] /= B;
+  }
+}
+
+//
+// Arguments    : const double q[4]
+//                const double p[4]
+//                double qp[4]
+// Return Type  : void
+//
+static void quatmultJ(const double q[4], const double p[4], double qp[4])
+{
+  double b_p[16];
+  double b_q[4];
+  int i8;
+  int i9;
+  double B;
   b_p[0] = p[3];
   b_p[4] = -p[2];
   b_p[8] = p[1];
@@ -9990,16 +8859,16 @@ static void quatmultJ(const float q[4], const float p[4], float qp[4])
   b_q[1] = q[1];
   b_q[2] = q[2];
   b_q[3] = q[3];
-  for (i6 = 0; i6 < 4; i6++) {
-    qp[i6] = 0.0F;
-    for (i7 = 0; i7 < 4; i7++) {
-      qp[i6] += b_p[i6 + (i7 << 2)] * b_q[i7];
+  for (i8 = 0; i8 < 4; i8++) {
+    qp[i8] = 0.0;
+    for (i9 = 0; i9 < 4; i9++) {
+      qp[i8] += b_p[i8 + (i9 << 2)] * b_q[i9];
     }
   }
 
-  fcnOutput = b_norm(qp);
-  for (i6 = 0; i6 < 4; i6++) {
-    qp[i6] /= fcnOutput;
+  B = b_norm(qp);
+  for (i8 = 0; i8 < 4; i8++) {
+    qp[i8] /= B;
   }
 }
 
@@ -10015,7 +8884,7 @@ static double r_fprintf(const char varargin_1_data[], const int varargin_1_size
   FILE * b_NULL;
   boolean_T autoflush;
   FILE * filestar;
-  int i5;
+  int i7;
   char varargout_1_data[6];
   static const char cfmt[12] = { 'R', 'A', 'N', 'S', 'A', 'C', ':', ' ', '%',
     's', '\x0a', '\x00' };
@@ -10026,8 +8895,8 @@ static double r_fprintf(const char varargin_1_data[], const int varargin_1_size
   if (filestar == b_NULL) {
   } else {
     nbytesint = varargin_1_size[1];
-    for (i5 = 0; i5 < nbytesint; i5++) {
-      varargout_1_data[i5] = varargin_1_data[i5];
+    for (i7 = 0; i7 < nbytesint; i7++) {
+      varargout_1_data[i7] = varargin_1_data[i7];
     }
 
     varargout_1_data[varargin_1_size[1]] = '\x00';
@@ -10039,12 +8908,12 @@ static double r_fprintf(const char varargin_1_data[], const int varargin_1_size
 }
 
 //
-// Arguments    : const float x[3]
-//                float y
-//                float z[3]
+// Arguments    : const double x[3]
+//                double y
+//                double z[3]
 // Return Type  : void
 //
-static void rdivide(const float x[3], float y, float z[3])
+static void rdivide(const double x[3], double y, double z[3])
 {
   int i;
   for (i = 0; i < 3; i++) {
@@ -10061,13 +8930,13 @@ static void rdivide(const float x[3], float y, float z[3])
 static void ros_error()
 {
   char cv8[27];
-  int i10;
+  int i13;
   static const char cv9[27] = { 'p', 'i', 'c', 'k', 'e', 'd', ' ', 'a', 'n', ' ',
     'i', 'n', 'a', 'c', 't', 'i', 'v', 'e', ' ', 'f', 'e', 'a', 't', 'u', 'r',
     'e', '\x00' };
 
-  for (i10 = 0; i10 < 27; i10++) {
-    cv8[i10] = cv9[i10];
+  for (i13 = 0; i13 < 27; i13++) {
+    cv8[i13] = cv9[i13];
   }
 
   ROS_ERROR(cv8);
@@ -10084,16 +8953,16 @@ static void ros_error()
 static void ros_info(int varargin_1, int varargin_2, int varargin_3)
 {
   char cv6[54];
-  int i9;
+  int i12;
   static const char cv7[54] = { 'F', 'i', 'x', 'e', 'd', ' ', 'f', 'e', 'a', 't',
     'u', 'r', 'e', ' ', '%', 'i', ' ', '(', '%', 'i', ' ', 'o', 'n', ' ', 'a',
     'n', 'c', 'h', 'o', 'r', ' ', '%', 'i', ')', ' ', 'i', 's', ' ', 'n', 'o',
     ' ', 'l', 'o', 'n', 'g', 'e', 'r', ' ', 'v', 'a', 'l', 'i', 'd', '\x00' };
 
   //  debug_level == 0: print errors, == 1: print warnings, == 2: print info
-  if (debug_level >= 2.0F) {
-    for (i9 = 0; i9 < 54; i9++) {
-      cv6[i9] = cv7[i9];
+  if (debug_level >= 2.0) {
+    for (i12 = 0; i12 < 54; i12++) {
+      cv6[i12] = cv7[i12];
     }
 
     ROS_INFO(cv6, varargin_1, varargin_2, varargin_3);
@@ -10101,77 +8970,50 @@ static void ros_info(int varargin_1, int varargin_2, int varargin_3)
 }
 
 //
-// Arguments    : float u0
-//                float u1
-// Return Type  : float
+// Arguments    : double u0
+//                double u1
+// Return Type  : double
 //
-static float rt_hypotf_snf(float u0, float u1)
+static double rt_powd_snf(double u0, double u1)
 {
-  float y;
-  float a;
-  float b;
-  a = (float)fabs((double)u0);
-  b = (float)fabs((double)u1);
-  if (a < b) {
-    a /= b;
-    y = b * (float)sqrt((double)(a * a + 1.0F));
-  } else if (a > b) {
-    b /= a;
-    y = a * (float)sqrt((double)(b * b + 1.0F));
-  } else if (rtIsNaNF(b)) {
-    y = b;
+  double y;
+  double d6;
+  double d7;
+  if (rtIsNaN(u0) || rtIsNaN(u1)) {
+    y = rtNaN;
   } else {
-    y = a * 1.41421354F;
-  }
-
-  return y;
-}
-
-//
-// Arguments    : float u0
-//                float u1
-// Return Type  : float
-//
-static float rt_powf_snf(float u0, float u1)
-{
-  float y;
-  float f2;
-  float f3;
-  if (rtIsNaNF(u0) || rtIsNaNF(u1)) {
-    y = ((real32_T)rtNaN);
-  } else {
-    f2 = (float)fabs((double)u0);
-    f3 = (float)fabs((double)u1);
-    if (rtIsInfF(u1)) {
-      if (f2 == 1.0F) {
-        y = ((real32_T)rtNaN);
-      } else if (f2 > 1.0F) {
-        if (u1 > 0.0F) {
-          y = ((real32_T)rtInf);
+    d6 = fabs(u0);
+    d7 = fabs(u1);
+    if (rtIsInf(u1)) {
+      if (d6 == 1.0) {
+        y = rtNaN;
+      } else if (d6 > 1.0) {
+        if (u1 > 0.0) {
+          y = rtInf;
         } else {
-          y = 0.0F;
+          y = 0.0;
         }
-      } else if (u1 > 0.0F) {
-        y = 0.0F;
+      } else if (u1 > 0.0) {
+        y = 0.0;
       } else {
-        y = ((real32_T)rtInf);
+        y = rtInf;
       }
-    } else if (f3 == 0.0F) {
-      y = 1.0F;
-    } else if (f3 == 1.0F) {
-      if (u1 > 0.0F) {
+    } else if (d7 == 0.0) {
+      y = 1.0;
+    } else if (d7 == 1.0) {
+      if (u1 > 0.0) {
         y = u0;
       } else {
-        y = 1.0F / u0;
+        y = 1.0 / u0;
       }
-    } else if (u1 == 2.0F) {
+    } else if (u1 == 2.0) {
       y = u0 * u0;
-    } else if ((u1 == 0.5F) && (u0 >= 0.0F)) {
-      y = (float)sqrt((double)u0);
-    } else if ((u0 < 0.0F) && (u1 > (float)floor((double)u1))) {
-      y = ((real32_T)rtNaN);
+    } else if ((u1 == 0.5) && (u0 >= 0.0)) {
+      y = sqrt(u0);
+    } else if ((u0 < 0.0) && (u1 > floor(u1))) {
+      y = rtNaN;
     } else {
-      y = (float)pow((double)u0, (double)u1);
+      y = pow(u0, u1);
     }
   }
 
@@ -10179,53 +9021,31 @@ static float rt_powf_snf(float u0, float u1)
 }
 
 //
-// Arguments    : float u
-// Return Type  : float
-//
-static float rt_roundf_snf(float u)
-{
-  float y;
-  if ((float)fabs((double)u) < 8.388608E+6F) {
-    if (u >= 0.5F) {
-      y = (float)floor((double)(u + 0.5F));
-    } else if (u > -0.5F) {
-      y = u * 0.0F;
-    } else {
-      y = (float)ceil((double)(u - 0.5F));
-    }
-  } else {
-    y = u;
-  }
-
-  return y;
-}
-
-//
-// Arguments    : float x[8]
+// Arguments    : double x[8]
 //                int idx[8]
 // Return Type  : void
 //
-static void sort(float x[8], int idx[8])
+static void sort(double x[8], int idx[8])
 {
   b_sort(x, idx);
 }
 
 //
-// Arguments    : emxArray_real32_T *x
+// Arguments    : emxArray_real_T *x
 //                emxArray_int32_T *idx
 // Return Type  : void
 //
-static void sortIdx(emxArray_real32_T *x, emxArray_int32_T *idx)
+static void sortIdx(emxArray_real_T *x, emxArray_int32_T *idx)
 {
-  emxArray_real32_T *b_x;
+  emxArray_real_T *b_x;
   int ib;
   int wOffset;
   int b_m;
   int n;
-  float x4[4];
+  double x4[4];
   int idx4[4];
   emxArray_int32_T *iwork;
-  emxArray_real32_T *xwork;
+  emxArray_real_T *xwork;
   int nNaNs;
   int k;
   int i3;
@@ -10234,15 +9054,15 @@ static void sortIdx(emxArray_real32_T *x, emxArray_int32_T *idx)
   int nNonNaN;
   int nBlocks;
   int b_iwork[256];
-  float b_xwork[256];
+  double b_xwork[256];
   int bLen2;
   int nPairs;
   int exitg1;
-  emxInit_real32_T(&b_x, 1);
+  emxInit_real_T(&b_x, 1);
   ib = x->size[0];
   wOffset = b_x->size[0];
   b_x->size[0] = x->size[0];
-  emxEnsureCapacity((emxArray__common *)b_x, wOffset, (int)sizeof(float));
+  emxEnsureCapacity((emxArray__common *)b_x, wOffset, (int)sizeof(double));
   b_m = x->size[0];
   for (wOffset = 0; wOffset < b_m; wOffset++) {
     b_x->data[wOffset] = x->data[wOffset];
@@ -10257,11 +9077,11 @@ static void sortIdx(emxArray_real32_T *x, emxArray_int32_T *idx)
 
   n = x->size[0];
   for (b_m = 0; b_m < 4; b_m++) {
-    x4[b_m] = 0.0F;
+    x4[b_m] = 0.0;
     idx4[b_m] = 0;
   }
 
-  emxInit_int32_T(&iwork, 1);
+  emxInit_int32_T1(&iwork, 1);
   wOffset = iwork->size[0];
   iwork->size[0] = ib;
   emxEnsureCapacity((emxArray__common *)iwork, wOffset, (int)sizeof(int));
@@ -10273,23 +9093,23 @@ static void sortIdx(emxArray_real32_T *x, emxArray_int32_T *idx)
     iwork->data[wOffset] = 0;
   }
 
-  emxInit_real32_T(&xwork, 1);
+  emxInit_real_T(&xwork, 1);
   b_m = x->size[0];
   wOffset = xwork->size[0];
   xwork->size[0] = b_m;
-  emxEnsureCapacity((emxArray__common *)xwork, wOffset, (int)sizeof(float));
+  emxEnsureCapacity((emxArray__common *)xwork, wOffset, (int)sizeof(double));
   b_m = xwork->size[0];
   wOffset = xwork->size[0];
   xwork->size[0] = b_m;
-  emxEnsureCapacity((emxArray__common *)xwork, wOffset, (int)sizeof(float));
+  emxEnsureCapacity((emxArray__common *)xwork, wOffset, (int)sizeof(double));
   for (wOffset = 0; wOffset < b_m; wOffset++) {
-    xwork->data[wOffset] = 0.0F;
+    xwork->data[wOffset] = 0.0;
   }
 
   nNaNs = 1;
   ib = 0;
   for (k = 0; k + 1 <= n; k++) {
-    if (rtIsNaNF(b_x->data[k])) {
+    if (rtIsNaN(b_x->data[k])) {
       idx->data[n - nNaNs] = k + 1;
       xwork->data[n - nNaNs] = b_x->data[k];
       nNaNs++;
@@ -10493,53 +9313,148 @@ static void sortIdx(emxArray_real32_T *x, emxArray_int32_T *idx)
     merge_block(idx, b_x, 0, nNonNaN, b_m, iwork, xwork);
   }
 
-  emxFree_real32_T(&xwork);
+  emxFree_real_T(&xwork);
   emxFree_int32_T(&iwork);
   wOffset = x->size[0];
   x->size[0] = b_x->size[0];
-  emxEnsureCapacity((emxArray__common *)x, wOffset, (int)sizeof(float));
+  emxEnsureCapacity((emxArray__common *)x, wOffset, (int)sizeof(double));
   b_m = b_x->size[0];
   for (wOffset = 0; wOffset < b_m; wOffset++) {
     x->data[wOffset] = b_x->data[wOffset];
   }
 
-  emxFree_real32_T(&b_x);
+  emxFree_real_T(&b_x);
 }
 
 //
-// Arguments    : emxArray_real32_T *A
-//                emxArray_real32_T *tau
+// UNDISTORTPOINT Undistort a point (or points) that are from a camera with
+// the calibration cameraparams
+//    Undistort a point or set of points from one camera. Depending on the
+//    camera model used to calibrate the camera, the appropriate undistortion
+//    is applied
+// Arguments    : const double pt_d_data[]
+//                const int pt_d_size[1]
+//                const double cameraparams_FocalLength[2]
+//                const double cameraparams_PrincipalPoint[2]
+//                const double cameraparams_RadialDistortion[3]
+//                double pt_u_data[]
+//                int pt_u_size[1]
+// Return Type  : void
+//
+static void undistortPoint(const double pt_d_data[], const int pt_d_size[1],
+  const double cameraparams_FocalLength[2], const double
+  cameraparams_PrincipalPoint[2], const double cameraparams_RadialDistortion[3],
+  double pt_u_data[], int pt_u_size[1])
+{
+  int loop_ub;
+  int i11;
+  double fx;
+  double fy;
+  double Cx;
+  double Cy;
+  double k1;
+  double k2;
+  double k3;
+  double d1;
+  int i;
+  double pt_d_n[2];
+  double r_d_sq;
+  double r_u_sq;
+  int b_i;
+  boolean_T exitg1;
+  double a;
+  double b_a;
+  double diff;
+  double coeff;
+
+  // % Plumb Bob
+  pt_u_size[0] = pt_d_size[0];
+  loop_ub = pt_d_size[0];
+  for (i11 = 0; i11 < loop_ub; i11++) {
+    pt_u_data[i11] = pt_d_data[i11];
+  }
+
+  fx = cameraparams_FocalLength[0];
+  fy = cameraparams_FocalLength[1];
+  Cx = cameraparams_PrincipalPoint[0];
+  Cy = cameraparams_PrincipalPoint[1];
+  k1 = cameraparams_RadialDistortion[0];
+  k2 = cameraparams_RadialDistortion[1];
+  k3 = cameraparams_RadialDistortion[2];
+  d1 = (double)pt_d_size[0] / 2.0;
+  for (i = 0; i < (int)d1; i++) {
+    pt_d_n[0] = (pt_d_data[i << 1] - Cx) / fx;
+    pt_d_n[1] = (pt_d_data[(i << 1) + 1] - Cy) / fy;
+    r_d_sq = pt_d_n[0] * pt_d_n[0] + pt_d_n[1] * pt_d_n[1];
+
+    // get_r_u Get undistorted radius from distorted radius
+    //    Get the pixel radius of the undistorted pixels from a distorted pixel
+    //    radius and distortion parameters
+    r_u_sq = r_d_sq;
+    b_i = 0;
+    exitg1 = false;
+    while ((!exitg1) && (b_i < 100)) {
+      a = ((1.0 + k1 * r_u_sq) + k2 * (r_u_sq * r_u_sq)) + k3 * rt_powd_snf
+        (r_u_sq, 3.0);
+      b_a = (1.0 + k1 * r_u_sq) + k2 * (r_u_sq * r_u_sq) * k3 * rt_powd_snf
+        (r_u_sq, 3.0);
+      diff = (r_u_sq * (a * a) - r_d_sq) / (b_a * b_a + 2.0 * r_u_sq * (((1.0 +
+        2.0 * k1 * r_u_sq) + 2.0 * k2 * (r_u_sq * r_u_sq)) + 2.0 * k3 *
+        rt_powd_snf(r_u_sq, 3.0)));
+      r_u_sq -= diff;
+      if ((diff < 1.0E-6) && (diff > -1.0E-6)) {
+        exitg1 = true;
+      } else {
+        b_i++;
+      }
+    }
+
+    coeff = ((1.0 + k1 * r_u_sq) + k2 * (r_u_sq * r_u_sq)) + k3 * rt_powd_snf
+      (r_u_sq, 3.0);
+    for (i11 = 0; i11 < 2; i11++) {
+      pt_d_n[i11] /= coeff;
+    }
+
+    b_i = i << 1;
+    pt_u_data[b_i] = pt_d_n[0] * fx + Cx;
+    pt_u_data[1 + b_i] = pt_d_n[1] * fy + Cy;
+  }
+}
+
+//
+// Arguments    : emxArray_real_T *A
+//                emxArray_real_T *tau
 //                emxArray_int32_T *jpvt
 // Return Type  : void
 //
-static void xgeqp3(emxArray_real32_T *A, emxArray_real32_T *tau,
-                   emxArray_int32_T *jpvt)
+static void xgeqp3(emxArray_real_T *A, emxArray_real_T *tau, emxArray_int32_T
+                   *jpvt)
 {
   int b_m;
   int n;
   int mn;
-  int i30;
-  emxArray_real32_T *work;
+  int i47;
+  emxArray_real_T *work;
   int itemp;
-  emxArray_real32_T *vn1;
-  emxArray_real32_T *vn2;
+  emxArray_real_T *vn1;
+  emxArray_real_T *vn2;
   int k;
   int nmi;
   int i;
   int i_i;
   int mmi;
   int ix;
-  float smax;
-  float s;
+  double smax;
+  double s;
   int pvt;
   int iy;
-  float absxk;
+  double absxk;
   int i_ip1;
   int lastv;
   int lastc;
   boolean_T exitg2;
   int exitg1;
-  float t;
+  double t;
   b_m = A->size[0];
   n = A->size[1];
   if (A->size[0] <= A->size[1]) {
@@ -10548,30 +9463,30 @@ static void xgeqp3(emxArray_real32_T *A, emxArray_real32_T *tau,
     mn = A->size[1];
   }
 
-  i30 = tau->size[0];
+  i47 = tau->size[0];
   tau->size[0] = mn;
-  emxEnsureCapacity((emxArray__common *)tau, i30, (int)sizeof(float));
+  emxEnsureCapacity((emxArray__common *)tau, i47, (int)sizeof(double));
   eml_signed_integer_colon(A->size[1], jpvt);
   if ((A->size[0] == 0) || (A->size[1] == 0)) {
   } else {
-    emxInit_real32_T(&work, 1);
+    emxInit_real_T(&work, 1);
     itemp = A->size[1];
-    i30 = work->size[0];
+    i47 = work->size[0];
     work->size[0] = itemp;
-    emxEnsureCapacity((emxArray__common *)work, i30, (int)sizeof(float));
-    for (i30 = 0; i30 < itemp; i30++) {
-      work->data[i30] = 0.0F;
+    emxEnsureCapacity((emxArray__common *)work, i47, (int)sizeof(double));
+    for (i47 = 0; i47 < itemp; i47++) {
+      work->data[i47] = 0.0;
     }
 
-    emxInit_real32_T(&vn1, 1);
-    emxInit_real32_T(&vn2, 1);
+    emxInit_real_T(&vn1, 1);
+    emxInit_real_T(&vn2, 1);
     itemp = A->size[1];
-    i30 = vn1->size[0];
+    i47 = vn1->size[0];
     vn1->size[0] = itemp;
-    emxEnsureCapacity((emxArray__common *)vn1, i30, (int)sizeof(float));
-    i30 = vn2->size[0];
+    emxEnsureCapacity((emxArray__common *)vn1, i47, (int)sizeof(double));
+    i47 = vn2->size[0];
     vn2->size[0] = vn1->size[0];
-    emxEnsureCapacity((emxArray__common *)vn2, i30, (int)sizeof(float));
+    emxEnsureCapacity((emxArray__common *)vn2, i47, (int)sizeof(double));
     k = 1;
     for (nmi = 0; nmi + 1 <= n; nmi++) {
       vn1->data[nmi] = xnrm2(b_m, A, k);
@@ -10589,10 +9504,10 @@ static void xgeqp3(emxArray_real32_T *A, emxArray_real32_T *tau,
         itemp = 0;
         if (nmi > 1) {
           ix = i;
-          smax = (float)fabs((double)vn1->data[i]);
+          smax = fabs(vn1->data[i]);
           for (k = 0; k + 2 <= nmi; k++) {
             ix++;
-            s = (float)fabs((double)vn1->data[ix]);
+            s = fabs(vn1->data[ix]);
             if (s > smax) {
               itemp = k + 1;
               smax = s;
@@ -10622,41 +9537,41 @@ static void xgeqp3(emxArray_real32_T *A, emxArray_real32_T *tau,
 
       if (i + 1 < b_m) {
         absxk = A->data[i_i];
-        s = 0.0F;
+        s = 0.0;
         if (1 + mmi <= 0) {
         } else {
           smax = b_xnrm2(mmi, A, i_i + 2);
-          if (smax != 0.0F) {
-            smax = rt_hypotf_snf(A->data[i_i], smax);
-            if (A->data[i_i] >= 0.0F) {
+          if (smax != 0.0) {
+            smax = hypot(A->data[i_i], smax);
+            if (A->data[i_i] >= 0.0) {
               smax = -smax;
             }
 
-            if ((float)fabs((double)smax) < 9.86076132E-32F) {
+            if (fabs(smax) < 1.0020841800044864E-292) {
               pvt = 0;
               do {
                 pvt++;
-                xscal(mmi, 1.01412048E+31F, A, i_i + 2);
-                smax *= 1.01412048E+31F;
-                absxk *= 1.01412048E+31F;
-              } while (!((float)fabs((double)smax) >= 9.86076132E-32F));
+                xscal(mmi, 9.9792015476736E+291, A, i_i + 2);
+                smax *= 9.9792015476736E+291;
+                absxk *= 9.9792015476736E+291;
+              } while (!(fabs(smax) >= 1.0020841800044864E-292));
 
               smax = b_xnrm2(mmi, A, i_i + 2);
-              smax = rt_hypotf_snf(absxk, smax);
-              if (absxk >= 0.0F) {
+              smax = hypot(absxk, smax);
+              if (absxk >= 0.0) {
                 smax = -smax;
               }
 
               s = (smax - absxk) / smax;
-              xscal(mmi, 1.0F / (absxk - smax), A, i_i + 2);
+              xscal(mmi, 1.0 / (absxk - smax), A, i_i + 2);
               for (k = 1; k <= pvt; k++) {
-                smax *= 9.86076132E-32F;
+                smax *= 1.0020841800044864E-292;
               }
 
               absxk = smax;
             } else {
               s = (smax - A->data[i_i]) / smax;
-              xscal(mmi, 1.0F / (A->data[i_i] - smax), A, i_i + 2);
+              xscal(mmi, 1.0 / (A->data[i_i] - smax), A, i_i + 2);
               absxk = smax;
             }
           }
@@ -10665,17 +9580,17 @@ static void xgeqp3(emxArray_real32_T *A, emxArray_real32_T *tau,
         tau->data[i] = s;
         A->data[i_i] = absxk;
       } else {
-        tau->data[i] = 0.0F;
+        tau->data[i] = 0.0;
       }
 
       if (i + 1 < n) {
         absxk = A->data[i_i];
-        A->data[i_i] = 1.0F;
+        A->data[i_i] = 1.0;
         i_ip1 = (i + (i + 1) * b_m) + 1;
-        if (tau->data[i] != 0.0F) {
+        if (tau->data[i] != 0.0) {
           lastv = mmi;
           itemp = i_i + mmi;
-          while ((lastv + 1 > 0) && (A->data[itemp] == 0.0F)) {
+          while ((lastv + 1 > 0) && (A->data[itemp] == 0.0)) {
             lastv--;
             itemp--;
           }
@@ -10688,7 +9603,7 @@ static void xgeqp3(emxArray_real32_T *A, emxArray_real32_T *tau,
             do {
               exitg1 = 0;
               if (k <= itemp + lastv) {
-                if (A->data[k - 1] != 0.0F) {
+                if (A->data[k - 1] != 0.0) {
                   exitg1 = 1;
                 } else {
                   k++;
@@ -10712,15 +9627,15 @@ static void xgeqp3(emxArray_real32_T *A, emxArray_real32_T *tau,
           if (lastc == 0) {
           } else {
             for (iy = 1; iy <= lastc; iy++) {
-              work->data[iy - 1] = 0.0F;
+              work->data[iy - 1] = 0.0;
             }
 
             iy = 0;
-            i30 = i_ip1 + b_m * (lastc - 1);
+            i47 = i_ip1 + b_m * (lastc - 1);
             itemp = i_ip1;
-            while ((b_m > 0) && (itemp <= i30)) {
+            while ((b_m > 0) && (itemp <= i47)) {
               ix = i_i;
-              smax = 0.0F;
+              smax = 0.0;
               pvt = itemp + lastv;
               for (k = itemp; k <= pvt; k++) {
                 smax += A->data[k - 1] * A->data[ix];
@@ -10733,15 +9648,15 @@ static void xgeqp3(emxArray_real32_T *A, emxArray_real32_T *tau,
             }
           }
 
-          if (-tau->data[i] == 0.0F) {
+          if (-tau->data[i] == 0.0) {
           } else {
             itemp = 0;
             for (nmi = 1; nmi <= lastc; nmi++) {
-              if (work->data[itemp] != 0.0F) {
+              if (work->data[itemp] != 0.0) {
                 smax = work->data[itemp] * -tau->data[i];
                 ix = i_i;
-                i30 = lastv + i_ip1;
-                for (pvt = i_ip1; pvt <= i30; pvt++) {
+                i47 = lastv + i_ip1;
+                for (pvt = i_ip1; pvt <= i47; pvt++) {
                   A->data[pvt - 1] += A->data[ix] * smax;
                   ix++;
                 }
@@ -10758,30 +9673,29 @@ static void xgeqp3(emxArray_real32_T *A, emxArray_real32_T *tau,
 
       for (nmi = i + 1; nmi + 1 <= n; nmi++) {
         itemp = (i + b_m * nmi) + 1;
-        if (vn1->data[nmi] != 0.0F) {
-          smax = (float)fabs((double)A->data[i + A->size[0] * nmi]) / vn1->
-            data[nmi];
-          smax = 1.0F - smax * smax;
-          if (smax < 0.0F) {
-            smax = 0.0F;
+        if (vn1->data[nmi] != 0.0) {
+          smax = fabs(A->data[i + A->size[0] * nmi]) / vn1->data[nmi];
+          smax = 1.0 - smax * smax;
+          if (smax < 0.0) {
+            smax = 0.0;
           }
 
           s = vn1->data[nmi] / vn2->data[nmi];
           s = smax * (s * s);
-          if (s <= 0.000345266977F) {
+          if (s <= 1.4901161193847656E-8) {
             if (i + 1 < b_m) {
-              smax = 0.0F;
+              smax = 0.0;
               if (mmi < 1) {
               } else if (mmi == 1) {
-                smax = (float)fabs((double)A->data[itemp]);
+                smax = fabs(A->data[itemp]);
               } else {
-                s = 1.17549435E-38F;
+                s = 2.2250738585072014E-308;
                 pvt = itemp + mmi;
                 while (itemp + 1 <= pvt) {
-                  absxk = (float)fabs((double)A->data[itemp]);
+                  absxk = fabs(A->data[itemp]);
                   if (absxk > s) {
                     t = s / absxk;
-                    smax = 1.0F + smax * t * t;
+                    smax = 1.0 + smax * t * t;
                     s = absxk;
                   } else {
                     t = absxk / s;
@@ -10791,54 +9705,54 @@ static void xgeqp3(emxArray_real32_T *A, emxArray_real32_T *tau,
                   itemp++;
                 }
 
-                smax = s * (float)sqrt((double)smax);
+                smax = s * sqrt(smax);
               }
 
               vn1->data[nmi] = smax;
               vn2->data[nmi] = vn1->data[nmi];
             } else {
-              vn1->data[nmi] = 0.0F;
-              vn2->data[nmi] = 0.0F;
+              vn1->data[nmi] = 0.0;
+              vn2->data[nmi] = 0.0;
             }
           } else {
-            vn1->data[nmi] *= (float)sqrt((double)smax);
+            vn1->data[nmi] *= sqrt(smax);
           }
         }
       }
     }
 
-    emxFree_real32_T(&vn2);
-    emxFree_real32_T(&vn1);
-    emxFree_real32_T(&work);
+    emxFree_real_T(&vn2);
+    emxFree_real_T(&vn1);
+    emxFree_real_T(&work);
   }
 }
 
 //
 // Arguments    : int n
-//                const emxArray_real32_T *x
+//                const emxArray_real_T *x
 //                int ix0
-// Return Type  : float
+// Return Type  : double
 //
-static float xnrm2(int n, const emxArray_real32_T *x, int ix0)
+static double xnrm2(int n, const emxArray_real_T *x, int ix0)
 {
-  float y;
-  float scale;
+  double y;
+  double scale;
   int kend;
   int k;
-  float absxk;
-  float t;
-  y = 0.0F;
+  double absxk;
+  double t;
+  y = 0.0;
   if (n < 1) {
   } else if (n == 1) {
-    y = (float)fabs((double)x->data[ix0 - 1]);
+    y = fabs(x->data[ix0 - 1]);
   } else {
-    scale = 1.17549435E-38F;
+    scale = 2.2250738585072014E-308;
     kend = (ix0 + n) - 1;
     for (k = ix0; k <= kend; k++) {
-      absxk = (float)fabs((double)x->data[k - 1]);
+      absxk = fabs(x->data[k - 1]);
       if (absxk > scale) {
         t = scale / absxk;
-        y = 1.0F + y * t * t;
+        y = 1.0 + y * t * t;
         scale = absxk;
       } else {
         t = absxk / scale;
@@ -10846,7 +9760,7 @@ static float xnrm2(int n, const emxArray_real32_T *x, int ix0)
       }
     }
 
-    y = scale * (float)sqrt((double)y);
+    y = scale * sqrt(y);
   }
 
   return y;
@@ -10854,363 +9768,136 @@ static float xnrm2(int n, const emxArray_real32_T *x, int ix0)
 
 //
 // Arguments    : int n
-//                float a
-//                emxArray_real32_T *x
+//                double a
+//                emxArray_real_T *x
 //                int ix0
 // Return Type  : void
 //
-static void xscal(int n, float a, emxArray_real32_T *x, int ix0)
+static void xscal(int n, double a, emxArray_real_T *x, int ix0)
 {
-  int i31;
+  int i48;
   int k;
-  i31 = (ix0 + n) - 1;
-  for (k = ix0; k <= i31; k++) {
+  i48 = (ix0 + n) - 1;
+  for (k = ix0; k <= i48; k++) {
     x->data[k - 1] *= a;
   }
 }
 
 //
-// NOTE: Comment this out for MEXing
-//  input
+// input
+//  NOTE: Comment this out for MEXing
 // Arguments    : int updateVect[40]
-//                const float z_all_l[80]
-//                const float z_all_r[80]
-//                float dt
+//                const double z_all_l[80]
+//                const double z_all_r[80]
+//                double dt
 //                const VIOMeasurements *measurements
 //                const DUOParameters *cameraParameters
 //                const NoiseParameters *noiseParameters
 //                const VIOParameters *b_VIOParameters
 //                boolean_T vision
 //                RobotState *xt_out
-//                float h_u_out[160]
-//                float map_out[120]
+//                double h_u_out[160]
+//                double map_out[120]
 //                AnchorPose anchor_poses_out[5]
-//                float delayedStatus_out[40]
+//                double delayedStatus_out[40]
 // Return Type  : void
 //
-void SLAM(int updateVect[40], const float z_all_l[80], const float z_all_r[80],
-          float dt, const VIOMeasurements *measurements, const DUOParameters
+void SLAM(int updateVect[40], const double z_all_l[80], const double z_all_r[80],
+          double dt, const VIOMeasurements *measurements, const DUOParameters
           *cameraParameters, const NoiseParameters *noiseParameters, const
           VIOParameters *b_VIOParameters, boolean_T vision, RobotState *xt_out,
-          float h_u_out[160], float map_out[120], AnchorPose anchor_poses_out[5],
-          float delayedStatus_out[40])
+          double h_u_out[160], double map_out[120], AnchorPose anchor_poses_out
+          [5], double delayedStatus_out[40])
 {
-  int ixstart;
-  float varargin_1[4];
-  float mtmp;
-  int itmp;
-  int ix;
-  boolean_T exitg2;
+  int i;
   static const signed char iv2[4] = { 0, 0, 0, 1 };
 
-  static const f_struct_T rv1[5] = { { { 0.0F, 0.0F, 0.0F }, { 0.0F, 0.0F, 0.0F,
-        1.0F }, { 0, 0, 0, 0, 0, 0 }, { { 0.0F, { 0.0F, 0.0F, 0.0F }, { 0.0F,
-            0.0F, 0.0F }, 0, 0, 0 }, { 0.0F, { 0.0F, 0.0F, 0.0F }, { 0.0F, 0.0F,
-            0.0F }, 0, 0, 0 }, { 0.0F, { 0.0F, 0.0F, 0.0F }, { 0.0F, 0.0F, 0.0F
-          }, 0, 0, 0 }, { 0.0F, { 0.0F, 0.0F, 0.0F }, { 0.0F, 0.0F, 0.0F }, 0, 0,
-          0 }, { 0.0F, { 0.0F, 0.0F, 0.0F }, { 0.0F, 0.0F, 0.0F }, 0, 0, 0 }, {
-          0.0F, { 0.0F, 0.0F, 0.0F }, { 0.0F, 0.0F, 0.0F }, 0, 0, 0 }, { 0.0F, {
-            0.0F, 0.0F, 0.0F }, { 0.0F, 0.0F, 0.0F }, 0, 0, 0 }, { 0.0F, { 0.0F,
-            0.0F, 0.0F }, { 0.0F, 0.0F, 0.0F }, 0, 0, 0 } } }, { { 0.0F, 0.0F,
-        0.0F }, { 0.0F, 0.0F, 0.0F, 1.0F }, { 0, 0, 0, 0, 0, 0 }, { { 0.0F, {
-            0.0F, 0.0F, 0.0F }, { 0.0F, 0.0F, 0.0F }, 0, 0, 0 }, { 0.0F, { 0.0F,
-            0.0F, 0.0F }, { 0.0F, 0.0F, 0.0F }, 0, 0, 0 }, { 0.0F, { 0.0F, 0.0F,
-            0.0F }, { 0.0F, 0.0F, 0.0F }, 0, 0, 0 }, { 0.0F, { 0.0F, 0.0F, 0.0F
-          }, { 0.0F, 0.0F, 0.0F }, 0, 0, 0 }, { 0.0F, { 0.0F, 0.0F, 0.0F }, {
-            0.0F, 0.0F, 0.0F }, 0, 0, 0 }, { 0.0F, { 0.0F, 0.0F, 0.0F }, { 0.0F,
-            0.0F, 0.0F }, 0, 0, 0 }, { 0.0F, { 0.0F, 0.0F, 0.0F }, { 0.0F, 0.0F,
-            0.0F }, 0, 0, 0 }, { 0.0F, { 0.0F, 0.0F, 0.0F }, { 0.0F, 0.0F, 0.0F
-          }, 0, 0, 0 } } }, { { 0.0F, 0.0F, 0.0F }, { 0.0F, 0.0F, 0.0F, 1.0F },
-        { 0, 0, 0, 0, 0, 0 }, { { 0.0F, { 0.0F, 0.0F, 0.0F }, { 0.0F, 0.0F, 0.0F
-          }, 0, 0, 0 }, { 0.0F, { 0.0F, 0.0F, 0.0F }, { 0.0F, 0.0F, 0.0F }, 0, 0,
-          0 }, { 0.0F, { 0.0F, 0.0F, 0.0F }, { 0.0F, 0.0F, 0.0F }, 0, 0, 0 }, {
-          0.0F, { 0.0F, 0.0F, 0.0F }, { 0.0F, 0.0F, 0.0F }, 0, 0, 0 }, { 0.0F, {
-            0.0F, 0.0F, 0.0F }, { 0.0F, 0.0F, 0.0F }, 0, 0, 0 }, { 0.0F, { 0.0F,
-            0.0F, 0.0F }, { 0.0F, 0.0F, 0.0F }, 0, 0, 0 }, { 0.0F, { 0.0F, 0.0F,
-            0.0F }, { 0.0F, 0.0F, 0.0F }, 0, 0, 0 }, { 0.0F, { 0.0F, 0.0F, 0.0F
-          }, { 0.0F, 0.0F, 0.0F }, 0, 0, 0 } } }, { { 0.0F, 0.0F, 0.0F }, { 0.0F,
-        0.0F, 0.0F, 1.0F }, { 0, 0, 0, 0, 0, 0 }, { { 0.0F, { 0.0F, 0.0F, 0.0F },
-          { 0.0F, 0.0F, 0.0F }, 0, 0, 0 }, { 0.0F, { 0.0F, 0.0F, 0.0F }, { 0.0F,
-            0.0F, 0.0F }, 0, 0, 0 }, { 0.0F, { 0.0F, 0.0F, 0.0F }, { 0.0F, 0.0F,
-            0.0F }, 0, 0, 0 }, { 0.0F, { 0.0F, 0.0F, 0.0F }, { 0.0F, 0.0F, 0.0F
-          }, 0, 0, 0 }, { 0.0F, { 0.0F, 0.0F, 0.0F }, { 0.0F, 0.0F, 0.0F }, 0, 0,
-          0 }, { 0.0F, { 0.0F, 0.0F, 0.0F }, { 0.0F, 0.0F, 0.0F }, 0, 0, 0 }, {
-          0.0F, { 0.0F, 0.0F, 0.0F }, { 0.0F, 0.0F, 0.0F }, 0, 0, 0 }, { 0.0F, {
-            0.0F, 0.0F, 0.0F }, { 0.0F, 0.0F, 0.0F }, 0, 0, 0 } } }, { { 0.0F,
-        0.0F, 0.0F }, { 0.0F, 0.0F, 0.0F, 1.0F }, { 0, 0, 0, 0, 0, 0 }, { { 0.0F,
-          { 0.0F, 0.0F, 0.0F }, { 0.0F, 0.0F, 0.0F }, 0, 0, 0 }, { 0.0F, { 0.0F,
-            0.0F, 0.0F }, { 0.0F, 0.0F, 0.0F }, 0, 0, 0 }, { 0.0F, { 0.0F, 0.0F,
-            0.0F }, { 0.0F, 0.0F, 0.0F }, 0, 0, 0 }, { 0.0F, { 0.0F, 0.0F, 0.0F
-          }, { 0.0F, 0.0F, 0.0F }, 0, 0, 0 }, { 0.0F, { 0.0F, 0.0F, 0.0F }, {
-            0.0F, 0.0F, 0.0F }, 0, 0, 0 }, { 0.0F, { 0.0F, 0.0F, 0.0F }, { 0.0F,
-            0.0F, 0.0F }, 0, 0, 0 }, { 0.0F, { 0.0F, 0.0F, 0.0F }, { 0.0F, 0.0F,
-            0.0F }, 0, 0, 0 }, { 0.0F, { 0.0F, 0.0F, 0.0F }, { 0.0F, 0.0F, 0.0F
-          }, 0, 0, 0 } } } };
+  static const f_struct_T rv0[5] = { { { 0.0, 0.0, 0.0 }, { 0.0, 0.0, 0.0, 1.0 },
+      { 0, 0, 0, 0, 0, 0 }, { { 0.0, { 0.0, 0.0, 0.0 }, { 0.0, 0.0, 0.0 }, 0, 0,
+          0 }, { 0.0, { 0.0, 0.0, 0.0 }, { 0.0, 0.0, 0.0 }, 0, 0, 0 }, { 0.0, {
+            0.0, 0.0, 0.0 }, { 0.0, 0.0, 0.0 }, 0, 0, 0 }, { 0.0, { 0.0, 0.0,
+            0.0 }, { 0.0, 0.0, 0.0 }, 0, 0, 0 }, { 0.0, { 0.0, 0.0, 0.0 }, { 0.0,
+            0.0, 0.0 }, 0, 0, 0 }, { 0.0, { 0.0, 0.0, 0.0 }, { 0.0, 0.0, 0.0 },
+          0, 0, 0 }, { 0.0, { 0.0, 0.0, 0.0 }, { 0.0, 0.0, 0.0 }, 0, 0, 0 }, {
+          0.0, { 0.0, 0.0, 0.0 }, { 0.0, 0.0, 0.0 }, 0, 0, 0 } } }, { { 0.0, 0.0,
+        0.0 }, { 0.0, 0.0, 0.0, 1.0 }, { 0, 0, 0, 0, 0, 0 }, { { 0.0, { 0.0, 0.0,
+            0.0 }, { 0.0, 0.0, 0.0 }, 0, 0, 0 }, { 0.0, { 0.0, 0.0, 0.0 }, { 0.0,
+            0.0, 0.0 }, 0, 0, 0 }, { 0.0, { 0.0, 0.0, 0.0 }, { 0.0, 0.0, 0.0 },
+          0, 0, 0 }, { 0.0, { 0.0, 0.0, 0.0 }, { 0.0, 0.0, 0.0 }, 0, 0, 0 }, {
+          0.0, { 0.0, 0.0, 0.0 }, { 0.0, 0.0, 0.0 }, 0, 0, 0 }, { 0.0, { 0.0,
+            0.0, 0.0 }, { 0.0, 0.0, 0.0 }, 0, 0, 0 }, { 0.0, { 0.0, 0.0, 0.0 },
+            { 0.0, 0.0, 0.0 }, 0, 0, 0 }, { 0.0, { 0.0, 0.0, 0.0 }, { 0.0, 0.0,
+            0.0 }, 0, 0, 0 } } }, { { 0.0, 0.0, 0.0 }, { 0.0, 0.0, 0.0, 1.0 }, {
+        0, 0, 0, 0, 0, 0 }, { { 0.0, { 0.0, 0.0, 0.0 }, { 0.0, 0.0, 0.0 }, 0, 0,
+          0 }, { 0.0, { 0.0, 0.0, 0.0 }, { 0.0, 0.0, 0.0 }, 0, 0, 0 }, { 0.0, {
+            0.0, 0.0, 0.0 }, { 0.0, 0.0, 0.0 }, 0, 0, 0 }, { 0.0, { 0.0, 0.0,
+            0.0 }, { 0.0, 0.0, 0.0 }, 0, 0, 0 }, { 0.0, { 0.0, 0.0, 0.0 }, { 0.0,
+            0.0, 0.0 }, 0, 0, 0 }, { 0.0, { 0.0, 0.0, 0.0 }, { 0.0, 0.0, 0.0 },
+          0, 0, 0 }, { 0.0, { 0.0, 0.0, 0.0 }, { 0.0, 0.0, 0.0 }, 0, 0, 0 }, {
+          0.0, { 0.0, 0.0, 0.0 }, { 0.0, 0.0, 0.0 }, 0, 0, 0 } } }, { { 0.0, 0.0,
+        0.0 }, { 0.0, 0.0, 0.0, 1.0 }, { 0, 0, 0, 0, 0, 0 }, { { 0.0, { 0.0, 0.0,
+            0.0 }, { 0.0, 0.0, 0.0 }, 0, 0, 0 }, { 0.0, { 0.0, 0.0, 0.0 }, { 0.0,
+            0.0, 0.0 }, 0, 0, 0 }, { 0.0, { 0.0, 0.0, 0.0 }, { 0.0, 0.0, 0.0 },
+          0, 0, 0 }, { 0.0, { 0.0, 0.0, 0.0 }, { 0.0, 0.0, 0.0 }, 0, 0, 0 }, {
+          0.0, { 0.0, 0.0, 0.0 }, { 0.0, 0.0, 0.0 }, 0, 0, 0 }, { 0.0, { 0.0,
+            0.0, 0.0 }, { 0.0, 0.0, 0.0 }, 0, 0, 0 }, { 0.0, { 0.0, 0.0, 0.0 },
+            { 0.0, 0.0, 0.0 }, 0, 0, 0 }, { 0.0, { 0.0, 0.0, 0.0 }, { 0.0, 0.0,
+            0.0 }, 0, 0, 0 } } }, { { 0.0, 0.0, 0.0 }, { 0.0, 0.0, 0.0, 1.0 }, {
+        0, 0, 0, 0, 0, 0 }, { { 0.0, { 0.0, 0.0, 0.0 }, { 0.0, 0.0, 0.0 }, 0, 0,
+          0 }, { 0.0, { 0.0, 0.0, 0.0 }, { 0.0, 0.0, 0.0 }, 0, 0, 0 }, { 0.0, {
+            0.0, 0.0, 0.0 }, { 0.0, 0.0, 0.0 }, 0, 0, 0 }, { 0.0, { 0.0, 0.0,
+            0.0 }, { 0.0, 0.0, 0.0 }, 0, 0, 0 }, { 0.0, { 0.0, 0.0, 0.0 }, { 0.0,
+            0.0, 0.0 }, 0, 0, 0 }, { 0.0, { 0.0, 0.0, 0.0 }, { 0.0, 0.0, 0.0 },
+          0, 0, 0 }, { 0.0, { 0.0, 0.0, 0.0 }, { 0.0, 0.0, 0.0 }, 0, 0, 0 }, {
+          0.0, { 0.0, 0.0, 0.0 }, { 0.0, 0.0, 0.0 }, 0, 0, 0 } } } };
 
   int anchorIdx;
-  float t_ci[3];
-  float w_imu[3];
-  static const float fv3[3] = { 0.0F, 0.0F, 1.0F };
+  int i34;
+  int i35;
+  double z_b[3];
+  double B;
+  double y_n_b[3];
+  static const double dv3[3] = { 0.0, 0.0, 1.0 };
 
-  float w_c[3];
-  float a_c[3];
-  float fv4[9];
-  float R_ci[9];
-  float R_cw[9];
-  boolean_T exitg1;
-  float fv5[9];
-  float fv6[9];
-  static const signed char iv3[9] = { 1, 0, 0, 0, 1, 0, 0, 0, 1 };
+  double b_y_n_b[3];
+  double x_n_b[3];
+  double dv4[9];
+  double b_x_n_b[9];
+  double R_cw_init[9];
+  static const signed char y[9] = { 1, 0, 0, 0, 1, 0, 0, 0, 1 };
 
+  double dv5[9];
   static const signed char b[9] = { 1, 0, 0, 0, 1, 0, 0, 0, 0 };
 
-  float b_R_ci[9];
-  float R[9];
-  float b_R[9];
-  float b_measurements[3];
-  float v[15];
-  float d[225];
-  float grav_origin[3];
-  float c[3];
-  float b_c[3];
-  float c_c[3];
-  static const float b_b[3] = { 0.0F, 0.0F, 9.81F };
-
-  float G[315];
-  static const signed char iv4[45] = { -1, 0, 0, 0, -1, 0, 0, 0, -1, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0 };
-
-  static const signed char iv5[45] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0 };
-
-  static const signed char iv6[45] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0,
-    0, 0, 0, 0, 0 };
-
-  static const signed char iv7[45] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0,
-    1, 0, 0, 0, 1 };
-
-  float fv7[9];
-  float fv8[9];
-  float fv9[9];
-  float fv10[9];
-  float fv11[9];
-  float fv12[9];
-  float fv13[9];
-  float Phi[441];
-  static const signed char iv8[63] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
-
-  static const signed char iv9[9] = { -1, 0, 0, 0, -1, 0, 0, 0, -1 };
-
-  float b_Phi[441];
-  static const signed char iv10[441] = { 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1 };
-
-  float b_G[315];
-  float c_G[441];
-  float P_xx_apr[441];
-  float P_xs_apr[1470];
-  float theta;
-  float dq[4];
-  float b_z_all_l[80];
-  float b_z_all_r[80];
-  float t0_IMU_att[4];
-  float t0_IMU_pos[3];
-  struct_T rv2[5];
+  double b_z_all_l[80];
+  double b_z_all_r[80];
+  double t0_IMU_att[4];
+  double t0_IMU_pos[3];
+  double t0_IMU_acc_bias[3];
+  double t0_IMU_gyro_bias[3];
+  double t0_vel[3];
+  double t0_att[4];
+  struct_T rv1[5];
 
   //  TODO
   //  coder.cstructname(ControllerGains, 'ControllerGains', 'extern', 'HeaderFile', '../InterfaceStructs.h'); 
   //  coder.cstructname(ref, 'ReferenceCommand', 'extern', 'HeaderFile', '../InterfaceStructs.h'); 
   if (!initialized_not_empty) {
-    for (ixstart = 0; ixstart < 40; ixstart++) {
-      updateVect[ixstart] = 0;
+    for (i = 0; i < 40; i++) {
+      updateVect[i] = 0;
     }
 
-    for (ixstart = 0; ixstart < 3; ixstart++) {
-      xt.robot_state.IMU.pos[ixstart] = cameraParameters->t_ci[ixstart];
-    }
-
-    //  THIS IS OK, It is according to the NASA memo found
-    //  https://claraty.jpl.nasa.gov/man/software/development/conventions/standards_docs/unadopted/JPL_Quaternions_Breckenridge.pdf 
-    // QUATFROMROTJ Get equivalent quaternion of the rotation matrix R
-    //    Returns a quaternion in JPL notation
-    //  The implementation is copied from qGetQ(R), but we are careful about the 
-    //  ordering of the output vector
-    //  Q = [0;0;0;1];
-    //  % [r,c] = size( R );
-    //  % if( r ~= 3 || c ~= 3 )
-    //  %     error( 'R must be a 3x3 matrix\n\r' );
-    //  % end
-    //
-    //  if abs(det(R) - 1) > 1e-2
-    //      error('The provided matrix is not a valid rotation matrix. It must have det(R) = 1, but is %i.', det(R)) 
-    //  end
-    //  T = R(1,1)+R(2,2)+R(3,3);
-    //  pivot = zeros(4,1);
-    //  pivot(1) = sqrt(max(1+2*R(1,1)-T, eps))/2;
-    //  pivot(2) = sqrt(max(1+2*R(2,2)-T, eps))/2;
-    //  pivot(3) = sqrt(max(1+2*R(3,3)-T, eps))/2;
-    //  pivot(4) = sqrt(max(1+T, eps))/2;
-    //  if ~all(isreal(pivot))
-    //      error('complex')
-    //  end
-    //  index = round(find(pivot==max(pivot)));
-    //  if(index(1)==1)
-    //      Q(1) = sqrt(1+2*R(1,1)-T)/2;
-    //      Q(2) = (R(1,2)+R(2,1))/(4*(Q(1)));
-    //      Q(3) = (R(1,3)+R(3,1))/(4*(Q(1)));
-    //      Q(4) = (R(2,3)-R(3,2))/(4*(Q(1)));
-    //  elseif(index(1)==2)
-    //      Q(2) = sqrt(1+2*R(2,2)-T)/2;
-    //      Q(1) = (R(1,2)+R(2,1))/(4*Q(2));
-    //      Q(3) = (R(2,3)+R(3,2))/(4*Q(2));
-    //      Q(4) = (R(3,1)-R(1,3))/(4*Q(2));
-    //  elseif(index(1)==3)
-    //      Q(3) = sqrt(1+2*R(3,3)-T)/2;
-    //      Q(1) = (R(1,3)+R(3,1))/(4*Q(3));
-    //      Q(2) = (R(2,3)+R(3,2))/(4*Q(3));
-    //      Q(4) = (R(1,2)-R(2,1))/(4*Q(3));
-    //  elseif(index(1)==4)
-    //      Q(4) = sqrt(1+T)/2;
-    //      Q(1) = (R(2,3)-R(3,2))/(4*Q(4));
-    //      Q(2) = (R(3,1)-R(1,3))/(4*Q(4));
-    //      Q(3) = (R(1,2)-R(2,1))/(4*Q(4));
-    //  end
-    // % speed optimization
-    varargin_1[0] = (1.0F + cameraParameters->R_ci[0]) - (cameraParameters->
-      R_ci[4] + cameraParameters->R_ci[8]);
-    varargin_1[1] = (1.0F + cameraParameters->R_ci[4]) - (cameraParameters->
-      R_ci[0] + cameraParameters->R_ci[8]);
-    varargin_1[2] = (1.0F + cameraParameters->R_ci[8]) - (cameraParameters->
-      R_ci[0] + cameraParameters->R_ci[4]);
-    varargin_1[3] = 1.0F + ((cameraParameters->R_ci[0] + cameraParameters->R_ci
-      [4]) + cameraParameters->R_ci[8]);
-    ixstart = 1;
-    mtmp = varargin_1[0];
-    itmp = 1;
-    if (rtIsNaNF(varargin_1[0])) {
-      ix = 2;
-      exitg2 = false;
-      while ((!exitg2) && (ix < 5)) {
-        ixstart = ix;
-        if (!rtIsNaNF(varargin_1[ix - 1])) {
-          mtmp = varargin_1[ix - 1];
-          itmp = ix;
-          exitg2 = true;
-        } else {
-          ix++;
-        }
-      }
-    }
-
-    if (ixstart < 4) {
-      while (ixstart + 1 < 5) {
-        if (varargin_1[ixstart] > mtmp) {
-          mtmp = varargin_1[ixstart];
-          itmp = ixstart + 1;
-        }
-
-        ixstart++;
-      }
-    }
-
-    if (itmp == 1) {
-      xt.robot_state.IMU.att[0] = (float)sqrt((double)((1.0F + 2.0F *
-        cameraParameters->R_ci[0]) - ((cameraParameters->R_ci[0] +
-        cameraParameters->R_ci[4]) + cameraParameters->R_ci[8]))) / 2.0F;
-      xt.robot_state.IMU.att[1] = (cameraParameters->R_ci[3] +
-        cameraParameters->R_ci[1]) / (4.0F * ((float)sqrt((double)((1.0F + 2.0F *
-        cameraParameters->R_ci[0]) - ((cameraParameters->R_ci[0] +
-        cameraParameters->R_ci[4]) + cameraParameters->R_ci[8]))) / 2.0F));
-      xt.robot_state.IMU.att[2] = (cameraParameters->R_ci[6] +
-        cameraParameters->R_ci[2]) / (4.0F * ((float)sqrt((double)((1.0F + 2.0F *
-        cameraParameters->R_ci[0]) - ((cameraParameters->R_ci[0] +
-        cameraParameters->R_ci[4]) + cameraParameters->R_ci[8]))) / 2.0F));
-      xt.robot_state.IMU.att[3] = (cameraParameters->R_ci[7] -
-        cameraParameters->R_ci[5]) / (4.0F * ((float)sqrt((double)((1.0F + 2.0F *
-        cameraParameters->R_ci[0]) - ((cameraParameters->R_ci[0] +
-        cameraParameters->R_ci[4]) + cameraParameters->R_ci[8]))) / 2.0F));
-    } else if (itmp == 2) {
-      xt.robot_state.IMU.att[0] = (cameraParameters->R_ci[3] +
-        cameraParameters->R_ci[1]) / (4.0F * ((float)sqrt((double)((1.0F + 2.0F *
-        cameraParameters->R_ci[4]) - ((cameraParameters->R_ci[0] +
-        cameraParameters->R_ci[4]) + cameraParameters->R_ci[8]))) / 2.0F));
-      xt.robot_state.IMU.att[1] = (float)sqrt((double)((1.0F + 2.0F *
-        cameraParameters->R_ci[4]) - ((cameraParameters->R_ci[0] +
-        cameraParameters->R_ci[4]) + cameraParameters->R_ci[8]))) / 2.0F;
-      xt.robot_state.IMU.att[2] = (cameraParameters->R_ci[7] +
-        cameraParameters->R_ci[5]) / (4.0F * ((float)sqrt((double)((1.0F + 2.0F *
-        cameraParameters->R_ci[4]) - ((cameraParameters->R_ci[0] +
-        cameraParameters->R_ci[4]) + cameraParameters->R_ci[8]))) / 2.0F));
-      xt.robot_state.IMU.att[3] = (cameraParameters->R_ci[2] -
-        cameraParameters->R_ci[6]) / (4.0F * ((float)sqrt((double)((1.0F + 2.0F *
-        cameraParameters->R_ci[4]) - ((cameraParameters->R_ci[0] +
-        cameraParameters->R_ci[4]) + cameraParameters->R_ci[8]))) / 2.0F));
-    } else if (itmp == 3) {
-      xt.robot_state.IMU.att[0] = (cameraParameters->R_ci[6] +
-        cameraParameters->R_ci[2]) / (4.0F * ((float)sqrt((double)((1.0F + 2.0F *
-        cameraParameters->R_ci[8]) - ((cameraParameters->R_ci[0] +
-        cameraParameters->R_ci[4]) + cameraParameters->R_ci[8]))) / 2.0F));
-      xt.robot_state.IMU.att[1] = (cameraParameters->R_ci[7] +
-        cameraParameters->R_ci[5]) / (4.0F * ((float)sqrt((double)((1.0F + 2.0F *
-        cameraParameters->R_ci[8]) - ((cameraParameters->R_ci[0] +
-        cameraParameters->R_ci[4]) + cameraParameters->R_ci[8]))) / 2.0F));
-      xt.robot_state.IMU.att[2] = (float)sqrt((double)((1.0F + 2.0F *
-        cameraParameters->R_ci[8]) - ((cameraParameters->R_ci[0] +
-        cameraParameters->R_ci[4]) + cameraParameters->R_ci[8]))) / 2.0F;
-      xt.robot_state.IMU.att[3] = (cameraParameters->R_ci[3] -
-        cameraParameters->R_ci[1]) / (4.0F * ((float)sqrt((double)((1.0F + 2.0F *
-        cameraParameters->R_ci[8]) - ((cameraParameters->R_ci[0] +
-        cameraParameters->R_ci[4]) + cameraParameters->R_ci[8]))) / 2.0F));
-    } else {
-      xt.robot_state.IMU.att[0] = (cameraParameters->R_ci[7] -
-        cameraParameters->R_ci[5]) / (4.0F * ((float)sqrt((double)(1.0F +
-        ((cameraParameters->R_ci[0] + cameraParameters->R_ci[4]) +
-         cameraParameters->R_ci[8]))) / 2.0F));
-      xt.robot_state.IMU.att[1] = (cameraParameters->R_ci[2] -
-        cameraParameters->R_ci[6]) / (4.0F * ((float)sqrt((double)(1.0F +
-        ((cameraParameters->R_ci[0] + cameraParameters->R_ci[4]) +
-         cameraParameters->R_ci[8]))) / 2.0F));
-      xt.robot_state.IMU.att[2] = (cameraParameters->R_ci[3] -
-        cameraParameters->R_ci[1]) / (4.0F * ((float)sqrt((double)(1.0F +
-        ((cameraParameters->R_ci[0] + cameraParameters->R_ci[4]) +
-         cameraParameters->R_ci[8]))) / 2.0F));
-      xt.robot_state.IMU.att[3] = (float)sqrt((double)(1.0F +
-        ((cameraParameters->R_ci[0] + cameraParameters->R_ci[4]) +
-         cameraParameters->R_ci[8]))) / 2.0F;
-    }
-
-    for (ixstart = 0; ixstart < 3; ixstart++) {
-      xt.robot_state.IMU.gyro_bias[ixstart] = cameraParameters->
-        gyro_bias[ixstart];
-      xt.robot_state.IMU.acc_bias[ixstart] = cameraParameters->acc_bias[ixstart];
-      xt.robot_state.pos[ixstart] = 0.0F;
+    QuatFromRotJ(cameraParameters->R_ci, xt.robot_state.IMU.att);
+    for (i = 0; i < 3; i++) {
+      xt.robot_state.IMU.pos[i] = cameraParameters->t_ci[i];
+      xt.robot_state.IMU.gyro_bias[i] = cameraParameters->gyro_bias[i];
+      xt.robot_state.IMU.acc_bias[i] = cameraParameters->acc_bias[i];
+      xt.robot_state.pos[i] = 0.0;
     }
 
     //  position relative to the origin frame
-    for (ixstart = 0; ixstart < 4; ixstart++) {
-      xt.robot_state.att[ixstart] = iv2[ixstart];
+    for (i = 0; i < 4; i++) {
+      xt.robot_state.att[i] = iv2[i];
     }
 
     //  orientation relative to the origin frame
@@ -11219,46 +9906,54 @@ void SLAM(int updateVect[40], const float z_all_l[80], const float z_all_r[80],
     xt.origin.anchor_idx = 0;
 
     //  idx of the anchor that is at the origin
-    for (ixstart = 0; ixstart < 3; ixstart++) {
-      xt.robot_state.vel[ixstart] = 0.0F;
-      xt.origin.pos[ixstart] = 0.0F;
+    for (i = 0; i < 3; i++) {
+      xt.robot_state.vel[i] = 0.0;
+      xt.origin.pos[i] = 0.0;
     }
 
     //  position of the origin in the world frame
-    for (ixstart = 0; ixstart < 4; ixstart++) {
-      xt.origin.att[ixstart] = iv2[ixstart];
+    for (i = 0; i < 4; i++) {
+      xt.origin.att[i] = iv2[i];
     }
 
     //  orientation of the origin in the world frame
-    memset(&P[0], 0, 8281U * sizeof(float));
+    memset(&P[0], 0, 8281U * sizeof(double));
 
     //  initial error state covariance
-    memcpy(&xt.anchor_states[0], &rv1[0], 5U * sizeof(f_struct_T));
+    memcpy(&xt.anchor_states[0], &rv0[0], 5U * sizeof(f_struct_T));
     for (anchorIdx = 0; anchorIdx < 5; anchorIdx++) {
-      ixstart = anchorIdx * 14 + 21;
-      for (ix = 0; ix < 6; ix++) {
-        xt.anchor_states[anchorIdx].P_idx[ix] = (ix + ixstart) + 1;
+      i34 = anchorIdx * 14;
+      for (i35 = 0; i35 < 6; i35++) {
+        xt.anchor_states[anchorIdx].P_idx[i35] = (i35 + i34) + 22;
       }
     }
 
     if (vision) {
-      memset(&h_u[0], 0, 160U * sizeof(float));
-      memset(&map[0], 0, 120U * sizeof(float));
-      memset(&delayedStatus[0], 0, 40U * sizeof(float));
+      memset(&h_u[0], 0, 160U * sizeof(double));
+      memset(&map[0], 0, 120U * sizeof(double));
+      memset(&delayedStatus[0], 0, 40U * sizeof(double));
     } else {
-      for (ixstart = 0; ixstart < 3; ixstart++) {
-        t_ci[ixstart] = measurements->acc_duo[ixstart] -
-          xt.robot_state.IMU.acc_bias[ixstart];
+      for (i = 0; i < 3; i++) {
+        z_b[i] = measurements->acc_duo[i] - xt.robot_state.IMU.acc_bias[i];
       }
 
-      mtmp = norm(t_ci);
-      for (ix = 0; ix < 3; ix++) {
-        t_ci[ix] /= mtmp;
+      B = norm(z_b);
+      for (i34 = 0; i34 < 3; i34++) {
+        z_b[i34] /= B;
       }
 
-      cross(t_ci, fv3, w_imu);
-      rdivide(w_imu, norm(w_imu), w_c);
-      cross(w_c, t_ci, w_imu);
+      cross(z_b, dv3, y_n_b);
+      for (i = 0; i < 3; i++) {
+        b_y_n_b[i] = y_n_b[i];
+      }
+
+      rdivide(b_y_n_b, norm(y_n_b), y_n_b);
+      cross(y_n_b, z_b, x_n_b);
+      for (i = 0; i < 3; i++) {
+        b_y_n_b[i] = x_n_b[i];
+      }
+
+      rdivide(b_y_n_b, norm(x_n_b), x_n_b);
 
       //  if ~all(size(q) == [4, 1])
       //      error('q does not have the size of a quaternion')
@@ -11266,211 +9961,94 @@ void SLAM(int updateVect[40], const float z_all_l[80], const float z_all_r[80],
       //  if abs(norm(q) - 1) > 1e-3
       //      error('The provided quaternion is not a valid rotation quaternion because it does not have norm 1') 
       //  end
-      rdivide(w_imu, norm(w_imu), a_c);
-      fv4[0] = ((xt.robot_state.IMU.att[0] * xt.robot_state.IMU.att[0] -
+      dv4[0] = ((xt.robot_state.IMU.att[0] * xt.robot_state.IMU.att[0] -
                  xt.robot_state.IMU.att[1] * xt.robot_state.IMU.att[1]) -
                 xt.robot_state.IMU.att[2] * xt.robot_state.IMU.att[2]) +
         xt.robot_state.IMU.att[3] * xt.robot_state.IMU.att[3];
-      fv4[3] = 2.0F * (xt.robot_state.IMU.att[0] * xt.robot_state.IMU.att[1] +
-                       xt.robot_state.IMU.att[2] * xt.robot_state.IMU.att[3]);
-      fv4[6] = 2.0F * (xt.robot_state.IMU.att[0] * xt.robot_state.IMU.att[2] -
-                       xt.robot_state.IMU.att[1] * xt.robot_state.IMU.att[3]);
-      fv4[1] = 2.0F * (xt.robot_state.IMU.att[0] * xt.robot_state.IMU.att[1] -
-                       xt.robot_state.IMU.att[2] * xt.robot_state.IMU.att[3]);
-      fv4[4] = ((-(xt.robot_state.IMU.att[0] * xt.robot_state.IMU.att[0]) +
+      dv4[3] = 2.0 * (xt.robot_state.IMU.att[0] * xt.robot_state.IMU.att[1] +
+                      xt.robot_state.IMU.att[2] * xt.robot_state.IMU.att[3]);
+      dv4[6] = 2.0 * (xt.robot_state.IMU.att[0] * xt.robot_state.IMU.att[2] -
+                      xt.robot_state.IMU.att[1] * xt.robot_state.IMU.att[3]);
+      dv4[1] = 2.0 * (xt.robot_state.IMU.att[0] * xt.robot_state.IMU.att[1] -
+                      xt.robot_state.IMU.att[2] * xt.robot_state.IMU.att[3]);
+      dv4[4] = ((-(xt.robot_state.IMU.att[0] * xt.robot_state.IMU.att[0]) +
                  xt.robot_state.IMU.att[1] * xt.robot_state.IMU.att[1]) -
                 xt.robot_state.IMU.att[2] * xt.robot_state.IMU.att[2]) +
         xt.robot_state.IMU.att[3] * xt.robot_state.IMU.att[3];
-      fv4[7] = 2.0F * (xt.robot_state.IMU.att[1] * xt.robot_state.IMU.att[2] +
-                       xt.robot_state.IMU.att[0] * xt.robot_state.IMU.att[3]);
-      fv4[2] = 2.0F * (xt.robot_state.IMU.att[0] * xt.robot_state.IMU.att[2] +
-                       xt.robot_state.IMU.att[1] * xt.robot_state.IMU.att[3]);
-      fv4[5] = 2.0F * (xt.robot_state.IMU.att[1] * xt.robot_state.IMU.att[2] -
-                       xt.robot_state.IMU.att[0] * xt.robot_state.IMU.att[3]);
-      fv4[8] = ((-(xt.robot_state.IMU.att[0] * xt.robot_state.IMU.att[0]) -
+      dv4[7] = 2.0 * (xt.robot_state.IMU.att[1] * xt.robot_state.IMU.att[2] +
+                      xt.robot_state.IMU.att[0] * xt.robot_state.IMU.att[3]);
+      dv4[2] = 2.0 * (xt.robot_state.IMU.att[0] * xt.robot_state.IMU.att[2] +
+                      xt.robot_state.IMU.att[1] * xt.robot_state.IMU.att[3]);
+      dv4[5] = 2.0 * (xt.robot_state.IMU.att[1] * xt.robot_state.IMU.att[2] -
+                      xt.robot_state.IMU.att[0] * xt.robot_state.IMU.att[3]);
+      dv4[8] = ((-(xt.robot_state.IMU.att[0] * xt.robot_state.IMU.att[0]) -
                  xt.robot_state.IMU.att[1] * xt.robot_state.IMU.att[1]) +
                 xt.robot_state.IMU.att[2] * xt.robot_state.IMU.att[2]) +
         xt.robot_state.IMU.att[3] * xt.robot_state.IMU.att[3];
-      for (ix = 0; ix < 3; ix++) {
-        R_ci[ix] = a_c[ix];
-        R_ci[3 + ix] = w_c[ix];
-        R_ci[6 + ix] = t_ci[ix];
+      for (i34 = 0; i34 < 3; i34++) {
+        b_x_n_b[i34] = x_n_b[i34];
+        b_x_n_b[3 + i34] = y_n_b[i34];
+        b_x_n_b[6 + i34] = z_b[i34];
       }
 
-      for (ix = 0; ix < 3; ix++) {
-        for (ixstart = 0; ixstart < 3; ixstart++) {
-          R_cw[ix + 3 * ixstart] = 0.0F;
-          for (itmp = 0; itmp < 3; itmp++) {
-            R_cw[ix + 3 * ixstart] += fv4[ix + 3 * itmp] * R_ci[itmp + 3 *
-              ixstart];
+      for (i34 = 0; i34 < 3; i34++) {
+        for (i35 = 0; i35 < 3; i35++) {
+          R_cw_init[i34 + 3 * i35] = 0.0;
+          for (i = 0; i < 3; i++) {
+            R_cw_init[i34 + 3 * i35] += dv4[i34 + 3 * i] * b_x_n_b[i + 3 * i35];
           }
+
+          P[i35 + 91 * i34] = 0.0;
+          P[(i35 + 91 * (3 + i34)) + 3] = 0.0;
+          P[(i35 + 91 * (6 + i34)) + 6] = y[i35 + 3 * i34];
         }
       }
 
-      //  THIS IS OK, It is according to the NASA memo found
-      //  https://claraty.jpl.nasa.gov/man/software/development/conventions/standards_docs/unadopted/JPL_Quaternions_Breckenridge.pdf 
-      // QUATFROMROTJ Get equivalent quaternion of the rotation matrix R
-      //    Returns a quaternion in JPL notation
-      //  The implementation is copied from qGetQ(R), but we are careful about the 
-      //  ordering of the output vector
-      //  Q = [0;0;0;1];
-      //  % [r,c] = size( R );
-      //  % if( r ~= 3 || c ~= 3 )
-      //  %     error( 'R must be a 3x3 matrix\n\r' );
-      //  % end
-      //
-      //  if abs(det(R) - 1) > 1e-2
-      //      error('The provided matrix is not a valid rotation matrix. It must have det(R) = 1, but is %i.', det(R)) 
-      //  end
-      //  T = R(1,1)+R(2,2)+R(3,3);
-      //  pivot = zeros(4,1);
-      //  pivot(1) = sqrt(max(1+2*R(1,1)-T, eps))/2;
-      //  pivot(2) = sqrt(max(1+2*R(2,2)-T, eps))/2;
-      //  pivot(3) = sqrt(max(1+2*R(3,3)-T, eps))/2;
-      //  pivot(4) = sqrt(max(1+T, eps))/2;
-      //  if ~all(isreal(pivot))
-      //      error('complex')
-      //  end
-      //  index = round(find(pivot==max(pivot)));
-      //  if(index(1)==1)
-      //      Q(1) = sqrt(1+2*R(1,1)-T)/2;
-      //      Q(2) = (R(1,2)+R(2,1))/(4*(Q(1)));
-      //      Q(3) = (R(1,3)+R(3,1))/(4*(Q(1)));
-      //      Q(4) = (R(2,3)-R(3,2))/(4*(Q(1)));
-      //  elseif(index(1)==2)
-      //      Q(2) = sqrt(1+2*R(2,2)-T)/2;
-      //      Q(1) = (R(1,2)+R(2,1))/(4*Q(2));
-      //      Q(3) = (R(2,3)+R(3,2))/(4*Q(2));
-      //      Q(4) = (R(3,1)-R(1,3))/(4*Q(2));
-      //  elseif(index(1)==3)
-      //      Q(3) = sqrt(1+2*R(3,3)-T)/2;
-      //      Q(1) = (R(1,3)+R(3,1))/(4*Q(3));
-      //      Q(2) = (R(2,3)+R(3,2))/(4*Q(3));
-      //      Q(4) = (R(1,2)-R(2,1))/(4*Q(3));
-      //  elseif(index(1)==4)
-      //      Q(4) = sqrt(1+T)/2;
-      //      Q(1) = (R(2,3)-R(3,2))/(4*Q(4));
-      //      Q(2) = (R(3,1)-R(1,3))/(4*Q(4));
-      //      Q(3) = (R(1,2)-R(2,1))/(4*Q(4));
-      //  end
-      // % speed optimization
-      varargin_1[0] = (1.0F + R_cw[0]) - (R_cw[4] + R_cw[8]);
-      varargin_1[1] = (1.0F + R_cw[4]) - (R_cw[0] + R_cw[8]);
-      varargin_1[2] = (1.0F + R_cw[8]) - (R_cw[0] + R_cw[4]);
-      varargin_1[3] = 1.0F + ((R_cw[0] + R_cw[4]) + R_cw[8]);
-      ixstart = 1;
-      mtmp = varargin_1[0];
-      itmp = 1;
-      if (rtIsNaNF(varargin_1[0])) {
-        ix = 2;
-        exitg1 = false;
-        while ((!exitg1) && (ix < 5)) {
-          ixstart = ix;
-          if (!rtIsNaNF(varargin_1[ix - 1])) {
-            mtmp = varargin_1[ix - 1];
-            itmp = ix;
-            exitg1 = true;
-          } else {
-            ix++;
-          }
-        }
-      }
-
-      if (ixstart < 4) {
-        while (ixstart + 1 < 5) {
-          if (varargin_1[ixstart] > mtmp) {
-            mtmp = varargin_1[ixstart];
-            itmp = ixstart + 1;
-          }
-
-          ixstart++;
-        }
-      }
-
-      if (itmp == 1) {
-        xt.origin.att[0] = (float)sqrt((double)((1.0F + 2.0F * R_cw[0]) -
-          ((R_cw[0] + R_cw[4]) + R_cw[8]))) / 2.0F;
-        xt.origin.att[1] = (R_cw[3] + R_cw[1]) / (4.0F * ((float)sqrt((double)
-          ((1.0F + 2.0F * R_cw[0]) - ((R_cw[0] + R_cw[4]) + R_cw[8]))) / 2.0F));
-        xt.origin.att[2] = (R_cw[6] + R_cw[2]) / (4.0F * ((float)sqrt((double)
-          ((1.0F + 2.0F * R_cw[0]) - ((R_cw[0] + R_cw[4]) + R_cw[8]))) / 2.0F));
-        xt.origin.att[3] = (R_cw[7] - R_cw[5]) / (4.0F * ((float)sqrt((double)
-          ((1.0F + 2.0F * R_cw[0]) - ((R_cw[0] + R_cw[4]) + R_cw[8]))) / 2.0F));
-      } else if (itmp == 2) {
-        xt.origin.att[0] = (R_cw[3] + R_cw[1]) / (4.0F * ((float)sqrt((double)
-          ((1.0F + 2.0F * R_cw[4]) - ((R_cw[0] + R_cw[4]) + R_cw[8]))) / 2.0F));
-        xt.origin.att[1] = (float)sqrt((double)((1.0F + 2.0F * R_cw[4]) -
-          ((R_cw[0] + R_cw[4]) + R_cw[8]))) / 2.0F;
-        xt.origin.att[2] = (R_cw[7] + R_cw[5]) / (4.0F * ((float)sqrt((double)
-          ((1.0F + 2.0F * R_cw[4]) - ((R_cw[0] + R_cw[4]) + R_cw[8]))) / 2.0F));
-        xt.origin.att[3] = (R_cw[2] - R_cw[6]) / (4.0F * ((float)sqrt((double)
-          ((1.0F + 2.0F * R_cw[4]) - ((R_cw[0] + R_cw[4]) + R_cw[8]))) / 2.0F));
-      } else if (itmp == 3) {
-        xt.origin.att[0] = (R_cw[6] + R_cw[2]) / (4.0F * ((float)sqrt((double)
-          ((1.0F + 2.0F * R_cw[8]) - ((R_cw[0] + R_cw[4]) + R_cw[8]))) / 2.0F));
-        xt.origin.att[1] = (R_cw[7] + R_cw[5]) / (4.0F * ((float)sqrt((double)
-          ((1.0F + 2.0F * R_cw[8]) - ((R_cw[0] + R_cw[4]) + R_cw[8]))) / 2.0F));
-        xt.origin.att[2] = (float)sqrt((double)((1.0F + 2.0F * R_cw[8]) -
-          ((R_cw[0] + R_cw[4]) + R_cw[8]))) / 2.0F;
-        xt.origin.att[3] = (R_cw[3] - R_cw[1]) / (4.0F * ((float)sqrt((double)
-          ((1.0F + 2.0F * R_cw[8]) - ((R_cw[0] + R_cw[4]) + R_cw[8]))) / 2.0F));
-      } else {
-        xt.origin.att[0] = (R_cw[7] - R_cw[5]) / (4.0F * ((float)sqrt((double)
-          (1.0F + ((R_cw[0] + R_cw[4]) + R_cw[8]))) / 2.0F));
-        xt.origin.att[1] = (R_cw[2] - R_cw[6]) / (4.0F * ((float)sqrt((double)
-          (1.0F + ((R_cw[0] + R_cw[4]) + R_cw[8]))) / 2.0F));
-        xt.origin.att[2] = (R_cw[3] - R_cw[1]) / (4.0F * ((float)sqrt((double)
-          (1.0F + ((R_cw[0] + R_cw[4]) + R_cw[8]))) / 2.0F));
-        xt.origin.att[3] = (float)sqrt((double)(1.0F + ((R_cw[0] + R_cw[4]) +
-          R_cw[8]))) / 2.0F;
-      }
+      QuatFromRotJ(R_cw_init, xt.origin.att);
 
       //  orientation of the origin in the world frame
       //  position
       //  orientation of camera in origin frame
       //  velocity
-      diag(noiseParameters->gyro_bias_initial_unc, fv4);
+      diag(noiseParameters->gyro_bias_initial_unc, dv4);
 
       //  gyro bias
-      diag(noiseParameters->acc_bias_initial_unc, fv5);
+      diag(noiseParameters->acc_bias_initial_unc, b_x_n_b);
 
       //  acc bias
-      for (ix = 0; ix < 3; ix++) {
-        for (ixstart = 0; ixstart < 3; ixstart++) {
-          P[ixstart + 91 * ix] = 0.0F;
-          P[(ixstart + 91 * (3 + ix)) + 3] = 0.0F;
-          P[(ixstart + 91 * (6 + ix)) + 6] = iv3[ixstart + 3 * ix];
-          P[(ixstart + 91 * (9 + ix)) + 9] = fv4[ixstart + 3 * ix];
-          P[(ixstart + 91 * (12 + ix)) + 12] = fv5[ixstart + 3 * ix];
-          fv6[ix + 3 * ixstart] = 0.0F;
-          for (itmp = 0; itmp < 3; itmp++) {
-            fv6[ix + 3 * ixstart] += 0.1F * R_cw[ix + 3 * itmp] * (float)b[itmp
-              + 3 * ixstart];
+      for (i34 = 0; i34 < 3; i34++) {
+        for (i35 = 0; i35 < 3; i35++) {
+          P[(i35 + 91 * (9 + i34)) + 9] = dv4[i35 + 3 * i34];
+          P[(i35 + 91 * (12 + i34)) + 12] = b_x_n_b[i35 + 3 * i34];
+          dv5[i34 + 3 * i35] = 0.0;
+          for (i = 0; i < 3; i++) {
+            dv5[i34 + 3 * i35] += 0.1 * R_cw_init[i34 + 3 * i] * (double)b[i + 3
+              * i35];
           }
         }
       }
 
-      for (ix = 0; ix < 3; ix++) {
-        for (ixstart = 0; ixstart < 3; ixstart++) {
-          P[(ix + 91 * (15 + ixstart)) + 15] = 0.0F;
-          for (itmp = 0; itmp < 3; itmp++) {
-            P[(ix + 91 * (15 + ixstart)) + 15] += fv6[ix + 3 * itmp] *
-              R_cw[ixstart + 3 * itmp];
+      for (i34 = 0; i34 < 3; i34++) {
+        for (i35 = 0; i35 < 3; i35++) {
+          P[(i34 + 91 * (15 + i35)) + 15] = 0.0;
+          for (i = 0; i < 3; i++) {
+            P[(i34 + 91 * (15 + i35)) + 15] += dv5[i34 + 3 * i] * R_cw_init[i35
+              + 3 * i];
           }
         }
       }
 
       //  origin orientation
-      for (ix = 0; ix < 3; ix++) {
-        for (ixstart = 0; ixstart < 3; ixstart++) {
-          P[(ixstart + 91 * (18 + ix)) + 18] = 0.0F;
+      for (i34 = 0; i34 < 3; i34++) {
+        for (i35 = 0; i35 < 3; i35++) {
+          P[(i35 + 91 * (18 + i34)) + 18] = 0.0;
         }
       }
 
       //  R_ci
-      memset(&h_u[0], 0, 160U * sizeof(float));
+      memset(&h_u[0], 0, 160U * sizeof(double));
       getMap(xt.origin.pos, xt.origin.att, xt.anchor_states, map);
-      memset(&delayedStatus[0], 0, 40U * sizeof(float));
+      memset(&delayedStatus[0], 0, 40U * sizeof(double));
       printParams(noiseParameters->process_noise.qv,
                   noiseParameters->process_noise.qw,
                   noiseParameters->process_noise.qao,
@@ -11490,464 +10068,15 @@ void SLAM(int updateVect[40], const float z_all_l[80], const float z_all_r[80],
     }
   } else if (!vision) {
     //      [xt,P] =  SLAM_pred(P, xt, dt, noiseParameters.process_noise, measurements, numStates); 
-    //  if ~all(size(q) == [4, 1])
-    //      error('q does not have the size of a quaternion')
-    //  end
-    //  if abs(norm(q) - 1) > 1e-3
-    //      error('The provided quaternion is not a valid rotation quaternion because it does not have norm 1') 
-    //  end
-    R_cw[0] = ((xt.robot_state.att[0] * xt.robot_state.att[0] -
-                xt.robot_state.att[1] * xt.robot_state.att[1]) -
-               xt.robot_state.att[2] * xt.robot_state.att[2]) +
-      xt.robot_state.att[3] * xt.robot_state.att[3];
-    R_cw[3] = 2.0F * (xt.robot_state.att[0] * xt.robot_state.att[1] +
-                      xt.robot_state.att[2] * xt.robot_state.att[3]);
-    R_cw[6] = 2.0F * (xt.robot_state.att[0] * xt.robot_state.att[2] -
-                      xt.robot_state.att[1] * xt.robot_state.att[3]);
-    R_cw[1] = 2.0F * (xt.robot_state.att[0] * xt.robot_state.att[1] -
-                      xt.robot_state.att[2] * xt.robot_state.att[3]);
-    R_cw[4] = ((-(xt.robot_state.att[0] * xt.robot_state.att[0]) +
-                xt.robot_state.att[1] * xt.robot_state.att[1]) -
-               xt.robot_state.att[2] * xt.robot_state.att[2]) +
-      xt.robot_state.att[3] * xt.robot_state.att[3];
-    R_cw[7] = 2.0F * (xt.robot_state.att[1] * xt.robot_state.att[2] +
-                      xt.robot_state.att[0] * xt.robot_state.att[3]);
-    R_cw[2] = 2.0F * (xt.robot_state.att[0] * xt.robot_state.att[2] +
-                      xt.robot_state.att[1] * xt.robot_state.att[3]);
-    R_cw[5] = 2.0F * (xt.robot_state.att[1] * xt.robot_state.att[2] -
-                      xt.robot_state.att[0] * xt.robot_state.att[3]);
-    R_cw[8] = ((-(xt.robot_state.att[0] * xt.robot_state.att[0]) -
-                xt.robot_state.att[1] * xt.robot_state.att[1]) +
-               xt.robot_state.att[2] * xt.robot_state.att[2]) +
-      xt.robot_state.att[3] * xt.robot_state.att[3];
-
-    //  rotation in origin frame
-    //  if ~all(size(q) == [4, 1])
-    //      error('q does not have the size of a quaternion')
-    //  end
-    //  if abs(norm(q) - 1) > 1e-3
-    //      error('The provided quaternion is not a valid rotation quaternion because it does not have norm 1') 
-    //  end
-    b_R_ci[0] = ((xt.robot_state.IMU.att[0] * xt.robot_state.IMU.att[0] -
-                  xt.robot_state.IMU.att[1] * xt.robot_state.IMU.att[1]) -
-                 xt.robot_state.IMU.att[2] * xt.robot_state.IMU.att[2]) +
-      xt.robot_state.IMU.att[3] * xt.robot_state.IMU.att[3];
-    b_R_ci[3] = 2.0F * (xt.robot_state.IMU.att[0] * xt.robot_state.IMU.att[1] +
-                        xt.robot_state.IMU.att[2] * xt.robot_state.IMU.att[3]);
-    b_R_ci[6] = 2.0F * (xt.robot_state.IMU.att[0] * xt.robot_state.IMU.att[2] -
-                        xt.robot_state.IMU.att[1] * xt.robot_state.IMU.att[3]);
-    b_R_ci[1] = 2.0F * (xt.robot_state.IMU.att[0] * xt.robot_state.IMU.att[1] -
-                        xt.robot_state.IMU.att[2] * xt.robot_state.IMU.att[3]);
-    b_R_ci[4] = ((-(xt.robot_state.IMU.att[0] * xt.robot_state.IMU.att[0]) +
-                  xt.robot_state.IMU.att[1] * xt.robot_state.IMU.att[1]) -
-                 xt.robot_state.IMU.att[2] * xt.robot_state.IMU.att[2]) +
-      xt.robot_state.IMU.att[3] * xt.robot_state.IMU.att[3];
-    b_R_ci[7] = 2.0F * (xt.robot_state.IMU.att[1] * xt.robot_state.IMU.att[2] +
-                        xt.robot_state.IMU.att[0] * xt.robot_state.IMU.att[3]);
-    b_R_ci[2] = 2.0F * (xt.robot_state.IMU.att[0] * xt.robot_state.IMU.att[2] +
-                        xt.robot_state.IMU.att[1] * xt.robot_state.IMU.att[3]);
-    b_R_ci[5] = 2.0F * (xt.robot_state.IMU.att[1] * xt.robot_state.IMU.att[2] -
-                        xt.robot_state.IMU.att[0] * xt.robot_state.IMU.att[3]);
-    b_R_ci[8] = ((-(xt.robot_state.IMU.att[0] * xt.robot_state.IMU.att[0]) -
-                  xt.robot_state.IMU.att[1] * xt.robot_state.IMU.att[1]) +
-                 xt.robot_state.IMU.att[2] * xt.robot_state.IMU.att[2]) +
-      xt.robot_state.IMU.att[3] * xt.robot_state.IMU.att[3];
-
-    //  in camera frame
-    for (ix = 0; ix < 3; ix++) {
-      for (ixstart = 0; ixstart < 3; ixstart++) {
-        R_ci[ixstart + 3 * ix] = -b_R_ci[ix + 3 * ixstart];
-      }
-    }
-
-    //  in imu frame
-    for (ixstart = 0; ixstart < 3; ixstart++) {
-      t_ci[ixstart] = 0.0F;
-      for (ix = 0; ix < 3; ix++) {
-        t_ci[ixstart] += R_ci[ixstart + 3 * ix] * xt.robot_state.IMU.pos[ix];
-      }
-
-      w_imu[ixstart] = measurements->gyr_duo[ixstart] -
-        xt.robot_state.IMU.gyro_bias[ixstart];
-    }
-
-    //  gyro in IMU frame
-    //  gyro in camera frame
-    //  w = 0*w;
-    //  acceleration in IMU frame
-    R[0] = 0.0F;
-    R[3] = -w_imu[2];
-    R[6] = w_imu[1];
-    R[1] = w_imu[2];
-    R[4] = 0.0F;
-    R[7] = -w_imu[0];
-    R[2] = -w_imu[1];
-    R[5] = w_imu[0];
-    R[8] = 0.0F;
-    for (ix = 0; ix < 3; ix++) {
-      w_c[ix] = 0.0F;
-      mtmp = 0.0F;
-      for (ixstart = 0; ixstart < 3; ixstart++) {
-        w_c[ix] += b_R_ci[ix + 3 * ixstart] * w_imu[ixstart];
-        b_R[ix + 3 * ixstart] = 0.0F;
-        for (itmp = 0; itmp < 3; itmp++) {
-          b_R[ix + 3 * ixstart] += R[ix + 3 * itmp] * R[itmp + 3 * ixstart];
-        }
-
-        mtmp += b_R[ix + 3 * ixstart] * t_ci[ixstart];
-      }
-
-      b_measurements[ix] = (measurements->acc_duo[ix] -
-                            xt.robot_state.IMU.acc_bias[ix]) + mtmp;
-    }
-
-    for (ix = 0; ix < 3; ix++) {
-      a_c[ix] = 0.0F;
-      for (ixstart = 0; ixstart < 3; ixstart++) {
-        a_c[ix] += b_R_ci[ix + 3 * ixstart] * b_measurements[ixstart];
-      }
-    }
-
-    //  a = 0*a;
-    // % compute the linearization F of the non linear model f
-    v[0] = noiseParameters->process_noise.qw;
-    v[1] = noiseParameters->process_noise.qw;
-    v[2] = noiseParameters->process_noise.qw;
-    v[3] = noiseParameters->process_noise.qv;
-    v[4] = noiseParameters->process_noise.qv;
-    v[5] = noiseParameters->process_noise.qv;
-    v[6] = noiseParameters->process_noise.qwo;
-    v[7] = noiseParameters->process_noise.qwo;
-    v[8] = noiseParameters->process_noise.qwo;
-    v[9] = 0.0F * noiseParameters->process_noise.qao;
-    v[10] = noiseParameters->process_noise.qao;
-    v[11] = 0.0F * noiseParameters->process_noise.qao;
-    v[12] = noiseParameters->process_noise.qR_ci;
-    v[13] = noiseParameters->process_noise.qR_ci;
-    v[14] = noiseParameters->process_noise.qR_ci;
-    memset(&d[0], 0, 225U * sizeof(float));
-    for (ixstart = 0; ixstart < 15; ixstart++) {
-      d[ixstart + 15 * ixstart] = v[ixstart];
-    }
-
-    //  if ~all(size(q) == [4, 1])
-    //      error('q does not have the size of a quaternion')
-    //  end
-    //  if abs(norm(q) - 1) > 1e-3
-    //      error('The provided quaternion is not a valid rotation quaternion because it does not have norm 1') 
-    //  end
-    fv4[0] = ((xt.origin.att[0] * xt.origin.att[0] - xt.origin.att[1] *
-               xt.origin.att[1]) - xt.origin.att[2] * xt.origin.att[2]) +
-      xt.origin.att[3] * xt.origin.att[3];
-    fv4[3] = 2.0F * (xt.origin.att[0] * xt.origin.att[1] + xt.origin.att[2] *
-                     xt.origin.att[3]);
-    fv4[6] = 2.0F * (xt.origin.att[0] * xt.origin.att[2] - xt.origin.att[1] *
-                     xt.origin.att[3]);
-    fv4[1] = 2.0F * (xt.origin.att[0] * xt.origin.att[1] - xt.origin.att[2] *
-                     xt.origin.att[3]);
-    fv4[4] = ((-(xt.origin.att[0] * xt.origin.att[0]) + xt.origin.att[1] *
-               xt.origin.att[1]) - xt.origin.att[2] * xt.origin.att[2]) +
-      xt.origin.att[3] * xt.origin.att[3];
-    fv4[7] = 2.0F * (xt.origin.att[1] * xt.origin.att[2] + xt.origin.att[0] *
-                     xt.origin.att[3]);
-    fv4[2] = 2.0F * (xt.origin.att[0] * xt.origin.att[2] + xt.origin.att[1] *
-                     xt.origin.att[3]);
-    fv4[5] = 2.0F * (xt.origin.att[1] * xt.origin.att[2] - xt.origin.att[0] *
-                     xt.origin.att[3]);
-    fv4[8] = ((-(xt.origin.att[0] * xt.origin.att[0]) - xt.origin.att[1] *
-               xt.origin.att[1]) + xt.origin.att[2] * xt.origin.att[2]) +
-      xt.origin.att[3] * xt.origin.att[3];
-
-    //  gravity transformed into the origin frame
-    //    pos,            rot, vel,                                         gyr_bias,   acc_bias,          origin_att,                                    R_ci 
-    fv5[0] = 0.0F;
-    fv5[3] = -w_imu[2];
-    fv5[6] = w_imu[1];
-    fv5[1] = w_imu[2];
-    fv5[4] = 0.0F;
-    fv5[7] = -w_imu[0];
-    fv5[2] = -w_imu[1];
-    fv5[5] = w_imu[0];
-    fv5[8] = 0.0F;
-    for (ix = 0; ix < 3; ix++) {
-      grav_origin[ix] = 0.0F;
-      c[ix] = 0.0F;
-      b_c[ix] = 0.0F;
-      c_c[ix] = 0.0F;
-      for (ixstart = 0; ixstart < 3; ixstart++) {
-        grav_origin[ix] += fv4[ix + 3 * ixstart] * b_b[ixstart];
-        c[ix] += b_R_ci[ix + 3 * ixstart] * xt.robot_state.IMU.gyro_bias[ixstart];
-        b_c[ix] += R_cw[ixstart + 3 * ix] * a_c[ixstart];
-        c_c[ix] += fv5[ix + 3 * ixstart] * t_ci[ixstart];
-      }
-    }
-
-    //  pos
-    //  att
-    //  vel
-    //  gyro bias
-    //  acc bias
-    //  origin att
-    for (ix = 0; ix < 15; ix++) {
-      for (ixstart = 0; ixstart < 3; ixstart++) {
-        G[ixstart + 21 * ix] = 0.0F;
-        G[(ixstart + 21 * ix) + 3] = iv4[ixstart + 3 * ix];
-      }
-    }
-
-    for (ix = 0; ix < 3; ix++) {
-      for (ixstart = 0; ixstart < 3; ixstart++) {
-        G[(ixstart + 21 * ix) + 6] = 0.0F;
-        G[(ixstart + 21 * (ix + 3)) + 6] = -R_cw[ix + 3 * ixstart];
-        G[(ixstart + 21 * (ix + 6)) + 6] = 0.0F;
-        G[(ixstart + 21 * (ix + 9)) + 6] = 0.0F;
-        G[(ixstart + 21 * (ix + 12)) + 6] = 0.0F;
-      }
-    }
-
-    for (ix = 0; ix < 15; ix++) {
-      for (ixstart = 0; ixstart < 3; ixstart++) {
-        G[(ixstart + 21 * ix) + 9] = iv5[ixstart + 3 * ix];
-        G[(ixstart + 21 * ix) + 12] = iv6[ixstart + 3 * ix];
-        G[(ixstart + 21 * ix) + 15] = 0.0F;
-        G[(ixstart + 21 * ix) + 18] = iv7[ixstart + 3 * ix];
-      }
-    }
-
-    //  R_ci
-    fv6[0] = 0.0F;
-    fv6[3] = -w_c[2];
-    fv6[6] = w_c[1];
-    fv6[1] = w_c[2];
-    fv6[4] = 0.0F;
-    fv6[7] = -w_c[0];
-    fv6[2] = -w_c[1];
-    fv6[5] = w_c[0];
-    fv6[8] = 0.0F;
-    fv7[0] = 0.0F;
-    fv7[3] = -c[2];
-    fv7[6] = c[1];
-    fv7[1] = c[2];
-    fv7[4] = 0.0F;
-    fv7[7] = -c[0];
-    fv7[2] = -c[1];
-    fv7[5] = c[0];
-    fv7[8] = 0.0F;
-    fv8[0] = 0.0F;
-    fv8[3] = -b_c[2];
-    fv8[6] = b_c[1];
-    fv8[1] = b_c[2];
-    fv8[4] = 0.0F;
-    fv8[7] = -b_c[0];
-    fv8[2] = -b_c[1];
-    fv8[5] = b_c[0];
-    fv8[8] = 0.0F;
-    fv9[0] = 0.0F;
-    fv9[3] = -c_c[2];
-    fv9[6] = c_c[1];
-    fv9[1] = c_c[2];
-    fv9[4] = 0.0F;
-    fv9[7] = -c_c[0];
-    fv9[2] = -c_c[1];
-    fv9[5] = c_c[0];
-    fv9[8] = 0.0F;
-    fv10[0] = 0.0F;
-    fv10[3] = -w_imu[2];
-    fv10[6] = w_imu[1];
-    fv10[1] = w_imu[2];
-    fv10[4] = 0.0F;
-    fv10[7] = -w_imu[0];
-    fv10[2] = -w_imu[1];
-    fv10[5] = w_imu[0];
-    fv10[8] = 0.0F;
-    fv11[0] = 0.0F;
-    fv11[3] = -t_ci[2];
-    fv11[6] = t_ci[1];
-    fv11[1] = t_ci[2];
-    fv11[4] = 0.0F;
-    fv11[7] = -t_ci[0];
-    fv11[2] = -t_ci[1];
-    fv11[5] = t_ci[0];
-    fv11[8] = 0.0F;
-    fv12[0] = 0.0F;
-    fv12[3] = -grav_origin[2];
-    fv12[6] = grav_origin[1];
-    fv12[1] = grav_origin[2];
-    fv12[4] = 0.0F;
-    fv12[7] = -grav_origin[0];
-    fv12[2] = -grav_origin[1];
-    fv12[5] = grav_origin[0];
-    fv12[8] = 0.0F;
-    fv13[0] = 0.0F;
-    fv13[3] = -a_c[2];
-    fv13[6] = a_c[1];
-    fv13[1] = a_c[2];
-    fv13[4] = 0.0F;
-    fv13[7] = -a_c[0];
-    fv13[2] = -a_c[1];
-    fv13[5] = a_c[0];
-    fv13[8] = 0.0F;
-    for (ix = 0; ix < 3; ix++) {
-      for (ixstart = 0; ixstart < 3; ixstart++) {
-        R[ixstart + 3 * ix] = -R_cw[ix + 3 * ixstart];
-        mtmp = 0.0F;
-        for (itmp = 0; itmp < 3; itmp++) {
-          mtmp += fv10[ix + 3 * itmp] * fv11[itmp + 3 * ixstart];
-        }
-
-        fv4[ix + 3 * ixstart] = -fv9[ix + 3 * ixstart] - mtmp;
-      }
-    }
-
-    for (ix = 0; ix < 3; ix++) {
-      for (ixstart = 0; ixstart < 3; ixstart++) {
-        R_ci[ix + 3 * ixstart] = 0.0F;
-        b_R[ix + 3 * ixstart] = 0.0F;
-        for (itmp = 0; itmp < 3; itmp++) {
-          R_ci[ix + 3 * ixstart] += R[ix + 3 * itmp] * b_R_ci[itmp + 3 * ixstart];
-          b_R[ix + 3 * ixstart] += R_cw[ix + 3 * itmp] * fv13[itmp + 3 * ixstart];
-        }
-      }
-    }
-
-    for (ix = 0; ix < 21; ix++) {
-      for (ixstart = 0; ixstart < 3; ixstart++) {
-        Phi[ixstart + 21 * ix] = iv8[ixstart + 3 * ix];
-      }
-    }
-
-    for (ix = 0; ix < 3; ix++) {
-      for (ixstart = 0; ixstart < 3; ixstart++) {
-        Phi[(ixstart + 21 * ix) + 3] = 0.0F;
-        Phi[(ixstart + 21 * (ix + 3)) + 3] = -fv6[ixstart + 3 * ix];
-        Phi[(ixstart + 21 * (ix + 6)) + 3] = 0.0F;
-        Phi[(ixstart + 21 * (ix + 9)) + 3] = iv9[ixstart + 3 * ix];
-        Phi[(ixstart + 21 * (ix + 12)) + 3] = 0.0F;
-        Phi[(ixstart + 21 * (ix + 15)) + 3] = 0.0F;
-        Phi[(ixstart + 21 * (ix + 18)) + 3] = -fv7[ixstart + 3 * ix];
-        Phi[(ixstart + 21 * ix) + 6] = 0.0F;
-        Phi[(ixstart + 21 * (ix + 3)) + 6] = -fv8[ixstart + 3 * ix];
-        Phi[(ixstart + 21 * (ix + 6)) + 6] = 0.0F;
-        Phi[(ixstart + 21 * (ix + 9)) + 6] = fv4[ixstart + 3 * ix];
-        Phi[(ixstart + 21 * (ix + 12)) + 6] = R_ci[ixstart + 3 * ix];
-        Phi[(ixstart + 21 * (ix + 15)) + 6] = -fv12[ixstart + 3 * ix];
-        Phi[(ixstart + 21 * (ix + 18)) + 6] = b_R[ixstart + 3 * ix];
-      }
-    }
-
-    for (ix = 0; ix < 21; ix++) {
-      for (ixstart = 0; ixstart < 3; ixstart++) {
-        Phi[(ixstart + 21 * ix) + 9] = 0.0F;
-        Phi[(ixstart + 21 * ix) + 12] = 0.0F;
-        Phi[(ixstart + 21 * ix) + 15] = 0.0F;
-        Phi[(ixstart + 21 * ix) + 18] = 0.0F;
-      }
-
-      for (ixstart = 0; ixstart < 21; ixstart++) {
-        b_Phi[ixstart + 21 * ix] = (float)iv10[ixstart + 21 * ix] + Phi[ixstart
-          + 21 * ix] * dt;
-      }
-    }
-
-    //  covariance of the state
-    for (ix = 0; ix < 21; ix++) {
-      for (ixstart = 0; ixstart < 21; ixstart++) {
-        Phi[ix + 21 * ixstart] = 0.0F;
-        for (itmp = 0; itmp < 21; itmp++) {
-          Phi[ix + 21 * ixstart] += b_Phi[ix + 21 * itmp] * P[itmp + 91 *
-            ixstart];
-        }
-      }
-
-      for (ixstart = 0; ixstart < 15; ixstart++) {
-        b_G[ix + 21 * ixstart] = 0.0F;
-        for (itmp = 0; itmp < 15; itmp++) {
-          b_G[ix + 21 * ixstart] += G[ix + 21 * itmp] * d[itmp + 15 * ixstart];
-        }
-      }
-
-      for (ixstart = 0; ixstart < 21; ixstart++) {
-        c_G[ix + 21 * ixstart] = 0.0F;
-        for (itmp = 0; itmp < 15; itmp++) {
-          c_G[ix + 21 * ixstart] += b_G[ix + 21 * itmp] * G[ixstart + 21 * itmp];
-        }
-
-        mtmp = 0.0F;
-        for (itmp = 0; itmp < 21; itmp++) {
-          mtmp += Phi[ix + 21 * itmp] * b_Phi[ixstart + 21 * itmp];
-        }
-
-        P_xx_apr[ix + 21 * ixstart] = mtmp + c_G[ix + 21 * ixstart] * dt;
-      }
-
-      for (ixstart = 0; ixstart < 70; ixstart++) {
-        P_xs_apr[ix + 21 * ixstart] = 0.0F;
-        for (itmp = 0; itmp < 21; itmp++) {
-          P_xs_apr[ix + 21 * ixstart] += b_Phi[ix + 21 * itmp] * P[itmp + 91 *
-            (21 + ixstart)];
-        }
-      }
-    }
-
-    //  covariance between current state and trails
-    for (ix = 0; ix < 21; ix++) {
-      for (ixstart = 0; ixstart < 21; ixstart++) {
-        P[ixstart + 91 * ix] = (P_xx_apr[ixstart + 21 * ix] + P_xx_apr[ix + 21 *
-          ixstart]) / 2.0F;
-      }
-    }
-
-    for (ix = 0; ix < 70; ix++) {
-      memcpy(&P[ix * 91 + 1911], &P_xs_apr[ix * 21], 21U * sizeof(float));
-    }
-
-    for (ix = 0; ix < 21; ix++) {
-      for (ixstart = 0; ixstart < 70; ixstart++) {
-        P[(ixstart + 91 * ix) + 21] = P_xs_apr[ix + 21 * ixstart];
-      }
-    }
-
-    for (ix = 0; ix < 3; ix++) {
-      xt.robot_state.pos[ix] += xt.robot_state.vel[ix] * dt;
-      w_c[ix] *= dt;
-    }
-
-    theta = norm(w_c) * 0.5F;
-    if (theta < 0.244F) {
-      for (ixstart = 0; ixstart < 3; ixstart++) {
-        dq[ixstart] = 0.5F * w_c[ixstart];
-      }
-
-      dq[3] = 1.0F;
-    } else {
-      dq[0] = 0.5F * w_c[0] * (float)sin((double)theta) / theta;
-      dq[1] = 0.5F * w_c[1] * (float)sin((double)theta) / theta;
-      dq[2] = 0.5F * w_c[2] * (float)sin((double)theta) / theta;
-      dq[3] = (float)cos((double)theta);
-    }
-
-    mtmp = b_norm(dq);
-    for (ixstart = 0; ixstart < 4; ixstart++) {
-      varargin_1[ixstart] = xt.robot_state.att[ixstart];
-      dq[ixstart] /= mtmp;
-    }
-
-    quatmultJ(dq, varargin_1, xt.robot_state.att);
-    for (ix = 0; ix < 3; ix++) {
-      mtmp = 0.0F;
-      for (ixstart = 0; ixstart < 3; ixstart++) {
-        mtmp += R_cw[ixstart + 3 * ix] * a_c[ixstart];
-      }
-
-      b_measurements[ix] = mtmp - grav_origin[ix];
-      xt.robot_state.vel[ix] += b_measurements[ix] * dt;
-    }
-
-    //  velocity
-    //  P_apr = (P_apr+P_apr')/2;
+    SLAM_pred_euler(P, &xt, dt, noiseParameters->process_noise.qv,
+                    noiseParameters->process_noise.qw,
+                    noiseParameters->process_noise.qao,
+                    noiseParameters->process_noise.qwo,
+                    noiseParameters->process_noise.qR_ci, measurements->acc_duo,
+                    measurements->gyr_duo);
   } else {
-    memcpy(&b_z_all_l[0], &z_all_l[0], 80U * sizeof(float));
-    memcpy(&b_z_all_r[0], &z_all_r[0], 80U * sizeof(float));
+    memcpy(&b_z_all_l[0], &z_all_l[0], 80U * sizeof(double));
+    memcpy(&b_z_all_r[0], &z_all_r[0], 80U * sizeof(double));
     SLAM_upd(P, &xt, cameraParameters->CameraParameters1.FocalLength,
              cameraParameters->CameraParameters1.PrincipalPoint,
              cameraParameters->CameraParameters1.RadialDistortion,
@@ -11961,38 +10090,38 @@ void SLAM(int updateVect[40], const float z_all_l[80], const float z_all_r[80],
              delayedStatus);
   }
 
-  memcpy(&h_u_out[0], &h_u[0], 160U * sizeof(float));
-  memcpy(&map_out[0], &map[0], 120U * sizeof(float));
+  memcpy(&h_u_out[0], &h_u[0], 160U * sizeof(double));
+  memcpy(&map_out[0], &map[0], 120U * sizeof(double));
   getWorldState(xt.robot_state.IMU.pos, xt.robot_state.IMU.att,
                 xt.robot_state.IMU.gyro_bias, xt.robot_state.IMU.acc_bias,
                 xt.robot_state.pos, xt.robot_state.att, xt.origin.pos,
-                xt.origin.att, b_measurements, varargin_1, c, b_c, c_c,
-                t0_IMU_pos, t0_IMU_att);
-  for (ixstart = 0; ixstart < 3; ixstart++) {
-    xt_out->pos[ixstart] = b_measurements[ixstart];
+                xt.origin.att, b_y_n_b, t0_att, t0_vel, t0_IMU_gyro_bias,
+                t0_IMU_acc_bias, t0_IMU_pos, t0_IMU_att);
+  for (i = 0; i < 3; i++) {
+    xt_out->pos[i] = b_y_n_b[i];
   }
 
-  for (ixstart = 0; ixstart < 4; ixstart++) {
-    xt_out->att[ixstart] = varargin_1[ixstart];
+  for (i = 0; i < 4; i++) {
+    xt_out->att[i] = t0_att[i];
   }
 
-  for (ixstart = 0; ixstart < 3; ixstart++) {
-    xt_out->vel[ixstart] = c[ixstart];
-    xt_out->IMU.gyro_bias[ixstart] = b_c[ixstart];
-    xt_out->IMU.acc_bias[ixstart] = c_c[ixstart];
-    xt_out->IMU.pos[ixstart] = t0_IMU_pos[ixstart];
+  for (i = 0; i < 3; i++) {
+    xt_out->vel[i] = t0_vel[i];
+    xt_out->IMU.gyro_bias[i] = t0_IMU_gyro_bias[i];
+    xt_out->IMU.acc_bias[i] = t0_IMU_acc_bias[i];
+    xt_out->IMU.pos[i] = t0_IMU_pos[i];
   }
 
-  for (ixstart = 0; ixstart < 4; ixstart++) {
-    xt_out->IMU.att[ixstart] = t0_IMU_att[ixstart];
+  for (i = 0; i < 4; i++) {
+    xt_out->IMU.att[i] = t0_IMU_att[i];
   }
 
-  getAnchorPoses(xt.origin.pos, xt.origin.att, xt.anchor_states, rv2);
-  cast(rv2, anchor_poses_out);
-  memcpy(&delayedStatus_out[0], &delayedStatus[0], 40U * sizeof(float));
+  getAnchorPoses(xt.origin.pos, xt.origin.att, xt.anchor_states, rv1);
+  cast(rv1, anchor_poses_out);
+  memcpy(&delayedStatus_out[0], &delayedStatus[0], 40U * sizeof(double));
 
-  //  NOTE: Comment this out for MEXing
   //  output
+  //  NOTE: Comment this out for MEXing
 }
 
 //
