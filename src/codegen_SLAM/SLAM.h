@@ -4,8 +4,8 @@
 // government, commercial, or other organizational use.
 // File: SLAM.h
 //
-// MATLAB Coder version            : 2.8
-// C/C++ source code generated on  : 07-Oct-2015 10:22:33
+// MATLAB Coder version            : 3.0
+// C/C++ source code generated on  : 09-Oct-2015 09:29:00
 //
 #ifndef __SLAM_H__
 #define __SLAM_H__
@@ -19,17 +19,19 @@
 #include "rtwtypes.h"
 #include "SLAM_types.h"
 
+// Type Definitions
+#include <stdio.h>
+
 // Function Declarations
-extern void SLAM(int updateVect[40], const double z_all_l[80], const double
-                 z_all_r[80], double dt, const VIOMeasurements *measurements,
+extern void SLAM(int updateVect[40], const float z_all_l[80], const float
+                 z_all_r[80], float dt, const VIOMeasurements *measurements,
                  const DUOParameters *cameraParameters, const NoiseParameters
                  *noiseParameters, const VIOParameters *b_VIOParameters,
-                 boolean_T vision, RobotState *xt_out, emxArray_real_T *h_u_out,
-                 emxArray_real_T *map_out, emxArray_AnchorPose *anchor_poses_out,
-                 double delayedStatus_out[40]);
-extern void SLAM_free();
-extern void SLAM_init();
-extern void initialized_not_empty_init();
+                 boolean_T vision, RobotState *xt_out, float h_u_out[160], float
+                 map_out[120], AnchorPose anchor_poses_out[5], float
+                 delayedStatus_out[40]);
+extern void SLAM_initialize();
+extern void SLAM_terminate();
 
 #endif
 

@@ -2,8 +2,8 @@
 ## Makefile generated for MATLAB file/project 'SLAM'. 
 ## 
 ## Makefile     : SLAM_rtw.mk
-## Generated on : Mon Oct 05 18:20:36 2015
-## MATLAB Coder version: 2.8 (R2015a)
+## Generated on : Fri Oct 09 09:29:53 2015
+## MATLAB Coder version: 3.0 (R2015b)
 ## 
 ## Build Info:
 ## 
@@ -24,9 +24,9 @@
 PRODUCT_NAME              = SLAM
 MAKEFILE                  = SLAM_rtw.mk
 COMPUTER                  = GLNXA64
-MATLAB_ROOT               = /usr/local/MATLAB/R2015a
-MATLAB_BIN                = /usr/local/MATLAB/R2015a/bin
-MATLAB_ARCH_BIN           = /usr/local/MATLAB/R2015a/bin/glnxa64
+MATLAB_ROOT               = /usr/local/MATLAB/R2015b
+MATLAB_BIN                = /usr/local/MATLAB/R2015b/bin
+MATLAB_ARCH_BIN           = /usr/local/MATLAB/R2015b/bin/glnxa64
 MASTER_ANCHOR_DIR         = 
 START_DIR                 = /home/nicolas/gitlab/SLAM/StereoSLAM_invDepth_NoRciTciAccOff
 ARCH                      = glnxa64
@@ -40,7 +40,7 @@ CPP_ANSI_OPTS             = -std=c++98 -pedantic -Wno-long-long -fwrapv
 
 # Toolchain Name:          GNU gcc/g++ v4.4.x | gmake (64-bit Linux)
 # Supported Version(s):    4.4.x
-# ToolchainInfo Version:   R2015a
+# ToolchainInfo Version:   R2015b
 # Specification Revision:  1.0
 # 
 #-------------------------------------------
@@ -117,15 +117,15 @@ ECHO                = @echo
 MV                  = @mv
 RUN                 =
 
-#----------------------------------------
-# "Faster Builds" Build Configuration
-#----------------------------------------
+#--------------------------------------
+# "Faster Runs" Build Configuration
+#--------------------------------------
 
 ARFLAGS              = ruvs
 CFLAGS               = -c $(ANSI_OPTS) -fPIC \
-                       -O0
+                       -O3 -fno-loop-optimize
 CPPFLAGS             = -c $(CPP_ANSI_OPTS) -fPIC \
-                       -O0
+                       -O3 -fno-loop-optimize
 CPP_LDFLAGS          = -Wl,-rpath,"$(MATLAB_ARCH_BIN)",-L"$(MATLAB_ARCH_BIN)"
 CPP_SHAREDLIB_LDFLAGS  = -shared -Wl,-rpath,"$(MATLAB_ARCH_BIN)",-L"$(MATLAB_ARCH_BIN)" -Wl,--no-undefined
 DOWNLOAD_FLAGS       =
@@ -134,7 +134,7 @@ LDFLAGS              = -Wl,-rpath,"$(MATLAB_ARCH_BIN)",-L"$(MATLAB_ARCH_BIN)"
 MEX_CFLAGS           = -MATLAB_ARCH=$(ARCH) $(INCLUDES) \
                          \
                        COPTIMFLAGS="$(ANSI_OPTS)  \
-                       -O0 \
+                       -O3 -fno-loop-optimize \
                         $(DEFINES)" \
                          \
                        -silent
@@ -189,7 +189,7 @@ DEFINES = $(DEFINES_STANDARD)
 ## SOURCE FILES
 ###########################################################################
 
-SRCS = $(START_DIR)/codegen/lib/SLAM/SLAM_rtwutil.cpp $(START_DIR)/codegen/lib/SLAM/SLAM_data.cpp $(START_DIR)/codegen/lib/SLAM/SLAM_initialize.cpp $(START_DIR)/codegen/lib/SLAM/SLAM_terminate.cpp $(START_DIR)/codegen/lib/SLAM/SLAM.cpp $(START_DIR)/codegen/lib/SLAM/QuatFromRotJ.cpp $(START_DIR)/codegen/lib/SLAM/mrdivide.cpp $(START_DIR)/codegen/lib/SLAM/colon.cpp $(START_DIR)/codegen/lib/SLAM/getAnchorPoses.cpp $(START_DIR)/codegen/lib/SLAM/norm.cpp $(START_DIR)/codegen/lib/SLAM/eye.cpp $(START_DIR)/codegen/lib/SLAM/diag.cpp $(START_DIR)/codegen/lib/SLAM/getMap.cpp $(START_DIR)/codegen/lib/SLAM/fprintf.cpp $(START_DIR)/codegen/lib/SLAM/fileManager.cpp $(START_DIR)/codegen/lib/SLAM/ros_info.cpp $(START_DIR)/codegen/lib/SLAM/SLAM_pred_euler.cpp $(START_DIR)/codegen/lib/SLAM/quatPlusThetaJ.cpp $(START_DIR)/codegen/lib/SLAM/quatmultJ.cpp $(START_DIR)/codegen/lib/SLAM/SLAM_upd.cpp $(START_DIR)/codegen/lib/SLAM/multiplyIdx.cpp $(START_DIR)/codegen/lib/SLAM/undistortPoint.cpp $(START_DIR)/codegen/lib/SLAM/eml_sort.cpp $(START_DIR)/codegen/lib/SLAM/ros_error.cpp $(START_DIR)/codegen/lib/SLAM/any.cpp $(START_DIR)/codegen/lib/SLAM/OnePointRANSAC_EKF.cpp $(START_DIR)/codegen/lib/SLAM/getScaledMap.cpp $(START_DIR)/codegen/lib/SLAM/getH_R_res.cpp $(START_DIR)/codegen/lib/SLAM/predictMeasurementMono.cpp $(START_DIR)/codegen/lib/SLAM/initializePoint.cpp $(START_DIR)/codegen/lib/SLAM/predictMeasurementStereo.cpp $(START_DIR)/codegen/lib/SLAM/getNumValidFeatures.cpp $(START_DIR)/codegen/lib/SLAM/getNumFeaturesOfType.cpp $(START_DIR)/codegen/lib/SLAM/median.cpp $(START_DIR)/codegen/lib/SLAM/getTotalNumActiveFeatures.cpp $(START_DIR)/codegen/lib/SLAM/getTotalNumDelayedFeatures.cpp $(START_DIR)/codegen/lib/SLAM/anyActiveAnchorFeatures.cpp $(START_DIR)/codegen/lib/SLAM/det.cpp $(START_DIR)/codegen/lib/SLAM/predictMeasurementStereoDistorted.cpp $(START_DIR)/codegen/lib/SLAM/SLAM_emxutil.cpp $(START_DIR)/codegen/lib/SLAM/SLAM_emxAPI.cpp $(START_DIR)/codegen/lib/SLAM/rt_nonfinite.cpp $(START_DIR)/codegen/lib/SLAM/rtGetNaN.cpp $(START_DIR)/codegen/lib/SLAM/rtGetInf.cpp
+SRCS = $(START_DIR)/codegen/lib/SLAM/SLAM.cpp $(START_DIR)/codegen/lib/SLAM/rt_nonfinite.cpp $(START_DIR)/codegen/lib/SLAM/rtGetNaN.cpp $(START_DIR)/codegen/lib/SLAM/rtGetInf.cpp
 
 ALL_SRCS = $(SRCS)
 
@@ -197,7 +197,7 @@ ALL_SRCS = $(SRCS)
 ## OBJECTS
 ###########################################################################
 
-OBJS = SLAM_rtwutil.o SLAM_data.o SLAM_initialize.o SLAM_terminate.o SLAM.o QuatFromRotJ.o mrdivide.o colon.o getAnchorPoses.o norm.o eye.o diag.o getMap.o fprintf.o fileManager.o ros_info.o SLAM_pred_euler.o quatPlusThetaJ.o quatmultJ.o SLAM_upd.o multiplyIdx.o undistortPoint.o eml_sort.o ros_error.o any.o OnePointRANSAC_EKF.o getScaledMap.o getH_R_res.o predictMeasurementMono.o initializePoint.o predictMeasurementStereo.o getNumValidFeatures.o getNumFeaturesOfType.o median.o getTotalNumActiveFeatures.o getTotalNumDelayedFeatures.o anyActiveAnchorFeatures.o det.o predictMeasurementStereoDistorted.o SLAM_emxutil.o SLAM_emxAPI.o rt_nonfinite.o rtGetNaN.o rtGetInf.o
+OBJS = SLAM.o rt_nonfinite.o rtGetNaN.o rtGetInf.o
 
 ALL_OBJS = $(OBJS)
 
@@ -217,7 +217,7 @@ LIBS =
 ## SYSTEM LIBRARIES
 ###########################################################################
 
-SYSTEM_LIBS = -lm -lstdc++
+SYSTEM_LIBS =  -lm -lstdc++
 
 ###########################################################################
 ## ADDITIONAL TOOLCHAIN FLAGS
