@@ -42,7 +42,7 @@
   <arg name="visualization_freq" default="30" />
   <arg name="image_visualization_delay" default="1" />
 
-  <node name="vio_ros_node" pkg="vio_ros" type="vio_ros_node" output="screen">
+  <node name="vio_ros" pkg="vio_ros" type="vio_ros_node" output="screen">
     <!-- noise parameters -->
     <param name="noise_acc" type="double" value="$(arg acc_noise)" />
     <param name="noise_acc_bias" type="double" value="$(arg acc_bias_noise)" />
@@ -86,9 +86,6 @@
     <param name="show_camera_image" type="bool" value="$(arg show_camera_image)" />
     <param name="visualization_freq" type="double" value="$(arg visualization_freq)" />
     <param name="image_visualization_delay" type="double" value="$(arg image_visualization_delay)" />
-    <remap from="/imu" to="/duo3d_camera/cam_imu"/>
-    <remap from="/left_image" to="/duo3d_camera/left/image_raw"/>
-    <remap from="/right_image" to="/duo3d_camera/right/image_raw"/>
 
   </node>
 
