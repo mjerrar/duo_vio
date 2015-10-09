@@ -46,7 +46,7 @@
 #include "std_msgs/Float32MultiArray.h"
 #include "std_msgs/UInt32.h"
 
-#include "onboard_localization/PositionReference.h"
+//#include "onboard_localization/PositionReference.h"
 
 #include "Precision.h"
 
@@ -107,7 +107,7 @@ private:
 
 	void duo3dCb(const duo3d_ros::Duo3d& msg);
 	void joystickCb(const sensor_msgs::Joy::ConstPtr& msg);
-	void positionReferenceCb(const onboard_localization::PositionReference& msg);
+//	void positionReferenceCb(const onboard_localization::PositionReference& msg);
 
 	void update(double dt, const duo3d_ros::Duo3d &msg, bool debug_publish, bool show_image);
 

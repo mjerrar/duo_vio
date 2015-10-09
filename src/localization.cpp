@@ -409,43 +409,43 @@ void Localization::dynamicReconfigureCb(vio_ros::vio_rosConfig &config, uint32_t
 
 }
 
-void Localization::positionReferenceCb(const onboard_localization::PositionReference& msg)
-{
-	if (change_reference)
-	{
-		double roll, pitch, yaw;
-		tf::Matrix3x3(camera2world).getRPY(roll, pitch, yaw);
-		tf::Quaternion q;
-		q.setRPY(0, 0, yaw + 1.57);
-		tf::Vector3 positionChange_world = tf::Transform(q) * tf::Vector3(msg.x, msg.y, msg.z);
-		double dt = 0.1; // the loop rate of the joy reference node
-		referenceCommand.position[0] += dt * positionChange_world.x();
-		referenceCommand.position[1] += dt * positionChange_world.y();
-		referenceCommand.position[2] += dt * positionChange_world.z();
-		referenceCommand.position[3] += dt * msg.yaw;
-
-		referenceCommand.velocity[0] = positionChange_world.x();
-		referenceCommand.velocity[1] = positionChange_world.y();
-		referenceCommand.velocity[2] = positionChange_world.z();
-		referenceCommand.velocity[3] = msg.yaw;
-
-		geometry_msgs::PoseStamped ref_viz;
-		ref_viz.header.stamp = ros::Time::now();
-		ref_viz.header.frame_id = "world";
-		ref_viz.pose.position.x = referenceCommand.position[0];
-		ref_viz.pose.position.y = referenceCommand.position[1];
-		ref_viz.pose.position.z = referenceCommand.position[2];
-
-		tf::Quaternion quaternion;
-		quaternion.setRPY(0.0, 0.0, referenceCommand.position[3]);
-		ref_viz.pose.orientation.w = quaternion.getW();
-		ref_viz.pose.orientation.x = quaternion.getX();
-		ref_viz.pose.orientation.y = quaternion.getY();
-		ref_viz.pose.orientation.z = quaternion.getZ();
-
-//		reference_viz_pub.publish(ref_viz);
-	}
-}
+//void Localization::positionReferenceCb(const onboard_localization::PositionReference& msg)
+//{
+//	if (change_reference)
+//	{
+//		double roll, pitch, yaw;
+//		tf::Matrix3x3(camera2world).getRPY(roll, pitch, yaw);
+//		tf::Quaternion q;
+//		q.setRPY(0, 0, yaw + 1.57);
+//		tf::Vector3 positionChange_world = tf::Transform(q) * tf::Vector3(msg.x, msg.y, msg.z);
+//		double dt = 0.1; // the loop rate of the joy reference node
+//		referenceCommand.position[0] += dt * positionChange_world.x();
+//		referenceCommand.position[1] += dt * positionChange_world.y();
+//		referenceCommand.position[2] += dt * positionChange_world.z();
+//		referenceCommand.position[3] += dt * msg.yaw;
+//
+//		referenceCommand.velocity[0] = positionChange_world.x();
+//		referenceCommand.velocity[1] = positionChange_world.y();
+//		referenceCommand.velocity[2] = positionChange_world.z();
+//		referenceCommand.velocity[3] = msg.yaw;
+//
+//		geometry_msgs::PoseStamped ref_viz;
+//		ref_viz.header.stamp = ros::Time::now();
+//		ref_viz.header.frame_id = "world";
+//		ref_viz.pose.position.x = referenceCommand.position[0];
+//		ref_viz.pose.position.y = referenceCommand.position[1];
+//		ref_viz.pose.position.z = referenceCommand.position[2];
+//
+//		tf::Quaternion quaternion;
+//		quaternion.setRPY(0.0, 0.0, referenceCommand.position[3]);
+//		ref_viz.pose.orientation.w = quaternion.getW();
+//		ref_viz.pose.orientation.x = quaternion.getX();
+//		ref_viz.pose.orientation.y = quaternion.getY();
+//		ref_viz.pose.orientation.z = quaternion.getZ();
+//
+////		reference_viz_pub.publish(ref_viz);
+//	}
+//}
 
 void Localization::update(double dt, const duo3d_ros::Duo3d &msg, bool update_vis, bool show_image)
 {
