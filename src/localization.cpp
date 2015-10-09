@@ -36,9 +36,8 @@ Localization::Localization()
 
 	duo_sub = nh_.subscribe("/duo3d_camera/combined", DUO_QUEUE_SIZE, &Localization::duo3dCb,this);
 	joy_sub_ = nh_.subscribe("/joy",1, &Localization::joystickCb, this);
-	position_reference_sub_ = nh_.subscribe("/onboard_localization/position_reference",1, &Localization::positionReferenceCb, this);
-
-	controller_pub = nh_.advertise<onboard_localization::ControllerOut>("/onboard_localization/controller_output",10);
+//	position_reference_sub_ = nh_.subscribe("/onboard_localization/position_reference",1, &Localization::positionReferenceCb, this);
+//	controller_pub = nh_.advertise<onboard_localization::ControllerOut>("/onboard_localization/controller_output",10);
 
 	// visualization topics
 	vio_vis_pub = nh_.advertise<vio_ros::vio_vis>("/vio_vis/vio_vis", 1);

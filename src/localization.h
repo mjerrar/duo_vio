@@ -27,7 +27,7 @@
 #include "SLAM_includes.h"
 #include "InterfaceStructs.h"
 
-#include "onboard_localization/ControllerOut.h"
+//#include "onboard_localization/ControllerOut.h"
 
 #include <dynamic_reconfigure/server.h>
 #include <vio_ros/vio_rosConfig.h>
