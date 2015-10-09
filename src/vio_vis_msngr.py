@@ -28,7 +28,7 @@ class Visualizer(pg.QtCore.QThread):
         # self.image_cloud_pub = rospy.Publisher("vio_vis/rviz/img_cloud", PointCloud, queue_size=1)
         self.robot_path = Path()
 
-        rospy.Subscriber("vio_vis/vio_vis", vio_vis, self.vis_cb)
+        rospy.Subscriber("vio_vis/vio_vis", vio_vis, self.vis_cb, queue_size=1)
         rospy.Subscriber("vio_vis/reset", Empty, self.clear_cb)
 
     def pose_arrows_from_quaternion(self, pose, ns="_", scale=1.0):
