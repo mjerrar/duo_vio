@@ -6,13 +6,13 @@
   <arg name="FPS_duo" default="100" />
   <arg name="resolution_width_duo" default="320" />
   <arg name="resolution_height_duo" default="240" />
-  <arg name="camera_name" default="purple_cam" /> <!-- the camera name is equal to the last 3 digits of the odroid's IP -->
+  <arg name="camera_name" default="101" /> <!-- the camera name is equal to the last 3 digits of the odroid's IP -->
   <arg name="lense_type" default="FS3028B13M8" />
   <arg name="vision_subsample" default="4" />
 
   <!-- noise parameters -->
   <arg name="image_noise" default="1" />
-  <arg name="acc_noise" default="0.1" />
+  <arg name="acc_noise" default="0.01" />
   <arg name="gyro_noise" default="0.01" />
   <arg name="gyro_bias_noise" default="0.00000" />
   <arg name="acc_bias_noise" default="0.000" />
