@@ -9,6 +9,7 @@
 #define VIO_ROS_SRC_INTERFACESTRUCTS_H_
 
 #include <yaml-cpp/yaml.h>
+#include <string>
 #include <ros/console.h>
 #include "Precision.h"
 
@@ -107,16 +108,6 @@ struct ReferenceCommand
 	FloatType velocity[4];
 };
 
-// cameraParameters
-// =========================================================
-struct CameraParameters // parameters of one camera
-{
-	FloatType RadialDistortion[3];
-	FloatType TangentialDistortion[2];
-	FloatType FocalLength[2];
-	FloatType PrincipalPoint[2];
-};
-
 // Kalibr_params
 // =========================================================
 struct Kalibr_params // parameters used in Kalibr
@@ -126,6 +117,18 @@ struct Kalibr_params // parameters used in Kalibr
 	FloatType accelerometer_random_walk;
 	FloatType gyroscope_noise_density;
 	FloatType gyroscope_random_walk;
+};
+
+// cameraParameters
+// =========================================================
+struct CameraParameters // parameters of one camera
+{
+	FloatType RadialDistortion[3];
+	FloatType TangentialDistortion[2];
+	FloatType FocalLength[2];
+	FloatType PrincipalPoint[2];
+	enum {PLUMB_BOB = 0, ATAN = 1};
+	int DistortionModel;
 };
 
 struct DUOParameters // parameters of both cameras plus stereo calibration
@@ -240,8 +243,19 @@ inline DUOParameters parseYaml(const YAML::Node& node)
 		v.time_shift = 0.0;
 	}
 
+	std::string plumb_bob = "plumb_bob";
+	std::string atan = "atan";
+
 
 	// camera 1
+	YAML::Node DistortionModel = node["CameraParameters1"]["DistortionModel"];
+	if (!atan.compare(DistortionModel.as<std::string>()))
+	{
+		v.CameraParameters1.DistortionModel = v.CameraParameters1.ATAN;
+	} else {
+		v.CameraParameters1.DistortionModel = v.CameraParameters1.PLUMB_BOB;
+	}
+
 	YAML::Node RadialDistortion = node["CameraParameters1"]["RadialDistortion"];
 	for (std::size_t i = 0; i < RadialDistortion.size(); i++)
 	{
@@ -267,6 +281,14 @@ inline DUOParameters parseYaml(const YAML::Node& node)
 	}
 
 	// camera 2
+	DistortionModel = node["CameraParameters2"]["DistortionModel"];
+	if (!atan.compare(DistortionModel.as<std::string>()))
+	{
+		v.CameraParameters2.DistortionModel = v.CameraParameters2.ATAN;
+	} else {
+		v.CameraParameters2.DistortionModel = v.CameraParameters2.PLUMB_BOB;
+	}
+
 	RadialDistortion = node["CameraParameters2"]["RadialDistortion"];
 	for (std::size_t i = 0; i < RadialDistortion.size(); i++)
 	{
