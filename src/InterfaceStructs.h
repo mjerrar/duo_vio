@@ -250,88 +250,67 @@ inline DUOParameters parseYaml(const YAML::Node& node)
 	// camera 1
 	YAML::Node DistortionModel = node["CameraParameters1"]["DistortionModel"];
 	if (!atan.compare(DistortionModel.as<std::string>()))
-	{
 		v.CameraParameters1.DistortionModel = v.CameraParameters1.ATAN;
-	} else {
+	else
 		v.CameraParameters1.DistortionModel = v.CameraParameters1.PLUMB_BOB;
-	}
 
 	YAML::Node RadialDistortion = node["CameraParameters1"]["RadialDistortion"];
 	for (std::size_t i = 0; i < RadialDistortion.size(); i++)
-	{
 		v.CameraParameters1.RadialDistortion[i] = RadialDistortion[i].as<double>();
-	}
+	for (std::size_t i = RadialDistortion.size(); i < 3; i++)
+		v.CameraParameters1.RadialDistortion[i] = 0.0;
 
 	YAML::Node TangentialDistortion = node["CameraParameters1"]["TangentialDistortion"];
 	for (std::size_t i = 0; i < TangentialDistortion.size(); i++)
-	{
 		v.CameraParameters1.TangentialDistortion[i] = TangentialDistortion[i].as<double>();
-	}
 
 	YAML::Node FocalLength = node["CameraParameters1"]["FocalLength"];
 	for (std::size_t i = 0; i < FocalLength.size(); i++)
-	{
 		v.CameraParameters1.FocalLength[i] = FocalLength[i].as<double>();
-	}
 
 	YAML::Node PrincipalPoint = node["CameraParameters1"]["PrincipalPoint"];
 	for (std::size_t i = 0; i < PrincipalPoint.size(); i++)
-	{
 		v.CameraParameters1.PrincipalPoint[i] = PrincipalPoint[i].as<double>();
-	}
 
 	// camera 2
 	DistortionModel = node["CameraParameters2"]["DistortionModel"];
 	if (!atan.compare(DistortionModel.as<std::string>()))
-	{
 		v.CameraParameters2.DistortionModel = v.CameraParameters2.ATAN;
-	} else {
+	else
 		v.CameraParameters2.DistortionModel = v.CameraParameters2.PLUMB_BOB;
-	}
 
 	RadialDistortion = node["CameraParameters2"]["RadialDistortion"];
 	for (std::size_t i = 0; i < RadialDistortion.size(); i++)
-	{
 		v.CameraParameters2.RadialDistortion[i] = RadialDistortion[i].as<double>();
-	}
+	for (std::size_t i = RadialDistortion.size(); i < 3; i++)
+		v.CameraParameters2.RadialDistortion[i] = 0.0;
 
 	TangentialDistortion = node["CameraParameters2"]["TangentialDistortion"];
 	for (std::size_t i = 0; i < TangentialDistortion.size(); i++)
-	{
 		v.CameraParameters2.TangentialDistortion[i] = TangentialDistortion[i].as<double>();
-	}
 
 	FocalLength = node["CameraParameters2"]["FocalLength"];
 	for (std::size_t i = 0; i < FocalLength.size(); i++)
-	{
 		v.CameraParameters2.FocalLength[i] = FocalLength[i].as<double>();
-	}
 
 	PrincipalPoint = node["CameraParameters2"]["PrincipalPoint"];
 	for (std::size_t i = 0; i < PrincipalPoint.size(); i++)
-	{
 		v.CameraParameters2.PrincipalPoint[i] = PrincipalPoint[i].as<double>();
-	}
 
-	if(const YAML::Node n = node["Kalibr_params"]["update_rate"]) {
+	if(const YAML::Node n = node["Kalibr_params"]["update_rate"])
 		v.kalibr_params.update_rate = n.as<double>();
-	}
 
-	if(const YAML::Node n = node["Kalibr_params"]["accelerometer_noise_density"]) {
+	if(const YAML::Node n = node["Kalibr_params"]["accelerometer_noise_density"])
 		v.kalibr_params.accelerometer_noise_density = n.as<double>();
-	}
 
-	if(const YAML::Node n = node["Kalibr_params"]["accelerometer_random_walk"]) {
+	if(const YAML::Node n = node["Kalibr_params"]["accelerometer_random_walk"])
 		v.kalibr_params.accelerometer_random_walk = n.as<double>();
-	}
 
-	if(const YAML::Node n = node["Kalibr_params"]["gyroscope_noise_density"]) {
+	if(const YAML::Node n = node["Kalibr_params"]["gyroscope_noise_density"])
 		v.kalibr_params.gyroscope_noise_density = n.as<double>();
-	}
 
-	if(const YAML::Node n = node["Kalibr_params"]["gyroscope_random_walk"]) {
+	if(const YAML::Node n = node["Kalibr_params"]["gyroscope_random_walk"])
 		v.kalibr_params.gyroscope_random_walk = n.as<double>();
-	}
 
 	return v;
 }
