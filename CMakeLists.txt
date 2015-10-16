@@ -104,8 +104,8 @@ catkin_package(
 ###########
 ## Build ##
 ###########
-#SET(GCC_COVERAGE_COMPILE_FLAGS "-Ofast")
-#SET( CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} ${GCC_COVERAGE_COMPILE_FLAGS}" )
+SET(GCC_COVERAGE_COMPILE_FLAGS "-O3")
+SET( CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} ${GCC_COVERAGE_COMPILE_FLAGS}" )
 ## Specify additional locations of header files
 ## Your package locations should be listed before other locations
 # include_directories(include)
