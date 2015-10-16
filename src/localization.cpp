@@ -45,7 +45,7 @@ Localization::Localization()
 	ros::Duration(0.5).sleep(); // otherwise the following message might not be received
 	vio_vis_reset_pub.publish(std_msgs::Empty());
 
-	duo_processed_pub = nh_.advertise<std_msgs::UInt32>("/duo3d/msg_processed", 1);
+	duo_processed_pub = nh_.advertise<std_msgs::UInt64>("/duo3d/msg_processed", 1);
 
 	// Load parameters from launch file
 	double tmp_scalar;
@@ -258,14 +258,14 @@ void Localization::vioSensorMsgCb(const vio_ros::VioSensorMsg& msg)
 			clear_queue_counter++;
 			std_msgs::UInt32 id_msg;
 			id_msg.data = msg.header.seq;
-			duo_processed_pub.publish( id_msg);
+			duo_processed_pub.publish(msg.seq);
 			return;
 		} else {
 			clear_queue_counter = 0;
 			SLAM_reset_flag = false;
 			std_msgs::UInt32 id_msg;
 			id_msg.data = msg.header.seq;
-			duo_processed_pub.publish( id_msg);
+			duo_processed_pub.publish(msg.seq);
 			return;
 		}
 	}
@@ -292,9 +292,7 @@ void Localization::vioSensorMsgCb(const vio_ros::VioSensorMsg& msg)
 	if (toc_total_clock - tic_total_clock > max_clicks_)
 		max_clicks_ = toc_total_clock - tic_total_clock;
 
-	std_msgs::UInt32 id_msg;
-	id_msg.data = msg.header.seq;
-	duo_processed_pub.publish( id_msg);
+	duo_processed_pub.publish(msg.seq);
 
 	double duration_total = (ros::Time::now() - tic_total).toSec();
 	std_msgs::Float32 duration_total_msg; duration_total_msg.data = duration_total;
