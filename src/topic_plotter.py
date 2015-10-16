@@ -55,7 +55,7 @@ if __name__ == "__main__":
 
         idx = 0
         for key, value in data.iteritems():
-            plot.plot(x=value['x'], y=value['y'], pen=pg.intColor(idx, hues=len(data)), name=key, symbol='o', symbolSize=4, symbolPen=pg.intColor(idx, hues=len(data)), symbolBrush=pg.intColor(idx, hues=len(data)))
+            plot.plot(x=value['x'], y=value['y'], pen=pg.intColor(idx, hues=len(data), alpha=100), name=key, symbol='o', symbolSize=4, symbolPen=pg.intColor(idx, hues=len(data)), symbolBrush=pg.intColor(idx, hues=len(data)))
             idx += 1
 
     for filename in sys.argv[1:]:
