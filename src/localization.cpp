@@ -20,6 +20,7 @@ Localization::Localization()
   change_reference(false),
   vicon_pos(3, 0.0),
   vicon_quaternion(4, 0.0),
+  cam2body(0.5, -0.5, 0.5, -0.5),
   max_clicks_(0),
   clear_queue_counter(0),
   vio_cnt(0),
@@ -516,25 +517,8 @@ void Localization::update(double dt, const vio_ros::VioSensorMsg &msg, bool upda
 			left = left_image->image;
 			right = right_image->image;
 		}
-//#ifdef SINGLE_PRECISION
-//		// give doubles to the point handler
-//		std::vector<double> z_all_l_d, z_all_r_d;
-//		for (int i = 0; i < z_all_l.size(); i++)
-//		{
-//			z_all_l_d.push_back(z_all_l[i]);
-//			z_all_r_d.push_back(z_all_r[i]);
-//		}
-//		ros::Time tic_feature_tracking = ros::Time::now();
-//		handle_points_klt(left, right, z_all_l_d, z_all_r_d, update_vec_);
-//		double duration_feature_tracking = (ros::Time::now() - tic_feature_tracking).toSec();
-//		for (int i = 0; i < z_all_l.size(); i++)
-//		{
-//			z_all_l[i] = z_all_l_d[i];
-//			z_all_r[i] = z_all_r_d[i];
-//		}
-//#else
+
 		handle_points_klt(left, right, z_all_l, z_all_r, update_vec_);
-//#endif
 
 		double duration_feature_tracking = (ros::Time::now() - tic_feature_tracking).toSec();
 		std_msgs::Float32 duration_feature_tracking_msg; duration_feature_tracking_msg.data = duration_feature_tracking;
@@ -557,6 +541,14 @@ void Localization::update(double dt, const vio_ros::VioSensorMsg &msg, bool upda
 				&map[0],
 				&anchor_poses[0],
 				delayedStatus);
+
+		camera_tf.setOrigin( tf::Vector3(robot_state.pos[0], robot_state.pos[1], robot_state.pos[2]) );
+		camera_tf.setRotation( tf::Quaternion(robot_state.att[0], robot_state.att[1], robot_state.att[2], -robot_state.att[3]) );
+		tf_broadcaster.sendTransform(tf::StampedTransform(camera_tf, ros::Time::now(), "world", "camera"));
+
+		body_tf.setOrigin(camera_tf.getOrigin());
+		body_tf.setRotation(cam2body * camera_tf.getRotation());
+		tf_broadcaster.sendTransform(tf::StampedTransform(body_tf, ros::Time::now(), "world", "body"));
 
 		double duration_SLAM = (ros::Time::now() - tic_SLAM).toSec() - duration_feature_tracking;
 		std_msgs::Float32 duration_SLAM_msg; duration_SLAM_msg.data = duration_SLAM;

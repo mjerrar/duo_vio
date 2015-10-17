@@ -93,6 +93,11 @@ private:
 	ros::Publisher timing_feature_tracking_pub;
 	ros::Publisher timing_total_pub;
 
+	tf::TransformBroadcaster tf_broadcaster;
+	tf::Transform camera_tf;
+	tf::Transform body_tf;
+	tf::Quaternion cam2body;
+
 	ros::Time prev_time_;
 	std::vector<int> update_vec_;
 	geometry_msgs::Pose pose;
