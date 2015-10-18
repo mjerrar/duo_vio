@@ -484,21 +484,21 @@ void Localization::update(double dt, const vio_ros::VioSensorMsg &msg, bool upda
 
 	if (auto_subsample || vio_cnt % vision_subsample == 0)
 	{
-		cv_bridge::CvImagePtr left_image;
-		cv_bridge::CvImagePtr right_image;
-		try
+		if (!msg.left_image.data.empty() && !msg.right_image.data.empty())
 		{
-			left_image = cv_bridge::toCvCopy(msg.left_image, "mono8");
-			right_image = cv_bridge::toCvCopy(msg.right_image,"mono8");
-		}
-		catch(cv_bridge::Exception& e)
-		{
-			ROS_ERROR("Error while converting ROS image to OpenCV: %s", e.what());
-			return;
-		}
+			cv_bridge::CvImagePtr left_image;
+			cv_bridge::CvImagePtr right_image;
+			try
+			{
+				left_image = cv_bridge::toCvCopy(msg.left_image, "mono8");
+				right_image = cv_bridge::toCvCopy(msg.right_image,"mono8");
+			}
+			catch(cv_bridge::Exception& e)
+			{
+				ROS_ERROR("Error while converting ROS image to OpenCV: %s", e.what());
+				return;
+			}
 
-		if(!left_image->image.empty() && !right_image->image.empty())
-		{
 			//*********************************************************************
 			// Point tracking
 			//*********************************************************************
