@@ -497,70 +497,68 @@ void Localization::update(double dt, const vio_ros::VioSensorMsg &msg, bool upda
 			return;
 		}
 
-		if(left_image->image.empty() || right_image->image.empty())
+		if(!left_image->image.empty() && !right_image->image.empty())
 		{
-			return;
-		}
+			//*********************************************************************
+			// Point tracking
+			//*********************************************************************
 
-		//*********************************************************************
-		// Point tracking
-		//*********************************************************************
+			ros::Time tic_feature_tracking = ros::Time::now();
 
-		ros::Time tic_feature_tracking = ros::Time::now();
+			cv::Mat left, right;
+			if (use_dark_current)
+			{
+				left = left_image->image - darkCurrentL;
+				right = right_image->image - darkCurrentR;
+			} else {
+				left = left_image->image;
+				right = right_image->image;
+			}
 
-		cv::Mat left, right;
-		if (use_dark_current)
-		{
-			left = left_image->image - darkCurrentL;
-			right = right_image->image - darkCurrentR;
-		} else {
-			left = left_image->image;
-			right = right_image->image;
-		}
+			handle_points_klt(left, right, z_all_l, z_all_r, update_vec_);
 
-		handle_points_klt(left, right, z_all_l, z_all_r, update_vec_);
+			double duration_feature_tracking = (ros::Time::now() - tic_feature_tracking).toSec();
+			std_msgs::Float32 duration_feature_tracking_msg; duration_feature_tracking_msg.data = duration_feature_tracking;
+			timing_feature_tracking_pub.publish(duration_feature_tracking_msg);
 
-		double duration_feature_tracking = (ros::Time::now() - tic_feature_tracking).toSec();
-		std_msgs::Float32 duration_feature_tracking_msg; duration_feature_tracking_msg.data = duration_feature_tracking;
-		timing_feature_tracking_pub.publish(duration_feature_tracking_msg);
+			//*********************************************************************
+			// SLAM update
+			//*********************************************************************
+			SLAM(&update_vec_[0],
+					&z_all_l[0],
+					&z_all_r[0],
+					dt,
+					&meas,
+					&cameraParams,
+					&noiseParams,
+					&vioParams,
+					1, // vision update
+					&robot_state,
+					&h_u_apo[0],
+					&map[0],
+					&anchor_poses[0],
+					delayedStatus);
 
-		//*********************************************************************
-		// SLAM update
-		//*********************************************************************
-		SLAM(&update_vec_[0],
-				&z_all_l[0],
-				&z_all_r[0],
-				dt,
-				&meas,
-				&cameraParams,
-				&noiseParams,
-				&vioParams,
-				1, // vision update
-				&robot_state,
-				&h_u_apo[0],
-				&map[0],
-				&anchor_poses[0],
-				delayedStatus);
+			camera_tf.setOrigin( tf::Vector3(robot_state.pos[0], robot_state.pos[1], robot_state.pos[2]) );
+			camera_tf.setRotation( tf::Quaternion(robot_state.att[0], robot_state.att[1], robot_state.att[2], -robot_state.att[3]) );
+			tf_broadcaster.sendTransform(tf::StampedTransform(camera_tf, ros::Time::now(), "world", "camera"));
 
-		camera_tf.setOrigin( tf::Vector3(robot_state.pos[0], robot_state.pos[1], robot_state.pos[2]) );
-		camera_tf.setRotation( tf::Quaternion(robot_state.att[0], robot_state.att[1], robot_state.att[2], -robot_state.att[3]) );
-		tf_broadcaster.sendTransform(tf::StampedTransform(camera_tf, ros::Time::now(), "world", "camera"));
+			body_tf.setOrigin(camera_tf.getOrigin());
+			body_tf.setRotation(cam2body * camera_tf.getRotation());
+			tf_broadcaster.sendTransform(tf::StampedTransform(body_tf, ros::Time::now(), "world", "body"));
 
-		body_tf.setOrigin(camera_tf.getOrigin());
-		body_tf.setRotation(cam2body * camera_tf.getRotation());
-		tf_broadcaster.sendTransform(tf::StampedTransform(body_tf, ros::Time::now(), "world", "body"));
+			double duration_SLAM = (ros::Time::now() - tic_SLAM).toSec() - duration_feature_tracking;
+			std_msgs::Float32 duration_SLAM_msg; duration_SLAM_msg.data = duration_SLAM;
+			timing_SLAM_pub.publish(duration_SLAM_msg);
 
-		double duration_SLAM = (ros::Time::now() - tic_SLAM).toSec() - duration_feature_tracking;
-		std_msgs::Float32 duration_SLAM_msg; duration_SLAM_msg.data = duration_SLAM;
-		timing_SLAM_pub.publish(duration_SLAM_msg);
+			if (update_vis)
+			{
+				show_image = display_tracks_cnt % image_visualization_delay == 0;
+				display_tracks_cnt++;
 
-		if (update_vis)
-		{
-			show_image = display_tracks_cnt % image_visualization_delay == 0;
-			display_tracks_cnt++;
+				updateVis(robot_state, anchor_poses, map, update_vec_, msg, z_all_l, show_image);
 
-			updateVis(robot_state, anchor_poses, map, update_vec_, msg, z_all_l, show_image);
-
+			}
 		}
 	} else {
 		double duration_SLAM = (ros::Time::now() - tic_SLAM).toSec();
