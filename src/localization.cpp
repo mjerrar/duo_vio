@@ -40,6 +40,9 @@ Localization::Localization()
 //	position_reference_sub_ = nh_.subscribe("/onboard_localization/position_reference",1, &Localization::positionReferenceCb, this);
 //	controller_pub = nh_.advertise<onboard_localization::ControllerOut>("/onboard_localization/controller_output",10);
 
+	pose_pub = nh_.advertise<geometry_msgs::Pose>("pose", 1);
+	vel_pub = nh_.advertise<geometry_msgs::Vector3>("vel", 1);
+
 	// visualization topics
 	vio_vis_pub = nh_.advertise<vio_ros::vio_vis>("/vio_vis/vio_vis", 1);
 	vio_vis_reset_pub = nh_.advertise<std_msgs::Empty>("/vio_vis/reset", 1);
@@ -546,6 +549,22 @@ void Localization::update(double dt, const vio_ros::VioSensorMsg &msg, bool upda
 			body_tf.setOrigin(camera_tf.getOrigin());
 			body_tf.setRotation(cam2body * camera_tf.getRotation());
 			tf_broadcaster.sendTransform(tf::StampedTransform(body_tf, ros::Time::now(), "world", "body"));
+
+			geometry_msgs::Pose pose;
+			pose.position.x = robot_state.pos[0];
+			pose.position.y = robot_state.pos[1];
+			pose.position.z = robot_state.pos[2];
+			pose.orientation.x = robot_state.att[0];
+			pose.orientation.y = robot_state.att[1];
+			pose.orientation.z = robot_state.att[2];
+			pose.orientation.w = robot_state.att[3];
+			pose_pub.publish(pose);
+
+			geometry_msgs::Vector3 vel;
+			vel.x = robot_state.vel[0];
+			vel.y = robot_state.vel[1];
+			vel.z = robot_state.vel[2];
+			vel_pub.publish(vel);
 
 			double duration_SLAM = (ros::Time::now() - tic_SLAM).toSec() - duration_feature_tracking;
 			std_msgs::Float32 duration_SLAM_msg; duration_SLAM_msg.data = duration_SLAM;
