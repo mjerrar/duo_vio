@@ -140,7 +140,7 @@ static void initMorePoints(
 	int binHeight = img_l.rows/numBinsY;
 	int targetFeaturesPerBin = (updateVect.size()-1)/(numBinsX * numBinsY)+1; // total number of features that should be in each bin
 
-	std::vector< std::vector< int > > featuresPerBin ( numBinsX, std::vector<int> ( numBinsY, 0 ) );
+	std::vector< std::vector< int > > featuresPerBin(numBinsX, std::vector<int>(numBinsY, 0));
 
 	// count the number of active features in each bin
 	for (int i = 0; i < prev_corners.size(); i++)
@@ -252,6 +252,23 @@ static void initMorePoints(
 		}
 	}
 
+	// if not many features were requested, we may have found too many features. delete from all bins for equal distancing
+	if (goodKeypointsL.size() > targetNumPoints)
+	{
+		int numFeaturesToRemove = goodKeypointsL.size() - targetNumPoints;
+		int stepSize = targetNumPoints/numFeaturesToRemove + 2; // make sure the step size is big enough so we dont remove too many features
+
+		std::vector<cv::KeyPoint> goodKeypointsL_shortened;
+		for (int i = 0; i < goodKeypointsL.size(); i++)
+		{
+			if (i % stepSize)
+			{
+				goodKeypointsL_shortened.push_back(goodKeypointsL[i]);
+			}
+		}
+		goodKeypointsL = goodKeypointsL_shortened;
+	}
+
 	if (goodKeypointsL.size() < targetNumPoints)
 	{
 //		printf("need %d more features, have %d unused ones to try\n", targetNumPoints-goodKeypointsL.size(), unusedKeypoints.size());
@@ -329,7 +346,7 @@ static void initMorePoints(
 	if (leftPoints.size() != rightPoints.size()) // debug
 			printf("Left and right points have different sizes: left %d, right %d\n", (int) leftPoints.size(), (int) rightPoints.size());
 
-	if (leftPoints.size() != targetNumPoints)
+	if (leftPoints.size() < targetNumPoints)
 		printf("Number of good matches: %d, desired: %d\n", (int) leftPoints.size(), targetNumPoints);
 
 	if (prev_corners.size() < updateVect.size())
