@@ -24,7 +24,8 @@ Localization::Localization()
   max_clicks_(0),
   clear_queue_counter(0),
   vio_cnt(0),
-  image_visualization_delay(0)
+  image_visualization_delay(0),
+  auto_subsample(false)
 {
 	SLAM_initialize();
 
@@ -485,10 +486,8 @@ void Localization::update(double dt, const vio_ros::VioSensorMsg &msg, bool upda
 			&anchor_poses[0],
 			delayedStatus);
 
-	if (auto_subsample || vio_cnt % vision_subsample == 0)
+	if ((auto_subsample || vio_cnt % vision_subsample == 0) && !msg.left_image.data.empty() && !msg.right_image.data.empty())
 	{
-		if (!msg.left_image.data.empty() && !msg.right_image.data.empty())
-		{
 			cv_bridge::CvImagePtr left_image;
 			cv_bridge::CvImagePtr right_image;
 			try
@@ -578,7 +577,6 @@ void Localization::update(double dt, const vio_ros::VioSensorMsg &msg, bool upda
 				updateVis(robot_state, anchor_poses, map, update_vec_, msg, z_all_l, show_image);
 
 			}
-		}
 	} else {
 		double duration_SLAM = (ros::Time::now() - tic_SLAM).toSec();
 		std_msgs::Float32 duration_SLAM_msg; duration_SLAM_msg.data = duration_SLAM;
