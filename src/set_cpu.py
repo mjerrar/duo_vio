@@ -17,7 +17,7 @@ def get_pid(node_name):
 if __name__ == "__main__":
 
     # dict keys are ros node names, values are cpu set names and nice values
-    nodes = dict(vio_ros=['vio_node', -18], duo_node=['duo_node', -18], core_node=['core_node', -19])
+    nodes = dict(vio_ros=['vio_node', -18], duo_node=['duo_node', -18], core=['core_node', -19])
 
     for node_name, value in nodes.iteritems():
         pid = get_pid(node_name)
