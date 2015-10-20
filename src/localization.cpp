@@ -481,7 +481,6 @@ void Localization::update(double dt, const vio_ros::VioSensorMsg &msg, bool upda
 			&vioParams,
 			0, // predict
 			&robot_state,
-			&h_u_apo[0],
 			&map[0],
 			&anchor_poses[0],
 			delayedStatus);
@@ -536,7 +535,6 @@ void Localization::update(double dt, const vio_ros::VioSensorMsg &msg, bool upda
 					&vioParams,
 					1, // vision update
 					&robot_state,
-					&h_u_apo[0],
 					&map[0],
 					&anchor_poses[0],
 					delayedStatus);
