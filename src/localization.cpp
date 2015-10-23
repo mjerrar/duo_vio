@@ -20,7 +20,7 @@ Localization::Localization()
   change_reference(false),
   vicon_pos(3, 0.0),
   vicon_quaternion(4, 0.0),
-  cam2body(-0.5, 0.5, -0.5, 0.5),
+  cam2body(-0.5, 0.5, -0.5, -0.5),
   max_clicks_(0),
   clear_queue_counter(0),
   vio_cnt(0),
