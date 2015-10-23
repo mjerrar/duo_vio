@@ -133,6 +133,9 @@ class Visualizer(pg.QtCore.QThread):
         self.robot_path.header = pose_stamped.header
         self.robot_path_pub.publish(self.robot_path)
 
+        if len(self.robot_path.poses) > 5000:
+            self.robot_path.poses = []
+
         return
 
     def anchor_poses_cb(self, data):
@@ -247,19 +250,19 @@ def plotter(data):
         acc_bias_curves[i].setData(acc_bias_data[i][:plot_idx+1])
     plot_idx += 1
     if plot_idx == 2:  # turn on only now, otherwise there will be a division by zero exception
-        print("enabling subsample")
+        # print("enabling subsample")
         gyro_bias_plot.setDownsampling(mode='subsample', auto=True)
         acc_bias_plot.setDownsampling(mode='subsample', auto=True)
     # pg.QtGui.QApplication.processEvents()
 
-    if plot_idx > 5000:  # reset the plot so it doesnt get too slow
-        plot_idx = 0
-        # disable downsampling to avoid division by zero exception
-        gyro_bias_plot.setDownsampling(ds=1, auto=False)
-        acc_bias_plot.setDownsampling(ds=1, auto=False)
+    # if plot_idx > 5000:  # reset the plot so it doesnt get too slow
+    #     plot_idx = 0
+    #     # disable downsampling to avoid division by zero exception
+    #     gyro_bias_plot.setDownsampling(ds=1, auto=False)
+    #     acc_bias_plot.setDownsampling(ds=1, auto=False)
 
     if plot_idx >= gyro_bias_data[0].shape[0]:
-        print('resizing, size was {}'.format(gyro_bias_data[0].shape[0]))
+        print('resizing plot data, size was {}'.format(gyro_bias_data[0].shape[0]))
         for i in range(0, 3):
             tmp = gyro_bias_data[i]
             gyro_bias_data[i] = np.empty(gyro_bias_data[i].shape[0]*2)

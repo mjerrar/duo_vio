@@ -15,7 +15,7 @@ def close_all():
 if __name__ == "__main__":
 
     if len(sys.argv) < 2:
-        print('Invalid use of topic_plotter. Provide at least one argument that is a log file created with rostopic_logger')
+        print('Invalid use of {}. Provide at least one argument that is a log file created with rostopic_logger'.format(sys.argv[0]))
         sys.exit(-1)
 
     max_y = 0
