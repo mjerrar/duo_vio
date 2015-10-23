@@ -20,7 +20,7 @@ Localization::Localization()
   change_reference(false),
   vicon_pos(3, 0.0),
   vicon_quaternion(4, 0.0),
-  cam2body(0.5, -0.5, 0.5, -0.5),
+  cam2body(-0.5, 0.5, -0.5, 0.5),
   max_clicks_(0),
   clear_queue_counter(0),
   vio_cnt(0),
@@ -242,6 +242,9 @@ Localization::Localization()
 	timing_SLAM_pub = nh_.advertise<std_msgs::Float32>("timing_SLAM",10);
 	timing_feature_tracking_pub = nh_.advertise<std_msgs::Float32>("timing_feature_tracking",10);
 	timing_total_pub = nh_.advertise<std_msgs::Float32>("timing_total",10);
+
+	body_tf.setOrigin(tf::Vector3(0.0, 0.0, 0.0));
+
 }
 
 Localization::~Localization()
@@ -540,12 +543,11 @@ void Localization::update(double dt, const vio_ros::VioSensorMsg &msg, bool upda
 					delayedStatus);
 
 			camera_tf.setOrigin( tf::Vector3(robot_state.pos[0], robot_state.pos[1], robot_state.pos[2]) );
-			camera_tf.setRotation( tf::Quaternion(robot_state.att[0], robot_state.att[1], robot_state.att[2], -robot_state.att[3]) );
+			camera_tf.setRotation( tf::Quaternion(robot_state.att[0], robot_state.att[1], robot_state.att[2], robot_state.att[3]) );
 			tf_broadcaster.sendTransform(tf::StampedTransform(camera_tf, ros::Time::now(), "world", "camera"));
 
-			body_tf.setOrigin(camera_tf.getOrigin());
-			body_tf.setRotation(cam2body * camera_tf.getRotation());
-			tf_broadcaster.sendTransform(tf::StampedTransform(body_tf, ros::Time::now(), "world", "body"));
+			body_tf.setRotation(cam2body);
+			tf_broadcaster.sendTransform(tf::StampedTransform(body_tf, ros::Time::now(), "camera", "body"));
 
 			geometry_msgs::Pose pose;
 			pose.position.x = robot_state.pos[0];
