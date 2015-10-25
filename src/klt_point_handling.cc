@@ -60,8 +60,8 @@ void handle_points_klt(
 		}
 	}
 
-	std::vector<unsigned char> status;
-	std::vector<cv::Point2f> cur_corners;
+	std::vector<unsigned char> status, status_right;
+	std::vector<cv::Point2f> cur_corners, right_corners;
 	std::vector<float> error;
 
 	if (!prev_img.empty())
@@ -70,21 +70,26 @@ void handle_points_klt(
 		{
 			cv::calcOpticalFlowPyrLK(prev_img, img_l, prev_corners, cur_corners, status, error, cv::Size(9,9), 3);
 			prev_corners = cur_corners;
+			cv::calcOpticalFlowPyrLK(img_l, img_r, prev_corners, right_corners, status_right, error, cv::Size(9,9), 3);
 
 
 			for (size_t i = 0; i < prev_corners.size() && i < numPoints; ++i)
 			{
-				if(!(prev_status[i] && status[i]))
+				if(!(prev_status[i] && status[i] && status_right[i]))
 					prev_status[i] = 0;
 
 				if (prev_status[i] == 1)
 				{
-					if (prev_corners[i].x < 0 || prev_corners[i].x > img_l.cols || prev_corners[i].y < 0 || prev_corners[i].y > img_l.rows)
+					if (prev_corners[i].x < 0 || prev_corners[i].x > img_l.cols || prev_corners[i].y < 0 || prev_corners[i].y > img_l.rows ||
+							right_corners[i].x < 0 || right_corners[i].x > img_l.cols || right_corners[i].y < 0 || right_corners[i].y > img_l.rows)
 					{
 						updateVect[i] = 0;
 					} else {
 						z_all_l[2*i+0] = prev_corners[i].x;
 						z_all_l[2*i+1] = prev_corners[i].y;
+
+						z_all_r[2*i+0] = right_corners[i].x;
+						z_all_r[2*i+1] = right_corners[i].y;
 						updateVect[i] = 1;
 					}
 				} else {
@@ -127,6 +132,8 @@ static void initMorePoints(
 		if (updateVect[i] == 2) // 2 means VIO requested stereo measurement
 			targetNumPoints++;
 	}
+
+//	printf("targetNumPoints %d\n", targetNumPoints);
 
 	if(!targetNumPoints)
 		return;
@@ -172,7 +179,7 @@ static void initMorePoints(
 		for (int y = 0; y < numBinsY; y++)
 		{
 			int neededFeatures = max(0, targetFeaturesPerBin - featuresPerBin[x][y]);
-//			printf("needed features: %d\n", neededFeatures);
+//			printf("needed features in bin (%d, %d): %d\n", x, y, neededFeatures);
 			if (neededFeatures)
 			{
 				int col_from = x*binWidth;
@@ -214,6 +221,7 @@ static void initMorePoints(
 						{
 //							printf("Discarding new point %d at (%d, %d) because it's too close to existing point %d at (%d, %d)\n", j, new_pt_x, new_pt_y, j, existing_pt_x, existing_pt_y);
 							far_enough = false;
+							unusedKeypoints.push_back(keypoints[newPtIdx]);
 							break;
 						}
 					}
@@ -228,6 +236,7 @@ static void initMorePoints(
 							{
 //								printf("Discarding new point %d at (%d, %d) because it's too close to another new point %d at (%d, %d)\n", j, new_pt_x, new_pt_y, j+1, existing_pt_x, existing_pt_y);
 								far_enough = false;
+								unusedKeypoints.push_back(keypoints[newPtIdx]);
 								break;
 							}
 						}
@@ -251,6 +260,9 @@ static void initMorePoints(
 			}
 		}
 	}
+
+//	printf("goodKeypointsL.size %d\n", goodKeypointsL.size());
+//	printf("unusedKeypoints.size %d\n", unusedKeypoints.size());
 
 	// if not many features were requested, we may have found too many features. delete from all bins for equal distancing
 	if (goodKeypointsL.size() > targetNumPoints)
