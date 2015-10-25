@@ -26,6 +26,7 @@
   <arg name="delayed_initiazation" default="0" />
   <arg name="mono" default="0" />
   <arg name="RANSAC" default="1" />
+  <arg name="full_stereo" default="1" />
 
   <!-- controller gains -->
   <arg name="Kp_xy" default="1" />
@@ -59,6 +60,7 @@
     <param name="vio_delayed_initiazation" type="bool" value="$(arg delayed_initiazation)" />
     <param name="vio_mono" type="bool" value="$(arg mono)" />
     <param name="vio_RANSAC" type="bool" value="$(arg RANSAC)" />
+    <param name="vio_full_stereo" type="bool" value="$(arg full_stereo)" />
     <!-- note that these parameters are not free. The total number of points num_anchors*num_points_per_anchor must equal the total number of points with wich SLAM was codered in Matlab. -->
     <param name="vio_num_points_per_anchor" type="int" value="8" />
     <param name="vio_num_anchors" type="int" value="5" />

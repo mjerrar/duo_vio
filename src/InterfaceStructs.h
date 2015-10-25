@@ -25,6 +25,7 @@ struct VIOParameters
 	bool delayed_initialization;
 	bool mono;
 	bool RANSAC;
+	bool full_stereo;
 };
 
 // ControllerGains

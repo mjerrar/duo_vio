@@ -115,6 +115,8 @@ Localization::Localization()
 		ROS_WARN("Failed to load parameter vio_fixed_feature");
 	if(!nh_.getParam("vio_RANSAC", vioParams.RANSAC))
 		ROS_WARN("Failed to load parameter vio_RANSAC");
+	if(!nh_.getParam("vio_full_stereo", vioParams.full_stereo))
+		ROS_WARN("Failed to load parameter vio_full_stereo");
 
 	if(!nh_.getParam("ctrl_Kp_xy", tmp_scalar))
 		ROS_WARN("Failed to load parameter ctrl_Kp_xy");
