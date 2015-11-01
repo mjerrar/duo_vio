@@ -77,7 +77,7 @@ void handle_points_klt(
 
 			for (size_t i = 0; i < prev_corners.size() && i < numPoints; ++i)
 			{
-				if(!(prev_status[i] && status[i] && (status_right[i] || !fullStereo)))
+				if(!(prev_status[i] && status[i] && (!fullStereo || status_right[i])))
 					prev_status[i] = 0;
 
 				if (prev_status[i] == 1)
@@ -90,8 +90,11 @@ void handle_points_klt(
 						z_all_l[2*i+0] = prev_corners[i].x;
 						z_all_l[2*i+1] = prev_corners[i].y;
 
-						z_all_r[2*i+0] = right_corners[i].x;
-						z_all_r[2*i+1] = right_corners[i].y;
+						if (fullStereo)
+						{
+							z_all_r[2*i+0] = right_corners[i].x;
+							z_all_r[2*i+1] = right_corners[i].y;
+						}
 						updateVect[i] = 1;
 					}
 				} else {
