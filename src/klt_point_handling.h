@@ -12,6 +12,7 @@ void handle_points_klt(const cv::Mat &img_l,
 		   const cv::Mat &img_r,
 		   std::vector<FloatType> &z_all_l,
 		   std::vector<FloatType> &z_all_r,
-		   std::vector<int> &updateVect);
+		   std::vector<int> &updateVect,
+		   bool fullStereo=false);
 
 #endif

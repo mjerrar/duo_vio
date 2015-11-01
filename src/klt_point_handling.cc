@@ -35,7 +35,8 @@ void handle_points_klt(
 		const cv::Mat &img_r,
 		vector<FloatType> &z_all_l,
 		vector<FloatType> &z_all_r,
-		vector<int> &updateVect)
+		vector<int> &updateVect,
+		bool fullStereo)
 {
 	if (!img_l.data)
 		throw "Left image is invalid";
@@ -70,18 +71,19 @@ void handle_points_klt(
 		{
 			cv::calcOpticalFlowPyrLK(prev_img, img_l, prev_corners, cur_corners, status, error, cv::Size(9,9), 3);
 			prev_corners = cur_corners;
-			cv::calcOpticalFlowPyrLK(img_l, img_r, prev_corners, right_corners, status_right, error, cv::Size(9,9), 3);
+			if (fullStereo)
+				cv::calcOpticalFlowPyrLK(img_l, img_r, prev_corners, right_corners, status_right, error, cv::Size(9,9), 3);
 
 
 			for (size_t i = 0; i < prev_corners.size() && i < numPoints; ++i)
 			{
-				if(!(prev_status[i] && status[i] && status_right[i]))
+				if(!(prev_status[i] && status[i] && (status_right[i] || !fullStereo)))
 					prev_status[i] = 0;
 
 				if (prev_status[i] == 1)
 				{
 					if (prev_corners[i].x < 0 || prev_corners[i].x > img_l.cols || prev_corners[i].y < 0 || prev_corners[i].y > img_l.rows ||
-							right_corners[i].x < 0 || right_corners[i].x > img_l.cols || right_corners[i].y < 0 || right_corners[i].y > img_l.rows)
+							(fullStereo && (right_corners[i].x < 0 || right_corners[i].x > img_l.cols || right_corners[i].y < 0 || right_corners[i].y > img_l.rows)))
 					{
 						updateVect[i] = 0;
 					} else {
