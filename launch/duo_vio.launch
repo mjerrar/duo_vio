@@ -1,4 +1,4 @@
-<launch>
+<launch launch-prefix="gdb -ex run --args">
 
   <arg name="exposure_duo" default="100" />
   <arg name="gain_duo" default="100" />
