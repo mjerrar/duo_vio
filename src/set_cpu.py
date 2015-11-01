@@ -2,6 +2,7 @@
 from __future__ import print_function, division
 
 import subprocess
+import time
 
 
 def get_pid(node_name):
@@ -14,23 +15,25 @@ def get_pid(node_name):
             return int(line[idx+4:])
     return -1
 
+
 if __name__ == "__main__":
+    time.sleep(2)  # sleep 2 seconds to make sure all processes are there
 
-    # dict keys are ros node names, values are cpu set names and nice values
-    nodes = dict(vio_ros=['vio_node', -18], duo_node=['duo_node', -18], core=['core_node', -19])
+    # get pids
+    command = 'pgrep -f ros'
+    process = subprocess.Popen(command.split(), stdout=subprocess.PIPE)
+    pids = process.communicate()[0].splitlines()
 
-    for node_name, value in nodes.iteritems():
-        pid = get_pid(node_name)
-        if not pid < 0:
-            cpu_set = value[0]
-            nice = value[1]
-            command = 'sudo -A cset proc -m -p {} -t {}'.format(pid, cpu_set)
-            process = subprocess.Popen(command.split(), stdout=subprocess.PIPE)
-            print(process.communicate()[0])
-            command = 'sudo -A renice -n {} -p {}'.format(nice, pid)
-            subprocess.Popen(command.split(), stdout=subprocess.PIPE)
-        else:
-            print('Failed to get PID for node {}'.format(node_name))
+    command = 'sudo -A cset proc -m -p {} --threads -t ros'.format(','.join(pids))
+    process = subprocess.Popen(command.split(), stdout=subprocess.PIPE)
+    print(process.communicate()[0])
+    
+    for pid in pids:
+        print('Changing scheduler for {}'.format(pid))
+        command = 'sudo -A chrt -pav -r 99 {}'.format(pid)
+        print(command)
+        process = subprocess.Popen(command.split(), stdout=subprocess.PIPE)
+        print(process.communicate()[0])
 
     # print the cpuset status after moving the nodes to their sets
     print(subprocess.Popen('sudo -A cset set -l'.split(), stdout=subprocess.PIPE).communicate()[0])
