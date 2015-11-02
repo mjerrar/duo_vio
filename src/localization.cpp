@@ -521,7 +521,7 @@ void Localization::update(double dt, const vio_ros::VioSensorMsg &msg, bool upda
 				right = right_image->image;
 			}
 
-			handle_points_klt(left, right, z_all_l, z_all_r, update_vec_);
+			handle_points_klt(left, right, z_all_l, z_all_r, update_vec_, vioParams.full_stereo);
 
 			double duration_feature_tracking = (ros::Time::now() - tic_feature_tracking).toSec();
 			std_msgs::Float32 duration_feature_tracking_msg; duration_feature_tracking_msg.data = duration_feature_tracking;
