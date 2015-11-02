@@ -5,7 +5,7 @@
 // File: SLAM.cpp
 //
 // MATLAB Coder version            : 3.0
-// C/C++ source code generated on  : 02-Nov-2015 16:25:43
+// C/C++ source code generated on  : 02-Nov-2015 17:12:39
 //
 
 // Include Files
@@ -63,20 +63,20 @@ typedef struct {
   double att[4];
   double gyro_bias[3];
   double acc_bias[3];
-} struct_T;
+} b_struct_T;
 
 typedef struct {
-  struct_T IMU;
+  b_struct_T IMU;
   double pos[3];
   double att[4];
   double vel[3];
-} b_struct_T;
+} c_struct_T;
 
 typedef struct {
   int anchor_idx;
   double pos[3];
   double att[4];
-} c_struct_T;
+} d_struct_T;
 
 typedef struct {
   double inverse_depth;
@@ -85,35 +85,40 @@ typedef struct {
   int status;
   int status_idx;
   int P_idx;
-} d_struct_T;
+} e_struct_T;
 
 typedef struct {
   double pos[3];
   double att[4];
   int P_idx[6];
-  d_struct_T feature_states[8];
-} e_struct_T;
+  e_struct_T feature_states[8];
+} f_struct_T;
 
 typedef struct {
-  b_struct_T robot_state;
+  c_struct_T robot_state;
   int fixed_feature;
-  c_struct_T origin;
-  e_struct_T anchor_states[5];
-} f_struct_T;
+  d_struct_T origin;
+  f_struct_T anchor_states[5];
+} g_struct_T;
+
+typedef struct {
+  double pos[3];
+  double att[4];
+} struct_T;
 
 // Named Constants
 #define b_debug_level                  (2.0)
 
 // Variable Definitions
 static boolean_T initialized_not_empty;
-static f_struct_T xt;
+static g_struct_T xt;
 static double P[8281];
 static double map[120];
 static double delayedStatus[40];
 static double debug_level;
 
 // Function Declarations
-static void OnePointRANSAC_EKF(f_struct_T *b_xt, double b_P[8281], const double
+static void OnePointRANSAC_EKF(g_struct_T *b_xt, double b_P[8281], const double
   z_u_l[80], const double z_u_r[80], const double
   c_stereoParams_CameraParameters[2], const double
   d_stereoParams_CameraParameters[2], const double
@@ -124,11 +129,11 @@ static void OnePointRANSAC_EKF(f_struct_T *b_xt, double b_P[8281], const double
   boolean_T VIOParameters_full_stereo, boolean_T VIOParameters_RANSAC, int
   updateVect[40]);
 static void QuatFromRotJ(const double R[9], double Q[4]);
-static void SLAM_pred_euler(double P_apo[8281], f_struct_T *x, double dt, double
+static void SLAM_pred_euler(double P_apo[8281], g_struct_T *x, double dt, double
   processNoise_qv, double processNoise_qw, double processNoise_qao, double
   processNoise_qwo, double processNoise_qR_ci, const double
   measurements_acc_duo[3], const double measurements_gyr_duo[3]);
-static void SLAM_upd(double P_apr[8281], f_struct_T *b_xt, int
+static void SLAM_upd(double P_apr[8281], g_struct_T *b_xt, int
                      c_cameraParams_CameraParameters, const double
                      d_cameraParams_CameraParameters[2], const double
                      e_cameraParams_CameraParameters[2], const double
@@ -143,17 +148,18 @@ static void SLAM_upd(double P_apr[8281], f_struct_T *b_xt, int
                      const double cameraParams_R_rl[9], int updateVect[40],
                      double z_all_l[80], double z_all_r[80], double
                      noiseParameters_image_noise, double
-                     c_noiseParameters_inv_depth_ini, const struct5_T
-                     VIOParameters, double b_map[120], double b_delayedStatus[40]);
+                     c_noiseParameters_inv_depth_ini, const VIOParameters
+                     b_VIOParameters, double b_map[120], double b_delayedStatus
+                     [40]);
 static boolean_T any(const boolean_T x[40]);
-static boolean_T anyActiveAnchorFeatures(const d_struct_T
+static boolean_T anyActiveAnchorFeatures(const e_struct_T
   anchor_state_feature_states[8]);
 static boolean_T b_any(const boolean_T x[3]);
 static void b_diag(const double v[15], double d[225]);
 static void b_eye(double I[441]);
 static double b_fprintf();
 static void b_getH_R_res(const double xt_robot_state_pos[3], const double
-  xt_robot_state_att[4], const e_struct_T xt_anchor_states[5], const double
+  xt_robot_state_att[4], const f_struct_T xt_anchor_states[5], const double
   z_all_l[80], const double z_all_r[80], const boolean_T b_status[40], const
   double c_stereoParams_CameraParameters[2], const double
   d_stereoParams_CameraParameters[2], const double
@@ -180,6 +186,7 @@ static void c_ros_info(int varargin_1, int varargin_2);
 static void c_ros_warn();
 static void c_sort(emxArray_real_T *x, emxArray_int32_T *idx);
 static double c_xnrm2(int n, const emxArray_real_T *x, int ix0);
+static void cast(const struct_T x[5], AnchorPose y[5]);
 static void cross(const double a[3], const double b[3], double c[3]);
 static void d_eye(double I[8281]);
 static double d_fprintf(double varargin_1);
@@ -211,10 +218,10 @@ static double g_fprintf(double varargin_1);
 static void g_ros_info(int varargin_1);
 static void g_ros_warn(double varargin_1);
 static void getAnchorPoses(const double xt_origin_pos[3], const double
-  xt_origin_att[4], const e_struct_T xt_anchor_states[5], struct8_T
-  anchor_poses[5]);
+  xt_origin_att[4], const f_struct_T xt_anchor_states[5], struct_T anchor_poses
+  [5]);
 static void getH_R_res(const double xt_robot_state_pos[3], const double
-  xt_robot_state_att[4], const e_struct_T xt_anchor_states[5], const double
+  xt_robot_state_att[4], const f_struct_T xt_anchor_states[5], const double
   z_all_l[80], const double z_all_r[80], const boolean_T b_status[40], const
   double c_stereoParams_CameraParameters[2], const double
   d_stereoParams_CameraParameters[2], const double
@@ -223,11 +230,11 @@ static void getH_R_res(const double xt_robot_state_pos[3], const double
   double stereoParams_R_rl[9], boolean_T VIOParameters_full_stereo,
   emxArray_real_T *r, emxArray_real_T *H, emxArray_int32_T *ind);
 static void getMap(const double xt_origin_pos[3], const double xt_origin_att[4],
-                   const e_struct_T xt_anchor_states[5], double b_map[120]);
-static double getNumValidFeatures(const d_struct_T anchor_state_feature_states[8]);
-static void getScaledMap(f_struct_T *b_xt);
-static double getTotalNumActiveFeatures(const e_struct_T xt_anchor_states[5]);
-static double getTotalNumDelayedFeatures(const e_struct_T xt_anchor_states[5]);
+                   const f_struct_T xt_anchor_states[5], double b_map[120]);
+static double getNumValidFeatures(const e_struct_T anchor_state_feature_states[8]);
+static void getScaledMap(g_struct_T *b_xt);
+static double getTotalNumActiveFeatures(const f_struct_T xt_anchor_states[5]);
+static double getTotalNumDelayedFeatures(const f_struct_T xt_anchor_states[5]);
 static void getWorldState(const double xt_robot_state_IMU_pos[3], const double
   xt_robot_state_IMU_att[4], const double xt_robot_state_IMU_gyro_bias[3], const
   double xt_robot_state_IMU_acc_bias[3], const double xt_robot_state_pos[3],
@@ -322,7 +329,7 @@ static void xscal(int n, double a, emxArray_real_T *x, int ix0);
 //
 // OnePointRANSAC_EKF Perform a 1-point RANSAC outlier rejection and update
 // the state
-// Arguments    : f_struct_T *b_xt
+// Arguments    : g_struct_T *b_xt
 //                double b_P[8281]
 //                const double z_u_l[80]
 //                const double z_u_r[80]
@@ -340,7 +347,7 @@ static void xscal(int n, double a, emxArray_real_T *x, int ix0);
 //                int updateVect[40]
 // Return Type  : void
 //
-static void OnePointRANSAC_EKF(f_struct_T *b_xt, double b_P[8281], const double
+static void OnePointRANSAC_EKF(g_struct_T *b_xt, double b_P[8281], const double
   z_u_l[80], const double z_u_r[80], const double
   c_stereoParams_CameraParameters[2], const double
   d_stereoParams_CameraParameters[2], const double
@@ -5715,7 +5722,7 @@ static void QuatFromRotJ(const double R[9], double Q[4])
 
 //
 // Arguments    : double P_apo[8281]
-//                f_struct_T *x
+//                g_struct_T *x
 //                double dt
 //                double processNoise_qv
 //                double processNoise_qw
@@ -5726,17 +5733,17 @@ static void QuatFromRotJ(const double R[9], double Q[4])
 //                const double measurements_gyr_duo[3]
 // Return Type  : void
 //
-static void SLAM_pred_euler(double P_apo[8281], f_struct_T *x, double dt, double
+static void SLAM_pred_euler(double P_apo[8281], g_struct_T *x, double dt, double
   processNoise_qv, double processNoise_qw, double processNoise_qao, double
   processNoise_qwo, double processNoise_qR_ci, const double
   measurements_acc_duo[3], const double measurements_gyr_duo[3])
 {
   double R_cw[9];
+  double R_ci[9];
   double b_R_ci[9];
-  double c_R_ci[9];
   int i48;
   int i;
-  double b_t_ci[3];
+  double t_ci[3];
   double w_imu[3];
   double R[9];
   double b_R[9];
@@ -5841,29 +5848,29 @@ static void SLAM_pred_euler(double P_apo[8281], f_struct_T *x, double dt, double
   // 'RotFromQuatJ:10' R=[q(1)^2-q(2)^2-q(3)^2+q(4)^2, 2*(q(1)*q(2)+q(3)*q(4)), 2*(q(1)*q(3)-q(2)*q(4)); 
   // 'RotFromQuatJ:11'     2*(q(1)*q(2)-q(3)*q(4)),-q(1)^2+q(2)^2-q(3)^2+q(4)^2, 2*(q(2)*q(3)+q(1)*q(4)); 
   // 'RotFromQuatJ:12'     2*(q(1)*q(3)+q(2)*q(4)), 2*(q(2)*q(3)-q(1)*q(4)),-q(1)^2-q(2)^2+q(3)^2+q(4)^2]; 
-  b_R_ci[0] = ((x->robot_state.IMU.att[0] * x->robot_state.IMU.att[0] -
-                x->robot_state.IMU.att[1] * x->robot_state.IMU.att[1]) -
-               x->robot_state.IMU.att[2] * x->robot_state.IMU.att[2]) +
+  R_ci[0] = ((x->robot_state.IMU.att[0] * x->robot_state.IMU.att[0] -
+              x->robot_state.IMU.att[1] * x->robot_state.IMU.att[1]) -
+             x->robot_state.IMU.att[2] * x->robot_state.IMU.att[2]) +
     x->robot_state.IMU.att[3] * x->robot_state.IMU.att[3];
-  b_R_ci[3] = 2.0 * (x->robot_state.IMU.att[0] * x->robot_state.IMU.att[1] +
-                     x->robot_state.IMU.att[2] * x->robot_state.IMU.att[3]);
-  b_R_ci[6] = 2.0 * (x->robot_state.IMU.att[0] * x->robot_state.IMU.att[2] -
-                     x->robot_state.IMU.att[1] * x->robot_state.IMU.att[3]);
-  b_R_ci[1] = 2.0 * (x->robot_state.IMU.att[0] * x->robot_state.IMU.att[1] -
-                     x->robot_state.IMU.att[2] * x->robot_state.IMU.att[3]);
-  b_R_ci[4] = ((-(x->robot_state.IMU.att[0] * x->robot_state.IMU.att[0]) +
-                x->robot_state.IMU.att[1] * x->robot_state.IMU.att[1]) -
-               x->robot_state.IMU.att[2] * x->robot_state.IMU.att[2]) +
+  R_ci[3] = 2.0 * (x->robot_state.IMU.att[0] * x->robot_state.IMU.att[1] +
+                   x->robot_state.IMU.att[2] * x->robot_state.IMU.att[3]);
+  R_ci[6] = 2.0 * (x->robot_state.IMU.att[0] * x->robot_state.IMU.att[2] -
+                   x->robot_state.IMU.att[1] * x->robot_state.IMU.att[3]);
+  R_ci[1] = 2.0 * (x->robot_state.IMU.att[0] * x->robot_state.IMU.att[1] -
+                   x->robot_state.IMU.att[2] * x->robot_state.IMU.att[3]);
+  R_ci[4] = ((-(x->robot_state.IMU.att[0] * x->robot_state.IMU.att[0]) +
+              x->robot_state.IMU.att[1] * x->robot_state.IMU.att[1]) -
+             x->robot_state.IMU.att[2] * x->robot_state.IMU.att[2]) +
     x->robot_state.IMU.att[3] * x->robot_state.IMU.att[3];
-  b_R_ci[7] = 2.0 * (x->robot_state.IMU.att[1] * x->robot_state.IMU.att[2] +
-                     x->robot_state.IMU.att[0] * x->robot_state.IMU.att[3]);
-  b_R_ci[2] = 2.0 * (x->robot_state.IMU.att[0] * x->robot_state.IMU.att[2] +
-                     x->robot_state.IMU.att[1] * x->robot_state.IMU.att[3]);
-  b_R_ci[5] = 2.0 * (x->robot_state.IMU.att[1] * x->robot_state.IMU.att[2] -
-                     x->robot_state.IMU.att[0] * x->robot_state.IMU.att[3]);
-  b_R_ci[8] = ((-(x->robot_state.IMU.att[0] * x->robot_state.IMU.att[0]) -
-                x->robot_state.IMU.att[1] * x->robot_state.IMU.att[1]) +
-               x->robot_state.IMU.att[2] * x->robot_state.IMU.att[2]) +
+  R_ci[7] = 2.0 * (x->robot_state.IMU.att[1] * x->robot_state.IMU.att[2] +
+                   x->robot_state.IMU.att[0] * x->robot_state.IMU.att[3]);
+  R_ci[2] = 2.0 * (x->robot_state.IMU.att[0] * x->robot_state.IMU.att[2] +
+                   x->robot_state.IMU.att[1] * x->robot_state.IMU.att[3]);
+  R_ci[5] = 2.0 * (x->robot_state.IMU.att[1] * x->robot_state.IMU.att[2] -
+                   x->robot_state.IMU.att[0] * x->robot_state.IMU.att[3]);
+  R_ci[8] = ((-(x->robot_state.IMU.att[0] * x->robot_state.IMU.att[0]) -
+              x->robot_state.IMU.att[1] * x->robot_state.IMU.att[1]) +
+             x->robot_state.IMU.att[2] * x->robot_state.IMU.att[2]) +
     x->robot_state.IMU.att[3] * x->robot_state.IMU.att[3];
 
   // 'SLAM_pred_euler:6' t_ci = x.robot_state.IMU.pos;
@@ -5871,16 +5878,16 @@ static void SLAM_pred_euler(double P_apo[8281], f_struct_T *x, double dt, double
   // 'SLAM_pred_euler:7' t_ci = -R_ci' * t_ci;
   for (i48 = 0; i48 < 3; i48++) {
     for (i = 0; i < 3; i++) {
-      c_R_ci[i + 3 * i48] = -b_R_ci[i48 + 3 * i];
+      b_R_ci[i + 3 * i48] = -R_ci[i48 + 3 * i];
     }
   }
 
   //  in imu frame
   // 'SLAM_pred_euler:8' w_imu = measurements.gyr_duo - x.robot_state.IMU.gyro_bias; 
   for (i = 0; i < 3; i++) {
-    b_t_ci[i] = 0.0;
+    t_ci[i] = 0.0;
     for (i48 = 0; i48 < 3; i48++) {
-      b_t_ci[i] += c_R_ci[i + 3 * i48] * x->robot_state.IMU.pos[i48];
+      t_ci[i] += b_R_ci[i + 3 * i48] * x->robot_state.IMU.pos[i48];
     }
 
     w_imu[i] = measurements_gyr_duo[i] - x->robot_state.IMU.gyro_bias[i];
@@ -5909,13 +5916,13 @@ static void SLAM_pred_euler(double P_apo[8281], f_struct_T *x, double dt, double
     w_c[i48] = 0.0;
     d10 = 0.0;
     for (i = 0; i < 3; i++) {
-      w_c[i48] += b_R_ci[i48 + 3 * i] * w_imu[i];
+      w_c[i48] += R_ci[i48 + 3 * i] * w_imu[i];
       b_R[i48 + 3 * i] = 0.0;
       for (i49 = 0; i49 < 3; i49++) {
         b_R[i48 + 3 * i] += R[i48 + 3 * i49] * R[i49 + 3 * i];
       }
 
-      d10 += b_R[i48 + 3 * i] * b_t_ci[i];
+      d10 += b_R[i48 + 3 * i] * t_ci[i];
     }
 
     b_measurements_acc_duo[i48] = (measurements_acc_duo[i48] -
@@ -5981,9 +5988,9 @@ static void SLAM_pred_euler(double P_apo[8281], f_struct_T *x, double dt, double
     grav_origin[i48] = 0.0;
     y[i48] = 0.0;
     for (i = 0; i < 3; i++) {
-      a_c[i48] += b_R_ci[i48 + 3 * i] * b_measurements_acc_duo[i];
+      a_c[i48] += R_ci[i48 + 3 * i] * b_measurements_acc_duo[i];
       grav_origin[i48] += b_x[i48 + 3 * i] * b[i];
-      y[i48] += b_R_ci[i48 + 3 * i] * x->robot_state.IMU.gyro_bias[i];
+      y[i48] += R_ci[i48 + 3 * i] * x->robot_state.IMU.gyro_bias[i];
     }
   }
 
@@ -6010,7 +6017,7 @@ static void SLAM_pred_euler(double P_apo[8281], f_struct_T *x, double dt, double
     c_y[i48] = 0.0;
     for (i = 0; i < 3; i++) {
       b_y[i48] += R_cw[i + 3 * i48] * a_c[i];
-      c_y[i48] += dv10[i48 + 3 * i] * b_t_ci[i];
+      c_y[i48] += dv10[i48 + 3 * i] * t_ci[i];
     }
   }
 
@@ -6117,13 +6124,13 @@ static void SLAM_pred_euler(double P_apo[8281], f_struct_T *x, double dt, double
   dv15[5] = w_imu[0];
   dv15[8] = 0.0;
   dv16[0] = 0.0;
-  dv16[3] = -b_t_ci[2];
-  dv16[6] = b_t_ci[1];
-  dv16[1] = b_t_ci[2];
+  dv16[3] = -t_ci[2];
+  dv16[6] = t_ci[1];
+  dv16[1] = t_ci[2];
   dv16[4] = 0.0;
-  dv16[7] = -b_t_ci[0];
-  dv16[2] = -b_t_ci[1];
-  dv16[5] = b_t_ci[0];
+  dv16[7] = -t_ci[0];
+  dv16[2] = -t_ci[1];
+  dv16[5] = t_ci[0];
   dv16[8] = 0.0;
   dv17[0] = 0.0;
   dv17[3] = -grav_origin[2];
@@ -6157,10 +6164,10 @@ static void SLAM_pred_euler(double P_apo[8281], f_struct_T *x, double dt, double
 
   for (i48 = 0; i48 < 3; i48++) {
     for (i = 0; i < 3; i++) {
-      c_R_ci[i48 + 3 * i] = 0.0;
+      b_R_ci[i48 + 3 * i] = 0.0;
       b_R[i48 + 3 * i] = 0.0;
       for (i49 = 0; i49 < 3; i49++) {
-        c_R_ci[i48 + 3 * i] += R[i48 + 3 * i49] * b_R_ci[i49 + 3 * i];
+        b_R_ci[i48 + 3 * i] += R[i48 + 3 * i49] * R_ci[i49 + 3 * i];
         b_R[i48 + 3 * i] += R_cw[i48 + 3 * i49] * dv18[i49 + 3 * i];
       }
     }
@@ -6185,7 +6192,7 @@ static void SLAM_pred_euler(double P_apo[8281], f_struct_T *x, double dt, double
       Phi[(i + 21 * (i48 + 3)) + 6] = -dv13[i + 3 * i48];
       Phi[(i + 21 * (i48 + 6)) + 6] = 0.0;
       Phi[(i + 21 * (i48 + 9)) + 6] = dv10[i + 3 * i48];
-      Phi[(i + 21 * (i48 + 12)) + 6] = c_R_ci[i + 3 * i48];
+      Phi[(i + 21 * (i48 + 12)) + 6] = b_R_ci[i + 3 * i48];
       Phi[(i + 21 * (i48 + 15)) + 6] = -dv17[i + 3 * i48];
       Phi[(i + 21 * (i48 + 18)) + 6] = b_R[i + 3 * i48];
     }
@@ -6319,7 +6326,7 @@ static void SLAM_pred_euler(double P_apo[8281], f_struct_T *x, double dt, double
 //
 // % Iterative Camera Pose optimization (EKF)
 // Arguments    : double P_apr[8281]
-//                f_struct_T *b_xt
+//                g_struct_T *b_xt
 //                int c_cameraParams_CameraParameters
 //                const double d_cameraParams_CameraParameters[2]
 //                const double e_cameraParams_CameraParameters[2]
@@ -6338,12 +6345,12 @@ static void SLAM_pred_euler(double P_apo[8281], f_struct_T *x, double dt, double
 //                double z_all_r[80]
 //                double noiseParameters_image_noise
 //                double c_noiseParameters_inv_depth_ini
-//                const struct5_T VIOParameters
+//                const VIOParameters b_VIOParameters
 //                double b_map[120]
 //                double b_delayedStatus[40]
 // Return Type  : void
 //
-static void SLAM_upd(double P_apr[8281], f_struct_T *b_xt, int
+static void SLAM_upd(double P_apr[8281], g_struct_T *b_xt, int
                      c_cameraParams_CameraParameters, const double
                      d_cameraParams_CameraParameters[2], const double
                      e_cameraParams_CameraParameters[2], const double
@@ -6358,8 +6365,9 @@ static void SLAM_upd(double P_apr[8281], f_struct_T *b_xt, int
                      const double cameraParams_R_rl[9], int updateVect[40],
                      double z_all_l[80], double z_all_r[80], double
                      noiseParameters_image_noise, double
-                     c_noiseParameters_inv_depth_ini, const struct5_T
-                     VIOParameters, double b_map[120], double b_delayedStatus[40])
+                     c_noiseParameters_inv_depth_ini, const VIOParameters
+                     b_VIOParameters, double b_map[120], double b_delayedStatus
+                     [40])
 {
   boolean_T x[40];
   int i;
@@ -6572,7 +6580,7 @@ static void SLAM_upd(double P_apr[8281], f_struct_T *b_xt, int
   }
 
   // 'SLAM_upd:13' if VIOParameters.full_stereo
-  if (VIOParameters.full_stereo) {
+  if (b_VIOParameters.full_stereo) {
     // 'SLAM_upd:14' z_all_r(ind_l2) = undistortPoint(z_all_r(ind_l2), cameraParams.CameraParameters2); 
     z_all_r_size[0] = ind_l2_size[0];
     idx = ind_l2_size[0];
@@ -6647,7 +6655,7 @@ static void SLAM_upd(double P_apr[8281], f_struct_T *b_xt, int
   }
 
   // 'SLAM_upd:36' if VIOParameters.fixed_feature
-  if (VIOParameters.fixed_feature) {
+  if (b_VIOParameters.fixed_feature) {
     // 'SLAM_upd:37' fix_new_feature = false;
     fix_new_feature = false;
 
@@ -6753,9 +6761,9 @@ static void SLAM_upd(double P_apr[8281], f_struct_T *b_xt, int
                        i_cameraParams_CameraParameters,
                        j_cameraParams_CameraParameters, cameraParams_r_lr,
                        cameraParams_R_rl, noiseParameters_image_noise,
-                       VIOParameters.max_ekf_iterations,
-                       VIOParameters.delayed_initialization,
-                       VIOParameters.full_stereo, VIOParameters.RANSAC,
+                       b_VIOParameters.max_ekf_iterations,
+                       b_VIOParameters.delayed_initialization,
+                       b_VIOParameters.full_stereo, b_VIOParameters.RANSAC,
                        updateVect);
   } else {
     // 'SLAM_upd:75' else
@@ -6799,7 +6807,7 @@ static void SLAM_upd(double P_apr[8281], f_struct_T *b_xt, int
       }
 
       // 'SLAM_upd:89' if ~VIOParameters.mono
-      if (!VIOParameters.mono) {
+      if (!b_VIOParameters.mono) {
         // 'SLAM_upd:90' [ fp, m, success ] = initializePoint(z_curr_l, z_curr_r, cameraParams); 
         initializePoint(z_curr_l, z_curr_r, d_cameraParams_CameraParameters,
                         e_cameraParams_CameraParameters,
@@ -7573,7 +7581,7 @@ static void SLAM_upd(double P_apr[8281], f_struct_T *b_xt, int
             }
 
             // 'SLAM_upd:218' if VIOParameters.delayed_initialization
-            if (VIOParameters.delayed_initialization) {
+            if (b_VIOParameters.delayed_initialization) {
               // 'SLAM_upd:219' xt.anchor_states(anchorIdx).feature_states(featureIdx).status = int32(2); 
               b_xt->anchor_states[anchorIdx].feature_states[featureIdx].status =
                 2;
@@ -7667,7 +7675,7 @@ static void SLAM_upd(double P_apr[8281], f_struct_T *b_xt, int
 
   //  remove features that were not inserted
   // 'SLAM_upd:251' if VIOParameters.delayed_initialization
-  if (VIOParameters.delayed_initialization) {
+  if (b_VIOParameters.delayed_initialization) {
     //  get the median uncertainty of the active features as a benchmark on
     //  the delayed features
     // 'SLAM_upd:254' uncertainties = -1*ones(numTrackFeatures, 1);
@@ -8657,10 +8665,10 @@ static boolean_T any(const boolean_T x[40])
 }
 
 //
-// Arguments    : const d_struct_T anchor_state_feature_states[8]
+// Arguments    : const e_struct_T anchor_state_feature_states[8]
 // Return Type  : boolean_T
 //
-static boolean_T anyActiveAnchorFeatures(const d_struct_T
+static boolean_T anyActiveAnchorFeatures(const e_struct_T
   anchor_state_feature_states[8])
 {
   boolean_T ret;
@@ -8787,7 +8795,7 @@ static double b_fprintf()
 //  where M =  length(indMeas) is the number of valid points in the image
 // Arguments    : const double xt_robot_state_pos[3]
 //                const double xt_robot_state_att[4]
-//                const e_struct_T xt_anchor_states[5]
+//                const f_struct_T xt_anchor_states[5]
 //                const double z_all_l[80]
 //                const double z_all_r[80]
 //                const boolean_T b_status[40]
@@ -8803,7 +8811,7 @@ static double b_fprintf()
 // Return Type  : void
 //
 static void b_getH_R_res(const double xt_robot_state_pos[3], const double
-  xt_robot_state_att[4], const e_struct_T xt_anchor_states[5], const double
+  xt_robot_state_att[4], const f_struct_T xt_anchor_states[5], const double
   z_all_l[80], const double z_all_r[80], const boolean_T b_status[40], const
   double c_stereoParams_CameraParameters[2], const double
   d_stereoParams_CameraParameters[2], const double
@@ -11283,6 +11291,26 @@ static double c_xnrm2(int n, const emxArray_real_T *x, int ix0)
 }
 
 //
+// Arguments    : const struct_T x[5]
+//                AnchorPose y[5]
+// Return Type  : void
+//
+static void cast(const struct_T x[5], AnchorPose y[5])
+{
+  int j;
+  int i;
+  for (j = 0; j < 5; j++) {
+    for (i = 0; i < 3; i++) {
+      y[j].pos[i] = x[j].pos[i];
+    }
+
+    for (i = 0; i < 4; i++) {
+      y[j].att[i] = x[j].att[i];
+    }
+  }
+}
+
+//
 // Arguments    : const double a[3]
 //                const double b[3]
 //                double c[3]
@@ -12109,13 +12137,13 @@ static void g_ros_warn(double varargin_1)
 // getAnchorPoses Get the anchor poses in the world frame
 // Arguments    : const double xt_origin_pos[3]
 //                const double xt_origin_att[4]
-//                const e_struct_T xt_anchor_states[5]
-//                struct8_T anchor_poses[5]
+//                const f_struct_T xt_anchor_states[5]
+//                struct_T anchor_poses[5]
 // Return Type  : void
 //
 static void getAnchorPoses(const double xt_origin_pos[3], const double
-  xt_origin_att[4], const e_struct_T xt_anchor_states[5], struct8_T
-  anchor_poses[5])
+  xt_origin_att[4], const f_struct_T xt_anchor_states[5], struct_T anchor_poses
+  [5])
 {
   double R_ow[9];
   int anchorIdx;
@@ -12251,7 +12279,7 @@ static void getAnchorPoses(const double xt_origin_pos[3], const double
 //  where M =  length(indMeas) is the number of valid points in the image
 // Arguments    : const double xt_robot_state_pos[3]
 //                const double xt_robot_state_att[4]
-//                const e_struct_T xt_anchor_states[5]
+//                const f_struct_T xt_anchor_states[5]
 //                const double z_all_l[80]
 //                const double z_all_r[80]
 //                const boolean_T b_status[40]
@@ -12268,7 +12296,7 @@ static void getAnchorPoses(const double xt_origin_pos[3], const double
 // Return Type  : void
 //
 static void getH_R_res(const double xt_robot_state_pos[3], const double
-  xt_robot_state_att[4], const e_struct_T xt_anchor_states[5], const double
+  xt_robot_state_att[4], const f_struct_T xt_anchor_states[5], const double
   z_all_l[80], const double z_all_r[80], const boolean_T b_status[40], const
   double c_stereoParams_CameraParameters[2], const double
   d_stereoParams_CameraParameters[2], const double
@@ -13745,12 +13773,12 @@ static void getH_R_res(const double xt_robot_state_pos[3], const double
 //                          anchor
 // Arguments    : const double xt_origin_pos[3]
 //                const double xt_origin_att[4]
-//                const e_struct_T xt_anchor_states[5]
+//                const f_struct_T xt_anchor_states[5]
 //                double b_map[120]
 // Return Type  : void
 //
 static void getMap(const double xt_origin_pos[3], const double xt_origin_att[4],
-                   const e_struct_T xt_anchor_states[5], double b_map[120])
+                   const f_struct_T xt_anchor_states[5], double b_map[120])
 {
   double R_ow[9];
   double anchorRot[9];
@@ -13916,10 +13944,10 @@ static void getMap(const double xt_origin_pos[3], const double xt_origin_att[4],
 
 //
 // getNumValidFeatures Get the number of valid features of an anchor
-// Arguments    : const d_struct_T anchor_state_feature_states[8]
+// Arguments    : const e_struct_T anchor_state_feature_states[8]
 // Return Type  : double
 //
-static double getNumValidFeatures(const d_struct_T anchor_state_feature_states[8])
+static double getNumValidFeatures(const e_struct_T anchor_state_feature_states[8])
 {
   double n;
   int featureIdx;
@@ -13982,10 +14010,10 @@ static double getNumValidFeatures(const d_struct_T anchor_state_feature_states[8
 //  - anchorInd:            A vector describing which anchor each feature belongs to
 //  - featureAnchorInd:     A vector describing the index of each feature in its
 //                          anchor
-// Arguments    : f_struct_T *b_xt
+// Arguments    : g_struct_T *b_xt
 // Return Type  : void
 //
-static void getScaledMap(f_struct_T *b_xt)
+static void getScaledMap(g_struct_T *b_xt)
 {
   double R_cw[9];
   int anchorIdx;
@@ -14127,10 +14155,10 @@ static void getScaledMap(f_struct_T *b_xt)
 
 //
 // getTotalNumActiveFeatures Get the number of active features of all anchors
-// Arguments    : const e_struct_T xt_anchor_states[5]
+// Arguments    : const f_struct_T xt_anchor_states[5]
 // Return Type  : double
 //
-static double getTotalNumActiveFeatures(const e_struct_T xt_anchor_states[5])
+static double getTotalNumActiveFeatures(const f_struct_T xt_anchor_states[5])
 {
   double n;
   int anchorIdx;
@@ -14168,10 +14196,10 @@ static double getTotalNumActiveFeatures(const e_struct_T xt_anchor_states[5])
 
 //
 // getTotalNumDelayedFeatures Get the number of delayed features of all anchors
-// Arguments    : const e_struct_T xt_anchor_states[5]
+// Arguments    : const f_struct_T xt_anchor_states[5]
 // Return Type  : double
 //
-static double getTotalNumDelayedFeatures(const e_struct_T xt_anchor_states[5])
+static double getTotalNumDelayedFeatures(const f_struct_T xt_anchor_states[5])
 {
   double n;
   int anchorIdx;
@@ -17374,43 +17402,34 @@ static void xscal(int n, double a, emxArray_real_T *x, int ix0)
 //
 // input
 //  NOTE: Comment this out for MEXing
-//  coder.cstructname(measurements, 'VIOMeasurements', 'extern', 'HeaderFile', '../InterfaceStructs.h');
-//  coder.cstructname(noiseParameters, 'NoiseParameters', 'extern', 'HeaderFile', '../InterfaceStructs.h');
-//  coder.cstructname(noiseParameters.process_noise, 'ProcessNoise', 'extern', 'HeaderFile', '../InterfaceStructs.h');
-//  coder.cstructname(cameraParameters, 'DUOParameters', 'extern', 'HeaderFile', '../InterfaceStructs.h');
-//  coder.cstructname(cameraParameters.CameraParameters1, 'CameraParameters', 'extern', 'HeaderFile', '../InterfaceStructs.h');
-//  coder.cstructname(cameraParameters.CameraParameters2, 'CameraParameters', 'extern', 'HeaderFile', '../InterfaceStructs.h');
-//  coder.cstructname(VIOParameters, 'VIOParameters', 'extern', 'HeaderFile', '../InterfaceStructs.h');
-//  TODO
-//  coder.cstructname(ControllerGains, 'ControllerGains', 'extern', 'HeaderFile', '../InterfaceStructs.h');
-//  coder.cstructname(ref, 'ReferenceCommand', 'extern', 'HeaderFile', '../InterfaceStructs.h');
 // Arguments    : int updateVect[40]
 //                const double z_all_l[80]
 //                const double z_all_r[80]
 //                double dt
-//                const struct0_T *measurements
-//                const struct1_T *cameraParameters
-//                const struct3_T *noiseParameters
-//                const struct5_T *VIOParameters
+//                const VIOMeasurements *measurements
+//                const DUOParameters *cameraParameters
+//                const NoiseParameters *noiseParameters
+//                const VIOParameters *b_VIOParameters
 //                boolean_T vision
-//                struct6_T *xt_out
+//                RobotState *xt_out
 //                double map_out[120]
-//                struct8_T anchor_poses_out[5]
+//                AnchorPose anchor_poses_out[5]
 //                double delayedStatus_out[40]
 // Return Type  : void
 //
 void SLAM(int updateVect[40], const double z_all_l[80], const double z_all_r[80],
-          double dt, const struct0_T *measurements, const struct1_T
-          *cameraParameters, const struct3_T *noiseParameters, const struct5_T
-          *VIOParameters, boolean_T vision, struct6_T *xt_out, double map_out
-          [120], struct8_T anchor_poses_out[5], double delayedStatus_out[40])
+          double dt, const VIOMeasurements *measurements, const DUOParameters
+          *cameraParameters, const NoiseParameters *noiseParameters, const
+          VIOParameters *b_VIOParameters, boolean_T vision, RobotState *xt_out,
+          double map_out[120], AnchorPose anchor_poses_out[5], double
+          delayedStatus_out[40])
 {
   int i;
   static const signed char iv1[4] = { 0, 0, 0, 1 };
 
   static const double dv6[3] = { -0.35, 0.55, 0.75 };
 
-  static const e_struct_T rv0[5] = { { { 0.0, 0.0, 0.0 }, { 0.0, 0.0, 0.0, 1.0 },
+  static const f_struct_T rv0[5] = { { { 0.0, 0.0, 0.0 }, { 0.0, 0.0, 0.0, 1.0 },
       { 0, 0, 0, 0, 0, 0 }, { { 0.0, { 0.0, 0.0, 0.0 }, { 0.0, 0.0, 0.0 }, 0, 0,
           0 }, { 0.0, { 0.0, 0.0, 0.0 }, { 0.0, 0.0, 0.0 }, 0, 0, 0 }, { 0.0, {
             0.0, 0.0, 0.0 }, { 0.0, 0.0, 0.0 }, 0, 0, 0 }, { 0.0, { 0.0, 0.0,
@@ -17472,7 +17491,24 @@ void SLAM(int updateVect[40], const double z_all_l[80], const double z_all_r[80]
 
   double b_z_all_l[80];
   double b_z_all_r[80];
+  double t0_IMU_att[4];
+  double t0_IMU_pos[3];
+  double t0_IMU_acc_bias[3];
+  double t0_IMU_gyro_bias[3];
+  double t0_vel[3];
+  double t0_att[4];
+  struct_T rv1[5];
 
+  // 'SLAM:4' coder.cstructname(measurements, 'VIOMeasurements', 'extern', 'HeaderFile', '../InterfaceStructs.h'); 
+  // 'SLAM:5' coder.cstructname(noiseParameters, 'NoiseParameters', 'extern', 'HeaderFile', '../InterfaceStructs.h'); 
+  // 'SLAM:6' coder.cstructname(noiseParameters.process_noise, 'ProcessNoise', 'extern', 'HeaderFile', '../InterfaceStructs.h'); 
+  // 'SLAM:7' coder.cstructname(cameraParameters, 'DUOParameters', 'extern', 'HeaderFile', '../InterfaceStructs.h'); 
+  // 'SLAM:8' coder.cstructname(cameraParameters.CameraParameters1, 'CameraParameters', 'extern', 'HeaderFile', '../InterfaceStructs.h'); 
+  // 'SLAM:9' coder.cstructname(cameraParameters.CameraParameters2, 'CameraParameters', 'extern', 'HeaderFile', '../InterfaceStructs.h'); 
+  // 'SLAM:10' coder.cstructname(VIOParameters, 'VIOParameters', 'extern', 'HeaderFile', '../InterfaceStructs.h'); 
+  //  TODO
+  //  coder.cstructname(ControllerGains, 'ControllerGains', 'extern', 'HeaderFile', '../InterfaceStructs.h'); 
+  //  coder.cstructname(ref, 'ReferenceCommand', 'extern', 'HeaderFile', '../InterfaceStructs.h'); 
   // 'SLAM:14' assert ( all ( size (updateVect) == [numTrackFeatures 1] ) );
   // 'SLAM:14' assert(isa(updateVect,'int32'));
   // 'SLAM:15' assert ( all ( size (z_all_l) == [numTrackFeatures*2 1] ) )
@@ -17545,7 +17581,7 @@ void SLAM(int updateVect[40], const double z_all_l[80], const double z_all_r[80]
     // 'SLAM:52' anchor_state.feature_states = repmat(feature_state, numPointsPerAnchor,1); 
     // 'SLAM:54' xt.anchor_states = repmat(anchor_state, numAnchors, 1);
     // 'SLAM:56' for anchorIdx = 1:numAnchors
-    memcpy(&xt.anchor_states[0], &rv0[0], 5U * sizeof(e_struct_T));
+    memcpy(&xt.anchor_states[0], &rv0[0], 5U * sizeof(f_struct_T));
     for (anchorIdx = 0; anchorIdx < 5; anchorIdx++) {
       // 'SLAM:57' xt.anchor_states(anchorIdx).P_idx = numStates + (anchorIdx-1)*numStatesPerAnchor + int32(1:6); 
       i46 = anchorIdx * 14;
@@ -17725,11 +17761,12 @@ void SLAM(int updateVect[40], const double z_all_l[80], const double z_all_r[80]
                   noiseParameters->acc_bias_initial_unc,
                   noiseParameters->image_noise,
                   noiseParameters->inv_depth_initial_unc,
-                  VIOParameters->num_points_per_anchor,
-                  VIOParameters->num_anchors, VIOParameters->max_ekf_iterations,
-                  VIOParameters->fixed_feature,
-                  VIOParameters->delayed_initialization, VIOParameters->mono,
-                  VIOParameters->full_stereo, VIOParameters->RANSAC);
+                  b_VIOParameters->num_points_per_anchor,
+                  b_VIOParameters->num_anchors,
+                  b_VIOParameters->max_ekf_iterations,
+                  b_VIOParameters->fixed_feature,
+                  b_VIOParameters->delayed_initialization, b_VIOParameters->mono,
+                  b_VIOParameters->full_stereo, b_VIOParameters->RANSAC);
 
       // 'SLAM:92' initialized = 1;
       initialized_not_empty = true;
@@ -17764,7 +17801,7 @@ void SLAM(int updateVect[40], const double z_all_l[80], const double z_all_r[80]
                cameraParameters->r_lr, cameraParameters->R_lr,
                cameraParameters->R_rl, updateVect, b_z_all_l, b_z_all_r,
                noiseParameters->image_noise,
-               noiseParameters->inv_depth_initial_unc, *VIOParameters, map,
+               noiseParameters->inv_depth_initial_unc, *b_VIOParameters, map,
                delayedStatus);
     }
   }
@@ -17776,22 +17813,39 @@ void SLAM(int updateVect[40], const double z_all_l[80], const double z_all_r[80]
   getWorldState(xt.robot_state.IMU.pos, xt.robot_state.IMU.att,
                 xt.robot_state.IMU.gyro_bias, xt.robot_state.IMU.acc_bias,
                 xt.robot_state.pos, xt.robot_state.att, xt.robot_state.vel,
-                xt.origin.pos, xt.origin.att, xt_out->pos, xt_out->att,
-                xt_out->vel, xt_out->IMU.gyro_bias, xt_out->IMU.acc_bias,
-                xt_out->IMU.pos, xt_out->IMU.att);
+                xt.origin.pos, xt.origin.att, b_y_n_b, t0_att, t0_vel,
+                t0_IMU_gyro_bias, t0_IMU_acc_bias, t0_IMU_pos, t0_IMU_att);
+  for (i = 0; i < 3; i++) {
+    xt_out->pos[i] = b_y_n_b[i];
+  }
+
+  for (i = 0; i < 4; i++) {
+    xt_out->att[i] = t0_att[i];
+  }
+
+  for (i = 0; i < 3; i++) {
+    xt_out->vel[i] = t0_vel[i];
+    xt_out->IMU.gyro_bias[i] = t0_IMU_gyro_bias[i];
+    xt_out->IMU.acc_bias[i] = t0_IMU_acc_bias[i];
+    xt_out->IMU.pos[i] = t0_IMU_pos[i];
+  }
+
+  for (i = 0; i < 4; i++) {
+    xt_out->IMU.att[i] = t0_IMU_att[i];
+  }
 
   // 'SLAM:106' anchor_poses_out = getAnchorPoses(xt);
-  getAnchorPoses(xt.origin.pos, xt.origin.att, xt.anchor_states,
-                 anchor_poses_out);
+  getAnchorPoses(xt.origin.pos, xt.origin.att, xt.anchor_states, rv1);
+  cast(rv1, anchor_poses_out);
 
   // 'SLAM:107' delayedStatus_out = delayedStatus;
   memcpy(&delayedStatus_out[0], &delayedStatus[0], 40U * sizeof(double));
 
   //  output
   //  NOTE: Comment this out for MEXing
-  //  coder.cstructname(xt_out, 'RobotState', 'extern', 'HeaderFile', '../InterfaceStructs.h'); 
-  //  coder.cstructname(xt_out.IMU, 'IMUState', 'extern', 'HeaderFile', '../InterfaceStructs.h'); 
-  //  coder.cstructname(anchor_poses_out(1), 'AnchorPose', 'extern', 'HeaderFile', '../InterfaceStructs.h'); 
+  // 'SLAM:111' coder.cstructname(xt_out, 'RobotState', 'extern', 'HeaderFile', '../InterfaceStructs.h'); 
+  // 'SLAM:112' coder.cstructname(xt_out.IMU, 'IMUState', 'extern', 'HeaderFile', '../InterfaceStructs.h'); 
+  // 'SLAM:113' coder.cstructname(anchor_poses_out(1), 'AnchorPose', 'extern', 'HeaderFile', '../InterfaceStructs.h'); 
   // 'SLAM:115' assert ( all ( size (map_out) == [numTrackFeatures*3 1] ) )
   // 'SLAM:116' assert ( all ( size (anchor_poses_out) == [numAnchors 1] ) )
   // 'SLAM:117' assert ( all ( size (updateVect) == [numTrackFeatures 1] ) )
