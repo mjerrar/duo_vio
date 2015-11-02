@@ -8,7 +8,7 @@
   <arg name="resolution_height_duo" default="240" />
   <arg name="camera_name" default="101" /> <!-- the camera name is equal to the last 3 digits of the odroid's IP -->
   <arg name="lense_type" default="FS3028B13M8" />
-  <arg name="vision_subsample" default="4" />
+  <arg name="vision_subsample" default="2" />
 
   <!-- noise parameters -->
   <arg name="image_noise" default="1" />
@@ -26,7 +26,7 @@
   <arg name="delayed_initiazation" default="0" />
   <arg name="mono" default="0" />
   <arg name="RANSAC" default="1" />
-  <arg name="full_stereo" default="1" />
+  <arg name="full_stereo" default="0" />
 
   <!-- controller gains -->
   <arg name="Kp_xy" default="1" />
