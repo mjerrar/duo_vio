@@ -5,7 +5,7 @@
 // File: SLAM.cpp
 //
 // MATLAB Coder version            : 3.0
-// C/C++ source code generated on  : 02-Nov-2015 17:12:39
+// C/C++ source code generated on  : 09-Nov-2015 09:33:43
 //
 
 // Include Files
@@ -98,7 +98,7 @@ typedef struct {
   c_struct_T robot_state;
   int fixed_feature;
   d_struct_T origin;
-  f_struct_T anchor_states[5];
+  f_struct_T anchor_states[6];
 } g_struct_T;
 
 typedef struct {
@@ -112,14 +112,14 @@ typedef struct {
 // Variable Definitions
 static boolean_T initialized_not_empty;
 static g_struct_T xt;
-static double P[8281];
-static double map[120];
-static double delayedStatus[40];
+static double P[11025];
+static double map[144];
+static double delayedStatus[48];
 static double debug_level;
 
 // Function Declarations
-static void OnePointRANSAC_EKF(g_struct_T *b_xt, double b_P[8281], const double
-  z_u_l[80], const double z_u_r[80], const double
+static void OnePointRANSAC_EKF(g_struct_T *b_xt, double b_P[11025], const double
+  z_u_l[96], const double z_u_r[96], const double
   c_stereoParams_CameraParameters[2], const double
   d_stereoParams_CameraParameters[2], const double
   e_stereoParams_CameraParameters[2], const double
@@ -127,13 +127,13 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, double b_P[8281], const double
   double stereoParams_R_rl[9], double noiseParameters_image_noise, int
   c_VIOParameters_max_ekf_iterati, boolean_T c_VIOParameters_delayed_initial,
   boolean_T VIOParameters_full_stereo, boolean_T VIOParameters_RANSAC, int
-  updateVect[40]);
+  updateVect[48]);
 static void QuatFromRotJ(const double R[9], double Q[4]);
-static void SLAM_pred_euler(double P_apo[8281], g_struct_T *x, double dt, double
-  processNoise_qv, double processNoise_qw, double processNoise_qao, double
-  processNoise_qwo, double processNoise_qR_ci, const double
+static void SLAM_pred_euler(double P_apo[11025], g_struct_T *x, double dt,
+  double processNoise_qv, double processNoise_qw, double processNoise_qao,
+  double processNoise_qwo, double processNoise_qR_ci, const double
   measurements_acc_duo[3], const double measurements_gyr_duo[3]);
-static void SLAM_upd(double P_apr[8281], g_struct_T *b_xt, int
+static void SLAM_upd(double P_apr[11025], g_struct_T *b_xt, int
                      c_cameraParams_CameraParameters, const double
                      d_cameraParams_CameraParameters[2], const double
                      e_cameraParams_CameraParameters[2], const double
@@ -145,13 +145,13 @@ static void SLAM_upd(double P_apr[8281], g_struct_T *b_xt, int
                      k_cameraParams_CameraParameters[3], int
                      l_cameraParams_CameraParameters, const double
                      cameraParams_r_lr[3], const double cameraParams_R_lr[9],
-                     const double cameraParams_R_rl[9], int updateVect[40],
-                     double z_all_l[80], double z_all_r[80], double
+                     const double cameraParams_R_rl[9], int updateVect[48],
+                     double z_all_l[96], double z_all_r[96], double
                      noiseParameters_image_noise, double
                      c_noiseParameters_inv_depth_ini, const VIOParameters
-                     b_VIOParameters, double b_map[120], double b_delayedStatus
-                     [40]);
-static boolean_T any(const boolean_T x[40]);
+                     b_VIOParameters, double b_map[144], double b_delayedStatus
+                     [48]);
+static boolean_T any(const boolean_T x[48]);
 static boolean_T anyActiveAnchorFeatures(const e_struct_T
   anchor_state_feature_states[8]);
 static boolean_T b_any(const boolean_T x[3]);
@@ -159,8 +159,8 @@ static void b_diag(const double v[15], double d[225]);
 static void b_eye(double I[441]);
 static double b_fprintf();
 static void b_getH_R_res(const double xt_robot_state_pos[3], const double
-  xt_robot_state_att[4], const f_struct_T xt_anchor_states[5], const double
-  z_all_l[80], const double z_all_r[80], const boolean_T b_status[40], const
+  xt_robot_state_att[4], const f_struct_T xt_anchor_states[6], const double
+  z_all_l[96], const double z_all_r[96], const boolean_T b_status[48], const
   double c_stereoParams_CameraParameters[2], const double
   d_stereoParams_CameraParameters[2], const double
   e_stereoParams_CameraParameters[2], const double
@@ -178,17 +178,17 @@ static void b_ros_warn(int varargin_1, int varargin_2, int varargin_3);
 static void b_sort(double x[8], int idx[8]);
 static void b_xgeqp3(double A[30], double tau[5], int jpvt[5]);
 static double b_xnrm2(int n, const emxArray_real_T *x, int ix0);
-static boolean_T c_any(const double x[5]);
-static void c_eye(double I[8281]);
+static boolean_T c_any(const double x[6]);
+static void c_eye(double I[11025]);
 static double c_fprintf(double varargin_1);
 static double c_norm(const double x[2]);
 static void c_ros_info(int varargin_1, int varargin_2);
 static void c_ros_warn();
 static void c_sort(emxArray_real_T *x, emxArray_int32_T *idx);
 static double c_xnrm2(int n, const emxArray_real_T *x, int ix0);
-static void cast(const struct_T x[5], AnchorPose y[5]);
+static void cast(const struct_T x[6], AnchorPose y[6]);
 static void cross(const double a[3], const double b[3], double c[3]);
-static void d_eye(double I[8281]);
+static void d_eye(double I[11025]);
 static double d_fprintf(double varargin_1);
 static void d_ros_info(int varargin_1);
 static void d_ros_warn(int varargin_1, double varargin_2);
@@ -218,11 +218,11 @@ static double g_fprintf(double varargin_1);
 static void g_ros_info(int varargin_1);
 static void g_ros_warn(double varargin_1);
 static void getAnchorPoses(const double xt_origin_pos[3], const double
-  xt_origin_att[4], const f_struct_T xt_anchor_states[5], struct_T anchor_poses
-  [5]);
+  xt_origin_att[4], const f_struct_T xt_anchor_states[6], struct_T anchor_poses
+  [6]);
 static void getH_R_res(const double xt_robot_state_pos[3], const double
-  xt_robot_state_att[4], const f_struct_T xt_anchor_states[5], const double
-  z_all_l[80], const double z_all_r[80], const boolean_T b_status[40], const
+  xt_robot_state_att[4], const f_struct_T xt_anchor_states[6], const double
+  z_all_l[96], const double z_all_r[96], const boolean_T b_status[48], const
   double c_stereoParams_CameraParameters[2], const double
   d_stereoParams_CameraParameters[2], const double
   e_stereoParams_CameraParameters[2], const double
@@ -230,11 +230,11 @@ static void getH_R_res(const double xt_robot_state_pos[3], const double
   double stereoParams_R_rl[9], boolean_T VIOParameters_full_stereo,
   emxArray_real_T *r, emxArray_real_T *H, emxArray_int32_T *ind);
 static void getMap(const double xt_origin_pos[3], const double xt_origin_att[4],
-                   const f_struct_T xt_anchor_states[5], double b_map[120]);
+                   const f_struct_T xt_anchor_states[6], double b_map[144]);
 static double getNumValidFeatures(const e_struct_T anchor_state_feature_states[8]);
 static void getScaledMap(g_struct_T *b_xt);
-static double getTotalNumActiveFeatures(const f_struct_T xt_anchor_states[5]);
-static double getTotalNumDelayedFeatures(const f_struct_T xt_anchor_states[5]);
+static double getTotalNumActiveFeatures(const f_struct_T xt_anchor_states[6]);
+static double getTotalNumDelayedFeatures(const f_struct_T xt_anchor_states[6]);
 static void getWorldState(const double xt_robot_state_IMU_pos[3], const double
   xt_robot_state_IMU_att[4], const double xt_robot_state_IMU_gyro_bias[3], const
   double xt_robot_state_IMU_acc_bias[3], const double xt_robot_state_pos[3],
@@ -330,9 +330,9 @@ static void xscal(int n, double a, emxArray_real_T *x, int ix0);
 // OnePointRANSAC_EKF Perform a 1-point RANSAC outlier rejection and update
 // the state
 // Arguments    : g_struct_T *b_xt
-//                double b_P[8281]
-//                const double z_u_l[80]
-//                const double z_u_r[80]
+//                double b_P[11025]
+//                const double z_u_l[96]
+//                const double z_u_r[96]
 //                const double c_stereoParams_CameraParameters[2]
 //                const double d_stereoParams_CameraParameters[2]
 //                const double e_stereoParams_CameraParameters[2]
@@ -344,11 +344,11 @@ static void xscal(int n, double a, emxArray_real_T *x, int ix0);
 //                boolean_T c_VIOParameters_delayed_initial
 //                boolean_T VIOParameters_full_stereo
 //                boolean_T VIOParameters_RANSAC
-//                int updateVect[40]
+//                int updateVect[48]
 // Return Type  : void
 //
-static void OnePointRANSAC_EKF(g_struct_T *b_xt, double b_P[8281], const double
-  z_u_l[80], const double z_u_r[80], const double
+static void OnePointRANSAC_EKF(g_struct_T *b_xt, double b_P[11025], const double
+  z_u_l[96], const double z_u_r[96], const double
   c_stereoParams_CameraParameters[2], const double
   d_stereoParams_CameraParameters[2], const double
   e_stereoParams_CameraParameters[2], const double
@@ -356,35 +356,35 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, double b_P[8281], const double
   double stereoParams_R_rl[9], double noiseParameters_image_noise, int
   c_VIOParameters_max_ekf_iterati, boolean_T c_VIOParameters_delayed_initial,
   boolean_T VIOParameters_full_stereo, boolean_T VIOParameters_RANSAC, int
-  updateVect[40])
+  updateVect[48])
 {
   int residualDim;
   int mahalanobis_thresh;
   double LI_residual_thresh;
   int apnd;
-  boolean_T activeFeatures[40];
-  boolean_T delayedFeatures[40];
+  boolean_T activeFeatures[48];
+  boolean_T delayedFeatures[48];
   int anchorIdx;
   int featureIdx;
-  boolean_T LI_inlier_status[40];
+  boolean_T LI_inlier_status[48];
   emxArray_real_T *S;
   emxArray_real_T *K;
   emxArray_int32_T *ind;
   emxArray_real_T *r;
   emxArray_real_T *H;
   int idx;
-  signed char ii_data[40];
+  signed char ii_data[48];
   int b_m;
   boolean_T exitg2;
   boolean_T guard2 = false;
   int ndbl;
   int i53;
-  signed char hyp_ind_data[40];
+  signed char hyp_ind_data[48];
   double num_hyp;
   int hyp_it;
   emxArray_real_T *y;
-  boolean_T HI_inlierCandidates[40];
-  boolean_T HI_inlierStatus[40];
+  boolean_T HI_inlierCandidates[48];
+  boolean_T HI_inlierStatus[48];
   long i54;
   int i55;
   int i56;
@@ -415,14 +415,14 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, double b_P[8281], const double
   double c_xt[4];
   double b_S_feature_data[6];
   unsigned int unnamed_idx_1;
-  double x_apo[91];
+  double x_apo[105];
   double b_x_apo;
   double b_y_data[4];
   double R_cw[9];
   double r_wc[3];
   double anchorPos[3];
   double c_x_apo[3];
-  double dv21[4];
+  double dv20[4];
   double gryro_bias_cov[9];
   double rho;
   double fp[3];
@@ -437,11 +437,11 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, double b_P[8281], const double
   double size_S;
   emxArray_real_T *b_S;
   emxArray_real_T *c_y;
-  double dv22[4];
-  static double d_y[8281];
-  static double dv23[8281];
-  static double dv24[8281];
-  static double dv25[8281];
+  double dv21[4];
+  static double d_y[11025];
+  static double dv22[11025];
+  static double dv23[11025];
+  static double dv24[11025];
   boolean_T b_HI_inlierCandidates;
   boolean_T exitg1;
   boolean_T guard1 = false;
@@ -468,15 +468,15 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, double b_P[8281], const double
   int S_feature_size[2];
   int y_size[2];
   int b_tmp_data[4];
-  double x_apo_data[91];
+  double x_apo_data[105];
   double b_x_apo_data;
-  double dv26[4];
+  double dv25[4];
   emxArray_real_T *C;
-  double dv27[8281];
+  static double dv26[11025];
   emxArray_real_T *g_y;
   emxArray_real_T *d_S;
   emxArray_real_T *h_y;
-  double dv28[8281];
+  double dv27[11025];
   double rejected_ratio;
   char cv52[66];
   static const char cv53[66] = { '1', '-', 'p', 'o', 'i', 'n', 't', ' ', 'R',
@@ -515,19 +515,19 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, double b_P[8281], const double
     mahalanobis_thresh = 6;
 
     //  HI mahalanobis gate
-    // 'OnePointRANSAC_EKF:17' LI_residual_thresh = 3;
-    LI_residual_thresh = 3.0;
+    // 'OnePointRANSAC_EKF:17' LI_residual_thresh = 2;
+    LI_residual_thresh = 2.0;
   }
 
   // 'OnePointRANSAC_EKF:20' activeFeatures = false(size(updateVect));
   // 'OnePointRANSAC_EKF:21' delayedFeatures = activeFeatures;
-  for (apnd = 0; apnd < 40; apnd++) {
+  for (apnd = 0; apnd < 48; apnd++) {
     activeFeatures[apnd] = false;
     delayedFeatures[apnd] = false;
   }
 
   // 'OnePointRANSAC_EKF:22' for anchorIdx = 1:numAnchors
-  for (anchorIdx = 0; anchorIdx < 5; anchorIdx++) {
+  for (anchorIdx = 0; anchorIdx < 6; anchorIdx++) {
     // 'OnePointRANSAC_EKF:23' for featureIdx = 1:numPointsPerAnchor
     for (featureIdx = 0; featureIdx < 8; featureIdx++) {
       // 'OnePointRANSAC_EKF:24' if xt.anchor_states(anchorIdx).feature_states(featureIdx).status == 1 
@@ -551,7 +551,7 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, double b_P[8281], const double
   // 'OnePointRANSAC_EKF:32' activeFeatures = activeFeatures & (updateVect==1);
   // 'OnePointRANSAC_EKF:33' delayedFeatures = delayedFeatures & (updateVect==1); 
   // 'OnePointRANSAC_EKF:35' LI_inlier_status = false(size(updateVect));
-  for (apnd = 0; apnd < 40; apnd++) {
+  for (apnd = 0; apnd < 48; apnd++) {
     LI_inlier_status[apnd] = false;
     activeFeatures[apnd] = (activeFeatures[apnd] && (updateVect[apnd] == 1));
     delayedFeatures[apnd] = (delayedFeatures[apnd] && (updateVect[apnd] == 1));
@@ -574,12 +574,12 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, double b_P[8281], const double
     idx = 0;
     b_m = 1;
     exitg2 = false;
-    while ((!exitg2) && (b_m < 41)) {
+    while ((!exitg2) && (b_m < 49)) {
       guard2 = false;
       if (activeFeatures[b_m - 1]) {
         idx++;
         ii_data[idx - 1] = (signed char)b_m;
-        if (idx >= 40) {
+        if (idx >= 48) {
           exitg2 = true;
         } else {
           guard2 = true;
@@ -622,7 +622,7 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, double b_P[8281], const double
       // 'OnePointRANSAC_EKF:51' hyp_idx = hyp_ind(hyp_it);
       // 'OnePointRANSAC_EKF:53' LI_inlier_status_i(:) = false;
       // 'OnePointRANSAC_EKF:55' hyp_status(:) = false;
-      for (apnd = 0; apnd < 40; apnd++) {
+      for (apnd = 0; apnd < 48; apnd++) {
         HI_inlierCandidates[apnd] = false;
         HI_inlierStatus[apnd] = false;
       }
@@ -782,7 +782,7 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, double b_P[8281], const double
             }
           }
 
-          P_b[i56 + 6 * i55] = b_P[((int)i54 + 91 * i55) - 1];
+          P_b[i56 + 6 * i55] = b_P[((int)i54 + 105 * i55) - 1];
         }
       }
 
@@ -836,7 +836,7 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, double b_P[8281], const double
 
       // 'OnePointRANSAC_EKF:68' P_d = P_b';
       for (i55 = 0; i55 < 6; i55++) {
-        P_c[i55] = b_P[(i53 + 91 * i55) - 1];
+        P_c[i55] = b_P[(i53 + 105 * i55) - 1];
         for (i56 = 0; i56 < 6; i56++) {
           P_d[i56 + 6 * i55] = P_b[i55 + 6 * i56];
         }
@@ -935,7 +935,7 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, double b_P[8281], const double
           }
         }
 
-        P_f[i56] = b_P[(i55 + 91 * ((int)i54 - 1)) - 1];
+        P_f[i56] = b_P[(i55 + 105 * ((int)i54 - 1)) - 1];
         idx = residualDim;
         for (b_m = 0; b_m < idx; b_m++) {
           H_a_data[b_m + residualDim * i56] = 0.0;
@@ -954,12 +954,12 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, double b_P[8281], const double
       for (apnd = 0; apnd <= idx; apnd += residualDim) {
         ar = 0;
         for (ib = br; ib + 1 <= br + 6; ib++) {
-          if (b_P[ib % 6 + 91 * (ib / 6)] != 0.0) {
+          if (b_P[ib % 6 + 105 * (ib / 6)] != 0.0) {
             ia = ar;
             i53 = apnd + residualDim;
             for (ic = apnd; ic + 1 <= i53; ic++) {
               ia++;
-              H_a_data[ic] += b_P[ib % 6 + 91 * (ib / 6)] * H->data[(ia - 1) %
+              H_a_data[ic] += b_P[ib % 6 + 105 * (ib / 6)] * H->data[(ia - 1) %
                 residualDim + H->size[0] * ((ia - 1) / residualDim)];
             }
           }
@@ -1025,7 +1025,7 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, double b_P[8281], const double
             }
           }
 
-          if (b_P[((int)i54 + 91 * (ib / 6)) - 1] != 0.0) {
+          if (b_P[((int)i54 + 105 * (ib / 6)) - 1] != 0.0) {
             ia = ar;
             i53 = apnd + residualDim;
             for (ic = apnd; ic + 1 <= i53; ic++) {
@@ -1103,7 +1103,7 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, double b_P[8281], const double
                 }
               }
 
-              C_data[ic] += b_P[((int)i54 + 91 * (ib / 6)) - 1] * H->data[(ia -
+              C_data[ic] += b_P[((int)i54 + 105 * (ib / 6)) - 1] * H->data[(ia -
                 1) % residualDim + H->size[0] * ((int)i57 - 1)];
             }
           }
@@ -1240,7 +1240,7 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, double b_P[8281], const double
             }
           }
 
-          if (b_P[((int)i54 + 91 * ((int)i57 - 1)) - 1] != 0.0) {
+          if (b_P[((int)i54 + 105 * ((int)i57 - 1)) - 1] != 0.0) {
             ia = ar;
             i53 = apnd + residualDim;
             for (ic = apnd; ic + 1 <= i53; ic++) {
@@ -1355,7 +1355,7 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, double b_P[8281], const double
                 }
               }
 
-              c_C_data[ic] += b_P[((int)i54 + 91 * ((int)i57 - 1)) - 1] *
+              c_C_data[ic] += b_P[((int)i54 + 105 * ((int)i57 - 1)) - 1] *
                 H->data[(ia - 1) % residualDim + H->size[0] * ((int)i58 - 1)];
             }
           }
@@ -1525,7 +1525,7 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, double b_P[8281], const double
           }
 
           i53 = (int)i54;
-          if (b_P[(i53 + 91 * (ib - 1)) - 1] != 0.0) {
+          if (b_P[(i53 + 105 * (ib - 1)) - 1] != 0.0) {
             ia = ar;
             for (ic = 0; ic + 1 <= residualDim; ic++) {
               ia++;
@@ -1575,7 +1575,7 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, double b_P[8281], const double
               }
 
               i53 = (int)i54;
-              y_data[ic] += b_P[(i53 + 91 * (ib - 1)) - 1] * H->data[(ia - 1) %
+              y_data[ic] += b_P[(i53 + 105 * (ib - 1)) - 1] * H->data[(ia - 1) %
                 residualDim + H->size[0] * ((ia - 1) / residualDim)];
             }
           }
@@ -1688,7 +1688,7 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, double b_P[8281], const double
             }
           }
 
-          if (b_P[(i55 + 91 * ((int)i54 - 1)) - 1] != 0.0) {
+          if (b_P[(i55 + 105 * ((int)i54 - 1)) - 1] != 0.0) {
             ia = ar;
             for (ic = 0; ic + 1 <= residualDim; ic++) {
               ia++;
@@ -1811,8 +1811,8 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, double b_P[8281], const double
                 }
               }
 
-              e_C_data[ic] += b_P[(i55 + 91 * ((int)i54 - 1)) - 1] * H->data[(ia
-                - 1) % residualDim + H->size[0] * ((int)i57 - 1)];
+              e_C_data[ic] += b_P[(i55 + 105 * ((int)i54 - 1)) - 1] * H->data
+                [(ia - 1) % residualDim + H->size[0] * ((int)i57 - 1)];
             }
           }
 
@@ -1913,7 +1913,7 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, double b_P[8281], const double
         }
       }
 
-      c_P = b_P[((int)i54 + 91 * ((int)i57 - 1)) - 1];
+      c_P = b_P[((int)i54 + 105 * ((int)i57 - 1)) - 1];
       idx = residualDim;
       for (i53 = 0; i53 < idx; i53++) {
         c_xt[i53] = (y_data[i53] + e_C_data[i53]) + H_c_data[i53] * c_P;
@@ -1948,59 +1948,59 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, double b_P[8281], const double
       // 'OnePointRANSAC_EKF:81' if coder.target('MATLAB')
       // 'OnePointRANSAC_EKF:87' K = (P*H')/S;
       i53 = K->size[0] * K->size[1];
-      K->size[0] = 91;
+      K->size[0] = 105;
       K->size[1] = H->size[0];
       emxEnsureCapacity((emxArray__common *)K, i53, (int)sizeof(double));
       idx = H->size[0];
       for (i53 = 0; i53 < idx; i53++) {
-        for (i55 = 0; i55 < 91; i55++) {
+        for (i55 = 0; i55 < 105; i55++) {
           K->data[i55 + K->size[0] * i53] = H->data[i53 + H->size[0] * i55];
         }
       }
 
       unnamed_idx_1 = (unsigned int)K->size[1];
       i53 = y->size[0] * y->size[1];
-      y->size[0] = 91;
+      y->size[0] = 105;
       y->size[1] = (int)unnamed_idx_1;
-      y->size[0] = 91;
+      y->size[0] = 105;
       emxEnsureCapacity((emxArray__common *)y, i53, (int)sizeof(double));
       idx = y->size[1];
       for (i53 = 0; i53 < idx; i53++) {
-        for (i55 = 0; i55 < 91; i55++) {
+        for (i55 = 0; i55 < 105; i55++) {
           y->data[i55 + y->size[0] * i53] = 0.0;
         }
       }
 
       if (K->size[1] == 0) {
       } else {
-        idx = 91 * (K->size[1] - 1);
-        for (apnd = 0; apnd <= idx; apnd += 91) {
-          for (ic = apnd + 1; ic <= apnd + 91; ic++) {
+        idx = 105 * (K->size[1] - 1);
+        for (apnd = 0; apnd <= idx; apnd += 105) {
+          for (ic = apnd + 1; ic <= apnd + 105; ic++) {
             y->data[ic - 1] = 0.0;
           }
         }
 
         br = 0;
-        for (apnd = 0; apnd <= idx; apnd += 91) {
+        for (apnd = 0; apnd <= idx; apnd += 105) {
           ar = 0;
-          for (ib = br; ib + 1 <= br + 91; ib++) {
+          for (ib = br; ib + 1 <= br + 105; ib++) {
             if (K->data[ib] != 0.0) {
               ia = ar;
-              for (ic = apnd; ic + 1 <= apnd + 91; ic++) {
+              for (ic = apnd; ic + 1 <= apnd + 105; ic++) {
                 ia++;
                 y->data[ic] += K->data[ib] * b_P[ia - 1];
               }
             }
 
-            ar += 91;
+            ar += 105;
           }
 
-          br += 91;
+          br += 105;
         }
       }
 
       i53 = K->size[0] * K->size[1];
-      K->size[0] = 91;
+      K->size[0] = 105;
       K->size[1] = y->size[1];
       emxEnsureCapacity((emxArray__common *)K, i53, (int)sizeof(double));
       idx = y->size[0] * y->size[1];
@@ -2012,7 +2012,7 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, double b_P[8281], const double
 
       // 'OnePointRANSAC_EKF:89' x_apo = K*r;
       if ((K->size[1] == 1) || (r->size[0] == 1)) {
-        for (i53 = 0; i53 < 91; i53++) {
+        for (i53 = 0; i53 < 105; i53++) {
           x_apo[i53] = 0.0;
           idx = K->size[1];
           for (i55 = 0; i55 < idx; i55++) {
@@ -2021,19 +2021,19 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, double b_P[8281], const double
           }
         }
       } else {
-        memset(&x_apo[0], 0, 91U * sizeof(double));
+        memset(&x_apo[0], 0, 105U * sizeof(double));
         ar = 0;
         for (ib = 0; ib + 1 <= K->size[1]; ib++) {
           if (r->data[ib] != 0.0) {
             ia = ar;
-            for (ic = 0; ic < 91; ic++) {
+            for (ic = 0; ic < 105; ic++) {
               ia++;
               b_x_apo = x_apo[ic] + r->data[ib] * K->data[ia - 1];
               x_apo[ic] = b_x_apo;
             }
           }
 
-          ar += 91;
+          ar += 105;
         }
       }
 
@@ -2069,7 +2069,7 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, double b_P[8281], const double
       }
 
       // 'OnePointRANSAC_EKF:94' for anchorIdx = 1:numAnchors
-      for (anchorIdx = 0; anchorIdx < 5; anchorIdx++) {
+      for (anchorIdx = 0; anchorIdx < 6; anchorIdx++) {
         // 'OnePointRANSAC_EKF:95' anchorPos = xt.anchor_states(anchorIdx).pos + x_apo(numStates + (anchorIdx-1)*numStatesPerAnchor + int32(1:3)); 
         i53 = anchorIdx * 14;
 
@@ -2081,8 +2081,8 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, double b_P[8281], const double
           c_x_apo[i56] = x_apo[(i56 + i55) + 24];
         }
 
-        quatPlusThetaJ(c_x_apo, dv21);
-        quatmultJ(dv21, b_xt->anchor_states[anchorIdx].att, c_xt);
+        quatPlusThetaJ(c_x_apo, dv20);
+        quatmultJ(dv20, b_xt->anchor_states[anchorIdx].att, c_xt);
 
         //  if ~all(size(q) == [4, 1])
         //      error('q does not have the size of a quaternion')
@@ -2263,7 +2263,7 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, double b_P[8281], const double
       // 'OnePointRANSAC_EKF:120' if nnz(LI_inlier_status_i) > nnz(LI_inlier_status) 
       n = 0;
       b_m = 0;
-      for (k = 0; k < 40; k++) {
+      for (k = 0; k < 48; k++) {
         if (HI_inlierCandidates[k]) {
           n++;
         }
@@ -2278,7 +2278,7 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, double b_P[8281], const double
         // 'OnePointRANSAC_EKF:122' epsilon = 1 - nnz(LI_inlier_status_i)/nnz(activeFeatures); 
         n = 0;
         b_m = 0;
-        for (k = 0; k < 40; k++) {
+        for (k = 0; k < 48; k++) {
           LI_inlier_status[k] = HI_inlierCandidates[k];
           if (HI_inlierCandidates[k]) {
             n++;
@@ -2303,7 +2303,7 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, double b_P[8281], const double
     //  ros_info('Found %i LI inliers in %i active features', nnz(LI_inlier_status), nnz(activeFeatures)) 
     // 'OnePointRANSAC_EKF:130' if nnz(LI_inlier_status) > LI_min_support_thresh 
     n = 0;
-    for (k = 0; k < 40; k++) {
+    for (k = 0; k < 48; k++) {
       if (LI_inlier_status[k]) {
         n++;
       }
@@ -2325,13 +2325,13 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, double b_P[8281], const double
       H_idx_0 = (unsigned int)H->size[0];
       i53 = b_y->size[0] * b_y->size[1];
       b_y->size[0] = (int)H_idx_0;
-      b_y->size[1] = 91;
+      b_y->size[1] = 105;
       emxEnsureCapacity((emxArray__common *)b_y, i53, (int)sizeof(double));
       b_m = H->size[0];
       i53 = b_y->size[0] * b_y->size[1];
-      b_y->size[1] = 91;
+      b_y->size[1] = 105;
       emxEnsureCapacity((emxArray__common *)b_y, i53, (int)sizeof(double));
-      for (i53 = 0; i53 < 91; i53++) {
+      for (i53 = 0; i53 < 105; i53++) {
         ndbl = b_y->size[0];
         for (i55 = 0; i55 < ndbl; i55++) {
           b_y->data[i55 + b_y->size[0] * i53] = 0.0;
@@ -2340,7 +2340,7 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, double b_P[8281], const double
 
       if (H->size[0] == 0) {
       } else {
-        idx = H->size[0] * 90;
+        idx = H->size[0] * 104;
         apnd = 0;
         while ((b_m > 0) && (apnd <= idx)) {
           i53 = apnd + b_m;
@@ -2355,7 +2355,7 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, double b_P[8281], const double
         apnd = 0;
         while ((b_m > 0) && (apnd <= idx)) {
           ar = 0;
-          for (ib = br; ib + 1 <= br + 91; ib++) {
+          for (ib = br; ib + 1 <= br + 105; ib++) {
             if (b_P[ib] != 0.0) {
               ia = ar;
               i53 = apnd + b_m;
@@ -2368,18 +2368,18 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, double b_P[8281], const double
             ar += b_m;
           }
 
-          br += 91;
+          br += 105;
           apnd += b_m;
         }
       }
 
       i53 = K->size[0] * K->size[1];
-      K->size[0] = 91;
+      K->size[0] = 105;
       K->size[1] = H->size[0];
       emxEnsureCapacity((emxArray__common *)K, i53, (int)sizeof(double));
       ndbl = H->size[0];
       for (i53 = 0; i53 < ndbl; i53++) {
-        for (i55 = 0; i55 < 91; i55++) {
+        for (i55 = 0; i55 < 105; i55++) {
           K->data[i55 + K->size[0] * i53] = H->data[i53 + H->size[0] * i55];
         }
       }
@@ -2418,7 +2418,7 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, double b_P[8281], const double
         apnd = 0;
         while ((b_m > 0) && (apnd <= idx)) {
           ar = 0;
-          for (ib = br; ib + 1 <= br + 91; ib++) {
+          for (ib = br; ib + 1 <= br + 105; ib++) {
             if (K->data[ib] != 0.0) {
               ia = ar;
               i53 = apnd + b_m;
@@ -2431,7 +2431,7 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, double b_P[8281], const double
             ar += b_m;
           }
 
-          br += 91;
+          br += 105;
           apnd += b_m;
         }
       }
@@ -2440,7 +2440,7 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, double b_P[8281], const double
 
       // 'OnePointRANSAC_EKF:134' size_S = nnz(LI_inlier_status)*residualDim;
       n = 0;
-      for (k = 0; k < 40; k++) {
+      for (k = 0; k < 48; k++) {
         if (LI_inlier_status[k]) {
           n++;
         }
@@ -2488,12 +2488,12 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, double b_P[8281], const double
       //  add R to HPH'
       // 'OnePointRANSAC_EKF:137' K = (P*H')/S;
       i53 = K->size[0] * K->size[1];
-      K->size[0] = 91;
+      K->size[0] = 105;
       K->size[1] = H->size[0];
       emxEnsureCapacity((emxArray__common *)K, i53, (int)sizeof(double));
       ndbl = H->size[0];
       for (i53 = 0; i53 < ndbl; i53++) {
-        for (i55 = 0; i55 < 91; i55++) {
+        for (i55 = 0; i55 < 105; i55++) {
           K->data[i55 + K->size[0] * i53] = H->data[i53 + H->size[0] * i55];
         }
       }
@@ -2501,47 +2501,47 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, double b_P[8281], const double
       emxInit_real_T1(&c_y, 2);
       unnamed_idx_1 = (unsigned int)K->size[1];
       i53 = c_y->size[0] * c_y->size[1];
-      c_y->size[0] = 91;
+      c_y->size[0] = 105;
       c_y->size[1] = (int)unnamed_idx_1;
-      c_y->size[0] = 91;
+      c_y->size[0] = 105;
       emxEnsureCapacity((emxArray__common *)c_y, i53, (int)sizeof(double));
       ndbl = c_y->size[1];
       for (i53 = 0; i53 < ndbl; i53++) {
-        for (i55 = 0; i55 < 91; i55++) {
+        for (i55 = 0; i55 < 105; i55++) {
           c_y->data[i55 + c_y->size[0] * i53] = 0.0;
         }
       }
 
       if (K->size[1] == 0) {
       } else {
-        idx = 91 * (K->size[1] - 1);
-        for (apnd = 0; apnd <= idx; apnd += 91) {
-          for (ic = apnd + 1; ic <= apnd + 91; ic++) {
+        idx = 105 * (K->size[1] - 1);
+        for (apnd = 0; apnd <= idx; apnd += 105) {
+          for (ic = apnd + 1; ic <= apnd + 105; ic++) {
             c_y->data[ic - 1] = 0.0;
           }
         }
 
         br = 0;
-        for (apnd = 0; apnd <= idx; apnd += 91) {
+        for (apnd = 0; apnd <= idx; apnd += 105) {
           ar = 0;
-          for (ib = br; ib + 1 <= br + 91; ib++) {
+          for (ib = br; ib + 1 <= br + 105; ib++) {
             if (K->data[ib] != 0.0) {
               ia = ar;
-              for (ic = apnd; ic + 1 <= apnd + 91; ic++) {
+              for (ic = apnd; ic + 1 <= apnd + 105; ic++) {
                 ia++;
                 c_y->data[ic] += K->data[ib] * b_P[ia - 1];
               }
             }
 
-            ar += 91;
+            ar += 105;
           }
 
-          br += 91;
+          br += 105;
         }
       }
 
       i53 = K->size[0] * K->size[1];
-      K->size[0] = 91;
+      K->size[0] = 105;
       K->size[1] = c_y->size[1];
       emxEnsureCapacity((emxArray__common *)K, i53, (int)sizeof(double));
       ndbl = c_y->size[0] * c_y->size[1];
@@ -2554,7 +2554,7 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, double b_P[8281], const double
 
       // 'OnePointRANSAC_EKF:139' x_apo = K*r;
       if ((K->size[1] == 1) || (r->size[0] == 1)) {
-        for (i53 = 0; i53 < 91; i53++) {
+        for (i53 = 0; i53 < 105; i53++) {
           x_apo[i53] = 0.0;
           ndbl = K->size[1];
           for (i55 = 0; i55 < ndbl; i55++) {
@@ -2563,19 +2563,19 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, double b_P[8281], const double
           }
         }
       } else {
-        memset(&x_apo[0], 0, 91U * sizeof(double));
+        memset(&x_apo[0], 0, 105U * sizeof(double));
         ar = 0;
         for (ib = 0; ib + 1 <= K->size[1]; ib++) {
           if (r->data[ib] != 0.0) {
             ia = ar;
-            for (ic = 0; ic < 91; ic++) {
+            for (ic = 0; ic < 105; ic++) {
               ia++;
               b_x_apo = x_apo[ic] + r->data[ib] * K->data[ia - 1];
               x_apo[ic] = b_x_apo;
             }
           }
 
-          ar += 91;
+          ar += 105;
         }
       }
 
@@ -2619,7 +2619,7 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, double b_P[8281], const double
 
       //          xt.robot_state.IMU.pos       = xt.robot_state.IMU.pos + x_apo(22:24); 
       // 'OnePointRANSAC_EKF:150' for anchorIdx = 1:numAnchors
-      for (anchorIdx = 0; anchorIdx < 5; anchorIdx++) {
+      for (anchorIdx = 0; anchorIdx < 6; anchorIdx++) {
         // 'OnePointRANSAC_EKF:151' xt.anchor_states(anchorIdx).pos = xt.anchor_states(anchorIdx).pos + x_apo(numStates + (anchorIdx-1)*numStatesPerAnchor + int32(1:3)); 
         i53 = anchorIdx * 14;
 
@@ -2634,8 +2634,8 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, double b_P[8281], const double
           c_xt[apnd] = b_xt->anchor_states[anchorIdx].att[apnd];
         }
 
-        quatPlusThetaJ(c_x_apo, dv22);
-        quatmultJ(dv22, c_xt, b_xt->anchor_states[anchorIdx].att);
+        quatPlusThetaJ(c_x_apo, dv21);
+        quatmultJ(dv21, c_xt, b_xt->anchor_states[anchorIdx].att);
 
         // 'OnePointRANSAC_EKF:154' for featureIdx = 1:numPointsPerAnchor
         for (featureIdx = 0; featureIdx < 8; featureIdx++) {
@@ -2682,68 +2682,68 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, double b_P[8281], const double
 
       // 'OnePointRANSAC_EKF:171' P = (eye(numStates + numAnchors*numStatesPerAnchor)-K*H)*P; 
       if ((K->size[1] == 1) || (H->size[0] == 1)) {
-        for (i53 = 0; i53 < 91; i53++) {
-          for (i55 = 0; i55 < 91; i55++) {
-            d_y[i53 + 91 * i55] = 0.0;
+        for (i53 = 0; i53 < 105; i53++) {
+          for (i55 = 0; i55 < 105; i55++) {
+            d_y[i53 + 105 * i55] = 0.0;
             ndbl = K->size[1];
             for (i56 = 0; i56 < ndbl; i56++) {
-              d_y[i53 + 91 * i55] += K->data[i53 + K->size[0] * i56] * H->
+              d_y[i53 + 105 * i55] += K->data[i53 + K->size[0] * i56] * H->
                 data[i56 + H->size[0] * i55];
             }
           }
         }
       } else {
         k = K->size[1];
-        memset(&d_y[0], 0, 8281U * sizeof(double));
-        for (apnd = 0; apnd <= 8191; apnd += 91) {
-          for (ic = apnd; ic + 1 <= apnd + 91; ic++) {
+        memset(&d_y[0], 0, 11025U * sizeof(double));
+        for (apnd = 0; apnd <= 10921; apnd += 105) {
+          for (ic = apnd; ic + 1 <= apnd + 105; ic++) {
             d_y[ic] = 0.0;
           }
         }
 
         br = 0;
-        for (apnd = 0; apnd <= 8191; apnd += 91) {
+        for (apnd = 0; apnd <= 10921; apnd += 105) {
           ar = 0;
           i53 = br + k;
           for (ib = br; ib + 1 <= i53; ib++) {
             if (H->data[ib] != 0.0) {
               ia = ar;
-              for (ic = apnd; ic + 1 <= apnd + 91; ic++) {
+              for (ic = apnd; ic + 1 <= apnd + 105; ic++) {
                 ia++;
                 d_y[ic] += H->data[ib] * K->data[ia - 1];
               }
             }
 
-            ar += 91;
+            ar += 105;
           }
 
           br += k;
         }
       }
 
-      c_eye(dv23);
-      for (i53 = 0; i53 < 91; i53++) {
-        for (i55 = 0; i55 < 91; i55++) {
-          dv24[i55 + 91 * i53] = dv23[i55 + 91 * i53] - d_y[i55 + 91 * i53];
+      c_eye(dv22);
+      for (i53 = 0; i53 < 105; i53++) {
+        for (i55 = 0; i55 < 105; i55++) {
+          dv23[i55 + 105 * i53] = dv22[i55 + 105 * i53] - d_y[i55 + 105 * i53];
         }
       }
 
-      for (i53 = 0; i53 < 91; i53++) {
-        for (i55 = 0; i55 < 91; i55++) {
-          dv25[i53 + 91 * i55] = 0.0;
-          for (i56 = 0; i56 < 91; i56++) {
-            dv25[i53 + 91 * i55] += dv24[i53 + 91 * i56] * b_P[i56 + 91 * i55];
+      for (i53 = 0; i53 < 105; i53++) {
+        for (i55 = 0; i55 < 105; i55++) {
+          dv24[i53 + 105 * i55] = 0.0;
+          for (i56 = 0; i56 < 105; i56++) {
+            dv24[i53 + 105 * i55] += dv23[i53 + 105 * i56] * b_P[i56 + 105 * i55];
           }
         }
       }
 
-      for (i53 = 0; i53 < 91; i53++) {
-        memcpy(&b_P[i53 * 91], &dv25[i53 * 91], 91U * sizeof(double));
+      for (i53 = 0; i53 < 105; i53++) {
+        memcpy(&b_P[i53 * 105], &dv24[i53 * 105], 105U * sizeof(double));
       }
     } else {
       // 'OnePointRANSAC_EKF:172' else
       // 'OnePointRANSAC_EKF:173' LI_inlier_status(:) = false;
-      for (apnd = 0; apnd < 40; apnd++) {
+      for (apnd = 0; apnd < 48; apnd++) {
         LI_inlier_status[apnd] = false;
       }
 
@@ -2756,7 +2756,7 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, double b_P[8281], const double
   // 'OnePointRANSAC_EKF:179' HI_inlierCandidates = activeFeatures & ~LI_inlier_status; 
   //  high innovation inliers (ordered like updateVect)
   // 'OnePointRANSAC_EKF:180' HI_inlierStatus = HI_inlierCandidates;
-  for (apnd = 0; apnd < 40; apnd++) {
+  for (apnd = 0; apnd < 48; apnd++) {
     b_HI_inlierCandidates = (activeFeatures[apnd] && (!LI_inlier_status[apnd]));
     HI_inlierStatus[apnd] = b_HI_inlierCandidates;
     HI_inlierCandidates[apnd] = b_HI_inlierCandidates;
@@ -2766,12 +2766,12 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, double b_P[8281], const double
   idx = 0;
   b_m = 1;
   exitg1 = false;
-  while ((!exitg1) && (b_m < 41)) {
+  while ((!exitg1) && (b_m < 49)) {
     guard1 = false;
     if (HI_inlierCandidates[b_m - 1]) {
       idx++;
       ii_data[idx - 1] = (signed char)b_m;
-      if (idx >= 40) {
+      if (idx >= 48) {
         exitg1 = true;
       } else {
         guard1 = true;
@@ -2803,7 +2803,7 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, double b_P[8281], const double
 
   // 'OnePointRANSAC_EKF:182' num_HI_inlierCandidates = nnz(HI_inlierCandidates); 
   n = 0;
-  for (k = 0; k < 40; k++) {
+  for (k = 0; k < 48; k++) {
     if (HI_inlierCandidates[k]) {
       n++;
     }
@@ -2852,7 +2852,7 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, double b_P[8281], const double
                  stereoParams_R_rl, VIOParameters_full_stereo, r, H, ind);
       i53 = b_H->size[0] * b_H->size[1];
       b_H->size[0] = H->size[0];
-      b_H->size[1] = 91;
+      b_H->size[1] = 105;
       emxEnsureCapacity((emxArray__common *)b_H, i53, (int)sizeof(double));
       ndbl = H->size[0] * H->size[1];
       for (i53 = 0; i53 < ndbl; i53++) {
@@ -3111,7 +3111,7 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, double b_P[8281], const double
               }
             }
 
-            P_b[i56 + 6 * i55] = b_P[((int)i54 + 91 * i55) - 1];
+            P_b[i56 + 6 * i55] = b_P[((int)i54 + 105 * i55) - 1];
           }
         }
 
@@ -3165,7 +3165,7 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, double b_P[8281], const double
 
         // 'OnePointRANSAC_EKF:203' P_d = P_b';
         for (i55 = 0; i55 < 6; i55++) {
-          P_c[i55] = b_P[(i53 + 91 * i55) - 1];
+          P_c[i55] = b_P[(i53 + 105 * i55) - 1];
           for (i56 = 0; i56 < 6; i56++) {
             P_d[i56 + 6 * i55] = P_b[i55 + 6 * i56];
           }
@@ -3264,7 +3264,7 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, double b_P[8281], const double
             }
           }
 
-          P_f[i56] = b_P[(i55 + 91 * ((int)i54 - 1)) - 1];
+          P_f[i56] = b_P[(i55 + 105 * ((int)i54 - 1)) - 1];
           for (b_m = 0; b_m < ndbl; b_m++) {
             f_C_data[b_m + ndbl * i56] = 0.0;
           }
@@ -3282,7 +3282,7 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, double b_P[8281], const double
         for (apnd = 0; apnd <= idx; apnd += ndbl) {
           ar = 0;
           for (ib = br; ib + 1 <= br + 6; ib++) {
-            if (b_P[ib % 6 + 91 * (ib / 6)] != 0.0) {
+            if (b_P[ib % 6 + 105 * (ib / 6)] != 0.0) {
               ia = ar;
               i53 = apnd + ndbl;
               for (ic = apnd; ic + 1 <= i53; ic++) {
@@ -3293,7 +3293,7 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, double b_P[8281], const double
                   tmp_data[i55] = (int)((double)b_m + c_xt[i55]);
                 }
 
-                f_C_data[ic] += b_P[ib % 6 + 91 * (ib / 6)] * b_H->data
+                f_C_data[ic] += b_P[ib % 6 + 105 * (ib / 6)] * b_H->data
                   [(tmp_data[(ia - 1) % ndbl] + b_H->size[0] * ((ia - 1) / ndbl))
                   - 1];
               }
@@ -3359,7 +3359,7 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, double b_P[8281], const double
               }
             }
 
-            if (b_P[((int)i54 + 91 * (ib / 6)) - 1] != 0.0) {
+            if (b_P[((int)i54 + 105 * (ib / 6)) - 1] != 0.0) {
               ia = ar;
               i53 = apnd + b_ndbl;
               for (ic = apnd; ic + 1 <= i53; ic++) {
@@ -3443,9 +3443,9 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, double b_P[8281], const double
                   }
                 }
 
-                g_C_data[ic] += b_P[((int)i54 + 91 * (ib / 6)) - 1] * b_H->data
-                  [(tmp_data[(ia - 1) % b_ndbl] + b_H->size[0] * ((int)i57 - 1))
-                  - 1];
+                g_C_data[ic] += b_P[((int)i54 + 105 * (ib / 6)) - 1] * b_H->
+                  data[(tmp_data[(ia - 1) % b_ndbl] + b_H->size[0] * ((int)i57 -
+                         1)) - 1];
               }
             }
 
@@ -3585,7 +3585,7 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, double b_P[8281], const double
               }
             }
 
-            if (b_P[((int)i54 + 91 * ((int)i57 - 1)) - 1] != 0.0) {
+            if (b_P[((int)i54 + 105 * ((int)i57 - 1)) - 1] != 0.0) {
               ia = ar;
               i53 = apnd + b_ndbl;
               for (ic = apnd; ic + 1 <= i53; ic++) {
@@ -3706,7 +3706,7 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, double b_P[8281], const double
                   }
                 }
 
-                i_C_data[ic] += b_P[((int)i54 + 91 * ((int)i57 - 1)) - 1] *
+                i_C_data[ic] += b_P[((int)i54 + 105 * ((int)i57 - 1)) - 1] *
                   b_H->data[(tmp_data[(ia - 1) % b_ndbl] + b_H->size[0] * ((int)
                   i58 - 1)) - 1];
               }
@@ -3874,7 +3874,7 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, double b_P[8281], const double
             }
 
             i53 = (int)i54;
-            if (b_P[(i53 + 91 * (ib - 1)) - 1] != 0.0) {
+            if (b_P[(i53 + 105 * (ib - 1)) - 1] != 0.0) {
               ia = ar;
               for (ic = 0; ic + 1 <= ndbl; ic++) {
                 ia++;
@@ -3930,7 +3930,7 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, double b_P[8281], const double
                 }
 
                 i53 = (int)i54;
-                l_C_data[ic] += b_P[(i53 + 91 * (ib - 1)) - 1] * b_H->data
+                l_C_data[ic] += b_P[(i53 + 105 * (ib - 1)) - 1] * b_H->data
                   [(tmp_data[(ia - 1) % ndbl] + b_H->size[0] * ((ia - 1) / ndbl))
                   - 1];
               }
@@ -4044,7 +4044,7 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, double b_P[8281], const double
               }
             }
 
-            if (b_P[(i55 + 91 * ((int)i54 - 1)) - 1] != 0.0) {
+            if (b_P[(i55 + 105 * ((int)i54 - 1)) - 1] != 0.0) {
               ia = ar;
               for (ic = 0; ic + 1 <= b_ndbl; ic++) {
                 ia++;
@@ -4173,9 +4173,9 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, double b_P[8281], const double
                   }
                 }
 
-                m_C_data[ic] += b_P[(i55 + 91 * ((int)i54 - 1)) - 1] * b_H->
-                  data[(tmp_data[(ia - 1) % b_ndbl] + b_H->size[0] * ((int)i57 -
-                         1)) - 1];
+                m_C_data[ic] += b_P[(i55 + 105 * ((int)i54 - 1)) - 1] *
+                  b_H->data[(tmp_data[(ia - 1) % b_ndbl] + b_H->size[0] * ((int)
+                  i57 - 1)) - 1];
               }
             }
 
@@ -4276,7 +4276,7 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, double b_P[8281], const double
           }
         }
 
-        c_P = b_P[((int)i54 + 91 * ((int)i57 - 1)) - 1];
+        c_P = b_P[((int)i54 + 105 * ((int)i57 - 1)) - 1];
         for (i53 = 0; i53 < ndbl; i53++) {
           c_xt[i53] = (l_C_data[i53] + m_C_data[i53]) + H_c_data[i53] * c_P;
         }
@@ -4485,7 +4485,7 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, double b_P[8281], const double
             tmp_data[i53] = (int)((double)b_m + c_xt[i53]);
           }
 
-          for (i53 = 0; i53 < 91; i53++) {
+          for (i53 = 0; i53 < 105; i53++) {
             for (i55 = 0; i55 < ndbl; i55++) {
               b_H->data[(tmp_data[i55] + b_H->size[0] * i53) - 1] = 0.0;
             }
@@ -4512,13 +4512,13 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, double b_P[8281], const double
       H_idx_0 = (unsigned int)b_H->size[0];
       i53 = e_y->size[0] * e_y->size[1];
       e_y->size[0] = (int)H_idx_0;
-      e_y->size[1] = 91;
+      e_y->size[1] = 105;
       emxEnsureCapacity((emxArray__common *)e_y, i53, (int)sizeof(double));
       b_m = b_H->size[0];
       i53 = e_y->size[0] * e_y->size[1];
-      e_y->size[1] = 91;
+      e_y->size[1] = 105;
       emxEnsureCapacity((emxArray__common *)e_y, i53, (int)sizeof(double));
-      for (i53 = 0; i53 < 91; i53++) {
+      for (i53 = 0; i53 < 105; i53++) {
         ndbl = e_y->size[0];
         for (i55 = 0; i55 < ndbl; i55++) {
           e_y->data[i55 + e_y->size[0] * i53] = 0.0;
@@ -4527,7 +4527,7 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, double b_P[8281], const double
 
       if (b_H->size[0] == 0) {
       } else {
-        idx = b_H->size[0] * 90;
+        idx = b_H->size[0] * 104;
         apnd = 0;
         while ((b_m > 0) && (apnd <= idx)) {
           i53 = apnd + b_m;
@@ -4542,7 +4542,7 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, double b_P[8281], const double
         apnd = 0;
         while ((b_m > 0) && (apnd <= idx)) {
           ar = 0;
-          for (ib = br; ib + 1 <= br + 91; ib++) {
+          for (ib = br; ib + 1 <= br + 105; ib++) {
             if (b_P[ib] != 0.0) {
               ia = ar;
               i53 = apnd + b_m;
@@ -4555,7 +4555,7 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, double b_P[8281], const double
             ar += b_m;
           }
 
-          br += 91;
+          br += 105;
           apnd += b_m;
         }
       }
@@ -4575,12 +4575,12 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, double b_P[8281], const double
 
       b_m = b_H->size[0];
       i53 = K->size[0] * K->size[1];
-      K->size[0] = 91;
+      K->size[0] = 105;
       K->size[1] = b_m;
       emxEnsureCapacity((emxArray__common *)K, i53, (int)sizeof(double));
       for (i53 = 0; i53 < b_m; i53++) {
-        for (i55 = 0; i55 < 91; i55++) {
-          K->data[i55 + K->size[0] * i53] = c_H->data[i55 + 91 * i53];
+        for (i55 = 0; i55 < 105; i55++) {
+          K->data[i55 + K->size[0] * i53] = c_H->data[i55 + 105 * i53];
         }
       }
 
@@ -4618,7 +4618,7 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, double b_P[8281], const double
         apnd = 0;
         while ((b_m > 0) && (apnd <= idx)) {
           ar = 0;
-          for (ib = br; ib + 1 <= br + 91; ib++) {
+          for (ib = br; ib + 1 <= br + 105; ib++) {
             if (K->data[ib] != 0.0) {
               ia = ar;
               i53 = apnd + b_m;
@@ -4631,7 +4631,7 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, double b_P[8281], const double
             ar += b_m;
           }
 
-          br += 91;
+          br += 105;
           apnd += b_m;
         }
       }
@@ -4690,58 +4690,58 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, double b_P[8281], const double
 
       b_m = b_H->size[0];
       i53 = K->size[0] * K->size[1];
-      K->size[0] = 91;
+      K->size[0] = 105;
       K->size[1] = b_m;
       emxEnsureCapacity((emxArray__common *)K, i53, (int)sizeof(double));
       for (i53 = 0; i53 < b_m; i53++) {
-        for (i55 = 0; i55 < 91; i55++) {
-          K->data[i55 + K->size[0] * i53] = d_H->data[i55 + 91 * i53];
+        for (i55 = 0; i55 < 105; i55++) {
+          K->data[i55 + K->size[0] * i53] = d_H->data[i55 + 105 * i53];
         }
       }
 
       unnamed_idx_1 = (unsigned int)K->size[1];
       i53 = f_y->size[0] * f_y->size[1];
-      f_y->size[0] = 91;
+      f_y->size[0] = 105;
       f_y->size[1] = (int)unnamed_idx_1;
-      f_y->size[0] = 91;
+      f_y->size[0] = 105;
       emxEnsureCapacity((emxArray__common *)f_y, i53, (int)sizeof(double));
       ndbl = f_y->size[1];
       for (i53 = 0; i53 < ndbl; i53++) {
-        for (i55 = 0; i55 < 91; i55++) {
+        for (i55 = 0; i55 < 105; i55++) {
           f_y->data[i55 + f_y->size[0] * i53] = 0.0;
         }
       }
 
       if (K->size[1] == 0) {
       } else {
-        idx = 91 * (K->size[1] - 1);
-        for (apnd = 0; apnd <= idx; apnd += 91) {
-          for (ic = apnd + 1; ic <= apnd + 91; ic++) {
+        idx = 105 * (K->size[1] - 1);
+        for (apnd = 0; apnd <= idx; apnd += 105) {
+          for (ic = apnd + 1; ic <= apnd + 105; ic++) {
             f_y->data[ic - 1] = 0.0;
           }
         }
 
         br = 0;
-        for (apnd = 0; apnd <= idx; apnd += 91) {
+        for (apnd = 0; apnd <= idx; apnd += 105) {
           ar = 0;
-          for (ib = br; ib + 1 <= br + 91; ib++) {
+          for (ib = br; ib + 1 <= br + 105; ib++) {
             if (K->data[ib] != 0.0) {
               ia = ar;
-              for (ic = apnd; ic + 1 <= apnd + 91; ic++) {
+              for (ic = apnd; ic + 1 <= apnd + 105; ic++) {
                 ia++;
                 f_y->data[ic] += K->data[ib] * b_P[ia - 1];
               }
             }
 
-            ar += 91;
+            ar += 105;
           }
 
-          br += 91;
+          br += 105;
         }
       }
 
       i53 = K->size[0] * K->size[1];
-      K->size[0] = 91;
+      K->size[0] = 105;
       K->size[1] = f_y->size[1];
       emxEnsureCapacity((emxArray__common *)K, i53, (int)sizeof(double));
       ndbl = f_y->size[0] * f_y->size[1];
@@ -4751,7 +4751,7 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, double b_P[8281], const double
 
       mrdivide(K, S);
       i53 = b_K->size[0] * b_K->size[1];
-      b_K->size[0] = 91;
+      b_K->size[0] = 105;
       b_K->size[1] = K->size[1];
       emxEnsureCapacity((emxArray__common *)b_K, i53, (int)sizeof(double));
       ndbl = K->size[0] * K->size[1];
@@ -4773,8 +4773,8 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, double b_P[8281], const double
         }
       } else {
         k = b_K->size[1];
-        memset(&x_apo_data[0], 0, 91U * sizeof(double));
-        for (ic = 1; ic < 92; ic++) {
+        memset(&x_apo_data[0], 0, 105U * sizeof(double));
+        for (ic = 1; ic < 106; ic++) {
           x_apo_data[ic - 1] = 0.0;
         }
 
@@ -4782,13 +4782,13 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, double b_P[8281], const double
         for (ib = 0; ib + 1 <= k; ib++) {
           if (r->data[ib] != 0.0) {
             ia = ar;
-            for (ic = 0; ic + 1 < 92; ic++) {
+            for (ic = 0; ic + 1 < 106; ic++) {
               ia++;
               x_apo_data[ic] += r->data[ib] * b_K->data[ia - 1];
             }
           }
 
-          ar += 91;
+          ar += 105;
         }
       }
 
@@ -4833,7 +4833,7 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, double b_P[8281], const double
       //          xt.robot_state.IMU.pos       = xt.robot_state.IMU.pos + x_apo(22:24); 
       // 'OnePointRANSAC_EKF:255' meas_idx = 1;
       // 'OnePointRANSAC_EKF:256' for anchorIdx = 1:numAnchors
-      for (anchorIdx = 0; anchorIdx < 5; anchorIdx++) {
+      for (anchorIdx = 0; anchorIdx < 6; anchorIdx++) {
         // 'OnePointRANSAC_EKF:257' xt.anchor_states(anchorIdx).pos = xt.anchor_states(anchorIdx).pos + x_apo(numStates + (anchorIdx-1)*numStatesPerAnchor + int32(1:3)); 
         i53 = anchorIdx * 14;
 
@@ -4848,8 +4848,8 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, double b_P[8281], const double
           c_xt[apnd] = b_xt->anchor_states[anchorIdx].att[apnd];
         }
 
-        quatPlusThetaJ(c_x_apo, dv26);
-        quatmultJ(dv26, c_xt, b_xt->anchor_states[anchorIdx].att);
+        quatPlusThetaJ(c_x_apo, dv25);
+        quatmultJ(dv25, c_xt, b_xt->anchor_states[anchorIdx].att);
 
         // 'OnePointRANSAC_EKF:260' for featureIdx = 1:numPointsPerAnchor
         for (featureIdx = 0; featureIdx < 8; featureIdx++) {
@@ -5004,25 +5004,25 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, double b_P[8281], const double
 
     emxFree_real_T(&b_H);
     emxFree_real_T(&b_K);
-    c_eye(dv23);
-    for (i53 = 0; i53 < 91; i53++) {
-      for (i55 = 0; i55 < 91; i55++) {
-        dv24[i55 + 91 * i53] = dv23[i55 + 91 * i53] - C->data[i55 + 91 * i53];
+    c_eye(dv22);
+    for (i53 = 0; i53 < 105; i53++) {
+      for (i55 = 0; i55 < 105; i55++) {
+        dv23[i55 + 105 * i53] = dv22[i55 + 105 * i53] - C->data[i55 + 105 * i53];
       }
     }
 
     emxFree_real_T(&C);
-    for (i53 = 0; i53 < 91; i53++) {
-      for (i55 = 0; i55 < 91; i55++) {
-        dv27[i53 + 91 * i55] = 0.0;
-        for (i56 = 0; i56 < 91; i56++) {
-          dv27[i53 + 91 * i55] += dv24[i53 + 91 * i56] * b_P[i56 + 91 * i55];
+    for (i53 = 0; i53 < 105; i53++) {
+      for (i55 = 0; i55 < 105; i55++) {
+        dv26[i53 + 105 * i55] = 0.0;
+        for (i56 = 0; i56 < 105; i56++) {
+          dv26[i53 + 105 * i55] += dv23[i53 + 105 * i56] * b_P[i56 + 105 * i55];
         }
       }
     }
 
-    for (i53 = 0; i53 < 91; i53++) {
-      memcpy(&b_P[i53 * 91], &dv27[i53 * 91], 91U * sizeof(double));
+    for (i53 = 0; i53 < 105; i53++) {
+      memcpy(&b_P[i53 * 105], &dv26[i53 * 105], 105U * sizeof(double));
     }
   }
 
@@ -5049,13 +5049,13 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, double b_P[8281], const double
     H_idx_0 = (unsigned int)H->size[0];
     i53 = g_y->size[0] * g_y->size[1];
     g_y->size[0] = (int)H_idx_0;
-    g_y->size[1] = 91;
+    g_y->size[1] = 105;
     emxEnsureCapacity((emxArray__common *)g_y, i53, (int)sizeof(double));
     b_m = H->size[0];
     i53 = g_y->size[0] * g_y->size[1];
-    g_y->size[1] = 91;
+    g_y->size[1] = 105;
     emxEnsureCapacity((emxArray__common *)g_y, i53, (int)sizeof(double));
-    for (i53 = 0; i53 < 91; i53++) {
+    for (i53 = 0; i53 < 105; i53++) {
       ndbl = g_y->size[0];
       for (i55 = 0; i55 < ndbl; i55++) {
         g_y->data[i55 + g_y->size[0] * i53] = 0.0;
@@ -5064,7 +5064,7 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, double b_P[8281], const double
 
     if (H->size[0] == 0) {
     } else {
-      idx = H->size[0] * 90;
+      idx = H->size[0] * 104;
       apnd = 0;
       while ((b_m > 0) && (apnd <= idx)) {
         i53 = apnd + b_m;
@@ -5079,7 +5079,7 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, double b_P[8281], const double
       apnd = 0;
       while ((b_m > 0) && (apnd <= idx)) {
         ar = 0;
-        for (ib = br; ib + 1 <= br + 91; ib++) {
+        for (ib = br; ib + 1 <= br + 105; ib++) {
           if (b_P[ib] != 0.0) {
             ia = ar;
             i53 = apnd + b_m;
@@ -5092,18 +5092,18 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, double b_P[8281], const double
           ar += b_m;
         }
 
-        br += 91;
+        br += 105;
         apnd += b_m;
       }
     }
 
     i53 = K->size[0] * K->size[1];
-    K->size[0] = 91;
+    K->size[0] = 105;
     K->size[1] = H->size[0];
     emxEnsureCapacity((emxArray__common *)K, i53, (int)sizeof(double));
     ndbl = H->size[0];
     for (i53 = 0; i53 < ndbl; i53++) {
-      for (i55 = 0; i55 < 91; i55++) {
+      for (i55 = 0; i55 < 105; i55++) {
         K->data[i55 + K->size[0] * i53] = H->data[i53 + H->size[0] * i55];
       }
     }
@@ -5142,7 +5142,7 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, double b_P[8281], const double
       apnd = 0;
       while ((b_m > 0) && (apnd <= idx)) {
         ar = 0;
-        for (ib = br; ib + 1 <= br + 91; ib++) {
+        for (ib = br; ib + 1 <= br + 105; ib++) {
           if (K->data[ib] != 0.0) {
             ia = ar;
             i53 = apnd + b_m;
@@ -5155,7 +5155,7 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, double b_P[8281], const double
           ar += b_m;
         }
 
-        br += 91;
+        br += 105;
         apnd += b_m;
       }
     }
@@ -5164,7 +5164,7 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, double b_P[8281], const double
 
     // 'OnePointRANSAC_EKF:300' size_S = nnz(delayedFeatures)*residualDim;
     n = 0;
-    for (k = 0; k < 40; k++) {
+    for (k = 0; k < 48; k++) {
       if (delayedFeatures[k]) {
         n++;
       }
@@ -5212,12 +5212,12 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, double b_P[8281], const double
     //  add R to HPH'
     // 'OnePointRANSAC_EKF:302' K = (P*H')/S;
     i53 = K->size[0] * K->size[1];
-    K->size[0] = 91;
+    K->size[0] = 105;
     K->size[1] = H->size[0];
     emxEnsureCapacity((emxArray__common *)K, i53, (int)sizeof(double));
     ndbl = H->size[0];
     for (i53 = 0; i53 < ndbl; i53++) {
-      for (i55 = 0; i55 < 91; i55++) {
+      for (i55 = 0; i55 < 105; i55++) {
         K->data[i55 + K->size[0] * i53] = H->data[i53 + H->size[0] * i55];
       }
     }
@@ -5225,47 +5225,47 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, double b_P[8281], const double
     emxInit_real_T1(&h_y, 2);
     unnamed_idx_1 = (unsigned int)K->size[1];
     i53 = h_y->size[0] * h_y->size[1];
-    h_y->size[0] = 91;
+    h_y->size[0] = 105;
     h_y->size[1] = (int)unnamed_idx_1;
-    h_y->size[0] = 91;
+    h_y->size[0] = 105;
     emxEnsureCapacity((emxArray__common *)h_y, i53, (int)sizeof(double));
     ndbl = h_y->size[1];
     for (i53 = 0; i53 < ndbl; i53++) {
-      for (i55 = 0; i55 < 91; i55++) {
+      for (i55 = 0; i55 < 105; i55++) {
         h_y->data[i55 + h_y->size[0] * i53] = 0.0;
       }
     }
 
     if (K->size[1] == 0) {
     } else {
-      idx = 91 * (K->size[1] - 1);
-      for (apnd = 0; apnd <= idx; apnd += 91) {
-        for (ic = apnd + 1; ic <= apnd + 91; ic++) {
+      idx = 105 * (K->size[1] - 1);
+      for (apnd = 0; apnd <= idx; apnd += 105) {
+        for (ic = apnd + 1; ic <= apnd + 105; ic++) {
           h_y->data[ic - 1] = 0.0;
         }
       }
 
       br = 0;
-      for (apnd = 0; apnd <= idx; apnd += 91) {
+      for (apnd = 0; apnd <= idx; apnd += 105) {
         ar = 0;
-        for (ib = br; ib + 1 <= br + 91; ib++) {
+        for (ib = br; ib + 1 <= br + 105; ib++) {
           if (K->data[ib] != 0.0) {
             ia = ar;
-            for (ic = apnd; ic + 1 <= apnd + 91; ic++) {
+            for (ic = apnd; ic + 1 <= apnd + 105; ic++) {
               ia++;
               h_y->data[ic] += K->data[ib] * b_P[ia - 1];
             }
           }
 
-          ar += 91;
+          ar += 105;
         }
 
-        br += 91;
+        br += 105;
       }
     }
 
     i53 = K->size[0] * K->size[1];
-    K->size[0] = 91;
+    K->size[0] = 105;
     K->size[1] = h_y->size[1];
     emxEnsureCapacity((emxArray__common *)K, i53, (int)sizeof(double));
     ndbl = h_y->size[0] * h_y->size[1];
@@ -5278,7 +5278,7 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, double b_P[8281], const double
 
     // 'OnePointRANSAC_EKF:304' x_apo = K*r;
     if ((K->size[1] == 1) || (r->size[0] == 1)) {
-      for (i53 = 0; i53 < 91; i53++) {
+      for (i53 = 0; i53 < 105; i53++) {
         x_apo[i53] = 0.0;
         ndbl = K->size[1];
         for (i55 = 0; i55 < ndbl; i55++) {
@@ -5287,24 +5287,24 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, double b_P[8281], const double
         }
       }
     } else {
-      memset(&x_apo[0], 0, 91U * sizeof(double));
+      memset(&x_apo[0], 0, 105U * sizeof(double));
       ar = 0;
       for (ib = 0; ib + 1 <= K->size[1]; ib++) {
         if (r->data[ib] != 0.0) {
           ia = ar;
-          for (ic = 0; ic < 91; ic++) {
+          for (ic = 0; ic < 105; ic++) {
             ia++;
             b_x_apo = x_apo[ic] + r->data[ib] * K->data[ia - 1];
             x_apo[ic] = b_x_apo;
           }
         }
 
-        ar += 91;
+        ar += 105;
       }
     }
 
     // 'OnePointRANSAC_EKF:306' for anchorIdx = 1:numAnchors
-    for (anchorIdx = 0; anchorIdx < 5; anchorIdx++) {
+    for (anchorIdx = 0; anchorIdx < 6; anchorIdx++) {
       // 'OnePointRANSAC_EKF:307' for featureIdx = 1:numPointsPerAnchor
       for (featureIdx = 0; featureIdx < 8; featureIdx++) {
         // 'OnePointRANSAC_EKF:308' if xt.anchor_states(anchorIdx).feature_states(featureIdx).status == 2 
@@ -5319,63 +5319,63 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, double b_P[8281], const double
 
     // 'OnePointRANSAC_EKF:314' P = (eye(numStates + numAnchors*numStatesPerAnchor)-K*H)*P; 
     if ((K->size[1] == 1) || (H->size[0] == 1)) {
-      for (i53 = 0; i53 < 91; i53++) {
-        for (i55 = 0; i55 < 91; i55++) {
-          d_y[i53 + 91 * i55] = 0.0;
+      for (i53 = 0; i53 < 105; i53++) {
+        for (i55 = 0; i55 < 105; i55++) {
+          d_y[i53 + 105 * i55] = 0.0;
           ndbl = K->size[1];
           for (i56 = 0; i56 < ndbl; i56++) {
-            d_y[i53 + 91 * i55] += K->data[i53 + K->size[0] * i56] * H->data[i56
-              + H->size[0] * i55];
+            d_y[i53 + 105 * i55] += K->data[i53 + K->size[0] * i56] * H->
+              data[i56 + H->size[0] * i55];
           }
         }
       }
     } else {
       k = K->size[1];
-      memset(&d_y[0], 0, 8281U * sizeof(double));
-      for (apnd = 0; apnd <= 8191; apnd += 91) {
-        for (ic = apnd; ic + 1 <= apnd + 91; ic++) {
+      memset(&d_y[0], 0, 11025U * sizeof(double));
+      for (apnd = 0; apnd <= 10921; apnd += 105) {
+        for (ic = apnd; ic + 1 <= apnd + 105; ic++) {
           d_y[ic] = 0.0;
         }
       }
 
       br = 0;
-      for (apnd = 0; apnd <= 8191; apnd += 91) {
+      for (apnd = 0; apnd <= 10921; apnd += 105) {
         ar = 0;
         i53 = br + k;
         for (ib = br; ib + 1 <= i53; ib++) {
           if (H->data[ib] != 0.0) {
             ia = ar;
-            for (ic = apnd; ic + 1 <= apnd + 91; ic++) {
+            for (ic = apnd; ic + 1 <= apnd + 105; ic++) {
               ia++;
               d_y[ic] += H->data[ib] * K->data[ia - 1];
             }
           }
 
-          ar += 91;
+          ar += 105;
         }
 
         br += k;
       }
     }
 
-    c_eye(dv23);
-    for (i53 = 0; i53 < 91; i53++) {
-      for (i55 = 0; i55 < 91; i55++) {
-        dv24[i55 + 91 * i53] = dv23[i55 + 91 * i53] - d_y[i55 + 91 * i53];
+    c_eye(dv22);
+    for (i53 = 0; i53 < 105; i53++) {
+      for (i55 = 0; i55 < 105; i55++) {
+        dv23[i55 + 105 * i53] = dv22[i55 + 105 * i53] - d_y[i55 + 105 * i53];
       }
     }
 
-    for (i53 = 0; i53 < 91; i53++) {
-      for (i55 = 0; i55 < 91; i55++) {
-        dv28[i53 + 91 * i55] = 0.0;
-        for (i56 = 0; i56 < 91; i56++) {
-          dv28[i53 + 91 * i55] += dv24[i53 + 91 * i56] * b_P[i56 + 91 * i55];
+    for (i53 = 0; i53 < 105; i53++) {
+      for (i55 = 0; i55 < 105; i55++) {
+        dv27[i53 + 105 * i55] = 0.0;
+        for (i56 = 0; i56 < 105; i56++) {
+          dv27[i53 + 105 * i55] += dv23[i53 + 105 * i56] * b_P[i56 + 105 * i55];
         }
       }
     }
 
-    for (i53 = 0; i53 < 91; i53++) {
-      memcpy(&b_P[i53 * 91], &dv28[i53 * 91], 91U * sizeof(double));
+    for (i53 = 0; i53 < 105; i53++) {
+      memcpy(&b_P[i53 * 105], &dv27[i53 * 105], 105U * sizeof(double));
     }
   }
 
@@ -5390,7 +5390,7 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, double b_P[8281], const double
 
   // 'OnePointRANSAC_EKF:319' num_active_features_after  = nnz(HI_inlierStatus | LI_inlier_status); 
   b_m = 0;
-  for (k = 0; k < 40; k++) {
+  for (k = 0; k < 48; k++) {
     if (activeFeatures[k]) {
       n++;
     }
@@ -5491,9 +5491,9 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, double b_P[8281], const double
                b_xt->origin.att[2]) + b_xt->origin.att[3] * b_xt->origin.att[3];
     for (i53 = 0; i53 < 3; i53++) {
       for (i55 = 0; i55 < 3; i55++) {
-        gryro_bias_cov[i55 + 3 * i53] = b_P[(i55 + 91 * (9 + i53)) + 9];
-        acc_bias_cov[i55 + 3 * i53] = b_P[(i55 + 91 * (12 + i53)) + 12];
-        R_ci_cov[i55 + 3 * i53] = b_P[(i55 + 91 * (18 + i53)) + 18];
+        gryro_bias_cov[i55 + 3 * i53] = b_P[(i55 + 105 * (9 + i53)) + 9];
+        acc_bias_cov[i55 + 3 * i53] = b_P[(i55 + 105 * (12 + i53)) + 12];
+        R_ci_cov[i55 + 3 * i53] = b_P[(i55 + 105 * (18 + i53)) + 18];
         R_cw[i53 + 3 * i55] = 0.0;
         for (i56 = 0; i56 < 3; i56++) {
           R_cw[i53 + 3 * i55] += d_xt[i53 + 3 * i56] * e_xt[i56 + 3 * i55];
@@ -5502,7 +5502,7 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, double b_P[8281], const double
     }
 
     // 'OnePointRANSAC_EKF:331' P(:, :) = 0;
-    for (i53 = 0; i53 < 8281; i53++) {
+    for (i53 = 0; i53 < 11025; i53++) {
       b_P[i53] = 0.0;
     }
 
@@ -5517,10 +5517,10 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, double b_P[8281], const double
     // 'OnePointRANSAC_EKF:337' P(16:18, 16:18) = 0.1*R_cw * diag([1 1 0]) * R_cw'; 
     for (i53 = 0; i53 < 3; i53++) {
       for (i55 = 0; i55 < 3; i55++) {
-        b_P[(i55 + 91 * (3 + i53)) + 3] = 0.0;
-        b_P[(i55 + 91 * (6 + i53)) + 6] = i_y[i55 + 3 * i53];
-        b_P[(i55 + 91 * (9 + i53)) + 9] = gryro_bias_cov[i55 + 3 * i53];
-        b_P[(i55 + 91 * (12 + i53)) + 12] = acc_bias_cov[i55 + 3 * i53];
+        b_P[(i55 + 105 * (3 + i53)) + 3] = 0.0;
+        b_P[(i55 + 105 * (6 + i53)) + 6] = i_y[i55 + 3 * i53];
+        b_P[(i55 + 105 * (9 + i53)) + 9] = gryro_bias_cov[i55 + 3 * i53];
+        b_P[(i55 + 105 * (12 + i53)) + 12] = acc_bias_cov[i55 + 3 * i53];
         d_xt[i53 + 3 * i55] = 0.0;
         for (i56 = 0; i56 < 3; i56++) {
           d_xt[i53 + 3 * i55] += 0.1 * R_cw[i53 + 3 * i56] * (double)b[i56 + 3 *
@@ -5531,9 +5531,9 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, double b_P[8281], const double
 
     for (i53 = 0; i53 < 3; i53++) {
       for (i55 = 0; i55 < 3; i55++) {
-        b_P[(i53 + 91 * (15 + i55)) + 15] = 0.0;
+        b_P[(i53 + 105 * (15 + i55)) + 15] = 0.0;
         for (i56 = 0; i56 < 3; i56++) {
-          b_P[(i53 + 91 * (15 + i55)) + 15] += d_xt[i53 + 3 * i56] * R_cw[i55 +
+          b_P[(i53 + 105 * (15 + i55)) + 15] += d_xt[i53 + 3 * i56] * R_cw[i55 +
             3 * i56];
         }
       }
@@ -5543,14 +5543,14 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, double b_P[8281], const double
     // 'OnePointRANSAC_EKF:338' P(19:21, 19:21) = R_ci_cov;
     for (i53 = 0; i53 < 3; i53++) {
       for (i55 = 0; i55 < 3; i55++) {
-        b_P[(i55 + 91 * (18 + i53)) + 18] = R_ci_cov[i55 + 3 * i53];
+        b_P[(i55 + 105 * (18 + i53)) + 18] = R_ci_cov[i55 + 3 * i53];
       }
     }
 
     //  R_ci
     //  set all features inactive
     // 'OnePointRANSAC_EKF:341' for anchorIdx = 1:numAnchors
-    for (anchorIdx = 0; anchorIdx < 5; anchorIdx++) {
+    for (anchorIdx = 0; anchorIdx < 6; anchorIdx++) {
       // 'OnePointRANSAC_EKF:342' for featureIdx = 1:numPointsPerAnchor
       for (featureIdx = 0; featureIdx < 8; featureIdx++) {
         // 'OnePointRANSAC_EKF:343' if xt.anchor_states(anchorIdx).feature_states(featureIdx).status 
@@ -5721,7 +5721,7 @@ static void QuatFromRotJ(const double R[9], double Q[4])
 }
 
 //
-// Arguments    : double P_apo[8281]
+// Arguments    : double P_apo[11025]
 //                g_struct_T *x
 //                double dt
 //                double processNoise_qv
@@ -5733,9 +5733,9 @@ static void QuatFromRotJ(const double R[9], double Q[4])
 //                const double measurements_gyr_duo[3]
 // Return Type  : void
 //
-static void SLAM_pred_euler(double P_apo[8281], g_struct_T *x, double dt, double
-  processNoise_qv, double processNoise_qw, double processNoise_qao, double
-  processNoise_qwo, double processNoise_qR_ci, const double
+static void SLAM_pred_euler(double P_apo[11025], g_struct_T *x, double dt,
+  double processNoise_qv, double processNoise_qw, double processNoise_qao,
+  double processNoise_qwo, double processNoise_qR_ci, const double
   measurements_acc_duo[3], const double measurements_gyr_duo[3])
 {
   double R_cw[9];
@@ -5752,14 +5752,13 @@ static void SLAM_pred_euler(double P_apo[8281], g_struct_T *x, double dt, double
   double d10;
   int i49;
   double b_x[9];
+  double dv9[9];
   double a_c[3];
   double grav_origin[3];
   double y[3];
+  double b_y[3];
   static const double b[3] = { 0.0, 0.0, 9.81 };
 
-  double dv10[9];
-  double b_y[3];
-  double c_y[3];
   double G[315];
   static const signed char iv2[45] = { -1, 0, 0, 0, -1, 0, 0, 0, -1, 0, 0, 0, 0,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -5778,6 +5777,7 @@ static void SLAM_pred_euler(double P_apo[8281], g_struct_T *x, double dt, double
     1, 0, 0, 0, 1 };
 
   double P_xx_apr[441];
+  double dv10[9];
   double dv11[9];
   double dv12[9];
   double dv13[9];
@@ -5785,7 +5785,6 @@ static void SLAM_pred_euler(double P_apo[8281], g_struct_T *x, double dt, double
   double dv15[9];
   double dv16[9];
   double dv17[9];
-  double dv18[9];
   double Phi[441];
   static const signed char iv6[63] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
     0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -5795,12 +5794,12 @@ static void SLAM_pred_euler(double P_apo[8281], g_struct_T *x, double dt, double
 
   double b_Phi[441];
   double b_processNoise_qw[15];
-  double dv19[225];
+  double dv18[225];
   double b_G[315];
   double c_G[441];
-  double P_xs_apr[1470];
+  double P_xs_apr[1764];
   double c_x[4];
-  double dv20[4];
+  double dv19[4];
 
   // 'SLAM_pred_euler:3' R_cw = RotFromQuatJ(x.robot_state.att);
   //  if ~all(size(q) == [4, 1])
@@ -5975,7 +5974,7 @@ static void SLAM_pred_euler(double P_apo[8281], g_struct_T *x, double dt, double
   //    pos,            rot, vel,                                         gyr_bias,   acc_bias,          origin_att,                                    R_ci 
   // 'SLAM_pred_euler:32' F=[ O,                O,   I,                                                O,           O,                  O,                                       O; 
   // 'SLAM_pred_euler:33'     O,       -skew(w_c),   O,                                               -I,           O,                  O, -skew(R_ci*x.robot_state.IMU.gyro_bias); 
-  // 'SLAM_pred_euler:34'     O, -skew(R_cw'*a_c),   O, -skew(skew(w_imu)*t_ci) - skew(w_imu)*skew(t_ci), -R_cw'*R_ci, -skew(grav_origin),                          R_cw*skew(a_c); 
+  // 'SLAM_pred_euler:34'     O, R_cw'*skew(a_c),   O, -skew(skew(w_imu)*t_ci) - skew(w_imu)*skew(t_ci), -R_cw'*R_ci, -skew(grav_origin),                          R_cw*skew(a_c); 
   // 'SLAM_pred_euler:35'     O,                O,   O,                                                O,           O,                  O,                                       O; 
   // 'SLAM_pred_euler:36'     O,                O,   O,                                                O,           O,                  O,                                       O; 
   // 'SLAM_pred_euler:37'     O,                O,   O,                                                O,           O,                  O,                                       O; 
@@ -5983,41 +5982,34 @@ static void SLAM_pred_euler(double P_apo[8281], g_struct_T *x, double dt, double
   // 'skew:2' R=[0,-w(3),w(2);
   // 'skew:3'     w(3),0,-w(1);
   // 'skew:4'     -w(2),w(1),0];
+  // 'skew:2' R=[0,-w(3),w(2);
+  // 'skew:3'     w(3),0,-w(1);
+  // 'skew:4'     -w(2),w(1),0];
+  // 'skew:2' R=[0,-w(3),w(2);
+  // 'skew:3'     w(3),0,-w(1);
+  // 'skew:4'     -w(2),w(1),0];
+  // 'skew:2' R=[0,-w(3),w(2);
+  // 'skew:3'     w(3),0,-w(1);
+  // 'skew:4'     -w(2),w(1),0];
+  dv9[0] = 0.0;
+  dv9[3] = -w_imu[2];
+  dv9[6] = w_imu[1];
+  dv9[1] = w_imu[2];
+  dv9[4] = 0.0;
+  dv9[7] = -w_imu[0];
+  dv9[2] = -w_imu[1];
+  dv9[5] = w_imu[0];
+  dv9[8] = 0.0;
   for (i48 = 0; i48 < 3; i48++) {
     a_c[i48] = 0.0;
     grav_origin[i48] = 0.0;
     y[i48] = 0.0;
+    b_y[i48] = 0.0;
     for (i = 0; i < 3; i++) {
       a_c[i48] += R_ci[i48 + 3 * i] * b_measurements_acc_duo[i];
       grav_origin[i48] += b_x[i48 + 3 * i] * b[i];
       y[i48] += R_ci[i48 + 3 * i] * x->robot_state.IMU.gyro_bias[i];
-    }
-  }
-
-  // 'skew:2' R=[0,-w(3),w(2);
-  // 'skew:3'     w(3),0,-w(1);
-  // 'skew:4'     -w(2),w(1),0];
-  // 'skew:2' R=[0,-w(3),w(2);
-  // 'skew:3'     w(3),0,-w(1);
-  // 'skew:4'     -w(2),w(1),0];
-  // 'skew:2' R=[0,-w(3),w(2);
-  // 'skew:3'     w(3),0,-w(1);
-  // 'skew:4'     -w(2),w(1),0];
-  dv10[0] = 0.0;
-  dv10[3] = -w_imu[2];
-  dv10[6] = w_imu[1];
-  dv10[1] = w_imu[2];
-  dv10[4] = 0.0;
-  dv10[7] = -w_imu[0];
-  dv10[2] = -w_imu[1];
-  dv10[5] = w_imu[0];
-  dv10[8] = 0.0;
-  for (i48 = 0; i48 < 3; i48++) {
-    b_y[i48] = 0.0;
-    c_y[i48] = 0.0;
-    for (i = 0; i < 3; i++) {
-      b_y[i48] += R_cw[i + 3 * i48] * a_c[i];
-      c_y[i48] += dv10[i48 + 3 * i] * t_ci[i];
+      b_y[i48] += dv9[i48 + 3 * i] * t_ci[i];
     }
   }
 
@@ -6078,23 +6070,32 @@ static void SLAM_pred_euler(double P_apo[8281], g_struct_T *x, double dt, double
   //  R_ci
   // 'SLAM_pred_euler:48' Phi = eye(numStates) + F * dt;
   b_eye(P_xx_apr);
+  dv10[0] = 0.0;
+  dv10[3] = -w_c[2];
+  dv10[6] = w_c[1];
+  dv10[1] = w_c[2];
+  dv10[4] = 0.0;
+  dv10[7] = -w_c[0];
+  dv10[2] = -w_c[1];
+  dv10[5] = w_c[0];
+  dv10[8] = 0.0;
   dv11[0] = 0.0;
-  dv11[3] = -w_c[2];
-  dv11[6] = w_c[1];
-  dv11[1] = w_c[2];
+  dv11[3] = -y[2];
+  dv11[6] = y[1];
+  dv11[1] = y[2];
   dv11[4] = 0.0;
-  dv11[7] = -w_c[0];
-  dv11[2] = -w_c[1];
-  dv11[5] = w_c[0];
+  dv11[7] = -y[0];
+  dv11[2] = -y[1];
+  dv11[5] = y[0];
   dv11[8] = 0.0;
   dv12[0] = 0.0;
-  dv12[3] = -y[2];
-  dv12[6] = y[1];
-  dv12[1] = y[2];
+  dv12[3] = -a_c[2];
+  dv12[6] = a_c[1];
+  dv12[1] = a_c[2];
   dv12[4] = 0.0;
-  dv12[7] = -y[0];
-  dv12[2] = -y[1];
-  dv12[5] = y[0];
+  dv12[7] = -a_c[0];
+  dv12[2] = -a_c[1];
+  dv12[5] = a_c[0];
   dv12[8] = 0.0;
   dv13[0] = 0.0;
   dv13[3] = -b_y[2];
@@ -6106,59 +6107,52 @@ static void SLAM_pred_euler(double P_apo[8281], g_struct_T *x, double dt, double
   dv13[5] = b_y[0];
   dv13[8] = 0.0;
   dv14[0] = 0.0;
-  dv14[3] = -c_y[2];
-  dv14[6] = c_y[1];
-  dv14[1] = c_y[2];
+  dv14[3] = -w_imu[2];
+  dv14[6] = w_imu[1];
+  dv14[1] = w_imu[2];
   dv14[4] = 0.0;
-  dv14[7] = -c_y[0];
-  dv14[2] = -c_y[1];
-  dv14[5] = c_y[0];
+  dv14[7] = -w_imu[0];
+  dv14[2] = -w_imu[1];
+  dv14[5] = w_imu[0];
   dv14[8] = 0.0;
   dv15[0] = 0.0;
-  dv15[3] = -w_imu[2];
-  dv15[6] = w_imu[1];
-  dv15[1] = w_imu[2];
+  dv15[3] = -t_ci[2];
+  dv15[6] = t_ci[1];
+  dv15[1] = t_ci[2];
   dv15[4] = 0.0;
-  dv15[7] = -w_imu[0];
-  dv15[2] = -w_imu[1];
-  dv15[5] = w_imu[0];
+  dv15[7] = -t_ci[0];
+  dv15[2] = -t_ci[1];
+  dv15[5] = t_ci[0];
   dv15[8] = 0.0;
   dv16[0] = 0.0;
-  dv16[3] = -t_ci[2];
-  dv16[6] = t_ci[1];
-  dv16[1] = t_ci[2];
+  dv16[3] = -grav_origin[2];
+  dv16[6] = grav_origin[1];
+  dv16[1] = grav_origin[2];
   dv16[4] = 0.0;
-  dv16[7] = -t_ci[0];
-  dv16[2] = -t_ci[1];
-  dv16[5] = t_ci[0];
+  dv16[7] = -grav_origin[0];
+  dv16[2] = -grav_origin[1];
+  dv16[5] = grav_origin[0];
   dv16[8] = 0.0;
   dv17[0] = 0.0;
-  dv17[3] = -grav_origin[2];
-  dv17[6] = grav_origin[1];
-  dv17[1] = grav_origin[2];
+  dv17[3] = -a_c[2];
+  dv17[6] = a_c[1];
+  dv17[1] = a_c[2];
   dv17[4] = 0.0;
-  dv17[7] = -grav_origin[0];
-  dv17[2] = -grav_origin[1];
-  dv17[5] = grav_origin[0];
+  dv17[7] = -a_c[0];
+  dv17[2] = -a_c[1];
+  dv17[5] = a_c[0];
   dv17[8] = 0.0;
-  dv18[0] = 0.0;
-  dv18[3] = -a_c[2];
-  dv18[6] = a_c[1];
-  dv18[1] = a_c[2];
-  dv18[4] = 0.0;
-  dv18[7] = -a_c[0];
-  dv18[2] = -a_c[1];
-  dv18[5] = a_c[0];
-  dv18[8] = 0.0;
   for (i48 = 0; i48 < 3; i48++) {
     for (i = 0; i < 3; i++) {
-      R[i + 3 * i48] = -R_cw[i48 + 3 * i];
+      b_x[i + 3 * i48] = -R_cw[i48 + 3 * i];
+      R[i48 + 3 * i] = 0.0;
       d10 = 0.0;
       for (i49 = 0; i49 < 3; i49++) {
-        d10 += dv15[i48 + 3 * i49] * dv16[i49 + 3 * i];
+        R[i48 + 3 * i] += R_cw[i49 + 3 * i48] * dv12[i49 + 3 * i];
+        d10 += dv14[i48 + 3 * i49] * dv15[i49 + 3 * i];
       }
 
-      dv10[i48 + 3 * i] = -dv14[i48 + 3 * i] - d10;
+      dv9[i48 + 3 * i] = -dv13[i48 + 3 * i] - d10;
     }
   }
 
@@ -6167,8 +6161,8 @@ static void SLAM_pred_euler(double P_apo[8281], g_struct_T *x, double dt, double
       b_R_ci[i48 + 3 * i] = 0.0;
       b_R[i48 + 3 * i] = 0.0;
       for (i49 = 0; i49 < 3; i49++) {
-        b_R_ci[i48 + 3 * i] += R[i48 + 3 * i49] * R_ci[i49 + 3 * i];
-        b_R[i48 + 3 * i] += R_cw[i48 + 3 * i49] * dv18[i49 + 3 * i];
+        b_R_ci[i48 + 3 * i] += b_x[i48 + 3 * i49] * R_ci[i49 + 3 * i];
+        b_R[i48 + 3 * i] += R_cw[i48 + 3 * i49] * dv17[i49 + 3 * i];
       }
     }
   }
@@ -6182,18 +6176,18 @@ static void SLAM_pred_euler(double P_apo[8281], g_struct_T *x, double dt, double
   for (i48 = 0; i48 < 3; i48++) {
     for (i = 0; i < 3; i++) {
       Phi[(i + 21 * i48) + 3] = 0.0;
-      Phi[(i + 21 * (i48 + 3)) + 3] = -dv11[i + 3 * i48];
+      Phi[(i + 21 * (i48 + 3)) + 3] = -dv10[i + 3 * i48];
       Phi[(i + 21 * (i48 + 6)) + 3] = 0.0;
       Phi[(i + 21 * (i48 + 9)) + 3] = iv7[i + 3 * i48];
       Phi[(i + 21 * (i48 + 12)) + 3] = 0.0;
       Phi[(i + 21 * (i48 + 15)) + 3] = 0.0;
-      Phi[(i + 21 * (i48 + 18)) + 3] = -dv12[i + 3 * i48];
+      Phi[(i + 21 * (i48 + 18)) + 3] = -dv11[i + 3 * i48];
       Phi[(i + 21 * i48) + 6] = 0.0;
-      Phi[(i + 21 * (i48 + 3)) + 6] = -dv13[i + 3 * i48];
+      Phi[(i + 21 * (i48 + 3)) + 6] = R[i + 3 * i48];
       Phi[(i + 21 * (i48 + 6)) + 6] = 0.0;
-      Phi[(i + 21 * (i48 + 9)) + 6] = dv10[i + 3 * i48];
+      Phi[(i + 21 * (i48 + 9)) + 6] = dv9[i + 3 * i48];
       Phi[(i + 21 * (i48 + 12)) + 6] = b_R_ci[i + 3 * i48];
-      Phi[(i + 21 * (i48 + 15)) + 6] = -dv17[i + 3 * i48];
+      Phi[(i + 21 * (i48 + 15)) + 6] = -dv16[i + 3 * i48];
       Phi[(i + 21 * (i48 + 18)) + 6] = b_R[i + 3 * i48];
     }
   }
@@ -6228,7 +6222,7 @@ static void SLAM_pred_euler(double P_apo[8281], g_struct_T *x, double dt, double
   b_processNoise_qw[12] = processNoise_qR_ci;
   b_processNoise_qw[13] = processNoise_qR_ci;
   b_processNoise_qw[14] = processNoise_qR_ci;
-  b_diag(b_processNoise_qw, dv19);
+  b_diag(b_processNoise_qw, dv18);
 
   //  covariance of the state
   // 'SLAM_pred_euler:53' P_xx_apr = (P_xx_apr + P_xx_apr')/2;
@@ -6237,14 +6231,14 @@ static void SLAM_pred_euler(double P_apo[8281], g_struct_T *x, double dt, double
     for (i = 0; i < 21; i++) {
       Phi[i48 + 21 * i] = 0.0;
       for (i49 = 0; i49 < 21; i49++) {
-        Phi[i48 + 21 * i] += b_Phi[i48 + 21 * i49] * P_apo[i49 + 91 * i];
+        Phi[i48 + 21 * i] += b_Phi[i48 + 21 * i49] * P_apo[i49 + 105 * i];
       }
     }
 
     for (i = 0; i < 15; i++) {
       b_G[i48 + 21 * i] = 0.0;
       for (i49 = 0; i49 < 15; i49++) {
-        b_G[i48 + 21 * i] += G[i48 + 21 * i49] * dv19[i49 + 15 * i];
+        b_G[i48 + 21 * i] += G[i48 + 21 * i49] * dv18[i49 + 15 * i];
       }
     }
 
@@ -6262,11 +6256,11 @@ static void SLAM_pred_euler(double P_apo[8281], g_struct_T *x, double dt, double
       P_xx_apr[i48 + 21 * i] = d10 + c_G[i48 + 21 * i] * dt;
     }
 
-    for (i = 0; i < 70; i++) {
+    for (i = 0; i < 84; i++) {
       P_xs_apr[i48 + 21 * i] = 0.0;
       for (i49 = 0; i49 < 21; i49++) {
-        P_xs_apr[i48 + 21 * i] += b_Phi[i48 + 21 * i49] * P_apo[i49 + 91 * (21 +
-          i)];
+        P_xs_apr[i48 + 21 * i] += b_Phi[i48 + 21 * i49] * P_apo[i49 + 105 * (21
+          + i)];
       }
     }
   }
@@ -6276,20 +6270,20 @@ static void SLAM_pred_euler(double P_apo[8281], g_struct_T *x, double dt, double
   // 'SLAM_pred_euler:57' P_apr(states_idx, states_idx) = P_xx_apr;
   for (i48 = 0; i48 < 21; i48++) {
     for (i = 0; i < 21; i++) {
-      P_apo[i + 91 * i48] = (P_xx_apr[i + 21 * i48] + P_xx_apr[i48 + 21 * i]) /
+      P_apo[i + 105 * i48] = (P_xx_apr[i + 21 * i48] + P_xx_apr[i48 + 21 * i]) /
         2.0;
     }
   }
 
   // 'SLAM_pred_euler:58' P_apr(states_idx, int32(numStates+1:int32(end))) = P_xs_apr; 
-  for (i48 = 0; i48 < 70; i48++) {
-    memcpy(&P_apo[i48 * 91 + 1911], &P_xs_apr[i48 * 21], 21U * sizeof(double));
+  for (i48 = 0; i48 < 84; i48++) {
+    memcpy(&P_apo[i48 * 105 + 2205], &P_xs_apr[i48 * 21], 21U * sizeof(double));
   }
 
   // 'SLAM_pred_euler:59' P_apr(int32(numStates+1:int32(end)), states_idx) = P_xs_apr'; 
   for (i48 = 0; i48 < 21; i48++) {
-    for (i = 0; i < 70; i++) {
-      P_apo[(i + 91 * i48) + 21] = P_xs_apr[i48 + 21 * i];
+    for (i = 0; i < 84; i++) {
+      P_apo[(i + 105 * i48) + 21] = P_xs_apr[i48 + 21 * i];
     }
   }
 
@@ -6305,8 +6299,8 @@ static void SLAM_pred_euler(double P_apo[8281], g_struct_T *x, double dt, double
     c_x[i] = x->robot_state.att[i];
   }
 
-  quatPlusThetaJ(b_measurements_acc_duo, dv20);
-  quatmultJ(dv20, c_x, x->robot_state.att);
+  quatPlusThetaJ(b_measurements_acc_duo, dv19);
+  quatmultJ(dv19, c_x, x->robot_state.att);
 
   // 'SLAM_pred_euler:64' x.robot_state.vel = x.robot_state.vel + (R_cw'*a_c - grav_origin)*dt; 
   for (i48 = 0; i48 < 3; i48++) {
@@ -6325,7 +6319,7 @@ static void SLAM_pred_euler(double P_apo[8281], g_struct_T *x, double dt, double
 
 //
 // % Iterative Camera Pose optimization (EKF)
-// Arguments    : double P_apr[8281]
+// Arguments    : double P_apr[11025]
 //                g_struct_T *b_xt
 //                int c_cameraParams_CameraParameters
 //                const double d_cameraParams_CameraParameters[2]
@@ -6340,17 +6334,17 @@ static void SLAM_pred_euler(double P_apo[8281], g_struct_T *x, double dt, double
 //                const double cameraParams_r_lr[3]
 //                const double cameraParams_R_lr[9]
 //                const double cameraParams_R_rl[9]
-//                int updateVect[40]
-//                double z_all_l[80]
-//                double z_all_r[80]
+//                int updateVect[48]
+//                double z_all_l[96]
+//                double z_all_r[96]
 //                double noiseParameters_image_noise
 //                double c_noiseParameters_inv_depth_ini
 //                const VIOParameters b_VIOParameters
-//                double b_map[120]
-//                double b_delayedStatus[40]
+//                double b_map[144]
+//                double b_delayedStatus[48]
 // Return Type  : void
 //
-static void SLAM_upd(double P_apr[8281], g_struct_T *b_xt, int
+static void SLAM_upd(double P_apr[11025], g_struct_T *b_xt, int
                      c_cameraParams_CameraParameters, const double
                      d_cameraParams_CameraParameters[2], const double
                      e_cameraParams_CameraParameters[2], const double
@@ -6362,34 +6356,34 @@ static void SLAM_upd(double P_apr[8281], g_struct_T *b_xt, int
                      k_cameraParams_CameraParameters[3], int
                      l_cameraParams_CameraParameters, const double
                      cameraParams_r_lr[3], const double cameraParams_R_lr[9],
-                     const double cameraParams_R_rl[9], int updateVect[40],
-                     double z_all_l[80], double z_all_r[80], double
+                     const double cameraParams_R_rl[9], int updateVect[48],
+                     double z_all_l[96], double z_all_r[96], double
                      noiseParameters_image_noise, double
                      c_noiseParameters_inv_depth_ini, const VIOParameters
-                     b_VIOParameters, double b_map[120], double b_delayedStatus
-                     [40])
+                     b_VIOParameters, double b_map[144], double b_delayedStatus
+                     [48])
 {
-  boolean_T x[40];
+  boolean_T x[48];
   int i;
   int idx;
-  int ii_data[40];
+  int ii_data[48];
   int ixstart;
   boolean_T exitg7;
   boolean_T guard3 = false;
   int loop_ub;
-  double b_ii_data[40];
+  double b_ii_data[48];
   int ii_size[1];
   int i50;
   int ind_l2_size[1];
-  double ind_l2_data[80];
-  double z_all_l_data[80];
+  double ind_l2_data[96];
+  double z_all_l_data[96];
   int z_all_l_size[1];
-  double status_ind_data[80];
+  double status_ind_data[96];
   boolean_T exitg6;
   boolean_T guard2 = false;
   int ii_size_idx_0;
   int ind_r_size[1];
-  double ind_r_data[40];
+  double ind_r_data[48];
   int z_all_r_size[1];
   int anchorIdx;
   int featureIdx;
@@ -6401,8 +6395,8 @@ static void SLAM_upd(double P_apr[8281], g_struct_T *b_xt, int
   emxArray_real_T *anchorInd;
   emxArray_real_T *featureInd;
   emxArray_int32_T *b_iidx;
-  double new_m_data[240];
-  boolean_T triangulation_success_data[40];
+  double new_m_data[288];
+  boolean_T triangulation_success_data[48];
   double z_curr_l[2];
   double z_curr_r[2];
   boolean_T success;
@@ -6418,30 +6412,30 @@ static void SLAM_upd(double P_apr[8281], g_struct_T *b_xt, int
   double mtmp;
   int k;
   int trueCount;
-  double triangulated_depths_data[40];
-  signed char triangulated_status_ind_data[40];
-  signed char b_triangulated_status_ind_data[40];
+  double triangulated_depths_data[48];
+  signed char triangulated_status_ind_data[48];
+  signed char b_triangulated_status_ind_data[48];
   int c_triangulated_status_ind_size_;
-  double untriangulated_depths_data[40];
+  double untriangulated_depths_data[48];
   emxArray_real_T *untriangulated_idx;
-  int tmp_data[40];
-  signed char untriangulated_status_ind_data[40];
-  double b_new_m_data[120];
-  double c_new_m_data[120];
+  int tmp_data[48];
+  signed char untriangulated_status_ind_data[48];
+  double b_new_m_data[144];
+  double c_new_m_data[144];
   int new_feature_idx;
   boolean_T exitg4;
   long i52;
   double b_P_apr[36];
-  int y_data[71];
-  int b_tmp_data[71];
-  double c_tmp_data[426];
-  double d_tmp_data[426];
-  int b_y_data[91];
-  int e_tmp_data[91];
-  double f_tmp_data[546];
-  double g_tmp_data[546];
+  int y_data[85];
+  int b_tmp_data[85];
+  double c_tmp_data[510];
+  double d_tmp_data[510];
+  int b_y_data[105];
+  int e_tmp_data[105];
+  double f_tmp_data[630];
+  double g_tmp_data[630];
   boolean_T exitg5;
-  double b_uncertainties[40];
+  double b_uncertainties[48];
   boolean_T has_active_features;
   int uncertainties_size[1];
   double median_uncertainty;
@@ -6454,8 +6448,8 @@ static void SLAM_upd(double P_apr[8281], g_struct_T *b_xt, int
   int request_idx;
   boolean_T exitg2;
   boolean_T b_guard1 = false;
-  double c_uncertainties[5];
-  double b_has_active_features[5];
+  double c_uncertainties[6];
+  double b_has_active_features[6];
   boolean_T exitg1;
   char cv50[63];
   static const char cv51[63] = { 'P', 'i', 'c', 'k', 'e', 'd', ' ', 'a', 'n',
@@ -6465,32 +6459,34 @@ static void SLAM_upd(double P_apr[8281], g_struct_T *b_xt, int
     'c', 'h', 'o', 'r', ' ', '%', 'd', ')', '\x00' };
 
   double new_origin_att_rel[9];
-  static double J[8281];
+  static double J[11025];
   double c_xt[9];
   double d_xt[3];
   double e_xt[9];
-  static double b_J[8281];
   double f_xt[9];
   double g_xt[9];
+  static double b_J[11025];
   double h_xt[9];
+  double i_xt[9];
+  double j_xt[9];
 
   // 'SLAM_upd:5' numStatesPerAnchor = 6 + numPointsPerAnchor;
   // 'SLAM_upd:6' numTrackFeatures = numAnchors*numPointsPerAnchor;
   //  undistort all valid points
   // 'SLAM_upd:9' ind_l = find(updateVect ~=0);
-  for (i = 0; i < 40; i++) {
+  for (i = 0; i < 48; i++) {
     x[i] = (updateVect[i] != 0);
   }
 
   idx = 0;
   ixstart = 1;
   exitg7 = false;
-  while ((!exitg7) && (ixstart < 41)) {
+  while ((!exitg7) && (ixstart < 49)) {
     guard3 = false;
     if (x[ixstart - 1]) {
       idx++;
       ii_data[idx - 1] = ixstart;
-      if (idx >= 40) {
+      if (idx >= 48) {
         exitg7 = true;
       } else {
         guard3 = true;
@@ -6536,19 +6532,19 @@ static void SLAM_upd(double P_apr[8281], g_struct_T *b_xt, int
   }
 
   // 'SLAM_upd:12' ind_r = find(updateVect == 2);
-  for (i = 0; i < 40; i++) {
+  for (i = 0; i < 48; i++) {
     x[i] = (updateVect[i] == 2);
   }
 
   idx = 0;
   ixstart = 1;
   exitg6 = false;
-  while ((!exitg6) && (ixstart < 41)) {
+  while ((!exitg6) && (ixstart < 49)) {
     guard2 = false;
     if (x[ixstart - 1]) {
       idx++;
       ii_data[idx - 1] = ixstart;
-      if (idx >= 40) {
+      if (idx >= 48) {
         exitg6 = true;
       } else {
         guard2 = true;
@@ -6622,7 +6618,7 @@ static void SLAM_upd(double P_apr[8281], g_struct_T *b_xt, int
 
   //  check for lost features
   // 'SLAM_upd:21' for anchorIdx = 1:numAnchors
-  for (anchorIdx = 0; anchorIdx < 5; anchorIdx++) {
+  for (anchorIdx = 0; anchorIdx < 6; anchorIdx++) {
     // 'SLAM_upd:22' for featureIdx = 1:numPointsPerAnchor
     for (featureIdx = 0; featureIdx < 8; featureIdx++) {
       // 'SLAM_upd:23' if xt.anchor_states(anchorIdx).feature_states(featureIdx).status 
@@ -6633,14 +6629,14 @@ static void SLAM_upd(double P_apr[8281], g_struct_T *b_xt, int
         // 'SLAM_upd:25' if updateVect(idx) ~= 1
         // 'SLAM_upd:26' P_apr(xt.anchor_states(anchorIdx).feature_states(featureIdx).P_idx, :) = 0; 
         idx = b_xt->anchor_states[anchorIdx].feature_states[featureIdx].P_idx;
-        for (i50 = 0; i50 < 91; i50++) {
-          P_apr[(idx + 91 * i50) - 1] = 0.0;
+        for (i50 = 0; i50 < 105; i50++) {
+          P_apr[(idx + 105 * i50) - 1] = 0.0;
         }
 
         // 'SLAM_upd:27' P_apr(:, xt.anchor_states(anchorIdx).feature_states(featureIdx).P_idx) = 0; 
         idx = b_xt->anchor_states[anchorIdx].feature_states[featureIdx].P_idx;
-        for (i50 = 0; i50 < 91; i50++) {
-          P_apr[i50 + 91 * (idx - 1)] = 0.0;
+        for (i50 = 0; i50 < 105; i50++) {
+          P_apr[i50 + 105 * (idx - 1)] = 0.0;
         }
 
         // 'SLAM_upd:28' xt.anchor_states(anchorIdx).feature_states(featureIdx).status = int32(0); 
@@ -6694,9 +6690,9 @@ static void SLAM_upd(double P_apr[8281], g_struct_T *b_xt, int
             .feature_states[featureIdx].status == 1) {
           // 'SLAM_upd:55' uncertainties(featureIdx) = P_apr(xt.anchor_states(xt.origin.anchor_idx).feature_states(featureIdx).P_idx, xt.anchor_states(xt.origin.anchor_idx).feature_states(featureIdx).P_idx); 
           uncertainties[featureIdx] = P_apr[(b_xt->anchor_states
-            [b_xt->origin.anchor_idx - 1].feature_states[featureIdx].P_idx + 91 *
-            (b_xt->anchor_states[b_xt->origin.anchor_idx - 1]
-             .feature_states[featureIdx].P_idx - 1)) - 1];
+            [b_xt->origin.anchor_idx - 1].feature_states[featureIdx].P_idx + 105
+            * (b_xt->anchor_states[b_xt->origin.anchor_idx - 1]
+               .feature_states[featureIdx].P_idx - 1)) - 1];
 
           // 'SLAM_upd:56' active_feature(featureIdx) = 1;
           active_feature[featureIdx] = 1;
@@ -6728,16 +6724,16 @@ static void SLAM_upd(double P_apr[8281], g_struct_T *b_xt, int
       // 'SLAM_upd:66' P_apr(xt.anchor_states(xt.origin.anchor_idx).feature_states(xt.fixed_feature).P_idx, :) = 0; 
       idx = b_xt->anchor_states[b_xt->origin.anchor_idx - 1].feature_states
         [b_xt->fixed_feature - 1].P_idx;
-      for (i50 = 0; i50 < 91; i50++) {
-        P_apr[(idx + 91 * i50) - 1] = 0.0;
+      for (i50 = 0; i50 < 105; i50++) {
+        P_apr[(idx + 105 * i50) - 1] = 0.0;
       }
 
       //  fix the feature depth
       // 'SLAM_upd:67' P_apr(:, xt.anchor_states(xt.origin.anchor_idx).feature_states(xt.fixed_feature).P_idx) = 0; 
       idx = b_xt->anchor_states[b_xt->origin.anchor_idx - 1].feature_states
         [b_xt->fixed_feature - 1].P_idx;
-      for (i50 = 0; i50 < 91; i50++) {
-        P_apr[i50 + 91 * (idx - 1)] = 0.0;
+      for (i50 = 0; i50 < 105; i50++) {
+        P_apr[i50 + 105 * (idx - 1)] = 0.0;
       }
 
       // 'SLAM_upd:68' ros_info('Fixing feature %i (feature %i on anchor %i)', xt.anchor_states(xt.origin.anchor_idx).feature_states(xt.fixed_feature).status_idx, xt.fixed_feature, xt.origin.anchor_idx) 
@@ -6749,7 +6745,7 @@ static void SLAM_upd(double P_apr[8281], g_struct_T *b_xt, int
 
   // % do the update
   // 'SLAM_upd:73' if any(updateVect == 1)
-  for (i = 0; i < 40; i++) {
+  for (i = 0; i < 48; i++) {
     x[i] = (updateVect[i] == 1);
   }
 
@@ -7160,7 +7156,7 @@ static void SLAM_upd(double P_apr[8281], g_struct_T *b_xt, int
     // 'SLAM_upd:153' for anchorIdx = 1:numAnchors
     anchorIdx = 0;
     exitg4 = false;
-    while ((!exitg4) && (anchorIdx + 1 < 6)) {
+    while ((!exitg4) && (anchorIdx + 1 < 7)) {
       //          if new_feature_idx > length(new_depths)
       // 'SLAM_upd:155' if new_feature_idx > nnz(triangulation_success)
       ixstart = 0;
@@ -7226,24 +7222,24 @@ static void SLAM_upd(double P_apr[8281], g_struct_T *b_xt, int
           }
 
           // 'SLAM_upd:182' P_apo(xt.anchor_states(anchorIdx).P_idx, :) = 0;
-          for (i50 = 0; i50 < 91; i50++) {
+          for (i50 = 0; i50 < 105; i50++) {
             for (i = 0; i < 6; i++) {
-              P_apr[(b_xt->anchor_states[anchorIdx].P_idx[i] + 91 * i50) - 1] =
+              P_apr[(b_xt->anchor_states[anchorIdx].P_idx[i] + 105 * i50) - 1] =
                 0.0;
             }
           }
 
           // 'SLAM_upd:183' P_apo(:, xt.anchor_states(anchorIdx).P_idx) = 0;
           for (i50 = 0; i50 < 6; i50++) {
-            for (i = 0; i < 91; i++) {
-              P_apr[i + 91 * (b_xt->anchor_states[anchorIdx].P_idx[i50] - 1)] =
+            for (i = 0; i < 105; i++) {
+              P_apr[i + 105 * (b_xt->anchor_states[anchorIdx].P_idx[i50] - 1)] =
                 0.0;
             }
           }
 
           // 'SLAM_upd:184' P_apo(xt.anchor_states(anchorIdx).P_idx(end) + (1:numPointsPerAnchor), :) = 0; 
           idx = b_xt->anchor_states[anchorIdx].P_idx[5];
-          for (i50 = 0; i50 < 91; i50++) {
+          for (i50 = 0; i50 < 105; i50++) {
             for (i = 0; i < 8; i++) {
               i52 = (long)idx + (1 + i);
               if (i52 > 2147483647L) {
@@ -7254,14 +7250,14 @@ static void SLAM_upd(double P_apr[8281], g_struct_T *b_xt, int
                 }
               }
 
-              P_apr[((int)i52 + 91 * i50) - 1] = 0.0;
+              P_apr[((int)i52 + 105 * i50) - 1] = 0.0;
             }
           }
 
           // 'SLAM_upd:185' P_apo(:, xt.anchor_states(anchorIdx).P_idx(end) + (1:numPointsPerAnchor)) = 0; 
           idx = b_xt->anchor_states[anchorIdx].P_idx[5];
           for (i50 = 0; i50 < 8; i50++) {
-            for (i = 0; i < 91; i++) {
+            for (i = 0; i < 105; i++) {
               i52 = (long)idx + (1 + i50);
               if (i52 > 2147483647L) {
                 i52 = 2147483647L;
@@ -7271,7 +7267,7 @@ static void SLAM_upd(double P_apr[8281], g_struct_T *b_xt, int
                 }
               }
 
-              P_apr[i + 91 * ((int)i52 - 1)] = 0.0;
+              P_apr[i + 105 * ((int)i52 - 1)] = 0.0;
             }
           }
 
@@ -7279,13 +7275,13 @@ static void SLAM_upd(double P_apr[8281], g_struct_T *b_xt, int
           // 'SLAM_upd:189' P_apo(xt.anchor_states(anchorIdx).P_idx, xt.anchor_states(anchorIdx).P_idx)        = P_apo(1:6, 1:6); 
           for (i50 = 0; i50 < 6; i50++) {
             for (i = 0; i < 6; i++) {
-              b_P_apr[i + 6 * i50] = P_apr[i + 91 * i50];
+              b_P_apr[i + 6 * i50] = P_apr[i + 105 * i50];
             }
           }
 
           for (i50 = 0; i50 < 6; i50++) {
             for (i = 0; i < 6; i++) {
-              P_apr[(b_xt->anchor_states[anchorIdx].P_idx[i] + 91 *
+              P_apr[(b_xt->anchor_states[anchorIdx].P_idx[i] + 105 *
                      (b_xt->anchor_states[anchorIdx].P_idx[i50] - 1)) - 1] =
                 b_P_apr[i + 6 * i50];
             }
@@ -7295,13 +7291,13 @@ static void SLAM_upd(double P_apr[8281], g_struct_T *b_xt, int
           // 'SLAM_upd:190' P_apo(xt.anchor_states(anchorIdx).P_idx, 1:6)                                      = P_apo(1:6, 1:6); 
           for (i50 = 0; i50 < 6; i50++) {
             for (i = 0; i < 6; i++) {
-              b_P_apr[i + 6 * i50] = P_apr[i + 91 * i50];
+              b_P_apr[i + 6 * i50] = P_apr[i + 105 * i50];
             }
           }
 
           for (i50 = 0; i50 < 6; i50++) {
             for (i = 0; i < 6; i++) {
-              P_apr[(b_xt->anchor_states[anchorIdx].P_idx[i] + 91 * i50) - 1] =
+              P_apr[(b_xt->anchor_states[anchorIdx].P_idx[i] + 105 * i50) - 1] =
                 b_P_apr[i + 6 * i50];
             }
           }
@@ -7310,13 +7306,13 @@ static void SLAM_upd(double P_apr[8281], g_struct_T *b_xt, int
           // 'SLAM_upd:191' P_apo(1:6, xt.anchor_states(anchorIdx).P_idx)                                      = P_apo(1:6, 1:6); 
           for (i50 = 0; i50 < 6; i50++) {
             for (i = 0; i < 6; i++) {
-              b_P_apr[i + 6 * i50] = P_apr[i + 91 * i50];
+              b_P_apr[i + 6 * i50] = P_apr[i + 105 * i50];
             }
           }
 
           for (i50 = 0; i50 < 6; i50++) {
             for (i = 0; i < 6; i++) {
-              P_apr[i + 91 * (b_xt->anchor_states[anchorIdx].P_idx[i50] - 1)] =
+              P_apr[i + 105 * (b_xt->anchor_states[anchorIdx].P_idx[i50] - 1)] =
                 b_P_apr[i + 6 * i50];
             }
           }
@@ -7379,13 +7375,13 @@ static void SLAM_upd(double P_apr[8281], g_struct_T *b_xt, int
 
           for (i50 = 0; i50 < 6; i50++) {
             for (i = 0; i < ixstart; i++) {
-              c_tmp_data[i + ixstart * i50] = P_apr[(y_data[i] + 91 * i50) - 1];
+              c_tmp_data[i + ixstart * i50] = P_apr[(y_data[i] + 105 * i50) - 1];
             }
           }
 
           for (i50 = 0; i50 < 6; i50++) {
             for (i = 0; i < ixstart; i++) {
-              P_apr[b_tmp_data[i] + 91 * (b_xt->anchor_states[anchorIdx]
+              P_apr[b_tmp_data[i] + 105 * (b_xt->anchor_states[anchorIdx]
                 .P_idx[i50] - 1)] = c_tmp_data[i + ixstart * i50];
             }
           }
@@ -7448,13 +7444,13 @@ static void SLAM_upd(double P_apr[8281], g_struct_T *b_xt, int
 
           for (i50 = 0; i50 < ixstart; i50++) {
             for (i = 0; i < 6; i++) {
-              d_tmp_data[i + 6 * i50] = P_apr[i + 91 * (y_data[i50] - 1)];
+              d_tmp_data[i + 6 * i50] = P_apr[i + 105 * (y_data[i50] - 1)];
             }
           }
 
           for (i50 = 0; i50 < ixstart; i50++) {
             for (i = 0; i < 6; i++) {
-              P_apr[(b_xt->anchor_states[anchorIdx].P_idx[i] + 91 *
+              P_apr[(b_xt->anchor_states[anchorIdx].P_idx[i] + 105 *
                      b_tmp_data[i50]) - 1] = d_tmp_data[i + 6 * i50];
             }
           }
@@ -7472,7 +7468,7 @@ static void SLAM_upd(double P_apr[8281], g_struct_T *b_xt, int
           }
 
           idx = (int)i52;
-          ixstart = 92 - idx;
+          ixstart = 106 - idx;
           b_y_data[0] = idx;
           for (k = 2; k <= ixstart; k++) {
             idx++;
@@ -7493,7 +7489,7 @@ static void SLAM_upd(double P_apr[8281], g_struct_T *b_xt, int
           }
 
           idx = (int)i52;
-          ixstart = 92 - idx;
+          ixstart = 106 - idx;
           b_y_data[0] = idx;
           for (k = 2; k <= ixstart; k++) {
             idx++;
@@ -7502,13 +7498,14 @@ static void SLAM_upd(double P_apr[8281], g_struct_T *b_xt, int
 
           for (i50 = 0; i50 < 6; i50++) {
             for (i = 0; i < ixstart; i++) {
-              f_tmp_data[i + ixstart * i50] = P_apr[(b_y_data[i] + 91 * i50) - 1];
+              f_tmp_data[i + ixstart * i50] = P_apr[(b_y_data[i] + 105 * i50) -
+                1];
             }
           }
 
           for (i50 = 0; i50 < 6; i50++) {
             for (i = 0; i < ixstart; i++) {
-              P_apr[e_tmp_data[i] + 91 * (b_xt->anchor_states[anchorIdx]
+              P_apr[e_tmp_data[i] + 105 * (b_xt->anchor_states[anchorIdx]
                 .P_idx[i50] - 1)] = f_tmp_data[i + ixstart * i50];
             }
           }
@@ -7524,7 +7521,7 @@ static void SLAM_upd(double P_apr[8281], g_struct_T *b_xt, int
           }
 
           idx = (int)i52;
-          ixstart = 92 - idx;
+          ixstart = 106 - idx;
           b_y_data[0] = idx;
           for (k = 2; k <= ixstart; k++) {
             idx++;
@@ -7545,7 +7542,7 @@ static void SLAM_upd(double P_apr[8281], g_struct_T *b_xt, int
           }
 
           idx = (int)i52;
-          ixstart = 92 - idx;
+          ixstart = 106 - idx;
           b_y_data[0] = idx;
           for (k = 2; k <= ixstart; k++) {
             idx++;
@@ -7554,13 +7551,13 @@ static void SLAM_upd(double P_apr[8281], g_struct_T *b_xt, int
 
           for (i50 = 0; i50 < ixstart; i50++) {
             for (i = 0; i < 6; i++) {
-              g_tmp_data[i + 6 * i50] = P_apr[i + 91 * (b_y_data[i50] - 1)];
+              g_tmp_data[i + 6 * i50] = P_apr[i + 105 * (b_y_data[i50] - 1)];
             }
           }
 
           for (i50 = 0; i50 < ixstart; i50++) {
             for (i = 0; i < 6; i++) {
-              P_apr[(b_xt->anchor_states[anchorIdx].P_idx[i] + 91 *
+              P_apr[(b_xt->anchor_states[anchorIdx].P_idx[i] + 105 *
                      e_tmp_data[i50]) - 1] = g_tmp_data[i + 6 * i50];
             }
           }
@@ -7615,8 +7612,8 @@ static void SLAM_upd(double P_apr[8281], g_struct_T *b_xt, int
 
               // 'SLAM_upd:228' P_apo(xt.anchor_states(anchorIdx).feature_states(featureIdx).P_idx, xt.anchor_states(anchorIdx).feature_states(featureIdx).P_idx) = noiseParameters.inv_depth_initial_unc*10; 
               P_apr[(b_xt->anchor_states[anchorIdx].feature_states[featureIdx].
-                     P_idx + 91 * (b_xt->anchor_states[anchorIdx]
-                                   .feature_states[featureIdx].P_idx - 1)) - 1] =
+                     P_idx + 105 * (b_xt->anchor_states[anchorIdx].
+                                    feature_states[featureIdx].P_idx - 1)) - 1] =
                 c_noiseParameters_inv_depth_ini * 10.0;
 
               //  TODO: Maybe push the mean value further away?
@@ -7624,8 +7621,8 @@ static void SLAM_upd(double P_apr[8281], g_struct_T *b_xt, int
               // 'SLAM_upd:230' else
               // 'SLAM_upd:231' P_apo(xt.anchor_states(anchorIdx).feature_states(featureIdx).P_idx, xt.anchor_states(anchorIdx).feature_states(featureIdx).P_idx) = noiseParameters.inv_depth_initial_unc; 
               P_apr[(b_xt->anchor_states[anchorIdx].feature_states[featureIdx].
-                     P_idx + 91 * (b_xt->anchor_states[anchorIdx]
-                                   .feature_states[featureIdx].P_idx - 1)) - 1] =
+                     P_idx + 105 * (b_xt->anchor_states[anchorIdx].
+                                    feature_states[featureIdx].P_idx - 1)) - 1] =
                 c_noiseParameters_inv_depth_ini;
 
               // *new_depths(new_feature_idx);
@@ -7667,7 +7664,7 @@ static void SLAM_upd(double P_apr[8281], g_struct_T *b_xt, int
   }
 
   // 'SLAM_upd:249' updateVect(updateVect==int32(2)) = int32(0);
-  for (i = 0; i < 40; i++) {
+  for (i = 0; i < 48; i++) {
     if (updateVect[i] == 2) {
       updateVect[i] = 0;
     }
@@ -7679,7 +7676,7 @@ static void SLAM_upd(double P_apr[8281], g_struct_T *b_xt, int
     //  get the median uncertainty of the active features as a benchmark on
     //  the delayed features
     // 'SLAM_upd:254' uncertainties = -1*ones(numTrackFeatures, 1);
-    for (i = 0; i < 40; i++) {
+    for (i = 0; i < 48; i++) {
       b_uncertainties[i] = -1.0;
     }
 
@@ -7687,7 +7684,7 @@ static void SLAM_upd(double P_apr[8281], g_struct_T *b_xt, int
     has_active_features = false;
 
     // 'SLAM_upd:256' for anchorIdx = 1:numAnchors
-    for (anchorIdx = 0; anchorIdx < 5; anchorIdx++) {
+    for (anchorIdx = 0; anchorIdx < 6; anchorIdx++) {
       // 'SLAM_upd:257' for featureIdx = 1:numPointsPerAnchor
       for (featureIdx = 0; featureIdx < 8; featureIdx++) {
         // 'SLAM_upd:258' if xt.anchor_states(anchorIdx).feature_states(featureIdx).status == 1 
@@ -7700,8 +7697,8 @@ static void SLAM_upd(double P_apr[8281], g_struct_T *b_xt, int
           b_uncertainties[b_xt->anchor_states[anchorIdx]
             .feature_states[featureIdx].status_idx - 1] = P_apr
             [(b_xt->anchor_states[anchorIdx].feature_states[featureIdx].P_idx +
-              91 * (b_xt->anchor_states[anchorIdx].feature_states[featureIdx].
-                    P_idx - 1)) - 1];
+              105 * (b_xt->anchor_states[anchorIdx].feature_states[featureIdx].
+                     P_idx - 1)) - 1];
         }
       }
     }
@@ -7710,14 +7707,14 @@ static void SLAM_upd(double P_apr[8281], g_struct_T *b_xt, int
     if (has_active_features) {
       // 'SLAM_upd:266' median_uncertainty = median(uncertainties(uncertainties > 0), 1); 
       trueCount = 0;
-      for (i = 0; i < 40; i++) {
+      for (i = 0; i < 48; i++) {
         if (b_uncertainties[i] > 0.0) {
           trueCount++;
         }
       }
 
       ixstart = 0;
-      for (i = 0; i < 40; i++) {
+      for (i = 0; i < 48; i++) {
         if (b_uncertainties[i] > 0.0) {
           ii_data[ixstart] = i + 1;
           ixstart++;
@@ -7734,13 +7731,13 @@ static void SLAM_upd(double P_apr[8281], g_struct_T *b_xt, int
       //  because coder does not support nanflag
       //  check if a delayed initialization feature has converged
       // 'SLAM_upd:269' for anchorIdx = 1:numAnchors
-      for (anchorIdx = 0; anchorIdx < 5; anchorIdx++) {
+      for (anchorIdx = 0; anchorIdx < 6; anchorIdx++) {
         // 'SLAM_upd:270' for featureIdx = 1:numPointsPerAnchor
         for (featureIdx = 0; featureIdx < 8; featureIdx++) {
           // 'SLAM_upd:271' if xt.anchor_states(anchorIdx).feature_states(featureIdx).status == 2 
           if ((b_xt->anchor_states[anchorIdx].feature_states[featureIdx].status ==
                2) && (P_apr[(b_xt->anchor_states[anchorIdx]
-                             .feature_states[featureIdx].P_idx + 91 *
+                             .feature_states[featureIdx].P_idx + 105 *
                              (b_xt->anchor_states[anchorIdx]
                               .feature_states[featureIdx].P_idx - 1)) - 1] <
                       median_uncertainty * 2.0)) {
@@ -7780,7 +7777,7 @@ static void SLAM_upd(double P_apr[8281], g_struct_T *b_xt, int
     totalNumActiveFeatues = getTotalNumActiveFeatures(b_xt->anchor_states);
 
     // 'SLAM_upd:291' if totalNumActiveFeatues < minActiveFeatureRatio*single(numTrackFeatures) 
-    if (totalNumActiveFeatues < 16.0) {
+    if (totalNumActiveFeatues < 19.200000762939453) {
       //  find the best features and activate them
       // 'SLAM_upd:293' numDelayedFeatures = getTotalNumDelayedFeatures(xt);
       numDelayedFeatures = getTotalNumDelayedFeatures(b_xt->anchor_states);
@@ -7817,7 +7814,7 @@ static void SLAM_upd(double P_apr[8281], g_struct_T *b_xt, int
       delayedIdx = 1U;
 
       // 'SLAM_upd:299' for anchorIdx = 1:numAnchors
-      for (anchorIdx = 0; anchorIdx < 5; anchorIdx++) {
+      for (anchorIdx = 0; anchorIdx < 6; anchorIdx++) {
         // 'SLAM_upd:300' for featureIdx = 1:numPointsPerAnchor
         for (featureIdx = 0; featureIdx < 8; featureIdx++) {
           // 'SLAM_upd:301' if xt.anchor_states(anchorIdx).feature_states(featureIdx).status == 2 
@@ -7827,7 +7824,7 @@ static void SLAM_upd(double P_apr[8281], g_struct_T *b_xt, int
             // 'SLAM_upd:304' quality = rho_unc/noiseParameters.inv_depth_initial_unc; 
             // 'SLAM_upd:306' qualities(delayedIdx) = quality;
             qualities->data[(int)delayedIdx - 1] = P_apr[(b_xt->
-              anchor_states[anchorIdx].feature_states[featureIdx].P_idx + 91 *
+              anchor_states[anchorIdx].feature_states[featureIdx].P_idx + 105 *
               (b_xt->anchor_states[anchorIdx].feature_states[featureIdx].P_idx -
                1)) - 1] / c_noiseParameters_inv_depth_ini;
 
@@ -7859,9 +7856,9 @@ static void SLAM_upd(double P_apr[8281], g_struct_T *b_xt, int
 
       // 'SLAM_upd:319' for i = 1:length(sortInd)
       i = 0;
-      while ((i <= qualities->size[0] - 1) && (!(numActivatedFeatures > 16.0F -
-               (float)totalNumActiveFeatues)) && (!(numActivatedFeatures >
-               numDelayedFeatures))) {
+      while ((i <= qualities->size[0] - 1) && (!(numActivatedFeatures > ceilf
+               (19.2F - (float)totalNumActiveFeatues))) &&
+             (!(numActivatedFeatures > numDelayedFeatures))) {
         // 'SLAM_upd:320' if numActivatedFeatures > ceil(minActiveFeatureRatio*single(numTrackFeatures) - totalNumActiveFeatues) || numActivatedFeatures > numDelayedFeatures 
         // 'SLAM_upd:323' if xt.anchor_states(anchorInd(sortInd(i))).feature_states(featureInd(sortInd(i))).inverse_depth < 0 
         if (b_xt->anchor_states[(int)anchorInd->data[(int)qualities->data[i] - 1]
@@ -7916,7 +7913,7 @@ static void SLAM_upd(double P_apr[8281], g_struct_T *b_xt, int
 
   // 'SLAM_upd:338' if nnz(updateVect == 0) > minFeatureThreshold
   ixstart = 0;
-  for (k = 0; k < 40; k++) {
+  for (k = 0; k < 48; k++) {
     if (updateVect[k] == 0) {
       ixstart++;
     }
@@ -7927,7 +7924,7 @@ static void SLAM_upd(double P_apr[8281], g_struct_T *b_xt, int
     // 'SLAM_upd:339' for anchorIdx = 1:numAnchors
     anchorIdx = 0;
     exitg3 = false;
-    while ((!exitg3) && (anchorIdx + 1 < 6)) {
+    while ((!exitg3) && (anchorIdx + 1 < 7)) {
       // 'SLAM_upd:340' if getNumValidFeatures(xt.anchor_states(anchorIdx)) < minFeatureThreshold 
       if (getNumValidFeatures(b_xt->anchor_states[anchorIdx].feature_states) <
           4.0) {
@@ -7976,7 +7973,7 @@ static void SLAM_upd(double P_apr[8281], g_struct_T *b_xt, int
     // 'SLAM_upd:365' for i = 1:length(updateVect)
     i = 0;
     exitg2 = false;
-    while ((!exitg2) && (i < 40)) {
+    while ((!exitg2) && (i < 48)) {
       // 'SLAM_upd:366' if updateVect(i) == 0
       b_guard1 = false;
       if (updateVect[i] == 0) {
@@ -8020,7 +8017,7 @@ static void SLAM_upd(double P_apr[8281], g_struct_T *b_xt, int
     //  uncertainties of the anchors reduced to a scalar
     // 'SLAM_upd:383' has_active_features = uncertainties;
     // 'SLAM_upd:384' for anchorIdx = 1:numAnchors
-    for (anchorIdx = 0; anchorIdx < 5; anchorIdx++) {
+    for (anchorIdx = 0; anchorIdx < 6; anchorIdx++) {
       b_has_active_features[anchorIdx] = 0.0;
 
       // 'SLAM_upd:385' if anyActiveAnchorFeatures(xt.anchor_states(anchorIdx))
@@ -8030,7 +8027,7 @@ static void SLAM_upd(double P_apr[8281], g_struct_T *b_xt, int
         for (i50 = 0; i50 < 6; i50++) {
           for (i = 0; i < 6; i++) {
             b_P_apr[i + 6 * i50] = P_apr[(b_xt->anchor_states[anchorIdx].P_idx[i]
-              + 91 * (b_xt->anchor_states[anchorIdx].P_idx[i50] - 1)) - 1];
+              + 105 * (b_xt->anchor_states[anchorIdx].P_idx[i50] - 1)) - 1];
           }
         }
 
@@ -8061,7 +8058,7 @@ static void SLAM_upd(double P_apr[8281], g_struct_T *b_xt, int
       if (rtIsNaN(c_uncertainties[0])) {
         k = 2;
         exitg1 = false;
-        while ((!exitg1) && (k < 6)) {
+        while ((!exitg1) && (k < 7)) {
           ixstart = k;
           if (!rtIsNaN(c_uncertainties[k - 1])) {
             mtmp = c_uncertainties[k - 1];
@@ -8073,8 +8070,8 @@ static void SLAM_upd(double P_apr[8281], g_struct_T *b_xt, int
         }
       }
 
-      if (ixstart < 5) {
-        while (ixstart + 1 < 6) {
+      if (ixstart < 6) {
+        while (ixstart + 1 < 7) {
           if (c_uncertainties[ixstart] < mtmp) {
             mtmp = c_uncertainties[ixstart];
             idx = ixstart + 1;
@@ -8179,18 +8176,20 @@ static void SLAM_upd(double P_apr[8281], g_struct_T *b_xt, int
         d_eye(J);
 
         //  robot position and orientation
-        // 'SLAM_upd:407' J(1:6, 1:6) = [new_origin_att_rel, zeros(3); zeros(3), eye(3)]; 
+        // 'SLAM_upd:407' J(1:6, 1:6) = [new_origin_att_rel, zeros(3);...
+        // 'SLAM_upd:408'                                      zeros(3), -eye(3)]; 
         eye(c_xt);
 
-        // 'SLAM_upd:408' J(1:6, xt.anchor_states(xt.origin.anchor_idx).P_idx) = [-new_origin_att_rel, skew(new_origin_att_rel * (xt.robot_state.pos - new_origin_pos_rel)); zeros(3), -new_origin_att_rel']; 
+        // 'SLAM_upd:409' J(1:6, xt.anchor_states(xt.origin.anchor_idx).P_idx) = [-new_origin_att_rel, skew(new_origin_att_rel * (xt.robot_state.pos - new_origin_pos_rel));... 
+        // 'SLAM_upd:410'                                                                                zeros(3), RotFromQuatJ(xt.robot_state.att) * new_origin_att_rel']; 
         for (i = 0; i < 3; i++) {
           new_origin_pos_rel[i] = b_xt->anchor_states[b_xt->origin.anchor_idx -
             1].pos[i];
           for (i50 = 0; i50 < 3; i50++) {
-            J[i50 + 91 * i] = new_origin_att_rel[i50 + 3 * i];
-            J[i50 + 91 * (i + 3)] = 0.0;
-            J[(i50 + 91 * i) + 3] = 0.0;
-            J[(i50 + 91 * (i + 3)) + 3] = c_xt[i50 + 3 * i];
+            J[i50 + 105 * i] = new_origin_att_rel[i50 + 3 * i];
+            J[i50 + 105 * (i + 3)] = 0.0;
+            J[(i50 + 105 * i) + 3] = 0.0;
+            J[(i50 + 105 * (i + 3)) + 3] = -c_xt[i50 + 3 * i];
           }
 
           d_xt[i] = b_xt->robot_state.pos[i] - b_xt->anchor_states
@@ -8200,73 +8199,158 @@ static void SLAM_upd(double P_apr[8281], g_struct_T *b_xt, int
         // 'skew:2' R=[0,-w(3),w(2);
         // 'skew:3'     w(3),0,-w(1);
         // 'skew:4'     -w(2),w(1),0];
+        //  if ~all(size(q) == [4, 1])
+        //      error('q does not have the size of a quaternion')
+        //  end
+        //  if abs(norm(q) - 1) > 1e-3
+        //      error('The provided quaternion is not a valid rotation quaternion because it does not have norm 1') 
+        //  end
+        // 'RotFromQuatJ:10' R=[q(1)^2-q(2)^2-q(3)^2+q(4)^2, 2*(q(1)*q(2)+q(3)*q(4)), 2*(q(1)*q(3)-q(2)*q(4)); 
+        // 'RotFromQuatJ:11'     2*(q(1)*q(2)-q(3)*q(4)),-q(1)^2+q(2)^2-q(3)^2+q(4)^2, 2*(q(2)*q(3)+q(1)*q(4)); 
+        // 'RotFromQuatJ:12'     2*(q(1)*q(3)+q(2)*q(4)), 2*(q(2)*q(3)-q(1)*q(4)),-q(1)^2-q(2)^2+q(3)^2+q(4)^2]; 
+        e_xt[0] = ((b_xt->robot_state.att[0] * b_xt->robot_state.att[0] -
+                    b_xt->robot_state.att[1] * b_xt->robot_state.att[1]) -
+                   b_xt->robot_state.att[2] * b_xt->robot_state.att[2]) +
+          b_xt->robot_state.att[3] * b_xt->robot_state.att[3];
+        e_xt[3] = 2.0 * (b_xt->robot_state.att[0] * b_xt->robot_state.att[1] +
+                         b_xt->robot_state.att[2] * b_xt->robot_state.att[3]);
+        e_xt[6] = 2.0 * (b_xt->robot_state.att[0] * b_xt->robot_state.att[2] -
+                         b_xt->robot_state.att[1] * b_xt->robot_state.att[3]);
+        e_xt[1] = 2.0 * (b_xt->robot_state.att[0] * b_xt->robot_state.att[1] -
+                         b_xt->robot_state.att[2] * b_xt->robot_state.att[3]);
+        e_xt[4] = ((-(b_xt->robot_state.att[0] * b_xt->robot_state.att[0]) +
+                    b_xt->robot_state.att[1] * b_xt->robot_state.att[1]) -
+                   b_xt->robot_state.att[2] * b_xt->robot_state.att[2]) +
+          b_xt->robot_state.att[3] * b_xt->robot_state.att[3];
+        e_xt[7] = 2.0 * (b_xt->robot_state.att[1] * b_xt->robot_state.att[2] +
+                         b_xt->robot_state.att[0] * b_xt->robot_state.att[3]);
+        e_xt[2] = 2.0 * (b_xt->robot_state.att[0] * b_xt->robot_state.att[2] +
+                         b_xt->robot_state.att[1] * b_xt->robot_state.att[3]);
+        e_xt[5] = 2.0 * (b_xt->robot_state.att[1] * b_xt->robot_state.att[2] -
+                         b_xt->robot_state.att[0] * b_xt->robot_state.att[3]);
+        e_xt[8] = ((-(b_xt->robot_state.att[0] * b_xt->robot_state.att[0]) -
+                    b_xt->robot_state.att[1] * b_xt->robot_state.att[1]) +
+                   b_xt->robot_state.att[2] * b_xt->robot_state.att[2]) +
+          b_xt->robot_state.att[3] * b_xt->robot_state.att[3];
         for (i50 = 0; i50 < 3; i50++) {
           m_l[i50] = 0.0;
           for (i = 0; i < 3; i++) {
-            J[i + 91 * (b_xt->anchor_states[b_xt->origin.anchor_idx - 1]
-                        .P_idx[i50] - 1)] = -new_origin_att_rel[i + 3 * i50];
-            J[(i + 91 * (b_xt->anchor_states[b_xt->origin.anchor_idx - 1]
-                         .P_idx[i50] - 1)) + 3] = 0.0;
             m_l[i50] += new_origin_att_rel[i50 + 3 * i] * d_xt[i];
+            c_xt[i50 + 3 * i] = 0.0;
+            for (idx = 0; idx < 3; idx++) {
+              c_xt[i50 + 3 * i] += e_xt[i50 + 3 * idx] * new_origin_att_rel[i +
+                3 * idx];
+            }
+
+            J[i + 105 * (b_xt->anchor_states[b_xt->origin.anchor_idx - 1]
+                         .P_idx[i50] - 1)] = -new_origin_att_rel[i + 3 * i50];
+            J[(i + 105 * (b_xt->anchor_states[b_xt->origin.anchor_idx - 1]
+                          .P_idx[i50] - 1)) + 3] = 0.0;
           }
         }
 
-        J[91 * (b_xt->anchor_states[b_xt->origin.anchor_idx - 1].P_idx[3] - 1)] =
-          0.0;
-        J[91 * (b_xt->anchor_states[b_xt->origin.anchor_idx - 1].P_idx[4] - 1)] =
-          -m_l[2];
-        J[91 * (b_xt->anchor_states[b_xt->origin.anchor_idx - 1].P_idx[5] - 1)] =
-          m_l[1];
-        J[1 + 91 * (b_xt->anchor_states[b_xt->origin.anchor_idx - 1].P_idx[3] -
-                    1)] = m_l[2];
-        J[1 + 91 * (b_xt->anchor_states[b_xt->origin.anchor_idx - 1].P_idx[4] -
-                    1)] = 0.0;
-        J[1 + 91 * (b_xt->anchor_states[b_xt->origin.anchor_idx - 1].P_idx[5] -
-                    1)] = -m_l[0];
-        J[2 + 91 * (b_xt->anchor_states[b_xt->origin.anchor_idx - 1].P_idx[3] -
-                    1)] = -m_l[1];
-        J[2 + 91 * (b_xt->anchor_states[b_xt->origin.anchor_idx - 1].P_idx[4] -
-                    1)] = m_l[0];
-        J[2 + 91 * (b_xt->anchor_states[b_xt->origin.anchor_idx - 1].P_idx[5] -
-                    1)] = 0.0;
+        J[105 * (b_xt->anchor_states[b_xt->origin.anchor_idx - 1].P_idx[3] - 1)]
+          = 0.0;
+        J[105 * (b_xt->anchor_states[b_xt->origin.anchor_idx - 1].P_idx[4] - 1)]
+          = -m_l[2];
+        J[105 * (b_xt->anchor_states[b_xt->origin.anchor_idx - 1].P_idx[5] - 1)]
+          = m_l[1];
+        J[1 + 105 * (b_xt->anchor_states[b_xt->origin.anchor_idx - 1].P_idx[3] -
+                     1)] = m_l[2];
+        J[1 + 105 * (b_xt->anchor_states[b_xt->origin.anchor_idx - 1].P_idx[4] -
+                     1)] = 0.0;
+        J[1 + 105 * (b_xt->anchor_states[b_xt->origin.anchor_idx - 1].P_idx[5] -
+                     1)] = -m_l[0];
+        J[2 + 105 * (b_xt->anchor_states[b_xt->origin.anchor_idx - 1].P_idx[3] -
+                     1)] = -m_l[1];
+        J[2 + 105 * (b_xt->anchor_states[b_xt->origin.anchor_idx - 1].P_idx[4] -
+                     1)] = m_l[0];
+        J[2 + 105 * (b_xt->anchor_states[b_xt->origin.anchor_idx - 1].P_idx[5] -
+                     1)] = 0.0;
 
         //  robot velocity
-        // 'SLAM_upd:410' J(7:9, 7:9) = new_origin_att_rel;
+        // 'SLAM_upd:412' J(7:9, 7:9) = new_origin_att_rel;
         //  velocity
-        //  origin rotation
-        // 'SLAM_upd:412' J(16:18, 16:18) = new_origin_att_rel;
+        // 'SLAM_upd:413' J(7:9, xt.anchor_states(xt.origin.anchor_idx).P_idx) = [zeros(3), skew(new_origin_att_rel * xt.robot_state.vel)]; 
         for (i50 = 0; i50 < 3; i50++) {
+          m_l[i50] = 0.0;
           for (i = 0; i < 3; i++) {
-            J[(i + 91 * (b_xt->anchor_states[b_xt->origin.anchor_idx - 1]
-                         .P_idx[i50 + 3] - 1)) + 3] = -new_origin_att_rel[i50 +
-              3 * i];
-            J[(i + 91 * (6 + i50)) + 6] = new_origin_att_rel[i + 3 * i50];
-            J[(i + 91 * (15 + i50)) + 15] = new_origin_att_rel[i + 3 * i50];
+            J[(i + 105 * (b_xt->anchor_states[b_xt->origin.anchor_idx - 1]
+                          .P_idx[i50 + 3] - 1)) + 3] = c_xt[i + 3 * i50];
+            J[(i + 105 * (6 + i50)) + 6] = new_origin_att_rel[i + 3 * i50];
+            m_l[i50] += new_origin_att_rel[i50 + 3 * i] * b_xt->
+              robot_state.vel[i];
           }
         }
 
+        // 'skew:2' R=[0,-w(3),w(2);
+        // 'skew:3'     w(3),0,-w(1);
+        // 'skew:4'     -w(2),w(1),0];
+        for (i50 = 0; i50 < 3; i50++) {
+          for (i = 0; i < 3; i++) {
+            J[(i + 105 * (b_xt->anchor_states[b_xt->origin.anchor_idx - 1]
+                          .P_idx[i50] - 1)) + 6] = 0.0;
+            J[(i + 105 * (15 + i50)) + 15] = -new_origin_att_rel[i + 3 * i50];
+          }
+        }
+
+        J[6 + 105 * (b_xt->anchor_states[b_xt->origin.anchor_idx - 1].P_idx[3] -
+                     1)] = 0.0;
+        J[6 + 105 * (b_xt->anchor_states[b_xt->origin.anchor_idx - 1].P_idx[4] -
+                     1)] = -m_l[2];
+        J[6 + 105 * (b_xt->anchor_states[b_xt->origin.anchor_idx - 1].P_idx[5] -
+                     1)] = m_l[1];
+        J[7 + 105 * (b_xt->anchor_states[b_xt->origin.anchor_idx - 1].P_idx[3] -
+                     1)] = m_l[2];
+        J[7 + 105 * (b_xt->anchor_states[b_xt->origin.anchor_idx - 1].P_idx[4] -
+                     1)] = 0.0;
+        J[7 + 105 * (b_xt->anchor_states[b_xt->origin.anchor_idx - 1].P_idx[5] -
+                     1)] = -m_l[0];
+        J[8 + 105 * (b_xt->anchor_states[b_xt->origin.anchor_idx - 1].P_idx[3] -
+                     1)] = -m_l[1];
+        J[8 + 105 * (b_xt->anchor_states[b_xt->origin.anchor_idx - 1].P_idx[4] -
+                     1)] = m_l[0];
+        J[8 + 105 * (b_xt->anchor_states[b_xt->origin.anchor_idx - 1].P_idx[5] -
+                     1)] = 0.0;
+
         //  origin rotation
-        // 'SLAM_upd:414' for anchorIdx = 1:numAnchors
-        for (anchorIdx = 0; anchorIdx < 5; anchorIdx++) {
-          // 'SLAM_upd:415' if anchorIdx == xt.origin.anchor_idx
+        // 'SLAM_upd:415' J(16:18, 16:18) = -new_origin_att_rel;
+        //  origin rotation
+        // 'SLAM_upd:416' J(16:18, xt.anchor_states(xt.origin.anchor_idx).P_idx) = [zeros(3), -eye(3)]; 
+        eye(c_xt);
+        for (i50 = 0; i50 < 3; i50++) {
+          for (i = 0; i < 3; i++) {
+            J[(i + 105 * (b_xt->anchor_states[b_xt->origin.anchor_idx - 1]
+                          .P_idx[i50] - 1)) + 15] = 0.0;
+          }
+        }
+
+        for (i50 = 0; i50 < 3; i50++) {
+          for (i = 0; i < 3; i++) {
+            J[(i + 105 * (b_xt->anchor_states[b_xt->origin.anchor_idx - 1]
+                          .P_idx[i50 + 3] - 1)) + 15] = -c_xt[i + 3 * i50];
+          }
+        }
+
+        // 'SLAM_upd:418' for anchorIdx = 1:numAnchors
+        for (anchorIdx = 0; anchorIdx < 6; anchorIdx++) {
+          // 'SLAM_upd:419' if anchorIdx == xt.origin.anchor_idx
           if (anchorIdx + 1 == b_xt->origin.anchor_idx) {
-            //  remove yaw uncertainty, but not pitch or roll
-            // 'SLAM_upd:417' J(xt.anchor_states(anchorIdx).P_idx, xt.anchor_states(anchorIdx).P_idx) = [zeros(3), zeros(3); zeros(3), zeros(3)]; 
+            // 'SLAM_upd:420' J(xt.anchor_states(anchorIdx).P_idx, xt.anchor_states(anchorIdx).P_idx) = [zeros(3), zeros(3); zeros(3), zeros(3)]; 
             for (i50 = 0; i50 < 6; i50++) {
               for (i = 0; i < 6; i++) {
-                J[(b_xt->anchor_states[anchorIdx].P_idx[i] + 91 *
+                J[(b_xt->anchor_states[anchorIdx].P_idx[i] + 105 *
                    (b_xt->anchor_states[anchorIdx].P_idx[i50] - 1)) - 1] = 0.0;
               }
             }
-
-            //  TODO: allow roll/pitch uncertainty
           } else {
-            // 'SLAM_upd:418' else
-            // 'SLAM_upd:419' J(xt.anchor_states(anchorIdx).P_idx, xt.anchor_states(anchorIdx).P_idx) = [new_origin_att_rel, zeros(3); zeros(3), eye(3)]; 
+            // 'SLAM_upd:421' else
+            // 'SLAM_upd:422' J(xt.anchor_states(anchorIdx).P_idx, xt.anchor_states(anchorIdx).P_idx) = [new_origin_att_rel, zeros(3);... 
+            // 'SLAM_upd:423'                                                                                                          zeros(3), -eye(3)]; 
             eye(c_xt);
             for (i50 = 0; i50 < 3; i50++) {
               for (i = 0; i < 3; i++) {
-                J[(b_xt->anchor_states[anchorIdx].P_idx[i] + 91 *
+                J[(b_xt->anchor_states[anchorIdx].P_idx[i] + 105 *
                    (b_xt->anchor_states[anchorIdx].P_idx[i50] - 1)) - 1] =
                   new_origin_att_rel[i + 3 * i50];
               }
@@ -8274,7 +8358,7 @@ static void SLAM_upd(double P_apr[8281], g_struct_T *b_xt, int
 
             for (i50 = 0; i50 < 3; i50++) {
               for (i = 0; i < 3; i++) {
-                J[(b_xt->anchor_states[anchorIdx].P_idx[i] + 91 *
+                J[(b_xt->anchor_states[anchorIdx].P_idx[i] + 105 *
                    (b_xt->anchor_states[anchorIdx].P_idx[i50 + 3] - 1)) - 1] =
                   0.0;
               }
@@ -8282,17 +8366,18 @@ static void SLAM_upd(double P_apr[8281], g_struct_T *b_xt, int
 
             for (i50 = 0; i50 < 3; i50++) {
               for (i = 0; i < 3; i++) {
-                J[(b_xt->anchor_states[anchorIdx].P_idx[i + 3] + 91 *
+                J[(b_xt->anchor_states[anchorIdx].P_idx[i + 3] + 105 *
                    (b_xt->anchor_states[anchorIdx].P_idx[i50] - 1)) - 1] = 0.0;
               }
             }
 
-            // 'SLAM_upd:420' J(xt.anchor_states(anchorIdx).P_idx, xt.anchor_states(xt.origin.anchor_idx).P_idx) = [-new_origin_att_rel, skew(new_origin_att_rel * (xt.anchor_states(anchorIdx).pos - new_origin_pos_rel)); zeros(3), -new_origin_att_rel']; 
+            // 'SLAM_upd:424' J(xt.anchor_states(anchorIdx).P_idx, xt.anchor_states(xt.origin.anchor_idx).P_idx) = [-new_origin_att_rel, skew(new_origin_att_rel * (xt.anchor_states(anchorIdx).pos - new_origin_pos_rel));... 
+            // 'SLAM_upd:425'                                                                                                                      zeros(3), RotFromQuatJ(xt.anchor_states(anchorIdx).att) * new_origin_att_rel']; 
             for (i50 = 0; i50 < 3; i50++) {
               for (i = 0; i < 3; i++) {
-                J[(b_xt->anchor_states[anchorIdx].P_idx[i + 3] + 91 *
+                J[(b_xt->anchor_states[anchorIdx].P_idx[i + 3] + 105 *
                    (b_xt->anchor_states[anchorIdx].P_idx[i50 + 3] - 1)) - 1] =
-                  c_xt[i + 3 * i50];
+                  -c_xt[i + 3 * i50];
               }
 
               d_xt[i50] = b_xt->anchor_states[anchorIdx].pos[i50] -
@@ -8302,46 +8387,109 @@ static void SLAM_upd(double P_apr[8281], g_struct_T *b_xt, int
             // 'skew:2' R=[0,-w(3),w(2);
             // 'skew:3'     w(3),0,-w(1);
             // 'skew:4'     -w(2),w(1),0];
+            //  if ~all(size(q) == [4, 1])
+            //      error('q does not have the size of a quaternion')
+            //  end
+            //  if abs(norm(q) - 1) > 1e-3
+            //      error('The provided quaternion is not a valid rotation quaternion because it does not have norm 1') 
+            //  end
+            // 'RotFromQuatJ:10' R=[q(1)^2-q(2)^2-q(3)^2+q(4)^2, 2*(q(1)*q(2)+q(3)*q(4)), 2*(q(1)*q(3)-q(2)*q(4)); 
+            // 'RotFromQuatJ:11'     2*(q(1)*q(2)-q(3)*q(4)),-q(1)^2+q(2)^2-q(3)^2+q(4)^2, 2*(q(2)*q(3)+q(1)*q(4)); 
+            // 'RotFromQuatJ:12'     2*(q(1)*q(3)+q(2)*q(4)), 2*(q(2)*q(3)-q(1)*q(4)),-q(1)^2-q(2)^2+q(3)^2+q(4)^2]; 
+            f_xt[0] = ((b_xt->anchor_states[anchorIdx].att[0] *
+                        b_xt->anchor_states[anchorIdx].att[0] -
+                        b_xt->anchor_states[anchorIdx].att[1] *
+                        b_xt->anchor_states[anchorIdx].att[1]) -
+                       b_xt->anchor_states[anchorIdx].att[2] *
+                       b_xt->anchor_states[anchorIdx].att[2]) +
+              b_xt->anchor_states[anchorIdx].att[3] * b_xt->
+              anchor_states[anchorIdx].att[3];
+            f_xt[3] = 2.0 * (b_xt->anchor_states[anchorIdx].att[0] *
+                             b_xt->anchor_states[anchorIdx].att[1] +
+                             b_xt->anchor_states[anchorIdx].att[2] *
+                             b_xt->anchor_states[anchorIdx].att[3]);
+            f_xt[6] = 2.0 * (b_xt->anchor_states[anchorIdx].att[0] *
+                             b_xt->anchor_states[anchorIdx].att[2] -
+                             b_xt->anchor_states[anchorIdx].att[1] *
+                             b_xt->anchor_states[anchorIdx].att[3]);
+            f_xt[1] = 2.0 * (b_xt->anchor_states[anchorIdx].att[0] *
+                             b_xt->anchor_states[anchorIdx].att[1] -
+                             b_xt->anchor_states[anchorIdx].att[2] *
+                             b_xt->anchor_states[anchorIdx].att[3]);
+            f_xt[4] = ((-(b_xt->anchor_states[anchorIdx].att[0] *
+                          b_xt->anchor_states[anchorIdx].att[0]) +
+                        b_xt->anchor_states[anchorIdx].att[1] *
+                        b_xt->anchor_states[anchorIdx].att[1]) -
+                       b_xt->anchor_states[anchorIdx].att[2] *
+                       b_xt->anchor_states[anchorIdx].att[2]) +
+              b_xt->anchor_states[anchorIdx].att[3] * b_xt->
+              anchor_states[anchorIdx].att[3];
+            f_xt[7] = 2.0 * (b_xt->anchor_states[anchorIdx].att[1] *
+                             b_xt->anchor_states[anchorIdx].att[2] +
+                             b_xt->anchor_states[anchorIdx].att[0] *
+                             b_xt->anchor_states[anchorIdx].att[3]);
+            f_xt[2] = 2.0 * (b_xt->anchor_states[anchorIdx].att[0] *
+                             b_xt->anchor_states[anchorIdx].att[2] +
+                             b_xt->anchor_states[anchorIdx].att[1] *
+                             b_xt->anchor_states[anchorIdx].att[3]);
+            f_xt[5] = 2.0 * (b_xt->anchor_states[anchorIdx].att[1] *
+                             b_xt->anchor_states[anchorIdx].att[2] -
+                             b_xt->anchor_states[anchorIdx].att[0] *
+                             b_xt->anchor_states[anchorIdx].att[3]);
+            f_xt[8] = ((-(b_xt->anchor_states[anchorIdx].att[0] *
+                          b_xt->anchor_states[anchorIdx].att[0]) -
+                        b_xt->anchor_states[anchorIdx].att[1] *
+                        b_xt->anchor_states[anchorIdx].att[1]) +
+                       b_xt->anchor_states[anchorIdx].att[2] *
+                       b_xt->anchor_states[anchorIdx].att[2]) +
+              b_xt->anchor_states[anchorIdx].att[3] * b_xt->
+              anchor_states[anchorIdx].att[3];
             for (i50 = 0; i50 < 3; i50++) {
               m_l[i50] = 0.0;
               for (i = 0; i < 3; i++) {
-                J[(b_xt->anchor_states[anchorIdx].P_idx[i] + 91 *
+                m_l[i50] += new_origin_att_rel[i50 + 3 * i] * d_xt[i];
+                e_xt[i50 + 3 * i] = 0.0;
+                for (idx = 0; idx < 3; idx++) {
+                  e_xt[i50 + 3 * i] += f_xt[i50 + 3 * idx] *
+                    new_origin_att_rel[i + 3 * idx];
+                }
+
+                J[(b_xt->anchor_states[anchorIdx].P_idx[i] + 105 *
                    (b_xt->anchor_states[b_xt->origin.anchor_idx - 1].P_idx[i50]
                     - 1)) - 1] = -new_origin_att_rel[i + 3 * i50];
-                m_l[i50] += new_origin_att_rel[i50 + 3 * i] * d_xt[i];
               }
             }
 
-            J[(b_xt->anchor_states[anchorIdx].P_idx[0] + 91 *
+            J[(b_xt->anchor_states[anchorIdx].P_idx[0] + 105 *
                (b_xt->anchor_states[b_xt->origin.anchor_idx - 1].P_idx[3] - 1))
               - 1] = 0.0;
-            J[(b_xt->anchor_states[anchorIdx].P_idx[0] + 91 *
+            J[(b_xt->anchor_states[anchorIdx].P_idx[0] + 105 *
                (b_xt->anchor_states[b_xt->origin.anchor_idx - 1].P_idx[4] - 1))
               - 1] = -m_l[2];
-            J[(b_xt->anchor_states[anchorIdx].P_idx[0] + 91 *
+            J[(b_xt->anchor_states[anchorIdx].P_idx[0] + 105 *
                (b_xt->anchor_states[b_xt->origin.anchor_idx - 1].P_idx[5] - 1))
               - 1] = m_l[1];
-            J[(b_xt->anchor_states[anchorIdx].P_idx[1] + 91 *
+            J[(b_xt->anchor_states[anchorIdx].P_idx[1] + 105 *
                (b_xt->anchor_states[b_xt->origin.anchor_idx - 1].P_idx[3] - 1))
               - 1] = m_l[2];
-            J[(b_xt->anchor_states[anchorIdx].P_idx[1] + 91 *
+            J[(b_xt->anchor_states[anchorIdx].P_idx[1] + 105 *
                (b_xt->anchor_states[b_xt->origin.anchor_idx - 1].P_idx[4] - 1))
               - 1] = 0.0;
-            J[(b_xt->anchor_states[anchorIdx].P_idx[1] + 91 *
+            J[(b_xt->anchor_states[anchorIdx].P_idx[1] + 105 *
                (b_xt->anchor_states[b_xt->origin.anchor_idx - 1].P_idx[5] - 1))
               - 1] = -m_l[0];
-            J[(b_xt->anchor_states[anchorIdx].P_idx[2] + 91 *
+            J[(b_xt->anchor_states[anchorIdx].P_idx[2] + 105 *
                (b_xt->anchor_states[b_xt->origin.anchor_idx - 1].P_idx[3] - 1))
               - 1] = -m_l[1];
-            J[(b_xt->anchor_states[anchorIdx].P_idx[2] + 91 *
+            J[(b_xt->anchor_states[anchorIdx].P_idx[2] + 105 *
                (b_xt->anchor_states[b_xt->origin.anchor_idx - 1].P_idx[4] - 1))
               - 1] = m_l[0];
-            J[(b_xt->anchor_states[anchorIdx].P_idx[2] + 91 *
+            J[(b_xt->anchor_states[anchorIdx].P_idx[2] + 105 *
                (b_xt->anchor_states[b_xt->origin.anchor_idx - 1].P_idx[5] - 1))
               - 1] = 0.0;
             for (i50 = 0; i50 < 3; i50++) {
               for (i = 0; i < 3; i++) {
-                J[(b_xt->anchor_states[anchorIdx].P_idx[i + 3] + 91 *
+                J[(b_xt->anchor_states[anchorIdx].P_idx[i + 3] + 105 *
                    (b_xt->anchor_states[b_xt->origin.anchor_idx - 1].P_idx[i50]
                     - 1)) - 1] = 0.0;
               }
@@ -8349,21 +8497,21 @@ static void SLAM_upd(double P_apr[8281], g_struct_T *b_xt, int
 
             for (i50 = 0; i50 < 3; i50++) {
               for (i = 0; i < 3; i++) {
-                J[(b_xt->anchor_states[anchorIdx].P_idx[i + 3] + 91 *
+                J[(b_xt->anchor_states[anchorIdx].P_idx[i + 3] + 105 *
                    (b_xt->anchor_states[b_xt->origin.anchor_idx - 1].P_idx[i50 +
-                    3] - 1)) - 1] = -new_origin_att_rel[i50 + 3 * i];
+                    3] - 1)) - 1] = e_xt[i + 3 * i50];
               }
             }
           }
 
-          // 'SLAM_upd:423' xt.anchor_states(anchorIdx).pos = new_origin_att_rel * (xt.anchor_states(anchorIdx).pos - new_origin_pos_rel); 
+          // 'SLAM_upd:428' xt.anchor_states(anchorIdx).pos = new_origin_att_rel * (xt.anchor_states(anchorIdx).pos - new_origin_pos_rel); 
           for (i = 0; i < 3; i++) {
             m_l[i] = b_xt->anchor_states[anchorIdx].pos[i] -
               new_origin_pos_rel[i];
             b_xt->anchor_states[anchorIdx].pos[i] = 0.0;
           }
 
-          // 'SLAM_upd:424' xt.anchor_states(anchorIdx).att = QuatFromRotJ(RotFromQuatJ(xt.anchor_states(anchorIdx).att) * new_origin_att_rel'); 
+          // 'SLAM_upd:429' xt.anchor_states(anchorIdx).att = QuatFromRotJ(RotFromQuatJ(xt.anchor_states(anchorIdx).att) * new_origin_att_rel'); 
           //  if ~all(size(q) == [4, 1])
           //      error('q does not have the size of a quaternion')
           //  end
@@ -8373,7 +8521,7 @@ static void SLAM_upd(double P_apr[8281], g_struct_T *b_xt, int
           // 'RotFromQuatJ:10' R=[q(1)^2-q(2)^2-q(3)^2+q(4)^2, 2*(q(1)*q(2)+q(3)*q(4)), 2*(q(1)*q(3)-q(2)*q(4)); 
           // 'RotFromQuatJ:11'     2*(q(1)*q(2)-q(3)*q(4)),-q(1)^2+q(2)^2-q(3)^2+q(4)^2, 2*(q(2)*q(3)+q(1)*q(4)); 
           // 'RotFromQuatJ:12'     2*(q(1)*q(3)+q(2)*q(4)), 2*(q(2)*q(3)-q(1)*q(4)),-q(1)^2-q(2)^2+q(3)^2+q(4)^2]; 
-          e_xt[0] = ((b_xt->anchor_states[anchorIdx].att[0] *
+          g_xt[0] = ((b_xt->anchor_states[anchorIdx].att[0] *
                       b_xt->anchor_states[anchorIdx].att[0] -
                       b_xt->anchor_states[anchorIdx].att[1] *
                       b_xt->anchor_states[anchorIdx].att[1]) -
@@ -8381,19 +8529,19 @@ static void SLAM_upd(double P_apr[8281], g_struct_T *b_xt, int
                      anchor_states[anchorIdx].att[2]) + b_xt->
             anchor_states[anchorIdx].att[3] * b_xt->anchor_states[anchorIdx]
             .att[3];
-          e_xt[3] = 2.0 * (b_xt->anchor_states[anchorIdx].att[0] *
+          g_xt[3] = 2.0 * (b_xt->anchor_states[anchorIdx].att[0] *
                            b_xt->anchor_states[anchorIdx].att[1] +
                            b_xt->anchor_states[anchorIdx].att[2] *
                            b_xt->anchor_states[anchorIdx].att[3]);
-          e_xt[6] = 2.0 * (b_xt->anchor_states[anchorIdx].att[0] *
+          g_xt[6] = 2.0 * (b_xt->anchor_states[anchorIdx].att[0] *
                            b_xt->anchor_states[anchorIdx].att[2] -
                            b_xt->anchor_states[anchorIdx].att[1] *
                            b_xt->anchor_states[anchorIdx].att[3]);
-          e_xt[1] = 2.0 * (b_xt->anchor_states[anchorIdx].att[0] *
+          g_xt[1] = 2.0 * (b_xt->anchor_states[anchorIdx].att[0] *
                            b_xt->anchor_states[anchorIdx].att[1] -
                            b_xt->anchor_states[anchorIdx].att[2] *
                            b_xt->anchor_states[anchorIdx].att[3]);
-          e_xt[4] = ((-(b_xt->anchor_states[anchorIdx].att[0] *
+          g_xt[4] = ((-(b_xt->anchor_states[anchorIdx].att[0] *
                         b_xt->anchor_states[anchorIdx].att[0]) +
                       b_xt->anchor_states[anchorIdx].att[1] *
                       b_xt->anchor_states[anchorIdx].att[1]) -
@@ -8401,19 +8549,19 @@ static void SLAM_upd(double P_apr[8281], g_struct_T *b_xt, int
                      anchor_states[anchorIdx].att[2]) + b_xt->
             anchor_states[anchorIdx].att[3] * b_xt->anchor_states[anchorIdx]
             .att[3];
-          e_xt[7] = 2.0 * (b_xt->anchor_states[anchorIdx].att[1] *
+          g_xt[7] = 2.0 * (b_xt->anchor_states[anchorIdx].att[1] *
                            b_xt->anchor_states[anchorIdx].att[2] +
                            b_xt->anchor_states[anchorIdx].att[0] *
                            b_xt->anchor_states[anchorIdx].att[3]);
-          e_xt[2] = 2.0 * (b_xt->anchor_states[anchorIdx].att[0] *
+          g_xt[2] = 2.0 * (b_xt->anchor_states[anchorIdx].att[0] *
                            b_xt->anchor_states[anchorIdx].att[2] +
                            b_xt->anchor_states[anchorIdx].att[1] *
                            b_xt->anchor_states[anchorIdx].att[3]);
-          e_xt[5] = 2.0 * (b_xt->anchor_states[anchorIdx].att[1] *
+          g_xt[5] = 2.0 * (b_xt->anchor_states[anchorIdx].att[1] *
                            b_xt->anchor_states[anchorIdx].att[2] -
                            b_xt->anchor_states[anchorIdx].att[0] *
                            b_xt->anchor_states[anchorIdx].att[3]);
-          e_xt[8] = ((-(b_xt->anchor_states[anchorIdx].att[0] *
+          g_xt[8] = ((-(b_xt->anchor_states[anchorIdx].att[0] *
                         b_xt->anchor_states[anchorIdx].att[0]) -
                       b_xt->anchor_states[anchorIdx].att[1] *
                       b_xt->anchor_states[anchorIdx].att[1]) +
@@ -8426,42 +8574,42 @@ static void SLAM_upd(double P_apr[8281], g_struct_T *b_xt, int
             for (i = 0; i < 3; i++) {
               b_xt->anchor_states[anchorIdx].pos[i50] += new_origin_att_rel[i50
                 + 3 * i] * m_l[i];
-              c_xt[i50 + 3 * i] = 0.0;
+              e_xt[i50 + 3 * i] = 0.0;
               for (idx = 0; idx < 3; idx++) {
-                c_xt[i50 + 3 * i] += e_xt[i50 + 3 * idx] * new_origin_att_rel[i
+                e_xt[i50 + 3 * i] += g_xt[i50 + 3 * idx] * new_origin_att_rel[i
                   + 3 * idx];
               }
             }
           }
 
-          QuatFromRotJ(c_xt, b_xt->anchor_states[anchorIdx].att);
+          QuatFromRotJ(e_xt, b_xt->anchor_states[anchorIdx].att);
         }
 
-        // 'SLAM_upd:427' P_apo = J * P_apo * J';
-        for (i50 = 0; i50 < 91; i50++) {
-          for (i = 0; i < 91; i++) {
-            b_J[i50 + 91 * i] = 0.0;
-            for (idx = 0; idx < 91; idx++) {
-              b_J[i50 + 91 * i] += J[i50 + 91 * idx] * P_apr[idx + 91 * i];
+        // 'SLAM_upd:432' P_apo = J * P_apo * J';
+        for (i50 = 0; i50 < 105; i50++) {
+          for (i = 0; i < 105; i++) {
+            b_J[i50 + 105 * i] = 0.0;
+            for (idx = 0; idx < 105; idx++) {
+              b_J[i50 + 105 * i] += J[i50 + 105 * idx] * P_apr[idx + 105 * i];
             }
           }
         }
 
-        for (i50 = 0; i50 < 91; i50++) {
-          for (i = 0; i < 91; i++) {
-            P_apr[i50 + 91 * i] = 0.0;
-            for (idx = 0; idx < 91; idx++) {
-              P_apr[i50 + 91 * i] += b_J[i50 + 91 * idx] * J[i + 91 * idx];
+        for (i50 = 0; i50 < 105; i50++) {
+          for (i = 0; i < 105; i++) {
+            P_apr[i50 + 105 * i] = 0.0;
+            for (idx = 0; idx < 105; idx++) {
+              P_apr[i50 + 105 * i] += b_J[i50 + 105 * idx] * J[i + 105 * idx];
             }
           }
         }
 
-        // 'SLAM_upd:429' xt.robot_state.pos = new_origin_att_rel * (xt.robot_state.pos - new_origin_pos_rel); 
+        // 'SLAM_upd:434' xt.robot_state.pos = new_origin_att_rel * (xt.robot_state.pos - new_origin_pos_rel); 
         for (i50 = 0; i50 < 3; i50++) {
           d_xt[i50] = b_xt->robot_state.pos[i50] - new_origin_pos_rel[i50];
         }
 
-        // 'SLAM_upd:430' xt.robot_state.att = QuatFromRotJ(RotFromQuatJ(xt.robot_state.att) * new_origin_att_rel'); 
+        // 'SLAM_upd:435' xt.robot_state.att = QuatFromRotJ(RotFromQuatJ(xt.robot_state.att) * new_origin_att_rel'); 
         //  if ~all(size(q) == [4, 1])
         //      error('q does not have the size of a quaternion')
         //  end
@@ -8471,27 +8619,27 @@ static void SLAM_upd(double P_apr[8281], g_struct_T *b_xt, int
         // 'RotFromQuatJ:10' R=[q(1)^2-q(2)^2-q(3)^2+q(4)^2, 2*(q(1)*q(2)+q(3)*q(4)), 2*(q(1)*q(3)-q(2)*q(4)); 
         // 'RotFromQuatJ:11'     2*(q(1)*q(2)-q(3)*q(4)),-q(1)^2+q(2)^2-q(3)^2+q(4)^2, 2*(q(2)*q(3)+q(1)*q(4)); 
         // 'RotFromQuatJ:12'     2*(q(1)*q(3)+q(2)*q(4)), 2*(q(2)*q(3)-q(1)*q(4)),-q(1)^2-q(2)^2+q(3)^2+q(4)^2]; 
-        f_xt[0] = ((b_xt->robot_state.att[0] * b_xt->robot_state.att[0] -
+        h_xt[0] = ((b_xt->robot_state.att[0] * b_xt->robot_state.att[0] -
                     b_xt->robot_state.att[1] * b_xt->robot_state.att[1]) -
                    b_xt->robot_state.att[2] * b_xt->robot_state.att[2]) +
           b_xt->robot_state.att[3] * b_xt->robot_state.att[3];
-        f_xt[3] = 2.0 * (b_xt->robot_state.att[0] * b_xt->robot_state.att[1] +
+        h_xt[3] = 2.0 * (b_xt->robot_state.att[0] * b_xt->robot_state.att[1] +
                          b_xt->robot_state.att[2] * b_xt->robot_state.att[3]);
-        f_xt[6] = 2.0 * (b_xt->robot_state.att[0] * b_xt->robot_state.att[2] -
+        h_xt[6] = 2.0 * (b_xt->robot_state.att[0] * b_xt->robot_state.att[2] -
                          b_xt->robot_state.att[1] * b_xt->robot_state.att[3]);
-        f_xt[1] = 2.0 * (b_xt->robot_state.att[0] * b_xt->robot_state.att[1] -
+        h_xt[1] = 2.0 * (b_xt->robot_state.att[0] * b_xt->robot_state.att[1] -
                          b_xt->robot_state.att[2] * b_xt->robot_state.att[3]);
-        f_xt[4] = ((-(b_xt->robot_state.att[0] * b_xt->robot_state.att[0]) +
+        h_xt[4] = ((-(b_xt->robot_state.att[0] * b_xt->robot_state.att[0]) +
                     b_xt->robot_state.att[1] * b_xt->robot_state.att[1]) -
                    b_xt->robot_state.att[2] * b_xt->robot_state.att[2]) +
           b_xt->robot_state.att[3] * b_xt->robot_state.att[3];
-        f_xt[7] = 2.0 * (b_xt->robot_state.att[1] * b_xt->robot_state.att[2] +
+        h_xt[7] = 2.0 * (b_xt->robot_state.att[1] * b_xt->robot_state.att[2] +
                          b_xt->robot_state.att[0] * b_xt->robot_state.att[3]);
-        f_xt[2] = 2.0 * (b_xt->robot_state.att[0] * b_xt->robot_state.att[2] +
+        h_xt[2] = 2.0 * (b_xt->robot_state.att[0] * b_xt->robot_state.att[2] +
                          b_xt->robot_state.att[1] * b_xt->robot_state.att[3]);
-        f_xt[5] = 2.0 * (b_xt->robot_state.att[1] * b_xt->robot_state.att[2] -
+        h_xt[5] = 2.0 * (b_xt->robot_state.att[1] * b_xt->robot_state.att[2] -
                          b_xt->robot_state.att[0] * b_xt->robot_state.att[3]);
-        f_xt[8] = ((-(b_xt->robot_state.att[0] * b_xt->robot_state.att[0]) -
+        h_xt[8] = ((-(b_xt->robot_state.att[0] * b_xt->robot_state.att[0]) -
                     b_xt->robot_state.att[1] * b_xt->robot_state.att[1]) +
                    b_xt->robot_state.att[2] * b_xt->robot_state.att[2]) +
           b_xt->robot_state.att[3] * b_xt->robot_state.att[3];
@@ -8500,17 +8648,17 @@ static void SLAM_upd(double P_apr[8281], g_struct_T *b_xt, int
           for (i = 0; i < 3; i++) {
             b_xt->robot_state.pos[i50] += new_origin_att_rel[i50 + 3 * i] *
               d_xt[i];
-            c_xt[i50 + 3 * i] = 0.0;
+            e_xt[i50 + 3 * i] = 0.0;
             for (idx = 0; idx < 3; idx++) {
-              c_xt[i50 + 3 * i] += f_xt[i50 + 3 * idx] * new_origin_att_rel[i +
+              e_xt[i50 + 3 * i] += h_xt[i50 + 3 * idx] * new_origin_att_rel[i +
                 3 * idx];
             }
           }
         }
 
-        QuatFromRotJ(c_xt, b_xt->robot_state.att);
+        QuatFromRotJ(e_xt, b_xt->robot_state.att);
 
-        // 'SLAM_upd:431' xt.robot_state.vel = new_origin_att_rel * xt.robot_state.vel; 
+        // 'SLAM_upd:436' xt.robot_state.vel = new_origin_att_rel * xt.robot_state.vel; 
         for (i50 = 0; i50 < 3; i50++) {
           d_xt[i50] = 0.0;
           for (i = 0; i < 3; i++) {
@@ -8519,7 +8667,7 @@ static void SLAM_upd(double P_apr[8281], g_struct_T *b_xt, int
           }
         }
 
-        // 'SLAM_upd:433' xt.origin.pos = xt.origin.pos + RotFromQuatJ(xt.origin.att)' * new_origin_pos_rel; 
+        // 'SLAM_upd:438' xt.origin.pos = xt.origin.pos + RotFromQuatJ(xt.origin.att)' * new_origin_pos_rel; 
         //  if ~all(size(q) == [4, 1])
         //      error('q does not have the size of a quaternion')
         //  end
@@ -8529,33 +8677,33 @@ static void SLAM_upd(double P_apr[8281], g_struct_T *b_xt, int
         // 'RotFromQuatJ:10' R=[q(1)^2-q(2)^2-q(3)^2+q(4)^2, 2*(q(1)*q(2)+q(3)*q(4)), 2*(q(1)*q(3)-q(2)*q(4)); 
         // 'RotFromQuatJ:11'     2*(q(1)*q(2)-q(3)*q(4)),-q(1)^2+q(2)^2-q(3)^2+q(4)^2, 2*(q(2)*q(3)+q(1)*q(4)); 
         // 'RotFromQuatJ:12'     2*(q(1)*q(3)+q(2)*q(4)), 2*(q(2)*q(3)-q(1)*q(4)),-q(1)^2-q(2)^2+q(3)^2+q(4)^2]; 
-        g_xt[0] = ((b_xt->origin.att[0] * b_xt->origin.att[0] - b_xt->
+        i_xt[0] = ((b_xt->origin.att[0] * b_xt->origin.att[0] - b_xt->
                     origin.att[1] * b_xt->origin.att[1]) - b_xt->origin.att[2] *
                    b_xt->origin.att[2]) + b_xt->origin.att[3] * b_xt->
           origin.att[3];
-        g_xt[1] = 2.0 * (b_xt->origin.att[0] * b_xt->origin.att[1] +
+        i_xt[1] = 2.0 * (b_xt->origin.att[0] * b_xt->origin.att[1] +
                          b_xt->origin.att[2] * b_xt->origin.att[3]);
-        g_xt[2] = 2.0 * (b_xt->origin.att[0] * b_xt->origin.att[2] -
+        i_xt[2] = 2.0 * (b_xt->origin.att[0] * b_xt->origin.att[2] -
                          b_xt->origin.att[1] * b_xt->origin.att[3]);
-        g_xt[3] = 2.0 * (b_xt->origin.att[0] * b_xt->origin.att[1] -
+        i_xt[3] = 2.0 * (b_xt->origin.att[0] * b_xt->origin.att[1] -
                          b_xt->origin.att[2] * b_xt->origin.att[3]);
-        g_xt[4] = ((-(b_xt->origin.att[0] * b_xt->origin.att[0]) +
+        i_xt[4] = ((-(b_xt->origin.att[0] * b_xt->origin.att[0]) +
                     b_xt->origin.att[1] * b_xt->origin.att[1]) -
                    b_xt->origin.att[2] * b_xt->origin.att[2]) + b_xt->
           origin.att[3] * b_xt->origin.att[3];
-        g_xt[5] = 2.0 * (b_xt->origin.att[1] * b_xt->origin.att[2] +
+        i_xt[5] = 2.0 * (b_xt->origin.att[1] * b_xt->origin.att[2] +
                          b_xt->origin.att[0] * b_xt->origin.att[3]);
-        g_xt[6] = 2.0 * (b_xt->origin.att[0] * b_xt->origin.att[2] +
+        i_xt[6] = 2.0 * (b_xt->origin.att[0] * b_xt->origin.att[2] +
                          b_xt->origin.att[1] * b_xt->origin.att[3]);
-        g_xt[7] = 2.0 * (b_xt->origin.att[1] * b_xt->origin.att[2] -
+        i_xt[7] = 2.0 * (b_xt->origin.att[1] * b_xt->origin.att[2] -
                          b_xt->origin.att[0] * b_xt->origin.att[3]);
-        g_xt[8] = ((-(b_xt->origin.att[0] * b_xt->origin.att[0]) -
+        i_xt[8] = ((-(b_xt->origin.att[0] * b_xt->origin.att[0]) -
                     b_xt->origin.att[1] * b_xt->origin.att[1]) +
                    b_xt->origin.att[2] * b_xt->origin.att[2]) + b_xt->
           origin.att[3] * b_xt->origin.att[3];
 
         //  in world frame
-        // 'SLAM_upd:434' xt.origin.att = QuatFromRotJ(new_origin_att_rel * RotFromQuatJ(xt.origin.att)); 
+        // 'SLAM_upd:439' xt.origin.att = QuatFromRotJ(new_origin_att_rel * RotFromQuatJ(xt.origin.att)); 
         //  if ~all(size(q) == [4, 1])
         //      error('q does not have the size of a quaternion')
         //  end
@@ -8565,27 +8713,27 @@ static void SLAM_upd(double P_apr[8281], g_struct_T *b_xt, int
         // 'RotFromQuatJ:10' R=[q(1)^2-q(2)^2-q(3)^2+q(4)^2, 2*(q(1)*q(2)+q(3)*q(4)), 2*(q(1)*q(3)-q(2)*q(4)); 
         // 'RotFromQuatJ:11'     2*(q(1)*q(2)-q(3)*q(4)),-q(1)^2+q(2)^2-q(3)^2+q(4)^2, 2*(q(2)*q(3)+q(1)*q(4)); 
         // 'RotFromQuatJ:12'     2*(q(1)*q(3)+q(2)*q(4)), 2*(q(2)*q(3)-q(1)*q(4)),-q(1)^2-q(2)^2+q(3)^2+q(4)^2]; 
-        h_xt[0] = ((b_xt->origin.att[0] * b_xt->origin.att[0] - b_xt->
+        j_xt[0] = ((b_xt->origin.att[0] * b_xt->origin.att[0] - b_xt->
                     origin.att[1] * b_xt->origin.att[1]) - b_xt->origin.att[2] *
                    b_xt->origin.att[2]) + b_xt->origin.att[3] * b_xt->
           origin.att[3];
-        h_xt[3] = 2.0 * (b_xt->origin.att[0] * b_xt->origin.att[1] +
+        j_xt[3] = 2.0 * (b_xt->origin.att[0] * b_xt->origin.att[1] +
                          b_xt->origin.att[2] * b_xt->origin.att[3]);
-        h_xt[6] = 2.0 * (b_xt->origin.att[0] * b_xt->origin.att[2] -
+        j_xt[6] = 2.0 * (b_xt->origin.att[0] * b_xt->origin.att[2] -
                          b_xt->origin.att[1] * b_xt->origin.att[3]);
-        h_xt[1] = 2.0 * (b_xt->origin.att[0] * b_xt->origin.att[1] -
+        j_xt[1] = 2.0 * (b_xt->origin.att[0] * b_xt->origin.att[1] -
                          b_xt->origin.att[2] * b_xt->origin.att[3]);
-        h_xt[4] = ((-(b_xt->origin.att[0] * b_xt->origin.att[0]) +
+        j_xt[4] = ((-(b_xt->origin.att[0] * b_xt->origin.att[0]) +
                     b_xt->origin.att[1] * b_xt->origin.att[1]) -
                    b_xt->origin.att[2] * b_xt->origin.att[2]) + b_xt->
           origin.att[3] * b_xt->origin.att[3];
-        h_xt[7] = 2.0 * (b_xt->origin.att[1] * b_xt->origin.att[2] +
+        j_xt[7] = 2.0 * (b_xt->origin.att[1] * b_xt->origin.att[2] +
                          b_xt->origin.att[0] * b_xt->origin.att[3]);
-        h_xt[2] = 2.0 * (b_xt->origin.att[0] * b_xt->origin.att[2] +
+        j_xt[2] = 2.0 * (b_xt->origin.att[0] * b_xt->origin.att[2] +
                          b_xt->origin.att[1] * b_xt->origin.att[3]);
-        h_xt[5] = 2.0 * (b_xt->origin.att[1] * b_xt->origin.att[2] -
+        j_xt[5] = 2.0 * (b_xt->origin.att[1] * b_xt->origin.att[2] -
                          b_xt->origin.att[0] * b_xt->origin.att[3]);
-        h_xt[8] = ((-(b_xt->origin.att[0] * b_xt->origin.att[0]) -
+        j_xt[8] = ((-(b_xt->origin.att[0] * b_xt->origin.att[0]) -
                     b_xt->origin.att[1] * b_xt->origin.att[1]) +
                    b_xt->origin.att[2] * b_xt->origin.att[2]) + b_xt->
           origin.att[3] * b_xt->origin.att[3];
@@ -8593,10 +8741,10 @@ static void SLAM_upd(double P_apr[8281], g_struct_T *b_xt, int
           b_xt->robot_state.vel[i50] = d_xt[i50];
           mtmp = 0.0;
           for (i = 0; i < 3; i++) {
-            mtmp += g_xt[i50 + 3 * i] * new_origin_pos_rel[i];
+            mtmp += i_xt[i50 + 3 * i] * new_origin_pos_rel[i];
             c_xt[i50 + 3 * i] = 0.0;
             for (idx = 0; idx < 3; idx++) {
-              c_xt[i50 + 3 * i] += new_origin_att_rel[i50 + 3 * idx] * h_xt[idx
+              c_xt[i50 + 3 * i] += new_origin_att_rel[i50 + 3 * idx] * j_xt[idx
                 + 3 * i];
             }
           }
@@ -8612,27 +8760,27 @@ static void SLAM_upd(double P_apr[8281], g_struct_T *b_xt, int
   }
 
   // % aposteriori measurement prediction
-  // 'SLAM_upd:440' [map] = getMap(xt);
+  // 'SLAM_upd:445' [map] = getMap(xt);
   getMap(b_xt->origin.pos, b_xt->origin.att, b_xt->anchor_states, b_map);
 
   //  get map for output
   //  xt = getScaledMap(xt); % update the scaled map for measurement prediction
   //  h_u_apo = zeros(numTrackFeatures*4,1);
-  // 'SLAM_upd:445' delayedStatus = zeros(size(updateVect));
-  memset(&b_delayedStatus[0], 0, 40U * sizeof(double));
+  // 'SLAM_upd:450' delayedStatus = zeros(size(updateVect));
+  memset(&b_delayedStatus[0], 0, 48U * sizeof(double));
 
-  // 'SLAM_upd:446' for anchorIdx = 1:numAnchors
-  for (anchorIdx = 0; anchorIdx < 5; anchorIdx++) {
-    // 'SLAM_upd:447' for featureIdx = 1:numPointsPerAnchor
+  // 'SLAM_upd:451' for anchorIdx = 1:numAnchors
+  for (anchorIdx = 0; anchorIdx < 6; anchorIdx++) {
+    // 'SLAM_upd:452' for featureIdx = 1:numPointsPerAnchor
     for (featureIdx = 0; featureIdx < 8; featureIdx++) {
-      // 'SLAM_upd:448' if xt.anchor_states(anchorIdx).feature_states(featureIdx).status 
+      // 'SLAM_upd:453' if xt.anchor_states(anchorIdx).feature_states(featureIdx).status 
       if ((b_xt->anchor_states[anchorIdx].feature_states[featureIdx].status != 0)
           && (b_xt->anchor_states[anchorIdx].feature_states[featureIdx].status ==
               2)) {
         //              [h_u_l, h_u_r] = predictMeasurementStereoDistorted(xt.anchor_states(anchorIdx).feature_states(featureIdx).scaled_map_point, cameraParams); 
         //              h_u_apo((xt.anchor_states(anchorIdx).feature_states(featureIdx).status_idx - 1)*measDim + int32(1:measDim)) = [h_u_l; h_u_r]; 
-        // 'SLAM_upd:451' if xt.anchor_states(anchorIdx).feature_states(featureIdx).status == 2 
-        // 'SLAM_upd:452' delayedStatus(xt.anchor_states(anchorIdx).feature_states(featureIdx).status_idx) = 1; 
+        // 'SLAM_upd:456' if xt.anchor_states(anchorIdx).feature_states(featureIdx).status == 2 
+        // 'SLAM_upd:457' delayedStatus(xt.anchor_states(anchorIdx).feature_states(featureIdx).status_idx) = 1; 
         b_delayedStatus[b_xt->anchor_states[anchorIdx].feature_states[featureIdx]
           .status_idx - 1] = 1.0;
       }
@@ -8641,10 +8789,10 @@ static void SLAM_upd(double P_apr[8281], g_struct_T *b_xt, int
 }
 
 //
-// Arguments    : const boolean_T x[40]
+// Arguments    : const boolean_T x[48]
 // Return Type  : boolean_T
 //
-static boolean_T any(const boolean_T x[40])
+static boolean_T any(const boolean_T x[48])
 {
   boolean_T y;
   int k;
@@ -8652,7 +8800,7 @@ static boolean_T any(const boolean_T x[40])
   y = false;
   k = 0;
   exitg1 = false;
-  while ((!exitg1) && (k < 40)) {
+  while ((!exitg1) && (k < 48)) {
     if (!!x[k]) {
       y = true;
       exitg1 = true;
@@ -8795,10 +8943,10 @@ static double b_fprintf()
 //  where M =  length(indMeas) is the number of valid points in the image
 // Arguments    : const double xt_robot_state_pos[3]
 //                const double xt_robot_state_att[4]
-//                const f_struct_T xt_anchor_states[5]
-//                const double z_all_l[80]
-//                const double z_all_r[80]
-//                const boolean_T b_status[40]
+//                const f_struct_T xt_anchor_states[6]
+//                const double z_all_l[96]
+//                const double z_all_r[96]
+//                const boolean_T b_status[48]
 //                const double c_stereoParams_CameraParameters[2]
 //                const double d_stereoParams_CameraParameters[2]
 //                const double e_stereoParams_CameraParameters[2]
@@ -8811,8 +8959,8 @@ static double b_fprintf()
 // Return Type  : void
 //
 static void b_getH_R_res(const double xt_robot_state_pos[3], const double
-  xt_robot_state_att[4], const f_struct_T xt_anchor_states[5], const double
-  z_all_l[80], const double z_all_r[80], const boolean_T b_status[40], const
+  xt_robot_state_att[4], const f_struct_T xt_anchor_states[6], const double
+  z_all_l[96], const double z_all_r[96], const boolean_T b_status[48], const
   double c_stereoParams_CameraParameters[2], const double
   d_stereoParams_CameraParameters[2], const double
   e_stereoParams_CameraParameters[2], const double
@@ -8889,7 +9037,7 @@ static void b_getH_R_res(const double xt_robot_state_pos[3], const double
   // 'getH_R_res:32' numErrorStatesPerAnchor = 6 + numPointsPerAnchor;
   // 'getH_R_res:34' numMeas = nnz(status);
   nm1d2 = 0;
-  for (cdiff = 0; cdiff < 40; cdiff++) {
+  for (cdiff = 0; cdiff < 48; cdiff++) {
     if (b_status[cdiff]) {
       nm1d2++;
     }
@@ -8944,9 +9092,9 @@ static void b_getH_R_res(const double xt_robot_state_pos[3], const double
   // 'getH_R_res:44' H = zeros(numMeas*residualDim, numStates + numAnchors*numErrorStatesPerAnchor); 
   i20 = H->size[0] * H->size[1];
   H->size[0] = (int)((double)nm1d2 * (double)residualDim);
-  H->size[1] = 91;
+  H->size[1] = 105;
   emxEnsureCapacity((emxArray__common *)H, i20, (int)sizeof(double));
-  cdiff = (int)((double)nm1d2 * (double)residualDim) * 91;
+  cdiff = (int)((double)nm1d2 * (double)residualDim) * 105;
   for (i20 = 0; i20 < cdiff; i20++) {
     H->data[i20] = 0.0;
   }
@@ -8967,7 +9115,7 @@ static void b_getH_R_res(const double xt_robot_state_pos[3], const double
   res_idx = 1U;
 
   // 'getH_R_res:53' for anchorIdx = 1:numAnchors
-  for (anchorIdx = 0; anchorIdx < 5; anchorIdx++) {
+  for (anchorIdx = 0; anchorIdx < 6; anchorIdx++) {
     // 'getH_R_res:54' anchorPos = xt.anchor_states(anchorIdx).pos;
     // 'getH_R_res:55' anchorRot = RotFromQuatJ(xt.anchor_states(anchorIdx).att); 
     //  if ~all(size(q) == [4, 1])
@@ -9410,35 +9558,40 @@ static void b_getH_R_res(const double xt_robot_state_pos[3], const double
               feature_states[featureIdx].inverse_depth * R_cw[i20];
           }
 
-          // 'getH_R_res:137' h_ci_l_To_anchorRot = -R_cw * skew(anchorRot'*m);
+          // 'getH_R_res:137' h_ci_l_To_anchorRot = -R_cw * anchorRot'*skew(m);
           // 'skew:2' R=[0,-w(3),w(2);
           // 'skew:3'     w(3),0,-w(1);
           // 'skew:4'     -w(2),w(1),0];
           for (i20 = 0; i20 < 3; i20++) {
-            fp_l[i20] = 0.0;
             for (cdiff = 0; cdiff < 3; cdiff++) {
               b_R_cw[cdiff + 3 * i20] = -R_cw[cdiff + 3 * i20];
-              fp_l[i20] += anchorRot[cdiff + 3 * i20] *
-                xt_anchor_states[anchorIdx].feature_states[featureIdx].m[cdiff];
             }
           }
 
           dv2[0] = 0.0;
-          dv2[3] = -fp_l[2];
-          dv2[6] = fp_l[1];
-          dv2[1] = fp_l[2];
+          dv2[3] = -xt_anchor_states[anchorIdx].feature_states[featureIdx].m[2];
+          dv2[6] = xt_anchor_states[anchorIdx].feature_states[featureIdx].m[1];
+          dv2[1] = xt_anchor_states[anchorIdx].feature_states[featureIdx].m[2];
           dv2[4] = 0.0;
-          dv2[7] = -fp_l[0];
-          dv2[2] = -fp_l[1];
-          dv2[5] = fp_l[0];
+          dv2[7] = -xt_anchor_states[anchorIdx].feature_states[featureIdx].m[0];
+          dv2[2] = -xt_anchor_states[anchorIdx].feature_states[featureIdx].m[1];
+          dv2[5] = xt_anchor_states[anchorIdx].feature_states[featureIdx].m[0];
           dv2[8] = 0.0;
 
           // 'getH_R_res:138' h_ci_l_To_rho       = R_cw * (anchorPos - r_wc);
           for (i20 = 0; i20 < 3; i20++) {
             for (cdiff = 0; cdiff < 3; cdiff++) {
+              c_R_cw[i20 + 3 * cdiff] = 0.0;
+              for (nm1d2 = 0; nm1d2 < 3; nm1d2++) {
+                c_R_cw[i20 + 3 * cdiff] += b_R_cw[i20 + 3 * nm1d2] *
+                  anchorRot[cdiff + 3 * nm1d2];
+              }
+            }
+
+            for (cdiff = 0; cdiff < 3; cdiff++) {
               h_ci_l_To_anchorRot[i20 + 3 * cdiff] = 0.0;
               for (nm1d2 = 0; nm1d2 < 3; nm1d2++) {
-                h_ci_l_To_anchorRot[i20 + 3 * cdiff] += b_R_cw[i20 + 3 * nm1d2] *
+                h_ci_l_To_anchorRot[i20 + 3 * cdiff] += c_R_cw[i20 + 3 * nm1d2] *
                   dv2[nm1d2 + 3 * cdiff];
               }
             }
@@ -11080,10 +11233,10 @@ static double b_xnrm2(int n, const emxArray_real_T *x, int ix0)
 }
 
 //
-// Arguments    : const double x[5]
+// Arguments    : const double x[6]
 // Return Type  : boolean_T
 //
-static boolean_T c_any(const double x[5])
+static boolean_T c_any(const double x[6])
 {
   boolean_T y;
   int k;
@@ -11092,7 +11245,7 @@ static boolean_T c_any(const double x[5])
   y = false;
   k = 0;
   exitg1 = false;
-  while ((!exitg1) && (k < 5)) {
+  while ((!exitg1) && (k < 6)) {
     if ((x[k] == 0.0) || rtIsNaN(x[k])) {
       b0 = true;
     } else {
@@ -11111,15 +11264,15 @@ static boolean_T c_any(const double x[5])
 }
 
 //
-// Arguments    : double I[8281]
+// Arguments    : double I[11025]
 // Return Type  : void
 //
-static void c_eye(double I[8281])
+static void c_eye(double I[11025])
 {
   int k;
-  memset(&I[0], 0, 8281U * sizeof(double));
-  for (k = 0; k < 91; k++) {
-    I[k + 91 * k] = 1.0;
+  memset(&I[0], 0, 11025U * sizeof(double));
+  for (k = 0; k < 105; k++) {
+    I[k + 105 * k] = 1.0;
   }
 }
 
@@ -11291,15 +11444,15 @@ static double c_xnrm2(int n, const emxArray_real_T *x, int ix0)
 }
 
 //
-// Arguments    : const struct_T x[5]
-//                AnchorPose y[5]
+// Arguments    : const struct_T x[6]
+//                AnchorPose y[6]
 // Return Type  : void
 //
-static void cast(const struct_T x[5], AnchorPose y[5])
+static void cast(const struct_T x[6], AnchorPose y[6])
 {
   int j;
   int i;
-  for (j = 0; j < 5; j++) {
+  for (j = 0; j < 6; j++) {
     for (i = 0; i < 3; i++) {
       y[j].pos[i] = x[j].pos[i];
     }
@@ -11324,15 +11477,15 @@ static void cross(const double a[3], const double b[3], double c[3])
 }
 
 //
-// Arguments    : double I[8281]
+// Arguments    : double I[11025]
 // Return Type  : void
 //
-static void d_eye(double I[8281])
+static void d_eye(double I[11025])
 {
   int k;
-  memset(&I[0], 0, 8281U * sizeof(double));
-  for (k = 0; k < 91; k++) {
-    I[k + 91 * k] = 1.0;
+  memset(&I[0], 0, 11025U * sizeof(double));
+  for (k = 0; k < 105; k++) {
+    I[k + 105 * k] = 1.0;
   }
 }
 
@@ -12137,13 +12290,13 @@ static void g_ros_warn(double varargin_1)
 // getAnchorPoses Get the anchor poses in the world frame
 // Arguments    : const double xt_origin_pos[3]
 //                const double xt_origin_att[4]
-//                const f_struct_T xt_anchor_states[5]
-//                struct_T anchor_poses[5]
+//                const f_struct_T xt_anchor_states[6]
+//                struct_T anchor_poses[6]
 // Return Type  : void
 //
 static void getAnchorPoses(const double xt_origin_pos[3], const double
-  xt_origin_att[4], const f_struct_T xt_anchor_states[5], struct_T anchor_poses
-  [5])
+  xt_origin_att[4], const f_struct_T xt_anchor_states[6], struct_T anchor_poses
+  [6])
 {
   double R_ow[9];
   int anchorIdx;
@@ -12191,7 +12344,7 @@ static void getAnchorPoses(const double xt_origin_pos[3], const double
   // 'getAnchorPoses:8' anchor_pose.att = zeros(4,1);
   // 'getAnchorPoses:10' anchor_poses = repmat(anchor_pose, numAnchors, 1);
   // 'getAnchorPoses:12' for anchorIdx = 1:numAnchors
-  for (anchorIdx = 0; anchorIdx < 5; anchorIdx++) {
+  for (anchorIdx = 0; anchorIdx < 6; anchorIdx++) {
     // 'getAnchorPoses:13' anchor_poses(anchorIdx).pos = r_ow + R_ow' * xt.anchor_states(anchorIdx).pos; 
     // 'getAnchorPoses:14' anchor_poses(anchorIdx).att = QuatFromRotJ(RotFromQuatJ(xt.anchor_states(anchorIdx).att) * R_ow); 
     //  if ~all(size(q) == [4, 1])
@@ -12279,10 +12432,10 @@ static void getAnchorPoses(const double xt_origin_pos[3], const double
 //  where M =  length(indMeas) is the number of valid points in the image
 // Arguments    : const double xt_robot_state_pos[3]
 //                const double xt_robot_state_att[4]
-//                const f_struct_T xt_anchor_states[5]
-//                const double z_all_l[80]
-//                const double z_all_r[80]
-//                const boolean_T b_status[40]
+//                const f_struct_T xt_anchor_states[6]
+//                const double z_all_l[96]
+//                const double z_all_r[96]
+//                const boolean_T b_status[48]
 //                const double c_stereoParams_CameraParameters[2]
 //                const double d_stereoParams_CameraParameters[2]
 //                const double e_stereoParams_CameraParameters[2]
@@ -12296,8 +12449,8 @@ static void getAnchorPoses(const double xt_origin_pos[3], const double
 // Return Type  : void
 //
 static void getH_R_res(const double xt_robot_state_pos[3], const double
-  xt_robot_state_att[4], const f_struct_T xt_anchor_states[5], const double
-  z_all_l[80], const double z_all_r[80], const boolean_T b_status[40], const
+  xt_robot_state_att[4], const f_struct_T xt_anchor_states[6], const double
+  z_all_l[96], const double z_all_r[96], const boolean_T b_status[48], const
   double c_stereoParams_CameraParameters[2], const double
   d_stereoParams_CameraParameters[2], const double
   e_stereoParams_CameraParameters[2], const double
@@ -12374,7 +12527,7 @@ static void getH_R_res(const double xt_robot_state_pos[3], const double
   // 'getH_R_res:32' numErrorStatesPerAnchor = 6 + numPointsPerAnchor;
   // 'getH_R_res:34' numMeas = nnz(status);
   nm1d2 = 0;
-  for (cdiff = 0; cdiff < 40; cdiff++) {
+  for (cdiff = 0; cdiff < 48; cdiff++) {
     if (b_status[cdiff]) {
       nm1d2++;
     }
@@ -12429,9 +12582,9 @@ static void getH_R_res(const double xt_robot_state_pos[3], const double
   // 'getH_R_res:44' H = zeros(numMeas*residualDim, numStates + numAnchors*numErrorStatesPerAnchor); 
   i17 = H->size[0] * H->size[1];
   H->size[0] = (int)((double)nm1d2 * (double)residualDim);
-  H->size[1] = 91;
+  H->size[1] = 105;
   emxEnsureCapacity((emxArray__common *)H, i17, (int)sizeof(double));
-  cdiff = (int)((double)nm1d2 * (double)residualDim) * 91;
+  cdiff = (int)((double)nm1d2 * (double)residualDim) * 105;
   for (i17 = 0; i17 < cdiff; i17++) {
     H->data[i17] = 0.0;
   }
@@ -12461,7 +12614,7 @@ static void getH_R_res(const double xt_robot_state_pos[3], const double
   res_idx = 1U;
 
   // 'getH_R_res:53' for anchorIdx = 1:numAnchors
-  for (anchorIdx = 0; anchorIdx < 5; anchorIdx++) {
+  for (anchorIdx = 0; anchorIdx < 6; anchorIdx++) {
     // 'getH_R_res:54' anchorPos = xt.anchor_states(anchorIdx).pos;
     // 'getH_R_res:55' anchorRot = RotFromQuatJ(xt.anchor_states(anchorIdx).att); 
     //  if ~all(size(q) == [4, 1])
@@ -12904,35 +13057,40 @@ static void getH_R_res(const double xt_robot_state_pos[3], const double
               feature_states[featureIdx].inverse_depth * R_cw[i17];
           }
 
-          // 'getH_R_res:137' h_ci_l_To_anchorRot = -R_cw * skew(anchorRot'*m);
+          // 'getH_R_res:137' h_ci_l_To_anchorRot = -R_cw * anchorRot'*skew(m);
           // 'skew:2' R=[0,-w(3),w(2);
           // 'skew:3'     w(3),0,-w(1);
           // 'skew:4'     -w(2),w(1),0];
           for (i17 = 0; i17 < 3; i17++) {
-            fp_l[i17] = 0.0;
             for (cdiff = 0; cdiff < 3; cdiff++) {
               b_R_cw[cdiff + 3 * i17] = -R_cw[cdiff + 3 * i17];
-              fp_l[i17] += anchorRot[cdiff + 3 * i17] *
-                xt_anchor_states[anchorIdx].feature_states[featureIdx].m[cdiff];
             }
           }
 
           dv0[0] = 0.0;
-          dv0[3] = -fp_l[2];
-          dv0[6] = fp_l[1];
-          dv0[1] = fp_l[2];
+          dv0[3] = -xt_anchor_states[anchorIdx].feature_states[featureIdx].m[2];
+          dv0[6] = xt_anchor_states[anchorIdx].feature_states[featureIdx].m[1];
+          dv0[1] = xt_anchor_states[anchorIdx].feature_states[featureIdx].m[2];
           dv0[4] = 0.0;
-          dv0[7] = -fp_l[0];
-          dv0[2] = -fp_l[1];
-          dv0[5] = fp_l[0];
+          dv0[7] = -xt_anchor_states[anchorIdx].feature_states[featureIdx].m[0];
+          dv0[2] = -xt_anchor_states[anchorIdx].feature_states[featureIdx].m[1];
+          dv0[5] = xt_anchor_states[anchorIdx].feature_states[featureIdx].m[0];
           dv0[8] = 0.0;
 
           // 'getH_R_res:138' h_ci_l_To_rho       = R_cw * (anchorPos - r_wc);
           for (i17 = 0; i17 < 3; i17++) {
             for (cdiff = 0; cdiff < 3; cdiff++) {
+              c_R_cw[i17 + 3 * cdiff] = 0.0;
+              for (nm1d2 = 0; nm1d2 < 3; nm1d2++) {
+                c_R_cw[i17 + 3 * cdiff] += b_R_cw[i17 + 3 * nm1d2] *
+                  anchorRot[cdiff + 3 * nm1d2];
+              }
+            }
+
+            for (cdiff = 0; cdiff < 3; cdiff++) {
               h_ci_l_To_anchorRot[i17 + 3 * cdiff] = 0.0;
               for (nm1d2 = 0; nm1d2 < 3; nm1d2++) {
-                h_ci_l_To_anchorRot[i17 + 3 * cdiff] += b_R_cw[i17 + 3 * nm1d2] *
+                h_ci_l_To_anchorRot[i17 + 3 * cdiff] += c_R_cw[i17 + 3 * nm1d2] *
                   dv0[nm1d2 + 3 * cdiff];
               }
             }
@@ -13773,12 +13931,12 @@ static void getH_R_res(const double xt_robot_state_pos[3], const double
 //                          anchor
 // Arguments    : const double xt_origin_pos[3]
 //                const double xt_origin_att[4]
-//                const f_struct_T xt_anchor_states[5]
-//                double b_map[120]
+//                const f_struct_T xt_anchor_states[6]
+//                double b_map[144]
 // Return Type  : void
 //
 static void getMap(const double xt_origin_pos[3], const double xt_origin_att[4],
-                   const f_struct_T xt_anchor_states[5], double b_map[120])
+                   const f_struct_T xt_anchor_states[6], double b_map[144])
 {
   double R_ow[9];
   double anchorRot[9];
@@ -13827,10 +13985,10 @@ static void getMap(const double xt_origin_pos[3], const double xt_origin_att[4],
     xt_origin_att[3] * xt_origin_att[3];
 
   // 'getMap:26' map = zeros(numTrackFeatures*3, 1);
-  memset(&b_map[0], 0, 120U * sizeof(double));
+  memset(&b_map[0], 0, 144U * sizeof(double));
 
   // 'getMap:28' for anchorIdx = 1:numAnchors
-  for (anchorIdx = 0; anchorIdx < 5; anchorIdx++) {
+  for (anchorIdx = 0; anchorIdx < 6; anchorIdx++) {
     // 'getMap:29' anchorPos = r_ow + R_ow' * xt.anchor_states(anchorIdx).pos;
     // 'getMap:30' anchorRot = RotFromQuatJ(xt.anchor_states(anchorIdx).att) * R_ow; 
     //  if ~all(size(q) == [4, 1])
@@ -14060,7 +14218,7 @@ static void getScaledMap(g_struct_T *b_xt)
     b_xt->robot_state.att[3] * b_xt->robot_state.att[3];
 
   // 'getScaledMap:24' for anchorIdx = 1:numAnchors
-  for (anchorIdx = 0; anchorIdx < 5; anchorIdx++) {
+  for (anchorIdx = 0; anchorIdx < 6; anchorIdx++) {
     // 'getScaledMap:25' anchorPos = xt.anchor_states(anchorIdx).pos;
     // 'getScaledMap:26' anchorRot = RotFromQuatJ(xt.anchor_states(anchorIdx).att); 
     //  if ~all(size(q) == [4, 1])
@@ -14155,10 +14313,10 @@ static void getScaledMap(g_struct_T *b_xt)
 
 //
 // getTotalNumActiveFeatures Get the number of active features of all anchors
-// Arguments    : const f_struct_T xt_anchor_states[5]
+// Arguments    : const f_struct_T xt_anchor_states[6]
 // Return Type  : double
 //
-static double getTotalNumActiveFeatures(const f_struct_T xt_anchor_states[5])
+static double getTotalNumActiveFeatures(const f_struct_T xt_anchor_states[6])
 {
   double n;
   int anchorIdx;
@@ -14169,7 +14327,7 @@ static double getTotalNumActiveFeatures(const f_struct_T xt_anchor_states[5])
   n = 0.0;
 
   // 'getTotalNumActiveFeatures:5' for anchorIdx = 1:numAnchors
-  for (anchorIdx = 0; anchorIdx < 5; anchorIdx++) {
+  for (anchorIdx = 0; anchorIdx < 6; anchorIdx++) {
     // 'getTotalNumActiveFeatures:6' n = n + getNumActiveFeatures(xt.anchor_states(anchorIdx)); 
     // getNumActiveFeatures Get the number of active features of an anchor
     // 'getNumActiveFeatures:4' n = getNumFeaturesOfType(anchor_state, 1);
@@ -14196,10 +14354,10 @@ static double getTotalNumActiveFeatures(const f_struct_T xt_anchor_states[5])
 
 //
 // getTotalNumDelayedFeatures Get the number of delayed features of all anchors
-// Arguments    : const f_struct_T xt_anchor_states[5]
+// Arguments    : const f_struct_T xt_anchor_states[6]
 // Return Type  : double
 //
-static double getTotalNumDelayedFeatures(const f_struct_T xt_anchor_states[5])
+static double getTotalNumDelayedFeatures(const f_struct_T xt_anchor_states[6])
 {
   double n;
   int anchorIdx;
@@ -14210,7 +14368,7 @@ static double getTotalNumDelayedFeatures(const f_struct_T xt_anchor_states[5])
   n = 0.0;
 
   // 'getTotalNumDelayedFeatures:5' for anchorIdx = 1:numAnchors
-  for (anchorIdx = 0; anchorIdx < 5; anchorIdx++) {
+  for (anchorIdx = 0; anchorIdx < 6; anchorIdx++) {
     // 'getTotalNumDelayedFeatures:6' n = n + getNumFeaturesOfType(xt.anchor_states(anchorIdx), 2); 
     // getNumFeaturesOfType Get the number of features of type type of an anchor 
     //  type can be a scalar or a row vector of types
@@ -14651,9 +14809,9 @@ static void initializePoint(const double z_u_l[2], const double z_u_r[2], const
     // 'triangulatePoint:20' A = zeros(3*numAnchors, numAnchors + 3);
     memset(&A[0], 0, 30U * sizeof(double));
 
-    // 'triangulatePoint:21' b = nan(3*numAnchors, 1);
+    // 'triangulatePoint:21' b = zeros(3*numAnchors, 1);
     for (k = 0; k < 6; k++) {
-      b[k] = rtNaN;
+      b[k] = 0.0;
     }
 
     // 'triangulatePoint:23' for anchorIdx = 1:numAnchors
@@ -14894,10 +15052,10 @@ static double median(const double x_data[], const int x_size[1])
   int k;
   int midm1;
   int i;
-  int idx_data[40];
+  int idx_data[48];
   emxArray_int32_T *iwork;
   int n;
-  int iwork_data[40];
+  int iwork_data[48];
   boolean_T p;
   int i2;
   int j;
@@ -15159,12 +15317,12 @@ static void mrdivide(emxArray_real_T *A, const emxArray_real_T *B)
   if ((A->size[1] == 0) || ((B->size[0] == 0) || (B->size[1] == 0))) {
     unnamed_idx_1 = (unsigned int)B->size[0];
     jAcol = A->size[0] * A->size[1];
-    A->size[0] = 91;
+    A->size[0] = 105;
     A->size[1] = (int)unnamed_idx_1;
     emxEnsureCapacity((emxArray__common *)A, jAcol, (int)sizeof(double));
     mn = (int)unnamed_idx_1;
     for (jAcol = 0; jAcol < mn; jAcol++) {
-      for (b_m = 0; b_m < 91; b_m++) {
+      for (b_m = 0; b_m < 105; b_m++) {
         A->data[b_m + A->size[0] * jAcol] = 0.0;
       }
     }
@@ -15183,19 +15341,19 @@ static void mrdivide(emxArray_real_T *A, const emxArray_real_T *B)
     if (A->size[1] == 0) {
     } else {
       for (j = 0; j + 1 <= rankR; j++) {
-        jBcol = 91 * j;
+        jBcol = 105 * j;
         jAcol = rankR * j;
         for (k = 1; k <= j; k++) {
-          b_m = 91 * (k - 1);
+          b_m = 105 * (k - 1);
           if (b_A->data[(k + jAcol) - 1] != 0.0) {
-            for (i = 0; i < 91; i++) {
+            for (i = 0; i < 105; i++) {
               A->data[i + jBcol] -= b_A->data[(k + jAcol) - 1] * A->data[i + b_m];
             }
           }
         }
 
         wj = 1.0 / b_A->data[j + jAcol];
-        for (i = 0; i < 91; i++) {
+        for (i = 0; i < 105; i++) {
           A->data[i + jBcol] *= wj;
         }
       }
@@ -15204,12 +15362,12 @@ static void mrdivide(emxArray_real_T *A, const emxArray_real_T *B)
     if (A->size[1] == 0) {
     } else {
       for (j = B->size[1]; j > 0; j--) {
-        jBcol = 91 * (j - 1);
+        jBcol = 105 * (j - 1);
         jAcol = rankR * (j - 1) - 1;
         for (k = j + 1; k <= rankR; k++) {
-          b_m = 91 * (k - 1);
+          b_m = 105 * (k - 1);
           if (b_A->data[k + jAcol] != 0.0) {
-            for (i = 0; i < 91; i++) {
+            for (i = 0; i < 105; i++) {
               A->data[i + jBcol] -= b_A->data[k + jAcol] * A->data[i + b_m];
             }
           }
@@ -15220,7 +15378,7 @@ static void mrdivide(emxArray_real_T *A, const emxArray_real_T *B)
     for (jBcol = B->size[1] - 2; jBcol + 1 > 0; jBcol--) {
       if (jpvt->data[jBcol] != jBcol + 1) {
         b_m = jpvt->data[jBcol] - 1;
-        for (mn = 0; mn < 91; mn++) {
+        for (mn = 0; mn < 105; mn++) {
           wj = A->data[mn + A->size[0] * jBcol];
           A->data[mn + A->size[0] * jBcol] = A->data[mn + A->size[0] * b_m];
           A->data[mn + A->size[0] * b_m] = wj;
@@ -15245,18 +15403,18 @@ static void mrdivide(emxArray_real_T *A, const emxArray_real_T *B)
     jBcol = b_A->size[1];
     jAcol = Y->size[0] * Y->size[1];
     Y->size[0] = jBcol;
-    Y->size[1] = 91;
+    Y->size[1] = 105;
     emxEnsureCapacity((emxArray__common *)Y, jAcol, (int)sizeof(double));
-    mn = jBcol * 91;
+    mn = jBcol * 105;
     for (jAcol = 0; jAcol < mn; jAcol++) {
       Y->data[jAcol] = 0.0;
     }
 
     jAcol = b_B->size[0] * b_B->size[1];
     b_B->size[0] = A->size[1];
-    b_B->size[1] = 91;
+    b_B->size[1] = 105;
     emxEnsureCapacity((emxArray__common *)b_B, jAcol, (int)sizeof(double));
-    for (jAcol = 0; jAcol < 91; jAcol++) {
+    for (jAcol = 0; jAcol < 105; jAcol++) {
       mn = A->size[1];
       for (b_m = 0; b_m < mn; b_m++) {
         b_B->data[b_m + b_B->size[0] * jAcol] = A->data[jAcol + A->size[0] * b_m];
@@ -15272,7 +15430,7 @@ static void mrdivide(emxArray_real_T *A, const emxArray_real_T *B)
 
     for (j = 0; j + 1 <= mn; j++) {
       if (tau->data[j] != 0.0) {
-        for (k = 0; k < 91; k++) {
+        for (k = 0; k < 105; k++) {
           wj = b_B->data[j + b_B->size[0] * k];
           for (i = j + 1; i + 1 <= b_m; i++) {
             wj += b_A->data[i + b_A->size[0] * j] * b_B->data[i + b_B->size[0] *
@@ -15291,7 +15449,7 @@ static void mrdivide(emxArray_real_T *A, const emxArray_real_T *B)
       }
     }
 
-    for (k = 0; k < 91; k++) {
+    for (k = 0; k < 105; k++) {
       for (i = 0; i + 1 <= rankR; i++) {
         Y->data[(jpvt->data[i] + Y->size[0] * k) - 1] = b_B->data[i + b_B->size
           [0] * k];
@@ -15308,12 +15466,12 @@ static void mrdivide(emxArray_real_T *A, const emxArray_real_T *B)
     }
 
     jAcol = A->size[0] * A->size[1];
-    A->size[0] = 91;
+    A->size[0] = 105;
     A->size[1] = Y->size[0];
     emxEnsureCapacity((emxArray__common *)A, jAcol, (int)sizeof(double));
     mn = Y->size[0];
     for (jAcol = 0; jAcol < mn; jAcol++) {
-      for (b_m = 0; b_m < 91; b_m++) {
+      for (b_m = 0; b_m < 105; b_m++) {
         A->data[b_m + A->size[0] * jAcol] = Y->data[jAcol + Y->size[0] * b_m];
       }
     }
@@ -15655,10 +15813,10 @@ static void printParams(double c_noiseParameters_process_noise, double
   char s_data[5];
   static const char cv5[5] = { 'F', 'a', 'l', 's', 'e' };
 
-  // 'SLAM:124' fprintf('\n');
+  // 'SLAM:125' fprintf('\n');
   b_fprintf();
 
-  // 'SLAM:125' ros_info('Noise parameters:');
+  // 'SLAM:126' ros_info('Noise parameters:');
   // ROS_INFO Print to ROS_INFO in ROS or to console in Matlab
   //  debug_level == 0: print errors, == 1: print warnings, == 2: print info
   // 'ros_info:5' if coder.target('MATLAB')
@@ -15674,39 +15832,39 @@ static void printParams(double c_noiseParameters_process_noise, double
     ROS_INFO(cv0);
   }
 
-  // 'SLAM:126' fprintf('\tqv: %f\n', noiseParameters.process_noise.qv);
+  // 'SLAM:127' fprintf('\tqv: %f\n', noiseParameters.process_noise.qv);
   c_fprintf(c_noiseParameters_process_noise);
 
-  // 'SLAM:127' fprintf('\tqw: %f\n', noiseParameters.process_noise.qw);
+  // 'SLAM:128' fprintf('\tqw: %f\n', noiseParameters.process_noise.qw);
   d_fprintf(d_noiseParameters_process_noise);
 
-  // 'SLAM:128' fprintf('\tqao: %f\n', noiseParameters.process_noise.qao);
+  // 'SLAM:129' fprintf('\tqao: %f\n', noiseParameters.process_noise.qao);
   e_fprintf(e_noiseParameters_process_noise);
 
-  // 'SLAM:129' fprintf('\tqwo: %f\n', noiseParameters.process_noise.qwo);
+  // 'SLAM:130' fprintf('\tqwo: %f\n', noiseParameters.process_noise.qwo);
   f_fprintf(f_noiseParameters_process_noise);
 
-  // 'SLAM:130' fprintf('\tqR_ci: %f\n', noiseParameters.process_noise.qR_ci);
+  // 'SLAM:131' fprintf('\tqR_ci: %f\n', noiseParameters.process_noise.qR_ci);
   g_fprintf(g_noiseParameters_process_noise);
 
-  // 'SLAM:131' fprintf('\tgyro bias initial unc: [%f, %f, %f]\n', noiseParameters.gyro_bias_initial_unc(1), noiseParameters.gyro_bias_initial_unc(2), noiseParameters.gyro_bias_initial_unc(3)); 
+  // 'SLAM:132' fprintf('\tgyro bias initial unc: [%f, %f, %f]\n', noiseParameters.gyro_bias_initial_unc(1), noiseParameters.gyro_bias_initial_unc(2), noiseParameters.gyro_bias_initial_unc(3)); 
   h_fprintf(c_noiseParameters_gyro_bias_ini[0], c_noiseParameters_gyro_bias_ini
             [1], c_noiseParameters_gyro_bias_ini[2]);
 
-  // 'SLAM:132' fprintf('\tacc bias initial unc: [%f, %f, %f]\n', noiseParameters.acc_bias_initial_unc(1), noiseParameters.acc_bias_initial_unc(2), noiseParameters.acc_bias_initial_unc(3)); 
+  // 'SLAM:133' fprintf('\tacc bias initial unc: [%f, %f, %f]\n', noiseParameters.acc_bias_initial_unc(1), noiseParameters.acc_bias_initial_unc(2), noiseParameters.acc_bias_initial_unc(3)); 
   i_fprintf(c_noiseParameters_acc_bias_init[0], c_noiseParameters_acc_bias_init
             [1], c_noiseParameters_acc_bias_init[2]);
 
-  // 'SLAM:133' fprintf('\timage_noise: %f\n', noiseParameters.image_noise);
+  // 'SLAM:134' fprintf('\timage_noise: %f\n', noiseParameters.image_noise);
   j_fprintf(noiseParameters_image_noise);
 
-  // 'SLAM:134' fprintf('\tinv_depth_initial_unc: %f\n', noiseParameters.inv_depth_initial_unc); 
+  // 'SLAM:135' fprintf('\tinv_depth_initial_unc: %f\n', noiseParameters.inv_depth_initial_unc); 
   k_fprintf(c_noiseParameters_inv_depth_ini);
 
-  // 'SLAM:136' fprintf('\n');
+  // 'SLAM:137' fprintf('\n');
   b_fprintf();
 
-  // 'SLAM:137' ros_info('VIO parameters');
+  // 'SLAM:138' ros_info('VIO parameters');
   // ROS_INFO Print to ROS_INFO in ROS or to console in Matlab
   //  debug_level == 0: print errors, == 1: print warnings, == 2: print info
   // 'ros_info:5' if coder.target('MATLAB')
@@ -15722,27 +15880,27 @@ static void printParams(double c_noiseParameters_process_noise, double
     ROS_INFO(cv2);
   }
 
-  // 'SLAM:138' fprintf('\tnum_anchors: %d\n', int32(VIOParameters.num_anchors)); 
+  // 'SLAM:139' fprintf('\tnum_anchors: %d\n', int32(VIOParameters.num_anchors)); 
   l_fprintf(VIOParameters_num_anchors);
 
-  // 'SLAM:139' fprintf('\tnum_points_per_anchor: %d\n', int32(VIOParameters.num_points_per_anchor)); 
+  // 'SLAM:140' fprintf('\tnum_points_per_anchor: %d\n', int32(VIOParameters.num_points_per_anchor)); 
   m_fprintf(c_VIOParameters_num_points_per_);
 
-  // 'SLAM:140' fprintf('\tmax_ekf_iterations: %d\n', int32(VIOParameters.max_ekf_iterations)); 
+  // 'SLAM:141' fprintf('\tmax_ekf_iterations: %d\n', int32(VIOParameters.max_ekf_iterations)); 
   n_fprintf(c_VIOParameters_max_ekf_iterati);
 
-  // 'SLAM:141' fprintf('\tdelayed_initialization: %s\n', bool2str(VIOParameters.delayed_initialization)); 
-  // 'SLAM:150' if bool
+  // 'SLAM:142' fprintf('\tdelayed_initialization: %s\n', bool2str(VIOParameters.delayed_initialization)); 
+  // 'SLAM:151' if bool
   if (c_VIOParameters_delayed_initial) {
-    // 'SLAM:151' s = 'True';
+    // 'SLAM:152' s = 'True';
     s_size[0] = 1;
     s_size[1] = 4;
     for (i3 = 0; i3 < 4; i3++) {
       s_data[i3] = cv4[i3];
     }
   } else {
-    // 'SLAM:152' else
-    // 'SLAM:153' s = 'False';
+    // 'SLAM:153' else
+    // 'SLAM:154' s = 'False';
     s_size[0] = 1;
     s_size[1] = 5;
     for (i3 = 0; i3 < 5; i3++) {
@@ -15752,18 +15910,18 @@ static void printParams(double c_noiseParameters_process_noise, double
 
   o_fprintf(s_data, s_size);
 
-  // 'SLAM:142' fprintf('\tfixed_feature: %s\n', bool2str(VIOParameters.fixed_feature)); 
-  // 'SLAM:150' if bool
+  // 'SLAM:143' fprintf('\tfixed_feature: %s\n', bool2str(VIOParameters.fixed_feature)); 
+  // 'SLAM:151' if bool
   if (VIOParameters_fixed_feature) {
-    // 'SLAM:151' s = 'True';
+    // 'SLAM:152' s = 'True';
     s_size[0] = 1;
     s_size[1] = 4;
     for (i3 = 0; i3 < 4; i3++) {
       s_data[i3] = cv4[i3];
     }
   } else {
-    // 'SLAM:152' else
-    // 'SLAM:153' s = 'False';
+    // 'SLAM:153' else
+    // 'SLAM:154' s = 'False';
     s_size[0] = 1;
     s_size[1] = 5;
     for (i3 = 0; i3 < 5; i3++) {
@@ -15773,18 +15931,18 @@ static void printParams(double c_noiseParameters_process_noise, double
 
   p_fprintf(s_data, s_size);
 
-  // 'SLAM:143' fprintf('\tmono: %s\n', bool2str(VIOParameters.mono));
-  // 'SLAM:150' if bool
+  // 'SLAM:144' fprintf('\tmono: %s\n', bool2str(VIOParameters.mono));
+  // 'SLAM:151' if bool
   if (VIOParameters_mono) {
-    // 'SLAM:151' s = 'True';
+    // 'SLAM:152' s = 'True';
     s_size[0] = 1;
     s_size[1] = 4;
     for (i3 = 0; i3 < 4; i3++) {
       s_data[i3] = cv4[i3];
     }
   } else {
-    // 'SLAM:152' else
-    // 'SLAM:153' s = 'False';
+    // 'SLAM:153' else
+    // 'SLAM:154' s = 'False';
     s_size[0] = 1;
     s_size[1] = 5;
     for (i3 = 0; i3 < 5; i3++) {
@@ -15794,18 +15952,18 @@ static void printParams(double c_noiseParameters_process_noise, double
 
   q_fprintf(s_data, s_size);
 
-  // 'SLAM:144' fprintf('\tfull_stereo: %s\n', bool2str(VIOParameters.full_stereo)); 
-  // 'SLAM:150' if bool
+  // 'SLAM:145' fprintf('\tfull_stereo: %s\n', bool2str(VIOParameters.full_stereo)); 
+  // 'SLAM:151' if bool
   if (VIOParameters_full_stereo) {
-    // 'SLAM:151' s = 'True';
+    // 'SLAM:152' s = 'True';
     s_size[0] = 1;
     s_size[1] = 4;
     for (i3 = 0; i3 < 4; i3++) {
       s_data[i3] = cv4[i3];
     }
   } else {
-    // 'SLAM:152' else
-    // 'SLAM:153' s = 'False';
+    // 'SLAM:153' else
+    // 'SLAM:154' s = 'False';
     s_size[0] = 1;
     s_size[1] = 5;
     for (i3 = 0; i3 < 5; i3++) {
@@ -15815,18 +15973,18 @@ static void printParams(double c_noiseParameters_process_noise, double
 
   r_fprintf(s_data, s_size);
 
-  // 'SLAM:145' fprintf('\tRANSAC: %s\n', bool2str(VIOParameters.RANSAC));
-  // 'SLAM:150' if bool
+  // 'SLAM:146' fprintf('\tRANSAC: %s\n', bool2str(VIOParameters.RANSAC));
+  // 'SLAM:151' if bool
   if (VIOParameters_RANSAC) {
-    // 'SLAM:151' s = 'True';
+    // 'SLAM:152' s = 'True';
     s_size[0] = 1;
     s_size[1] = 4;
     for (i3 = 0; i3 < 4; i3++) {
       s_data[i3] = cv4[i3];
     }
   } else {
-    // 'SLAM:152' else
-    // 'SLAM:153' s = 'False';
+    // 'SLAM:153' else
+    // 'SLAM:154' s = 'False';
     s_size[0] = 1;
     s_size[1] = 5;
     for (i3 = 0; i3 < 5; i3++) {
@@ -15836,7 +15994,7 @@ static void printParams(double c_noiseParameters_process_noise, double
 
   s_fprintf(s_data, s_size);
 
-  // 'SLAM:146' fprintf('\n');
+  // 'SLAM:147' fprintf('\n');
   b_fprintf();
 }
 
@@ -17402,9 +17560,9 @@ static void xscal(int n, double a, emxArray_real_T *x, int ix0)
 //
 // input
 //  NOTE: Comment this out for MEXing
-// Arguments    : int updateVect[40]
-//                const double z_all_l[80]
-//                const double z_all_r[80]
+// Arguments    : int updateVect[48]
+//                const double z_all_l[96]
+//                const double z_all_r[96]
 //                double dt
 //                const VIOMeasurements *measurements
 //                const DUOParameters *cameraParameters
@@ -17412,24 +17570,22 @@ static void xscal(int n, double a, emxArray_real_T *x, int ix0)
 //                const VIOParameters *b_VIOParameters
 //                boolean_T vision
 //                RobotState *xt_out
-//                double map_out[120]
-//                AnchorPose anchor_poses_out[5]
-//                double delayedStatus_out[40]
+//                double map_out[144]
+//                AnchorPose anchor_poses_out[6]
+//                double delayedStatus_out[48]
 // Return Type  : void
 //
-void SLAM(int updateVect[40], const double z_all_l[80], const double z_all_r[80],
+void SLAM(int updateVect[48], const double z_all_l[96], const double z_all_r[96],
           double dt, const VIOMeasurements *measurements, const DUOParameters
           *cameraParameters, const NoiseParameters *noiseParameters, const
           VIOParameters *b_VIOParameters, boolean_T vision, RobotState *xt_out,
-          double map_out[120], AnchorPose anchor_poses_out[5], double
-          delayedStatus_out[40])
+          double map_out[144], AnchorPose anchor_poses_out[6], double
+          delayedStatus_out[48])
 {
   int i;
   static const signed char iv1[4] = { 0, 0, 0, 1 };
 
-  static const double dv6[3] = { -0.35, 0.55, 0.75 };
-
-  static const f_struct_T rv0[5] = { { { 0.0, 0.0, 0.0 }, { 0.0, 0.0, 0.0, 1.0 },
+  static const f_struct_T rv0[6] = { { { 0.0, 0.0, 0.0 }, { 0.0, 0.0, 0.0, 1.0 },
       { 0, 0, 0, 0, 0, 0 }, { { 0.0, { 0.0, 0.0, 0.0 }, { 0.0, 0.0, 0.0 }, 0, 0,
           0 }, { 0.0, { 0.0, 0.0, 0.0 }, { 0.0, 0.0, 0.0 }, 0, 0, 0 }, { 0.0, {
             0.0, 0.0, 0.0 }, { 0.0, 0.0, 0.0 }, 0, 0, 0 }, { 0.0, { 0.0, 0.0,
@@ -17466,7 +17622,15 @@ void SLAM(int updateVect[40], const double z_all_l[80], const double z_all_r[80]
             0.0 }, { 0.0, 0.0, 0.0 }, 0, 0, 0 }, { 0.0, { 0.0, 0.0, 0.0 }, { 0.0,
             0.0, 0.0 }, 0, 0, 0 }, { 0.0, { 0.0, 0.0, 0.0 }, { 0.0, 0.0, 0.0 },
           0, 0, 0 }, { 0.0, { 0.0, 0.0, 0.0 }, { 0.0, 0.0, 0.0 }, 0, 0, 0 }, {
-          0.0, { 0.0, 0.0, 0.0 }, { 0.0, 0.0, 0.0 }, 0, 0, 0 } } } };
+          0.0, { 0.0, 0.0, 0.0 }, { 0.0, 0.0, 0.0 }, 0, 0, 0 } } }, { { 0.0, 0.0,
+        0.0 }, { 0.0, 0.0, 0.0, 1.0 }, { 0, 0, 0, 0, 0, 0 }, { { 0.0, { 0.0, 0.0,
+            0.0 }, { 0.0, 0.0, 0.0 }, 0, 0, 0 }, { 0.0, { 0.0, 0.0, 0.0 }, { 0.0,
+            0.0, 0.0 }, 0, 0, 0 }, { 0.0, { 0.0, 0.0, 0.0 }, { 0.0, 0.0, 0.0 },
+          0, 0, 0 }, { 0.0, { 0.0, 0.0, 0.0 }, { 0.0, 0.0, 0.0 }, 0, 0, 0 }, {
+          0.0, { 0.0, 0.0, 0.0 }, { 0.0, 0.0, 0.0 }, 0, 0, 0 }, { 0.0, { 0.0,
+            0.0, 0.0 }, { 0.0, 0.0, 0.0 }, 0, 0, 0 }, { 0.0, { 0.0, 0.0, 0.0 },
+            { 0.0, 0.0, 0.0 }, 0, 0, 0 }, { 0.0, { 0.0, 0.0, 0.0 }, { 0.0, 0.0,
+            0.0 }, 0, 0, 0 } } } };
 
   int anchorIdx;
   int i46;
@@ -17474,30 +17638,27 @@ void SLAM(int updateVect[40], const double z_all_l[80], const double z_all_r[80]
   double z_b[3];
   double B;
   double y_n_b[3];
-  static const double dv7[3] = { 0.0, 0.0, 1.0 };
+  static const double dv6[3] = { 0.0, 0.0, 1.0 };
 
   double b_y_n_b[3];
   double x_n_b[3];
-  double dv8[9];
+  double dv7[9];
   double b_x_n_b[9];
-  double dv9[9];
   double R_cw_init[9];
-  static const double b[9] = { 0.052335956242943835, -0.99862953475457383, 0.0,
-    0.99862953475457383, 0.052335956242943835, 0.0, 0.0, 0.0, 1.0 };
-
   static const signed char y[9] = { 1, 0, 0, 0, 1, 0, 0, 0, 1 };
 
-  static const signed char b_b[9] = { 1, 0, 0, 0, 1, 0, 0, 0, 0 };
+  double dv8[9];
+  static const signed char b[9] = { 1, 0, 0, 0, 1, 0, 0, 0, 0 };
 
-  double b_z_all_l[80];
-  double b_z_all_r[80];
+  double b_z_all_l[96];
+  double b_z_all_r[96];
   double t0_IMU_att[4];
   double t0_IMU_pos[3];
   double t0_IMU_acc_bias[3];
   double t0_IMU_gyro_bias[3];
   double t0_vel[3];
   double t0_att[4];
-  struct_T rv1[5];
+  struct_T rv1[6];
 
   // 'SLAM:4' coder.cstructname(measurements, 'VIOMeasurements', 'extern', 'HeaderFile', '../InterfaceStructs.h'); 
   // 'SLAM:5' coder.cstructname(noiseParameters, 'NoiseParameters', 'extern', 'HeaderFile', '../InterfaceStructs.h'); 
@@ -17518,7 +17679,7 @@ void SLAM(int updateVect[40], const double z_all_l[80], const double z_all_r[80]
   // 'SLAM:22' if isempty(initialized)
   if (!initialized_not_empty) {
     // 'SLAM:23' updateVect(:) = 0;
-    for (i = 0; i < 40; i++) {
+    for (i = 0; i < 48; i++) {
       updateVect[i] = 0;
     }
 
@@ -17537,105 +17698,103 @@ void SLAM(int updateVect[40], const double z_all_l[80], const double z_all_r[80]
     }
 
     //  position relative to the origin frame
-    // 'SLAM:32' xt.robot_state.att = [0; 0; 0; 1];
+    //      xt.robot_state.pos = [-0.4; -0.8; 0.5]; % position relative to the origin frame 
+    // 'SLAM:33' xt.robot_state.att = [0; 0; 0; 1];
     for (i = 0; i < 4; i++) {
       xt.robot_state.att[i] = iv1[i];
     }
 
     //  orientation relative to the origin frame
-    // 'SLAM:33' xt.robot_state.vel = [0; 0; 0];
+    // 'SLAM:34' xt.robot_state.vel = [0; 0; 0];
     //  velocity in the origin frame
-    // 'SLAM:34' xt.fixed_feature = int32(0);
+    // 'SLAM:35' xt.fixed_feature = int32(0);
     xt.fixed_feature = 0;
 
-    // 'SLAM:35' xt.origin.anchor_idx = int32(0);
+    // 'SLAM:36' xt.origin.anchor_idx = int32(0);
     xt.origin.anchor_idx = 0;
 
     //  idx of the anchor that is at the origin
-    // 'SLAM:36' xt.origin.pos = [-0.35; 0.55; 0.75];
+    // 'SLAM:37' xt.origin.pos = [0; 0; 0];
     for (i = 0; i < 3; i++) {
       xt.robot_state.vel[i] = 0.0;
-      xt.origin.pos[i] = dv6[i];
+      xt.origin.pos[i] = 0.0;
     }
 
     //  position of the origin in the world frame
-    // 'SLAM:37' xt.origin.att = [0; 0; 0; 1];
+    // 'SLAM:38' xt.origin.att = [0; 0; 0; 1];
     for (i = 0; i < 4; i++) {
       xt.origin.att[i] = iv1[i];
     }
 
     //  orientation of the origin in the world frame
-    // 'SLAM:39' P = zeros(numStates + numAnchors*(6+numPointsPerAnchor));
-    memset(&P[0], 0, 8281U * sizeof(double));
+    // 'SLAM:40' P = zeros(numStates + numAnchors*(6+numPointsPerAnchor));
+    memset(&P[0], 0, 11025U * sizeof(double));
 
     //  initial error state covariance
-    // 'SLAM:41' anchor_state.pos = [0; 0; 0];
-    // 'SLAM:42' anchor_state.att = [0; 0; 0; 1];
-    // 'SLAM:43' anchor_state.P_idx = int32(zeros(1, 6));
-    // 'SLAM:45' feature_state.inverse_depth = 0;
-    // 'SLAM:46' feature_state.m = zeros(3,1);
-    // 'SLAM:47' feature_state.scaled_map_point = zeros(3,1);
-    // 'SLAM:48' feature_state.status = int32(0);
-    // 'SLAM:49' feature_state.status_idx = int32(0);
-    // 'SLAM:50' feature_state.P_idx = int32(0);
-    // 'SLAM:52' anchor_state.feature_states = repmat(feature_state, numPointsPerAnchor,1); 
-    // 'SLAM:54' xt.anchor_states = repmat(anchor_state, numAnchors, 1);
-    // 'SLAM:56' for anchorIdx = 1:numAnchors
-    memcpy(&xt.anchor_states[0], &rv0[0], 5U * sizeof(f_struct_T));
-    for (anchorIdx = 0; anchorIdx < 5; anchorIdx++) {
-      // 'SLAM:57' xt.anchor_states(anchorIdx).P_idx = numStates + (anchorIdx-1)*numStatesPerAnchor + int32(1:6); 
+    // 'SLAM:42' anchor_state.pos = [0; 0; 0];
+    // 'SLAM:43' anchor_state.att = [0; 0; 0; 1];
+    // 'SLAM:44' anchor_state.P_idx = int32(zeros(1, 6));
+    // 'SLAM:46' feature_state.inverse_depth = 0;
+    // 'SLAM:47' feature_state.m = zeros(3,1);
+    // 'SLAM:48' feature_state.scaled_map_point = zeros(3,1);
+    // 'SLAM:49' feature_state.status = int32(0);
+    // 'SLAM:50' feature_state.status_idx = int32(0);
+    // 'SLAM:51' feature_state.P_idx = int32(0);
+    // 'SLAM:53' anchor_state.feature_states = repmat(feature_state, numPointsPerAnchor,1); 
+    // 'SLAM:55' xt.anchor_states = repmat(anchor_state, numAnchors, 1);
+    // 'SLAM:57' for anchorIdx = 1:numAnchors
+    memcpy(&xt.anchor_states[0], &rv0[0], 6U * sizeof(f_struct_T));
+    for (anchorIdx = 0; anchorIdx < 6; anchorIdx++) {
+      // 'SLAM:58' xt.anchor_states(anchorIdx).P_idx = numStates + (anchorIdx-1)*numStatesPerAnchor + int32(1:6); 
       i46 = anchorIdx * 14;
       for (i47 = 0; i47 < 6; i47++) {
         xt.anchor_states[anchorIdx].P_idx[i47] = (i47 + i46) + 22;
       }
     }
 
-    // 'SLAM:60' if vision
+    // 'SLAM:61' if vision
     if (vision) {
-      // 'SLAM:61' map = zeros(numTrackFeatures*3, 1);
-      memset(&map[0], 0, 120U * sizeof(double));
+      // 'SLAM:62' map = zeros(numTrackFeatures*3, 1);
+      memset(&map[0], 0, 144U * sizeof(double));
 
-      // 'SLAM:62' delayedStatus = zeros(numTrackFeatures, 1);
-      memset(&delayedStatus[0], 0, 40U * sizeof(double));
+      // 'SLAM:63' delayedStatus = zeros(numTrackFeatures, 1);
+      memset(&delayedStatus[0], 0, 48U * sizeof(double));
     } else {
-      // 'SLAM:63' else
-      // 'SLAM:64' z_b = measurements.acc_duo - xt.robot_state.IMU.acc_bias;
+      // 'SLAM:64' else
+      // 'SLAM:65' z_b = measurements.acc_duo - xt.robot_state.IMU.acc_bias;
       for (i = 0; i < 3; i++) {
         z_b[i] = measurements->acc_duo[i] - xt.robot_state.IMU.acc_bias[i];
       }
 
-      // 'SLAM:65' z_n_b = z_b/norm(z_b);
+      // 'SLAM:66' z_n_b = z_b/norm(z_b);
       B = norm(z_b);
       for (i46 = 0; i46 < 3; i46++) {
         z_b[i46] /= B;
       }
 
-      // 'SLAM:66' m_n_b = [0;0;1];
-      // 'SLAM:67' y_n_b = cross(z_n_b,m_n_b);
-      cross(z_b, dv7, y_n_b);
+      // 'SLAM:67' m_n_b = [0;0;1];
+      // 'SLAM:68' y_n_b = cross(z_n_b,m_n_b);
+      cross(z_b, dv6, y_n_b);
 
-      // 'SLAM:68' y_n_b = y_n_b./norm(y_n_b);
+      // 'SLAM:69' y_n_b = y_n_b./norm(y_n_b);
       for (i = 0; i < 3; i++) {
         b_y_n_b[i] = y_n_b[i];
       }
 
       rdivide(b_y_n_b, norm(y_n_b), y_n_b);
 
-      // 'SLAM:69' x_n_b = (cross(y_n_b,z_n_b));
+      // 'SLAM:70' x_n_b = (cross(y_n_b,z_n_b));
       cross(y_n_b, z_b, x_n_b);
 
-      // 'SLAM:70' x_n_b = x_n_b./norm(x_n_b);
+      // 'SLAM:71' x_n_b = x_n_b./norm(x_n_b);
       for (i = 0; i < 3; i++) {
         b_y_n_b[i] = x_n_b[i];
       }
 
       rdivide(b_y_n_b, norm(x_n_b), x_n_b);
 
-      // 'SLAM:72' R_iw_init = [x_n_b,y_n_b,z_n_b];
-      // 'SLAM:73' R_cw_init = RotFromQuatJ(xt.robot_state.IMU.att) * R_iw_init; 
-      // 'SLAM:75' yaw = 87;
-      // 'SLAM:76' R = rotz(yaw);
-      // 'SLAM:77' R_cw_init = R_cw_init*R';
+      // 'SLAM:73' R_iw_init = [x_n_b,y_n_b,z_n_b];
+      // 'SLAM:74' R_cw_init = RotFromQuatJ(xt.robot_state.IMU.att) * R_iw_init; 
       //  if ~all(size(q) == [4, 1])
       //      error('q does not have the size of a quaternion')
       //  end
@@ -17645,27 +17804,27 @@ void SLAM(int updateVect[40], const double z_all_l[80], const double z_all_r[80]
       // 'RotFromQuatJ:10' R=[q(1)^2-q(2)^2-q(3)^2+q(4)^2, 2*(q(1)*q(2)+q(3)*q(4)), 2*(q(1)*q(3)-q(2)*q(4)); 
       // 'RotFromQuatJ:11'     2*(q(1)*q(2)-q(3)*q(4)),-q(1)^2+q(2)^2-q(3)^2+q(4)^2, 2*(q(2)*q(3)+q(1)*q(4)); 
       // 'RotFromQuatJ:12'     2*(q(1)*q(3)+q(2)*q(4)), 2*(q(2)*q(3)-q(1)*q(4)),-q(1)^2-q(2)^2+q(3)^2+q(4)^2]; 
-      dv8[0] = ((xt.robot_state.IMU.att[0] * xt.robot_state.IMU.att[0] -
+      dv7[0] = ((xt.robot_state.IMU.att[0] * xt.robot_state.IMU.att[0] -
                  xt.robot_state.IMU.att[1] * xt.robot_state.IMU.att[1]) -
                 xt.robot_state.IMU.att[2] * xt.robot_state.IMU.att[2]) +
         xt.robot_state.IMU.att[3] * xt.robot_state.IMU.att[3];
-      dv8[3] = 2.0 * (xt.robot_state.IMU.att[0] * xt.robot_state.IMU.att[1] +
+      dv7[3] = 2.0 * (xt.robot_state.IMU.att[0] * xt.robot_state.IMU.att[1] +
                       xt.robot_state.IMU.att[2] * xt.robot_state.IMU.att[3]);
-      dv8[6] = 2.0 * (xt.robot_state.IMU.att[0] * xt.robot_state.IMU.att[2] -
+      dv7[6] = 2.0 * (xt.robot_state.IMU.att[0] * xt.robot_state.IMU.att[2] -
                       xt.robot_state.IMU.att[1] * xt.robot_state.IMU.att[3]);
-      dv8[1] = 2.0 * (xt.robot_state.IMU.att[0] * xt.robot_state.IMU.att[1] -
+      dv7[1] = 2.0 * (xt.robot_state.IMU.att[0] * xt.robot_state.IMU.att[1] -
                       xt.robot_state.IMU.att[2] * xt.robot_state.IMU.att[3]);
-      dv8[4] = ((-(xt.robot_state.IMU.att[0] * xt.robot_state.IMU.att[0]) +
+      dv7[4] = ((-(xt.robot_state.IMU.att[0] * xt.robot_state.IMU.att[0]) +
                  xt.robot_state.IMU.att[1] * xt.robot_state.IMU.att[1]) -
                 xt.robot_state.IMU.att[2] * xt.robot_state.IMU.att[2]) +
         xt.robot_state.IMU.att[3] * xt.robot_state.IMU.att[3];
-      dv8[7] = 2.0 * (xt.robot_state.IMU.att[1] * xt.robot_state.IMU.att[2] +
+      dv7[7] = 2.0 * (xt.robot_state.IMU.att[1] * xt.robot_state.IMU.att[2] +
                       xt.robot_state.IMU.att[0] * xt.robot_state.IMU.att[3]);
-      dv8[2] = 2.0 * (xt.robot_state.IMU.att[0] * xt.robot_state.IMU.att[2] +
+      dv7[2] = 2.0 * (xt.robot_state.IMU.att[0] * xt.robot_state.IMU.att[2] +
                       xt.robot_state.IMU.att[1] * xt.robot_state.IMU.att[3]);
-      dv8[5] = 2.0 * (xt.robot_state.IMU.att[1] * xt.robot_state.IMU.att[2] -
+      dv7[5] = 2.0 * (xt.robot_state.IMU.att[1] * xt.robot_state.IMU.att[2] -
                       xt.robot_state.IMU.att[0] * xt.robot_state.IMU.att[3]);
-      dv8[8] = ((-(xt.robot_state.IMU.att[0] * xt.robot_state.IMU.att[0]) -
+      dv7[8] = ((-(xt.robot_state.IMU.att[0] * xt.robot_state.IMU.att[0]) -
                  xt.robot_state.IMU.att[1] * xt.robot_state.IMU.att[1]) +
                 xt.robot_state.IMU.att[2] * xt.robot_state.IMU.att[2]) +
         xt.robot_state.IMU.att[3] * xt.robot_state.IMU.att[3];
@@ -17675,83 +17834,79 @@ void SLAM(int updateVect[40], const double z_all_l[80], const double z_all_r[80]
         b_x_n_b[6 + i46] = z_b[i46];
       }
 
-      // 'SLAM:78' xt.origin.att = QuatFromRotJ(R_cw_init);
+      //          yaw = 87;
+      //          R = rotz(yaw);
+      //          R_cw_init = R_cw_init*R';
+      // 'SLAM:79' xt.origin.att = QuatFromRotJ(R_cw_init);
       for (i46 = 0; i46 < 3; i46++) {
-        for (i47 = 0; i47 < 3; i47++) {
-          dv9[i46 + 3 * i47] = 0.0;
-          for (i = 0; i < 3; i++) {
-            dv9[i46 + 3 * i47] += dv8[i46 + 3 * i] * b_x_n_b[i + 3 * i47];
-          }
-        }
-
         for (i47 = 0; i47 < 3; i47++) {
           R_cw_init[i46 + 3 * i47] = 0.0;
           for (i = 0; i < 3; i++) {
-            R_cw_init[i46 + 3 * i47] += dv9[i46 + 3 * i] * b[i + 3 * i47];
+            R_cw_init[i46 + 3 * i47] += dv7[i46 + 3 * i] * b_x_n_b[i + 3 * i47];
           }
 
-          P[i47 + 91 * i46] = 0.0;
-          P[(i47 + 91 * (3 + i46)) + 3] = 0.0;
-          P[(i47 + 91 * (6 + i46)) + 6] = y[i47 + 3 * i46];
+          P[i47 + 105 * i46] = 0.0;
+          P[(i47 + 105 * (3 + i46)) + 3] = 0.0;
+          P[(i47 + 105 * (6 + i46)) + 6] = y[i47 + 3 * i46];
         }
       }
 
       QuatFromRotJ(R_cw_init, xt.origin.att);
 
       //  orientation of the origin in the world frame
-      // 'SLAM:80' P(  1:3,   1:3) = zeros(3);
+      // 'SLAM:81' P(  1:3,   1:3) = zeros(3);
       //  position
-      // 'SLAM:81' P(  4:6,   4:6) = zeros(3);
+      // 'SLAM:82' P(  4:6,   4:6) = zeros(3);
       //  orientation of camera in origin frame
-      // 'SLAM:82' P(  7:9,   7:9) = 1*eye(3);
+      // 'SLAM:83' P(  7:9,   7:9) = 1*eye(3);
       //  velocity
-      // 'SLAM:83' P(10:12, 10:12) = diag(noiseParameters.gyro_bias_initial_unc); 
-      diag(noiseParameters->gyro_bias_initial_unc, dv8);
+      // 'SLAM:84' P(10:12, 10:12) = diag(noiseParameters.gyro_bias_initial_unc); 
+      diag(noiseParameters->gyro_bias_initial_unc, dv7);
 
       //  gyro bias
-      // 'SLAM:84' P(13:15, 13:15) = diag(noiseParameters.acc_bias_initial_unc); 
-      diag(noiseParameters->acc_bias_initial_unc, dv9);
+      // 'SLAM:85' P(13:15, 13:15) = diag(noiseParameters.acc_bias_initial_unc); 
+      diag(noiseParameters->acc_bias_initial_unc, b_x_n_b);
 
       //  acc bias
-      // 'SLAM:85' P(16:18, 16:18) = 0.1*R_cw_init * diag([1 1 0]) * R_cw_init'; 
+      // 'SLAM:86' P(16:18, 16:18) = 0.1*R_cw_init * diag([1 1 0]) * R_cw_init'; 
       for (i46 = 0; i46 < 3; i46++) {
         for (i47 = 0; i47 < 3; i47++) {
-          P[(i47 + 91 * (9 + i46)) + 9] = dv8[i47 + 3 * i46];
-          P[(i47 + 91 * (12 + i46)) + 12] = dv9[i47 + 3 * i46];
-          b_x_n_b[i46 + 3 * i47] = 0.0;
+          P[(i47 + 105 * (9 + i46)) + 9] = dv7[i47 + 3 * i46];
+          P[(i47 + 105 * (12 + i46)) + 12] = b_x_n_b[i47 + 3 * i46];
+          dv8[i46 + 3 * i47] = 0.0;
           for (i = 0; i < 3; i++) {
-            b_x_n_b[i46 + 3 * i47] += 0.1 * R_cw_init[i46 + 3 * i] * (double)
-              b_b[i + 3 * i47];
+            dv8[i46 + 3 * i47] += 0.1 * R_cw_init[i46 + 3 * i] * (double)b[i + 3
+              * i47];
           }
         }
       }
 
       for (i46 = 0; i46 < 3; i46++) {
         for (i47 = 0; i47 < 3; i47++) {
-          P[(i46 + 91 * (15 + i47)) + 15] = 0.0;
+          P[(i46 + 105 * (15 + i47)) + 15] = 0.0;
           for (i = 0; i < 3; i++) {
-            P[(i46 + 91 * (15 + i47)) + 15] += b_x_n_b[i46 + 3 * i] *
-              R_cw_init[i47 + 3 * i];
+            P[(i46 + 105 * (15 + i47)) + 15] += dv8[i46 + 3 * i] * R_cw_init[i47
+              + 3 * i];
           }
         }
       }
 
       //  origin orientation
-      // 'SLAM:86' P(19:21, 19:21) = 0*0.01*eye(3);
+      // 'SLAM:87' P(19:21, 19:21) = 0*0.01*eye(3);
       for (i46 = 0; i46 < 3; i46++) {
         for (i47 = 0; i47 < 3; i47++) {
-          P[(i47 + 91 * (18 + i46)) + 18] = 0.0;
+          P[(i47 + 105 * (18 + i46)) + 18] = 0.0;
         }
       }
 
       //  R_ci
-      // 'SLAM:88' map = getMap(xt);
+      // 'SLAM:89' map = getMap(xt);
       getMap(xt.origin.pos, xt.origin.att, xt.anchor_states, map);
 
-      // 'SLAM:89' delayedStatus = zeros(size(updateVect));
-      memset(&delayedStatus[0], 0, 40U * sizeof(double));
+      // 'SLAM:90' delayedStatus = zeros(size(updateVect));
+      memset(&delayedStatus[0], 0, 48U * sizeof(double));
 
-      // 'SLAM:91' printParams(noiseParameters, VIOParameters)
+      // 'SLAM:92' printParams(noiseParameters, VIOParameters)
       printParams(noiseParameters->process_noise.qv,
                   noiseParameters->process_noise.qw,
                   noiseParameters->process_noise.qao,
@@ -17768,15 +17923,15 @@ void SLAM(int updateVect[40], const double z_all_l[80], const double z_all_r[80]
                   b_VIOParameters->delayed_initialization, b_VIOParameters->mono,
                   b_VIOParameters->full_stereo, b_VIOParameters->RANSAC);
 
-      // 'SLAM:92' initialized = 1;
+      // 'SLAM:93' initialized = 1;
       initialized_not_empty = true;
     }
   } else {
-    // 'SLAM:95' else
-    // 'SLAM:97' if ~vision
+    // 'SLAM:96' else
+    // 'SLAM:98' if ~vision
     if (!vision) {
       //      [xt,P] =  SLAM_pred(P, xt, dt, noiseParameters.process_noise, measurements, numStates); 
-      // 'SLAM:99' [xt,P] =  SLAM_pred_euler(P, xt, dt, noiseParameters.process_noise, measurements); 
+      // 'SLAM:100' [xt,P] =  SLAM_pred_euler(P, xt, dt, noiseParameters.process_noise, measurements); 
       SLAM_pred_euler(P, &xt, dt, noiseParameters->process_noise.qv,
                       noiseParameters->process_noise.qw,
                       noiseParameters->process_noise.qao,
@@ -17784,10 +17939,10 @@ void SLAM(int updateVect[40], const double z_all_l[80], const double z_all_r[80]
                       noiseParameters->process_noise.qR_ci,
                       measurements->acc_duo, measurements->gyr_duo);
     } else {
-      // 'SLAM:100' else
-      // 'SLAM:101' [xt, P, updateVect, map, delayedStatus] = SLAM_upd(P, xt, cameraParameters, updateVect, z_all_l, z_all_r, noiseParameters, VIOParameters); 
-      memcpy(&b_z_all_l[0], &z_all_l[0], 80U * sizeof(double));
-      memcpy(&b_z_all_r[0], &z_all_r[0], 80U * sizeof(double));
+      // 'SLAM:101' else
+      // 'SLAM:102' [xt, P, updateVect, map, delayedStatus] = SLAM_upd(P, xt, cameraParameters, updateVect, z_all_l, z_all_r, noiseParameters, VIOParameters); 
+      memcpy(&b_z_all_l[0], &z_all_l[0], 96U * sizeof(double));
+      memcpy(&b_z_all_r[0], &z_all_r[0], 96U * sizeof(double));
       SLAM_upd(P, &xt, cameraParameters->CameraParameters1.ATAN,
                cameraParameters->CameraParameters1.FocalLength,
                cameraParameters->CameraParameters1.PrincipalPoint,
@@ -17806,10 +17961,10 @@ void SLAM(int updateVect[40], const double z_all_l[80], const double z_all_r[80]
     }
   }
 
-  // 'SLAM:104' map_out = map;
-  memcpy(&map_out[0], &map[0], 120U * sizeof(double));
+  // 'SLAM:105' map_out = map;
+  memcpy(&map_out[0], &map[0], 144U * sizeof(double));
 
-  // 'SLAM:105' xt_out = getWorldState(xt);
+  // 'SLAM:106' xt_out = getWorldState(xt);
   getWorldState(xt.robot_state.IMU.pos, xt.robot_state.IMU.att,
                 xt.robot_state.IMU.gyro_bias, xt.robot_state.IMU.acc_bias,
                 xt.robot_state.pos, xt.robot_state.att, xt.robot_state.vel,
@@ -17834,22 +17989,22 @@ void SLAM(int updateVect[40], const double z_all_l[80], const double z_all_r[80]
     xt_out->IMU.att[i] = t0_IMU_att[i];
   }
 
-  // 'SLAM:106' anchor_poses_out = getAnchorPoses(xt);
+  // 'SLAM:107' anchor_poses_out = getAnchorPoses(xt);
   getAnchorPoses(xt.origin.pos, xt.origin.att, xt.anchor_states, rv1);
   cast(rv1, anchor_poses_out);
 
-  // 'SLAM:107' delayedStatus_out = delayedStatus;
-  memcpy(&delayedStatus_out[0], &delayedStatus[0], 40U * sizeof(double));
+  // 'SLAM:108' delayedStatus_out = delayedStatus;
+  memcpy(&delayedStatus_out[0], &delayedStatus[0], 48U * sizeof(double));
 
   //  output
   //  NOTE: Comment this out for MEXing
-  // 'SLAM:111' coder.cstructname(xt_out, 'RobotState', 'extern', 'HeaderFile', '../InterfaceStructs.h'); 
-  // 'SLAM:112' coder.cstructname(xt_out.IMU, 'IMUState', 'extern', 'HeaderFile', '../InterfaceStructs.h'); 
-  // 'SLAM:113' coder.cstructname(anchor_poses_out(1), 'AnchorPose', 'extern', 'HeaderFile', '../InterfaceStructs.h'); 
-  // 'SLAM:115' assert ( all ( size (map_out) == [numTrackFeatures*3 1] ) )
-  // 'SLAM:116' assert ( all ( size (anchor_poses_out) == [numAnchors 1] ) )
-  // 'SLAM:117' assert ( all ( size (updateVect) == [numTrackFeatures 1] ) )
-  // 'SLAM:118' assert ( all ( size (delayedStatus_out) == [numTrackFeatures 1] ) ) 
+  // 'SLAM:112' coder.cstructname(xt_out, 'RobotState', 'extern', 'HeaderFile', '../InterfaceStructs.h'); 
+  // 'SLAM:113' coder.cstructname(xt_out.IMU, 'IMUState', 'extern', 'HeaderFile', '../InterfaceStructs.h'); 
+  // 'SLAM:114' coder.cstructname(anchor_poses_out(1), 'AnchorPose', 'extern', 'HeaderFile', '../InterfaceStructs.h'); 
+  // 'SLAM:116' assert ( all ( size (map_out) == [numTrackFeatures*3 1] ) )
+  // 'SLAM:117' assert ( all ( size (anchor_poses_out) == [numAnchors 1] ) )
+  // 'SLAM:118' assert ( all ( size (updateVect) == [numTrackFeatures 1] ) )
+  // 'SLAM:119' assert ( all ( size (delayedStatus_out) == [numTrackFeatures 1] ) ) 
 }
 
 //

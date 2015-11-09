@@ -12,12 +12,12 @@
 
   <!-- noise parameters -->
   <arg name="image_noise" default="1" />
-  <arg name="acc_noise" default="0.01" />
-  <arg name="gyro_noise" default="0.01" />
+  <arg name="acc_noise" default="10" />
+  <arg name="gyro_noise" default="0.1" />
   <arg name="gyro_bias_noise" default="0.00000" />
   <arg name="acc_bias_noise" default="0.000" />
   <arg name="inv_depth_initial_unc" default="0.001" />
-  <arg name="gyro_bias_initial_unc" default="[0, 0, 0]" />
+  <arg name="gyro_bias_initial_unc" default="[0.1, 0.1, 0.1]" />
   <arg name="acc_bias_initial_unc" default="[0, 0, 0]" />
 
   <!-- vio parameters -->
@@ -63,7 +63,7 @@
     <param name="vio_full_stereo" type="bool" value="$(arg full_stereo)" />
     <!-- note that these parameters are not free. The total number of points num_anchors*num_points_per_anchor must equal the total number of points with wich SLAM was codered in Matlab. -->
     <param name="vio_num_points_per_anchor" type="int" value="8" />
-    <param name="vio_num_anchors" type="int" value="5" />
+    <param name="vio_num_anchors" type="int" value="6" />
 
     <!-- controller gains -->
     <param name="ctrl_Kp_xy" type="double" value="$(arg Kp_xy)" />

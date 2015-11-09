@@ -133,7 +133,7 @@ class Visualizer(pg.QtCore.QThread):
         self.robot_path.header = pose_stamped.header
         self.robot_path_pub.publish(self.robot_path)
 
-        if len(self.robot_path.poses) > 5000:
+        if len(self.robot_path.poses) > 2*5000:
             self.robot_path.poses = []
 
         return

@@ -25,7 +25,8 @@ Localization::Localization()
   clear_queue_counter(0),
   vio_cnt(0),
   image_visualization_delay(0),
-  auto_subsample(false)
+  auto_subsample(false),
+  dist(0.0)
 {
 	SLAM_initialize();
 
@@ -254,6 +255,9 @@ Localization::~Localization()
 	SLAM_terminate();
 
 	printf("Longest update duration: %.3f msec, %.3f Hz\n", float(max_clicks_)/CLOCKS_PER_SEC, CLOCKS_PER_SEC/float(max_clicks_));
+
+	printf("Last position: %f %f %f\n", robot_state.pos[0], robot_state.pos[1], robot_state.pos[2]);
+	printf("Trajectory length: %f\n", dist);
 }
 
 void Localization::vioSensorMsgCb(const vio_ros::VioSensorMsg& msg)
@@ -570,6 +574,14 @@ void Localization::update(double dt, const vio_ros::VioSensorMsg &msg, bool upda
 			double duration_SLAM = (ros::Time::now() - tic_SLAM).toSec() - duration_feature_tracking;
 			std_msgs::Float32 duration_SLAM_msg; duration_SLAM_msg.data = duration_SLAM;
 			timing_SLAM_pub.publish(duration_SLAM_msg);
+
+			dist += sqrt((robot_state.pos[0] - last_pos[0])*(robot_state.pos[0] - last_pos[0]) +
+					(robot_state.pos[1] - last_pos[1])*(robot_state.pos[1] - last_pos[1]) +
+					(robot_state.pos[2] - last_pos[2])*(robot_state.pos[2] - last_pos[2]));
+
+			last_pos[0] = robot_state.pos[0];
+			last_pos[1] = robot_state.pos[1];
+			last_pos[2] = robot_state.pos[2];
 
 			if (update_vis)
 			{

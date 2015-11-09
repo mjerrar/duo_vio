@@ -108,6 +108,8 @@ private:
 	bool show_camera_image_;
 	int image_visualization_delay;
 	RobotState robot_state;
+	double dist;
+	double last_pos[3];
 
 	std::vector<FloatType> h_u_apo;
 	std::vector<FloatType> map;
