@@ -585,7 +585,7 @@ void Localization::update(double dt, const vio_ros::VioSensorMsg &msg, bool upda
 
 			if (update_vis)
 			{
-				show_image = display_tracks_cnt % image_visualization_delay == 0;
+				show_image = show_image && (display_tracks_cnt % image_visualization_delay == 0);
 				display_tracks_cnt++;
 
 				updateVis(robot_state, anchor_poses, map, update_vec_, msg, z_all_l, show_image);
