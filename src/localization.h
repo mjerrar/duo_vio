@@ -111,6 +111,9 @@ private:
 	double dist;
 	double last_pos[3];
 
+	ros::Subscriber reset_sub;
+	void resetCb(const std_msgs::Empty &msg);
+
 	std::vector<FloatType> h_u_apo;
 	std::vector<FloatType> map;
 	std::vector<AnchorPose> anchor_poses;
@@ -119,7 +122,7 @@ private:
 	void joystickCb(const sensor_msgs::Joy::ConstPtr& msg);
 //	void positionReferenceCb(const onboard_localization::PositionReference& msg);
 
-	void update(double dt, const vio_ros::VioSensorMsg &msg, bool debug_publish, bool show_image);
+	void update(double dt, const vio_ros::VioSensorMsg &msg, bool debug_publish, bool show_image, bool reset);
 
 	void getIMUData(const sensor_msgs::Imu& imu, VIOMeasurements& meas);
 

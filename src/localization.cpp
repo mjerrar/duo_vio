@@ -39,6 +39,7 @@ Localization::Localization()
 
 	duo_sub = nh_.subscribe("/vio_sensor", VIO_SENSOR_QUEUE_SIZE, &Localization::vioSensorMsgCb,this);
 	joy_sub_ = nh_.subscribe("/joy",1, &Localization::joystickCb, this);
+	reset_sub = nh_.subscribe("reset", 1, &Localization::resetCb, this);
 //	position_reference_sub_ = nh_.subscribe("/onboard_localization/position_reference",1, &Localization::positionReferenceCb, this);
 //	controller_pub = nh_.advertise<onboard_localization::ControllerOut>("/onboard_localization/controller_output",10);
 
@@ -264,6 +265,7 @@ void Localization::vioSensorMsgCb(const vio_ros::VioSensorMsg& msg)
 {
 	ros::Time tic_total = ros::Time::now();
 //	ROS_INFO("Received message %d", msg.header.seq);
+	bool reset = false;
 	// upon reset, catch up with the duo messages before resetting SLAM
 	if (SLAM_reset_flag)
 	{
@@ -280,7 +282,9 @@ void Localization::vioSensorMsgCb(const vio_ros::VioSensorMsg& msg)
 			std_msgs::UInt32 id_msg;
 			id_msg.data = msg.header.seq;
 			duo_processed_pub.publish(msg.seq);
-			return;
+//			return;
+			reset = true;
+			vio_vis_reset_pub.publish(std_msgs::Empty());
 		}
 	}
 
@@ -299,7 +303,7 @@ void Localization::vioSensorMsgCb(const vio_ros::VioSensorMsg& msg)
 	bool vis_publish = (vio_cnt % vis_publish_delay) == 0;
 	bool show_image = false;
 
-	update(dt, msg, vis_publish, show_image);
+	update(dt, msg, vis_publish, show_image, reset);
 
 	clock_t toc_total_clock = clock();
 
@@ -426,6 +430,12 @@ void Localization::dynamicReconfigureCb(vio_ros::vio_rosConfig &config, uint32_t
 
 }
 
+void Localization::resetCb(const std_msgs::Empty &msg)
+{
+	ROS_WARN("Got reset command");
+	SLAM_reset_flag = true;
+}
+
 //void Localization::positionReferenceCb(const onboard_localization::PositionReference& msg)
 //{
 //	if (change_reference)
@@ -464,7 +474,7 @@ void Localization::dynamicReconfigureCb(vio_ros::vio_rosConfig &config, uint32_t
 //	}
 //}
 
-void Localization::update(double dt, const vio_ros::VioSensorMsg &msg, bool update_vis, bool show_image)
+void Localization::update(double dt, const vio_ros::VioSensorMsg &msg, bool update_vis, bool show_image, bool reset)
 {
 	std::vector<FloatType> z_all_l(num_points_*2, 0.0);
 	std::vector<FloatType> z_all_r(num_points_*2, 0.0);
@@ -489,12 +499,13 @@ void Localization::update(double dt, const vio_ros::VioSensorMsg &msg, bool upda
 			&noiseParams,
 			&vioParams,
 			0, // predict
+			reset,
 			&robot_state,
 			&map[0],
 			&anchor_poses[0],
 			delayedStatus);
 
-	if ((auto_subsample || vio_cnt % vision_subsample == 0) && !msg.left_image.data.empty() && !msg.right_image.data.empty())
+	if (!reset && (auto_subsample || vio_cnt % vision_subsample == 0) && !msg.left_image.data.empty() && !msg.right_image.data.empty())
 	{
 			cv_bridge::CvImagePtr left_image;
 			cv_bridge::CvImagePtr right_image;
@@ -543,6 +554,7 @@ void Localization::update(double dt, const vio_ros::VioSensorMsg &msg, bool upda
 					&noiseParams,
 					&vioParams,
 					1, // vision update
+					reset,
 					&robot_state,
 					&map[0],
 					&anchor_poses[0],
