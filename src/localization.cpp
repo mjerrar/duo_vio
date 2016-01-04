@@ -499,7 +499,6 @@ void Localization::update(double dt, const vio_ros::VioSensorMsg &msg, bool upda
 			&noiseParams,
 			&vioParams,
 			0, // predict
-			reset,
 			&robot_state,
 			&map[0],
 			&anchor_poses[0],
@@ -554,7 +553,6 @@ void Localization::update(double dt, const vio_ros::VioSensorMsg &msg, bool upda
 					&noiseParams,
 					&vioParams,
 					1, // vision update
-					reset,
 					&robot_state,
 					&map[0],
 					&anchor_poses[0],
