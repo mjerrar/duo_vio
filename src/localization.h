@@ -42,6 +42,7 @@
 
 #include "std_msgs/MultiArrayLayout.h"
 #include "std_msgs/MultiArrayDimension.h"
+#include "std_msgs/String.h"
 
 #include "std_msgs/Float32MultiArray.h"
 #include "std_msgs/UInt32.h"
@@ -70,10 +71,6 @@ private:
 	int vio_cnt;
 	int vision_subsample;
 
-	cv::Mat darkCurrentL;
-	cv::Mat darkCurrentR;
-	bool use_dark_current;
-
 	DUOParameters cameraParams;
 	NoiseParameters noiseParams;
 	ControllerGains controllerGains;
@@ -81,6 +78,9 @@ private:
 	ros::NodeHandle nh_;
 
 	ros::Subscriber duo_sub;
+	ros::Subscriber device_serial_nr_sub;
+	bool got_device_serial_nr;
+	std::string device_serial_nr;
 	bool auto_subsample; // if true, predict with messages without image data, otherwise update
 	ros::Subscriber joy_sub_;
 	ros::Subscriber position_reference_sub_;
@@ -119,6 +119,7 @@ private:
 	std::vector<AnchorPose> anchor_poses;
 
 	void vioSensorMsgCb(const vio_ros::VioSensorMsg &msg);
+	void deviceSerialNrCb(const std_msgs::String &msg);
 	void joystickCb(const sensor_msgs::Joy::ConstPtr& msg);
 //	void positionReferenceCb(const onboard_localization::PositionReference& msg);
 

@@ -26,7 +26,8 @@ Localization::Localization()
   vio_cnt(0),
   image_visualization_delay(0),
   auto_subsample(false),
-  dist(0.0)
+  dist(0.0),
+  got_device_serial_nr(false)
 {
 	SLAM_initialize();
 
@@ -38,10 +39,11 @@ Localization::Localization()
 	vioParams = {};
 
 	duo_sub = nh_.subscribe("/vio_sensor", VIO_SENSOR_QUEUE_SIZE, &Localization::vioSensorMsgCb,this);
-	joy_sub_ = nh_.subscribe("/joy",1, &Localization::joystickCb, this);
+	device_serial_nr_sub = nh_.subscribe("/vio_sensor/device_serial_nr", 1, &Localization::deviceSerialNrCb, this);
+	joy_sub_ = nh_.subscribe("/joy",1, &Localization::joystickCb, this); // TODO remove this
 	reset_sub = nh_.subscribe("reset", 1, &Localization::resetCb, this);
-//	position_reference_sub_ = nh_.subscribe("/onboard_localization/position_reference",1, &Localization::positionReferenceCb, this);
-//	controller_pub = nh_.advertise<onboard_localization::ControllerOut>("/onboard_localization/controller_output",10);
+	//	position_reference_sub_ = nh_.subscribe("/onboard_localization/position_reference",1, &Localization::positionReferenceCb, this);
+	//	controller_pub = nh_.advertise<onboard_localization::ControllerOut>("/onboard_localization/controller_output",10);
 
 	pose_pub = nh_.advertise<geometry_msgs::Pose>("pose", 1);
 	vel_pub = nh_.advertise<geometry_msgs::Vector3>("vel", 1);
@@ -157,29 +159,6 @@ Localization::Localization()
 	else
 		controllerGains.i_lim = tmp_scalar;
 
-	std::string camera_name; nh_.param<std::string>("cam_camera_name", camera_name, "NoName");
-	std::string lense_type; nh_.param<std::string>("cam_lense_type", lense_type, "NoType");
-	int resolution_width; nh_.param<int>("cam_resolution_width", resolution_width, 0);
-	int resolution_height; nh_.param<int>("cam_resolution_height", resolution_height, 0);
-
-	std::stringstream res; res << resolution_height << "x" << resolution_width;
-	std::string calib_path = ros::package::getPath("vio_ros") + "/calib/" + camera_name + "/" + lense_type + "/" + res.str() + "/cameraParams.yaml";
-
-	ROS_INFO("Reading camera calibration from %s", calib_path.c_str());
-
-	try {
-		YAML::Node YamlNode = YAML::LoadFile(calib_path);
-		if (YamlNode.IsNull())
-		{
-			ROS_FATAL("Failed to open camera calibration %s", calib_path.c_str());
-			exit(-1);
-		}
-		cameraParams = parseYaml(YamlNode);
-	} catch (YAML::BadFile &e) {
-		ROS_FATAL("Failed to open camera calibration %s\nException: %s", calib_path.c_str(), e.what());
-		exit(-1);
-	}
-
 	if(!nh_.getParam("cam_FPS_duo", fps_duo))
 		ROS_WARN("Failed to load parameter cam_FPS_duo");
 	if(!nh_.getParam("cam_vision_subsample", vision_subsample))
@@ -203,34 +182,6 @@ Localization::Localization()
 	if(!nh_.getParam("image_visualization_delay", image_visualization_delay))
 		ROS_WARN("Failed to load parameter image_visualization_delay");
 	image_visualization_delay = !image_visualization_delay ? 1 : image_visualization_delay;
-
-	std::string dark_current_l_path = ros::package::getPath("vio_ros") + "/calib/" + camera_name + "/" + lense_type + "/" + res.str() + "/darkCurrentL.bmp";
-	darkCurrentL = cv::imread(dark_current_l_path, CV_LOAD_IMAGE_GRAYSCALE);
-
-	if (!darkCurrentL.data)
-	{
-		ROS_WARN("Failed to open left dark current image %s!", dark_current_l_path.c_str());
-		use_dark_current = false;
-	} else if (darkCurrentL.rows != resolution_height || darkCurrentL.cols != resolution_width)
-	{
-		ROS_WARN("Left dark current image has the wrong dimensions %s!", dark_current_l_path.c_str());
-		use_dark_current = false;
-	}
-
-	if (use_dark_current)
-	{
-		std::string dark_current_r_path = ros::package::getPath("vio_ros") + "/calib/" + camera_name + "/" + lense_type + "/" + res.str() + "/darkCurrentR.bmp";
-		darkCurrentR = cv::imread(dark_current_r_path, CV_LOAD_IMAGE_GRAYSCALE);
-		if (!darkCurrentR.data)
-		{
-			ROS_WARN("Failed to open right dark current image %s!", dark_current_r_path.c_str());
-			use_dark_current = false;
-		} else if (darkCurrentR.rows != resolution_height || darkCurrentR.cols != resolution_width)
-		{
-			ROS_WARN("Right dark current image has the wrong dimensions %s!", dark_current_r_path.c_str());
-			use_dark_current = false;
-		}
-	}
 
 	dynamic_reconfigure::Server<vio_ros::vio_rosConfig>::CallbackType f = boost::bind(&Localization::dynamicReconfigureCb, this, _1, _2);
 	dynamic_reconfigure_server.setCallback(f);
@@ -264,7 +215,7 @@ Localization::~Localization()
 void Localization::vioSensorMsgCb(const vio_ros::VioSensorMsg& msg)
 {
 	ros::Time tic_total = ros::Time::now();
-//	ROS_INFO("Received message %d", msg.header.seq);
+	//	ROS_INFO("Received message %d", msg.header.seq);
 	bool reset = false;
 	// upon reset, catch up with the duo messages before resetting SLAM
 	if (SLAM_reset_flag)
@@ -282,7 +233,7 @@ void Localization::vioSensorMsgCb(const vio_ros::VioSensorMsg& msg)
 			std_msgs::UInt32 id_msg;
 			id_msg.data = msg.header.seq;
 			duo_processed_pub.publish(msg.seq);
-//			return;
+			//			return;
 			reset = true;
 			vio_vis_reset_pub.publish(std_msgs::Empty());
 		}
@@ -325,6 +276,41 @@ void Localization::vioSensorMsgCb(const vio_ros::VioSensorMsg& msg)
 	}
 }
 
+void Localization::deviceSerialNrCb(const std_msgs::String &msg)
+{
+	if (got_device_serial_nr)
+	{
+		ROS_INFO("Got device serial nr but already have one. Ignoring.");
+		return;
+	}
+	printf("deviceSerialNrCb\n");
+	device_serial_nr = msg.data;
+	got_device_serial_nr = true;
+
+	ROS_INFO("... got device serial nr %s", device_serial_nr.c_str());
+	std::string lense_type; nh_.param<std::string>("cam_lense_type", lense_type, "NoType");
+	int resolution_width; nh_.param<int>("cam_resolution_width", resolution_width, 0);
+	int resolution_height; nh_.param<int>("cam_resolution_height", resolution_height, 0);
+
+	std::stringstream res; res << resolution_height << "x" << resolution_width;
+	std::string calib_path = ros::package::getPath("vio_ros") + "/calib/" + device_serial_nr + "/" + lense_type + "/" + res.str() + "/cameraParams.yaml";
+
+	ROS_INFO("Reading camera calibration from %s", calib_path.c_str());
+
+	try {
+		YAML::Node YamlNode = YAML::LoadFile(calib_path);
+		if (YamlNode.IsNull())
+		{
+			ROS_FATAL("Failed to open camera calibration %s", calib_path.c_str());
+			exit(-1);
+		}
+		cameraParams = parseYaml(YamlNode);
+	} catch (YAML::BadFile &e) {
+		ROS_FATAL("Failed to open camera calibration %s\nException: %s", calib_path.c_str(), e.what());
+		exit(-1);
+	}
+}
+
 void Localization::joystickCb(const sensor_msgs::Joy::ConstPtr& msg)
 {
 	if (msg->buttons[0] && !SLAM_reset_flag)
@@ -347,24 +333,24 @@ void Localization::joystickCb(const sensor_msgs::Joy::ConstPtr& msg)
 		rotation_yaw.getRPY(roll, pitch, yaw);
 		referenceCommand.position[3] = yaw;
 
-	    geometry_msgs::PoseStamped ref_viz;
-	    ref_viz.header.stamp = ros::Time::now();
-	    ref_viz.header.frame_id = "world";
-	    ref_viz.pose.position.x = referenceCommand.position[0];
-	    ref_viz.pose.position.y = referenceCommand.position[1];
-	    ref_viz.pose.position.z = referenceCommand.position[2];
+		geometry_msgs::PoseStamped ref_viz;
+		ref_viz.header.stamp = ros::Time::now();
+		ref_viz.header.frame_id = "world";
+		ref_viz.pose.position.x = referenceCommand.position[0];
+		ref_viz.pose.position.y = referenceCommand.position[1];
+		ref_viz.pose.position.z = referenceCommand.position[2];
 
-	    tf::Quaternion quaternion;
-	    quaternion.setRPY(0.0, 0.0, referenceCommand.position[3]);
-	    ref_viz.pose.orientation.w = quaternion.getW();
-	    ref_viz.pose.orientation.x = quaternion.getX();
-	    ref_viz.pose.orientation.y = quaternion.getY();
-	    ref_viz.pose.orientation.z = quaternion.getZ();
+		tf::Quaternion quaternion;
+		quaternion.setRPY(0.0, 0.0, referenceCommand.position[3]);
+		ref_viz.pose.orientation.w = quaternion.getW();
+		ref_viz.pose.orientation.x = quaternion.getX();
+		ref_viz.pose.orientation.y = quaternion.getY();
+		ref_viz.pose.orientation.z = quaternion.getZ();
 
-//	    reference_viz_pub.publish(ref_viz);
+		//	    reference_viz_pub.publish(ref_viz);
 
-	    if (!SLAM_reset_flag)
-	    	ROS_INFO("resetting SLAM");
+		if (!SLAM_reset_flag)
+			ROS_INFO("resetting SLAM");
 
 	} else if (msg->buttons[2]) { // auto mode signal
 		change_reference = true;
@@ -426,7 +412,7 @@ void Localization::dynamicReconfigureCb(vio_ros::vio_rosConfig &config, uint32_t
 	vioParams.mono                   = config.vio_mono;
 	vioParams.RANSAC                 = config.vio_RANSAC;
 
-//	show_camera_image_ = config.show_tracker_images;
+	//	show_camera_image_ = config.show_tracker_images;
 
 }
 
@@ -506,101 +492,101 @@ void Localization::update(double dt, const vio_ros::VioSensorMsg &msg, bool upda
 
 	if (!reset && (auto_subsample || vio_cnt % vision_subsample == 0) && !msg.left_image.data.empty() && !msg.right_image.data.empty())
 	{
-			cv_bridge::CvImagePtr left_image;
-			cv_bridge::CvImagePtr right_image;
-			try
-			{
-				left_image = cv_bridge::toCvCopy(msg.left_image, "mono8");
-				right_image = cv_bridge::toCvCopy(msg.right_image,"mono8");
-			}
-			catch(cv_bridge::Exception& e)
-			{
-				ROS_ERROR("Error while converting ROS image to OpenCV: %s", e.what());
-				return;
-			}
+		cv_bridge::CvImagePtr left_image;
+		cv_bridge::CvImagePtr right_image;
+		try
+		{
+			left_image = cv_bridge::toCvCopy(msg.left_image, "mono8");
+			right_image = cv_bridge::toCvCopy(msg.right_image,"mono8");
+		}
+		catch(cv_bridge::Exception& e)
+		{
+			ROS_ERROR("Error while converting ROS image to OpenCV: %s", e.what());
+			return;
+		}
 
-			//*********************************************************************
-			// Point tracking
-			//*********************************************************************
+		//*********************************************************************
+		// Point tracking
+		//*********************************************************************
 
-			ros::Time tic_feature_tracking = ros::Time::now();
+		ros::Time tic_feature_tracking = ros::Time::now();
 
-			cv::Mat left, right;
-			if (use_dark_current)
-			{
-				left = left_image->image - darkCurrentL;
-				right = right_image->image - darkCurrentR;
-			} else {
-				left = left_image->image;
-				right = right_image->image;
-			}
+		cv::Mat left, right;
+		if (use_dark_current)
+		{
+			left = left_image->image - darkCurrentL;
+			right = right_image->image - darkCurrentR;
+		} else {
+			left = left_image->image;
+			right = right_image->image;
+		}
 
-			handle_points_klt(left, right, z_all_l, z_all_r, update_vec_, vioParams.full_stereo);
+		handle_points_klt(left, right, z_all_l, z_all_r, update_vec_, vioParams.full_stereo);
 
-			double duration_feature_tracking = (ros::Time::now() - tic_feature_tracking).toSec();
-			std_msgs::Float32 duration_feature_tracking_msg; duration_feature_tracking_msg.data = duration_feature_tracking;
-			timing_feature_tracking_pub.publish(duration_feature_tracking_msg);
+		double duration_feature_tracking = (ros::Time::now() - tic_feature_tracking).toSec();
+		std_msgs::Float32 duration_feature_tracking_msg; duration_feature_tracking_msg.data = duration_feature_tracking;
+		timing_feature_tracking_pub.publish(duration_feature_tracking_msg);
 
-			//*********************************************************************
-			// SLAM update
-			//*********************************************************************
-			SLAM(&update_vec_[0],
-					&z_all_l[0],
-					&z_all_r[0],
-					dt,
-					&meas,
-					&cameraParams,
-					&noiseParams,
-					&vioParams,
-					1, // vision update
-					&robot_state,
-					&map[0],
-					&anchor_poses[0],
-					delayedStatus);
+		//*********************************************************************
+		// SLAM update
+		//*********************************************************************
+		SLAM(&update_vec_[0],
+				&z_all_l[0],
+				&z_all_r[0],
+				dt,
+				&meas,
+				&cameraParams,
+				&noiseParams,
+				&vioParams,
+				1, // vision update
+				&robot_state,
+				&map[0],
+				&anchor_poses[0],
+				delayedStatus);
 
-			camera_tf.setOrigin( tf::Vector3(robot_state.pos[0], robot_state.pos[1], robot_state.pos[2]) );
-			camera_tf.setRotation( tf::Quaternion(robot_state.att[0], robot_state.att[1], robot_state.att[2], robot_state.att[3]) );
-			tf_broadcaster.sendTransform(tf::StampedTransform(camera_tf, ros::Time::now(), "world", "camera"));
+		camera_tf.setOrigin( tf::Vector3(robot_state.pos[0], robot_state.pos[1], robot_state.pos[2]) );
+		camera_tf.setRotation( tf::Quaternion(robot_state.att[0], robot_state.att[1], robot_state.att[2], robot_state.att[3]) );
+		tf_broadcaster.sendTransform(tf::StampedTransform(camera_tf, ros::Time::now(), "world", "camera"));
 
-			body_tf.setRotation(cam2body);
-			tf_broadcaster.sendTransform(tf::StampedTransform(body_tf, ros::Time::now(), "camera", "body"));
+		body_tf.setRotation(cam2body);
+		tf_broadcaster.sendTransform(tf::StampedTransform(body_tf, ros::Time::now(), "camera", "body"));
 
-			geometry_msgs::Pose pose;
-			pose.position.x = robot_state.pos[0];
-			pose.position.y = robot_state.pos[1];
-			pose.position.z = robot_state.pos[2];
-			pose.orientation.x = robot_state.att[0];
-			pose.orientation.y = robot_state.att[1];
-			pose.orientation.z = robot_state.att[2];
-			pose.orientation.w = robot_state.att[3];
-			pose_pub.publish(pose);
+		geometry_msgs::Pose pose;
+		pose.position.x = robot_state.pos[0];
+		pose.position.y = robot_state.pos[1];
+		pose.position.z = robot_state.pos[2];
+		pose.orientation.x = robot_state.att[0];
+		pose.orientation.y = robot_state.att[1];
+		pose.orientation.z = robot_state.att[2];
+		pose.orientation.w = robot_state.att[3];
+		pose_pub.publish(pose);
 
-			geometry_msgs::Vector3 vel;
-			vel.x = robot_state.vel[0];
-			vel.y = robot_state.vel[1];
-			vel.z = robot_state.vel[2];
-			vel_pub.publish(vel);
+		geometry_msgs::Vector3 vel;
+		vel.x = robot_state.vel[0];
+		vel.y = robot_state.vel[1];
+		vel.z = robot_state.vel[2];
+		vel_pub.publish(vel);
 
-			double duration_SLAM = (ros::Time::now() - tic_SLAM).toSec() - duration_feature_tracking;
-			std_msgs::Float32 duration_SLAM_msg; duration_SLAM_msg.data = duration_SLAM;
-			timing_SLAM_pub.publish(duration_SLAM_msg);
+		double duration_SLAM = (ros::Time::now() - tic_SLAM).toSec() - duration_feature_tracking;
+		std_msgs::Float32 duration_SLAM_msg; duration_SLAM_msg.data = duration_SLAM;
+		timing_SLAM_pub.publish(duration_SLAM_msg);
 
-			dist += sqrt((robot_state.pos[0] - last_pos[0])*(robot_state.pos[0] - last_pos[0]) +
-					(robot_state.pos[1] - last_pos[1])*(robot_state.pos[1] - last_pos[1]) +
-					(robot_state.pos[2] - last_pos[2])*(robot_state.pos[2] - last_pos[2]));
+		dist += sqrt((robot_state.pos[0] - last_pos[0])*(robot_state.pos[0] - last_pos[0]) +
+				(robot_state.pos[1] - last_pos[1])*(robot_state.pos[1] - last_pos[1]) +
+				(robot_state.pos[2] - last_pos[2])*(robot_state.pos[2] - last_pos[2]));
 
-			last_pos[0] = robot_state.pos[0];
-			last_pos[1] = robot_state.pos[1];
-			last_pos[2] = robot_state.pos[2];
+		last_pos[0] = robot_state.pos[0];
+		last_pos[1] = robot_state.pos[1];
+		last_pos[2] = robot_state.pos[2];
 
-			if (update_vis)
-			{
-				show_image = show_image && (display_tracks_cnt % image_visualization_delay == 0);
-				display_tracks_cnt++;
+		if (update_vis)
+		{
+			show_image = show_image && (display_tracks_cnt % image_visualization_delay == 0);
+			display_tracks_cnt++;
 
-				updateVis(robot_state, anchor_poses, map, update_vec_, msg, z_all_l, show_image);
+			updateVis(robot_state, anchor_poses, map, update_vec_, msg, z_all_l, show_image);
 
-			}
+		}
 	} else {
 		double duration_SLAM = (ros::Time::now() - tic_SLAM).toSec();
 		std_msgs::Float32 duration_SLAM_msg; duration_SLAM_msg.data = duration_SLAM;
@@ -625,25 +611,25 @@ void Localization::getIMUData(const sensor_msgs::Imu& imu, VIOMeasurements& meas
 void Localization::getViconPosition(void)
 {
 
-  tf::StampedTransform transform;
-  tf_listener_.lookupTransform( "/world", "/drone_base", ros::Time(0), transform);
+	tf::StampedTransform transform;
+	tf_listener_.lookupTransform( "/world", "/drone_base", ros::Time(0), transform);
 
-  tf::Vector3 position = transform.getOrigin();
-  tf::Matrix3x3 rotation = transform.getBasis();
-  double roll, pitch, yaw;
-  rotation.getRPY(roll, pitch, yaw);
+	tf::Vector3 position = transform.getOrigin();
+	tf::Matrix3x3 rotation = transform.getBasis();
+	double roll, pitch, yaw;
+	rotation.getRPY(roll, pitch, yaw);
 
-  tf::Quaternion world2control_quaternion;
-  world2control_quaternion.setRPY(0.0, 0.0, yaw);
+	tf::Quaternion world2control_quaternion;
+	world2control_quaternion.setRPY(0.0, 0.0, yaw);
 
-  vicon_pos[0] = position.x();
-  vicon_pos[1] = position.y();
-  vicon_pos[2] = position.z();
+	vicon_pos[0] = position.x();
+	vicon_pos[1] = position.y();
+	vicon_pos[2] = position.z();
 
-  vicon_quaternion[0] = world2control_quaternion.getX();
-  vicon_quaternion[1] = world2control_quaternion.getY();
-  vicon_quaternion[2] = world2control_quaternion.getZ();
-  vicon_quaternion[3] = world2control_quaternion.getW();
+	vicon_quaternion[0] = world2control_quaternion.getX();
+	vicon_quaternion[1] = world2control_quaternion.getY();
+	vicon_quaternion[2] = world2control_quaternion.getZ();
+	vicon_quaternion[3] = world2control_quaternion.getW();
 
 }
 
