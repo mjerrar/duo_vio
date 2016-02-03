@@ -214,6 +214,8 @@ Localization::~Localization()
 
 void Localization::vioSensorMsgCb(const vio_ros::VioSensorMsg& msg)
 {
+	if (!got_device_serial_nr)
+		return;
 	ros::Time tic_total = ros::Time::now();
 	//	ROS_INFO("Received message %d", msg.header.seq);
 	bool reset = false;
@@ -287,7 +289,7 @@ void Localization::deviceSerialNrCb(const std_msgs::String &msg)
 	device_serial_nr = msg.data;
 	got_device_serial_nr = true;
 
-	ROS_INFO("... got device serial nr %s", device_serial_nr.c_str());
+	ROS_INFO("Got device serial nr %s", device_serial_nr.c_str());
 	std::string lense_type; nh_.param<std::string>("cam_lense_type", lense_type, "NoType");
 	int resolution_width; nh_.param<int>("cam_resolution_width", resolution_width, 0);
 	int resolution_height; nh_.param<int>("cam_resolution_height", resolution_height, 0);
@@ -512,14 +514,8 @@ void Localization::update(double dt, const vio_ros::VioSensorMsg &msg, bool upda
 		ros::Time tic_feature_tracking = ros::Time::now();
 
 		cv::Mat left, right;
-		if (use_dark_current)
-		{
-			left = left_image->image - darkCurrentL;
-			right = right_image->image - darkCurrentR;
-		} else {
-			left = left_image->image;
-			right = right_image->image;
-		}
+		left = left_image->image;
+		right = right_image->image;
 
 		handle_points_klt(left, right, z_all_l, z_all_r, update_vec_, vioParams.full_stereo);
 
