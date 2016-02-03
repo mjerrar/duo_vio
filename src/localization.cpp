@@ -254,9 +254,8 @@ void Localization::vioSensorMsgCb(const vio_ros::VioSensorMsg& msg)
 	}
 
 	bool vis_publish = (vio_cnt % vis_publish_delay) == 0;
-	bool show_image = false;
 
-	update(dt, msg, vis_publish, show_image, reset);
+	update(dt, msg, vis_publish, show_camera_image_, reset);
 
 	clock_t toc_total_clock = clock();
 
@@ -285,7 +284,6 @@ void Localization::deviceSerialNrCb(const std_msgs::String &msg)
 		ROS_INFO("Got device serial nr but already have one. Ignoring.");
 		return;
 	}
-	printf("deviceSerialNrCb\n");
 	device_serial_nr = msg.data;
 	got_device_serial_nr = true;
 
