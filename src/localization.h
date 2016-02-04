@@ -80,7 +80,6 @@ private:
 	ros::Subscriber duo_sub;
 	ros::Subscriber device_serial_nr_sub;
 	bool got_device_serial_nr;
-	std::string device_serial_nr;
 	bool auto_subsample; // if true, predict with messages without image data, otherwise update
 	ros::Subscriber joy_sub_;
 	ros::Subscriber position_reference_sub_;

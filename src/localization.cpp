@@ -281,10 +281,10 @@ void Localization::deviceSerialNrCb(const std_msgs::String &msg)
 {
 	if (got_device_serial_nr)
 	{
-		ROS_INFO("Got device serial nr but already have one. Ignoring.");
+		ROS_WARN("Got device serial nr but already have one. Ignoring.");
 		return;
 	}
-	device_serial_nr = msg.data;
+	std::string device_serial_nr = msg.data;
 	got_device_serial_nr = true;
 
 	ROS_INFO("Got device serial nr %s", device_serial_nr.c_str());
@@ -293,7 +293,7 @@ void Localization::deviceSerialNrCb(const std_msgs::String &msg)
 	int resolution_height; nh_.param<int>("cam_resolution_height", resolution_height, 0);
 
 	std::stringstream res; res << resolution_height << "x" << resolution_width;
-	std::string calib_path = ros::package::getPath("vio_ros") + "/calib/" + device_serial_nr + "/" + lense_type + "/" + res.str() + "/cameraParams.yaml";
+	std::string calib_path = ros::package::getPath("duo3d_ros") + "/calib/" + device_serial_nr + "/" + lense_type + "/" + res.str() + "/cameraParams.yaml";
 
 	ROS_INFO("Reading camera calibration from %s", calib_path.c_str());
 
