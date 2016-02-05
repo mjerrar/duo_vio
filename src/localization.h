@@ -37,6 +37,7 @@
 
 #include <vector>
 #include <cstdio>
+#include <fstream>
 
 #include <boost/circular_buffer.hpp>
 
@@ -79,12 +80,10 @@ private:
 
 	ros::Subscriber duo_sub;
 	ros::Subscriber device_serial_nr_sub;
+	std::string device_serial_nr;
 	bool got_device_serial_nr;
 	bool auto_subsample; // if true, predict with messages without image data, otherwise update
-	ros::Subscriber joy_sub_;
-	ros::Subscriber position_reference_sub_;
 
-	ros::Publisher controller_pub;
 	ros::Publisher duo_processed_pub;
 	dynamic_reconfigure::Server<vio_ros::vio_rosConfig> dynamic_reconfigure_server;
 
@@ -93,6 +92,7 @@ private:
 	ros::Publisher timing_SLAM_pub;
 	ros::Publisher timing_feature_tracking_pub;
 	ros::Publisher timing_total_pub;
+	ros::Publisher vis_pub_;
 
 	tf::TransformBroadcaster tf_broadcaster;
 	tf::Transform camera_tf;
@@ -119,24 +119,14 @@ private:
 
 	void vioSensorMsgCb(const vio_ros::VioSensorMsg &msg);
 	void deviceSerialNrCb(const std_msgs::String &msg);
-	void joystickCb(const sensor_msgs::Joy::ConstPtr& msg);
-//	void positionReferenceCb(const onboard_localization::PositionReference& msg);
 
 	void update(double dt, const vio_ros::VioSensorMsg &msg, bool debug_publish, bool show_image, bool reset);
 
 	void getIMUData(const sensor_msgs::Imu& imu, VIOMeasurements& meas);
 
-	ros::Publisher vis_pub_;
 	void updateVis(RobotState &robot_state, std::vector<AnchorPose> &anchor_poses, std::vector<FloatType> &map, std::vector<int> &updateVect, const vio_ros::VioSensorMsg &msg, std::vector<FloatType> &z_l, bool show_image);
 
-	ReferenceCommand referenceCommand;
-	bool change_reference;
 	tf::Quaternion camera2world; // the rotation that transforms a vector in the camera frame to one in the world frame
-
-	tf::TransformListener tf_listener_;
-	void getViconPosition(void);
-	std::vector<double> vicon_pos;
-	std::vector<double> vicon_quaternion;
 
 	void dynamicReconfigureCb(vio_ros::vio_rosConfig &config, uint32_t level);
 

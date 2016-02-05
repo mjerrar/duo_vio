@@ -17,9 +17,6 @@ static const int VIO_SENSOR_QUEUE_SIZE = 30;
 Localization::Localization()
 : nh_("~"),
   SLAM_reset_flag(1),
-  change_reference(false),
-  vicon_pos(3, 0.0),
-  vicon_quaternion(4, 0.0),
   cam2body(-0.5, 0.5, -0.5, -0.5),
   max_clicks_(0),
   clear_queue_counter(0),
@@ -32,7 +29,6 @@ Localization::Localization()
 	SLAM_initialize();
 
 	// initialize structs
-	referenceCommand = {{0, 0, 0, 0}, {0, 0, 0, 0}};
 	cameraParams = {{},{}};
 	noiseParams = {};
 	controllerGains = {};
@@ -40,10 +36,7 @@ Localization::Localization()
 
 	duo_sub = nh_.subscribe("/vio_sensor", VIO_SENSOR_QUEUE_SIZE, &Localization::vioSensorMsgCb,this);
 	device_serial_nr_sub = nh_.subscribe("/vio_sensor/device_serial_nr", 1, &Localization::deviceSerialNrCb, this);
-	joy_sub_ = nh_.subscribe("/joy",1, &Localization::joystickCb, this); // TODO remove this
 	reset_sub = nh_.subscribe("reset", 1, &Localization::resetCb, this);
-	//	position_reference_sub_ = nh_.subscribe("/onboard_localization/position_reference",1, &Localization::positionReferenceCb, this);
-	//	controller_pub = nh_.advertise<onboard_localization::ControllerOut>("/onboard_localization/controller_output",10);
 
 	pose_pub = nh_.advertise<geometry_msgs::Pose>("pose", 1);
 	vel_pub = nh_.advertise<geometry_msgs::Vector3>("vel", 1);
@@ -210,6 +203,23 @@ Localization::~Localization()
 
 	printf("Last position: %f %f %f\n", robot_state.pos[0], robot_state.pos[1], robot_state.pos[2]);
 	printf("Trajectory length: %f\n", dist);
+
+	// write the estimated biases to file
+	if (got_device_serial_nr)
+	{
+		std::string file_path = ros::package::getPath("duo3d_ros") + "/calib/" + device_serial_nr + "/last_bias_estimate.yaml";
+		YAML::Node node;  // starts out as null
+		node["acc_bias"].push_back(robot_state.IMU.acc_bias[0]);
+		node["acc_bias"].push_back(robot_state.IMU.acc_bias[1]);
+		node["acc_bias"].push_back(robot_state.IMU.acc_bias[2]);
+
+		node["gyro_bias"].push_back(robot_state.IMU.gyro_bias[0]);
+		node["gyro_bias"].push_back(robot_state.IMU.gyro_bias[1]);
+		node["gyro_bias"].push_back(robot_state.IMU.gyro_bias[2]);
+		std::ofstream fout(file_path.c_str());
+		fout << node; // dump it into the file
+		printf("Writing estimated IMU biases to %s\n", file_path.c_str());
+	}
 }
 
 void Localization::vioSensorMsgCb(const vio_ros::VioSensorMsg& msg)
@@ -250,6 +260,13 @@ void Localization::vioSensorMsgCb(const vio_ros::VioSensorMsg& msg)
 		dt = vision_subsample/fps_duo;
 	} else {
 		dt = (msg.header.stamp - prev_time_).toSec();
+		if (dt < 0)
+		{
+			ROS_ERROR("Negative time difference: %f", dt);
+			dt = 0.01;
+		}
+		if (std::abs(dt - fps_duo) > 10/fps_duo)
+			ROS_WARN("Jitter! dt: %f", dt);
 		prev_time_ = msg.header.stamp;
 	}
 
@@ -284,7 +301,7 @@ void Localization::deviceSerialNrCb(const std_msgs::String &msg)
 		ROS_WARN("Got device serial nr but already have one. Ignoring.");
 		return;
 	}
-	std::string device_serial_nr = msg.data;
+	device_serial_nr = msg.data;
 	got_device_serial_nr = true;
 
 	ROS_INFO("Got device serial nr %s", device_serial_nr.c_str());
@@ -311,93 +328,8 @@ void Localization::deviceSerialNrCb(const std_msgs::String &msg)
 	}
 }
 
-void Localization::joystickCb(const sensor_msgs::Joy::ConstPtr& msg)
-{
-	if (msg->buttons[0] && !SLAM_reset_flag)
-	{
-		SLAM_reset_flag = true;
-		referenceCommand.position[0] = 0;
-		referenceCommand.position[1] = 0;
-		referenceCommand.position[2] = 0;
-		referenceCommand.position[3] = 0;
-		referenceCommand.velocity[0] = 0;
-		referenceCommand.velocity[1] = 0;
-		referenceCommand.velocity[2] = 0;
-		referenceCommand.velocity[3] = 0;
-
-		tf::Quaternion quaternion_yaw;
-		tf::Transform tf_yaw;
-		tf_yaw.setRotation(quaternion_yaw);
-		tf::Matrix3x3 rotation_yaw = tf_yaw.getBasis();
-		double roll, pitch, yaw;
-		rotation_yaw.getRPY(roll, pitch, yaw);
-		referenceCommand.position[3] = yaw;
-
-		geometry_msgs::PoseStamped ref_viz;
-		ref_viz.header.stamp = ros::Time::now();
-		ref_viz.header.frame_id = "world";
-		ref_viz.pose.position.x = referenceCommand.position[0];
-		ref_viz.pose.position.y = referenceCommand.position[1];
-		ref_viz.pose.position.z = referenceCommand.position[2];
-
-		tf::Quaternion quaternion;
-		quaternion.setRPY(0.0, 0.0, referenceCommand.position[3]);
-		ref_viz.pose.orientation.w = quaternion.getW();
-		ref_viz.pose.orientation.x = quaternion.getX();
-		ref_viz.pose.orientation.y = quaternion.getY();
-		ref_viz.pose.orientation.z = quaternion.getZ();
-
-		//	    reference_viz_pub.publish(ref_viz);
-
-		if (!SLAM_reset_flag)
-			ROS_INFO("resetting SLAM");
-
-	} else if (msg->buttons[2]) { // auto mode signal
-		change_reference = true;
-		// set the reference to the current pose
-
-		referenceCommand.position[0] = pose.position.x;
-		referenceCommand.position[1] = pose.position.y;
-		referenceCommand.position[2] = pose.position.z;
-
-		double yaw = tf::getYaw(pose.orientation) + 1.57;
-		referenceCommand.position[3] = yaw;
-
-		referenceCommand.velocity[0] = 0;
-		referenceCommand.velocity[1] = 0;
-		referenceCommand.velocity[2] = 0;
-		referenceCommand.velocity[3] = 0;
-
-		geometry_msgs::PoseStamped ref_viz;
-		ref_viz.header.stamp = ros::Time::now();
-		ref_viz.header.frame_id = "world";
-		ref_viz.pose.position.x = referenceCommand.position[0];
-		ref_viz.pose.position.y = referenceCommand.position[1];
-		ref_viz.pose.position.z = referenceCommand.position[2];
-
-		tf::Quaternion quaternion;
-		quaternion.setRPY(0.0, 0.0, referenceCommand.position[3]);
-		ref_viz.pose.orientation.w = quaternion.getW();
-		ref_viz.pose.orientation.x = quaternion.getX();
-		ref_viz.pose.orientation.y = quaternion.getY();
-		ref_viz.pose.orientation.z = quaternion.getZ();
-
-	} else if (msg->buttons[3]) { // leaving auto mode signal
-		change_reference = true;
-	}
-}
-
 void Localization::dynamicReconfigureCb(vio_ros::vio_rosConfig &config, uint32_t level)
 {
-	controllerGains.Kp_xy  = config.ctrl_Kp_xy;
-	controllerGains.Ki_xy  = config.ctrl_Ki_xy;
-	controllerGains.Kd_xy  = config.ctrl_Kd_xy;
-	controllerGains.Kp_z   = config.ctrl_Kp_z;
-	controllerGains.Ki_z   = config.ctrl_Ki_z;
-	controllerGains.Kd_z   = config.ctrl_Kd_z;
-	controllerGains.Kp_yaw = config.ctrl_Kp_yaw;
-	controllerGains.Kd_yaw = config.ctrl_Kd_yaw;
-	controllerGains.i_lim  = config.ctrl_i_lim;
 
 	noiseParams.image_noise           = config.noise_image;
 	noiseParams.process_noise.qv      = config.noise_acc;
@@ -421,44 +353,6 @@ void Localization::resetCb(const std_msgs::Empty &msg)
 	ROS_WARN("Got reset command");
 	SLAM_reset_flag = true;
 }
-
-//void Localization::positionReferenceCb(const onboard_localization::PositionReference& msg)
-//{
-//	if (change_reference)
-//	{
-//		double roll, pitch, yaw;
-//		tf::Matrix3x3(camera2world).getRPY(roll, pitch, yaw);
-//		tf::Quaternion q;
-//		q.setRPY(0, 0, yaw + 1.57);
-//		tf::Vector3 positionChange_world = tf::Transform(q) * tf::Vector3(msg.x, msg.y, msg.z);
-//		double dt = 0.1; // the loop rate of the joy reference node
-//		referenceCommand.position[0] += dt * positionChange_world.x();
-//		referenceCommand.position[1] += dt * positionChange_world.y();
-//		referenceCommand.position[2] += dt * positionChange_world.z();
-//		referenceCommand.position[3] += dt * msg.yaw;
-//
-//		referenceCommand.velocity[0] = positionChange_world.x();
-//		referenceCommand.velocity[1] = positionChange_world.y();
-//		referenceCommand.velocity[2] = positionChange_world.z();
-//		referenceCommand.velocity[3] = msg.yaw;
-//
-//		geometry_msgs::PoseStamped ref_viz;
-//		ref_viz.header.stamp = ros::Time::now();
-//		ref_viz.header.frame_id = "world";
-//		ref_viz.pose.position.x = referenceCommand.position[0];
-//		ref_viz.pose.position.y = referenceCommand.position[1];
-//		ref_viz.pose.position.z = referenceCommand.position[2];
-//
-//		tf::Quaternion quaternion;
-//		quaternion.setRPY(0.0, 0.0, referenceCommand.position[3]);
-//		ref_viz.pose.orientation.w = quaternion.getW();
-//		ref_viz.pose.orientation.x = quaternion.getX();
-//		ref_viz.pose.orientation.y = quaternion.getY();
-//		ref_viz.pose.orientation.z = quaternion.getZ();
-//
-////		reference_viz_pub.publish(ref_viz);
-//	}
-//}
 
 void Localization::update(double dt, const vio_ros::VioSensorMsg &msg, bool update_vis, bool show_image, bool reset)
 {
@@ -602,31 +496,6 @@ void Localization::getIMUData(const sensor_msgs::Imu& imu, VIOMeasurements& meas
 	meas.gyr_duo[2] = imu.angular_velocity.z;
 }
 
-void Localization::getViconPosition(void)
-{
-
-	tf::StampedTransform transform;
-	tf_listener_.lookupTransform( "/world", "/drone_base", ros::Time(0), transform);
-
-	tf::Vector3 position = transform.getOrigin();
-	tf::Matrix3x3 rotation = transform.getBasis();
-	double roll, pitch, yaw;
-	rotation.getRPY(roll, pitch, yaw);
-
-	tf::Quaternion world2control_quaternion;
-	world2control_quaternion.setRPY(0.0, 0.0, yaw);
-
-	vicon_pos[0] = position.x();
-	vicon_pos[1] = position.y();
-	vicon_pos[2] = position.z();
-
-	vicon_quaternion[0] = world2control_quaternion.getX();
-	vicon_quaternion[1] = world2control_quaternion.getY();
-	vicon_quaternion[2] = world2control_quaternion.getZ();
-	vicon_quaternion[3] = world2control_quaternion.getW();
-
-}
-
 void Localization::updateVis(RobotState &robot_state,
 		std::vector<AnchorPose> &anchor_poses,
 		std::vector<FloatType> &map,
@@ -690,6 +559,4 @@ void Localization::updateVis(RobotState &robot_state,
 	msg.acc_bias.data.push_back(robot_state.IMU.acc_bias[2]);
 
 	vio_vis_pub.publish(msg);
-
 }
-
