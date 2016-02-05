@@ -265,7 +265,7 @@ void Localization::vioSensorMsgCb(const vio_ros::VioSensorMsg& msg)
 			ROS_ERROR("Negative time difference: %f", dt);
 			dt = 0.01;
 		}
-		if (std::abs(dt - fps_duo) > 10/fps_duo)
+		if (std::abs(dt - 1/fps_duo) > 10/fps_duo)
 			ROS_WARN("Jitter! dt: %f", dt);
 		prev_time_ = msg.header.stamp;
 	}
@@ -379,6 +379,7 @@ void Localization::update(double dt, const vio_ros::VioSensorMsg &msg, bool upda
 			&noiseParams,
 			&vioParams,
 			0, // predict
+			0, // reset
 			&robot_state,
 			&map[0],
 			&anchor_poses[0],
@@ -427,6 +428,7 @@ void Localization::update(double dt, const vio_ros::VioSensorMsg &msg, bool upda
 				&noiseParams,
 				&vioParams,
 				1, // vision update
+				reset,
 				&robot_state,
 				&map[0],
 				&anchor_poses[0],
