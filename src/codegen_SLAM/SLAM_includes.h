@@ -1,5 +1,6 @@
 #ifndef __SLAM_INCLUDES__
 #define __SLAM_INCLUDES__
+#include "matlab_consts.h"
 #include "rtGetInf.h"
 #include "rtGetNaN.h"
 #include "rt_nonfinite.h"

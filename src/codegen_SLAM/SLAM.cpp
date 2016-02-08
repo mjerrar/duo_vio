@@ -5,7 +5,7 @@
 // File: SLAM.cpp
 //
 // MATLAB Coder version            : 3.0
-// C/C++ source code generated on  : 08-Feb-2016 09:58:24
+// C/C++ source code generated on  : 08-Feb-2016 18:25:07
 //
 
 // Include Files
@@ -261,7 +261,8 @@ static void initializePoint(const double z_u_l[2], const double z_u_r[2], const
 static double j_fprintf(double varargin_1);
 static double k_fprintf(double varargin_1);
 static double l_fprintf(int varargin_1);
-static double m_fprintf(int varargin_1);
+static double m_fprintf(const char varargin_1_data[], const int varargin_1_size
+  [2]);
 static double median(const double x_data[], const int x_size[1]);
 static void merge(int idx[8], double x[8], int offset, int np, int nq, int
                   iwork[8], double xwork[8]);
@@ -270,7 +271,8 @@ static void merge_block(emxArray_int32_T *idx, emxArray_real_T *x, int offset,
 static void mrdivide(emxArray_real_T *A, const emxArray_real_T *B);
 static void multiplyIdx(const double idx_data[], const int idx_size[1], double
   idx_mult_data[], int idx_mult_size[1]);
-static double n_fprintf(int varargin_1);
+static double n_fprintf(const char varargin_1_data[], const int varargin_1_size
+  [2]);
 static double norm(const double x[3]);
 static double o_fprintf(const char varargin_1_data[], const int varargin_1_size
   [2]);
@@ -290,17 +292,14 @@ static void printParams(double c_noiseParameters_process_noise, double
   double f_noiseParameters_process_noise, double g_noiseParameters_process_noise,
   const double c_noiseParameters_gyro_bias_ini[3], const double
   c_noiseParameters_acc_bias_init[3], double noiseParameters_image_noise, double
-  c_noiseParameters_inv_depth_ini, int c_VIOParameters_num_points_per_, int
-  VIOParameters_num_anchors, int c_VIOParameters_max_ekf_iterati, boolean_T
-  VIOParameters_fixed_feature, boolean_T c_VIOParameters_delayed_initial,
-  boolean_T VIOParameters_mono, boolean_T VIOParameters_full_stereo, boolean_T
-  VIOParameters_RANSAC);
+  c_noiseParameters_inv_depth_ini, int c_VIOParameters_max_ekf_iterati,
+  boolean_T VIOParameters_fixed_feature, boolean_T
+  c_VIOParameters_delayed_initial, boolean_T VIOParameters_mono, boolean_T
+  VIOParameters_full_stereo, boolean_T VIOParameters_RANSAC);
 static double q_fprintf(const char varargin_1_data[], const int varargin_1_size
   [2]);
 static void quatPlusThetaJ(const double dtheta[3], double dq[4]);
 static void quatmultJ(const double q[4], const double p[4], double qp[4]);
-static double r_fprintf(const char varargin_1_data[], const int varargin_1_size
-  [2]);
 static int rankFromQR(const emxArray_real_T *A);
 static void rdivide(const double x[3], double y, double z[3]);
 static void ros_error();
@@ -308,8 +307,6 @@ static void ros_info(int varargin_1, int varargin_2, int varargin_3);
 static void ros_warn(int varargin_1, int varargin_2, int varargin_3);
 static double rt_powd_snf(double u0, double u1);
 static double rt_roundd_snf(double u);
-static double s_fprintf(const char varargin_1_data[], const int varargin_1_size
-  [2]);
 static void sort(double x[8], int idx[8]);
 static void sortIdx(emxArray_real_T *x, emxArray_int32_T *idx);
 static void svd(const double A[36], double U[6]);
@@ -369,7 +366,7 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, double b_P[10404], const double
   int residualDim;
   int mahalanobis_thresh;
   double LI_residual_thresh;
-  int apnd;
+  int cdiff;
   boolean_T activeFeatures[48];
   boolean_T delayedFeatures[48];
   int anchorIdx;
@@ -382,7 +379,6 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, double b_P[10404], const double
   emxArray_real_T *H;
   int idx;
   signed char ii_data[48];
-  int b_m;
   boolean_T exitg2;
   boolean_T guard2 = false;
   int ndbl;
@@ -395,7 +391,7 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, double b_P[10404], const double
   boolean_T HI_inlierStatus[48];
   long i50;
   int i51;
-  int i52;
+  int b_m;
   double H_b_data[24];
   double H_c_data[4];
   double P_b[36];
@@ -403,16 +399,17 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, double b_P[10404], const double
   double P_d[36];
   double P_f[6];
   double H_a_data[24];
+  int cr;
   int ic;
   int br;
   int ar;
   int ib;
   int ia;
   double C_data[24];
-  long i53;
+  long i52;
   double b_C_data[24];
   double c_C_data[24];
-  long i54;
+  long i53;
   double a_data[24];
   double b_data[24];
   double S_feature_data[16];
@@ -423,13 +420,13 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, double b_P[10404], const double
   double c_xt[4];
   double b_S_feature_data[6];
   unsigned int unnamed_idx_1;
-  double x_apo[102];
-  double b_x_apo;
+  double x_it[102];
+  double b_x_it;
   double b_y_data[4];
   double R_cw[9];
   double r_wc[3];
   double anchorPos[3];
-  double c_x_apo[3];
+  double x_it2[3];
   double dv18[4];
   double gryro_bias_cov[9];
   double rho;
@@ -456,7 +453,9 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, double b_P[10404], const double
   int ii_size_idx_0;
   emxArray_real_T *b_K;
   emxArray_real_T *b_H;
+  g_struct_T xt_it;
   int it;
+  emxArray_real_T *C;
   emxArray_real_T *e_y;
   emxArray_real_T *f_y;
   emxArray_real_T *c_H;
@@ -476,15 +475,17 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, double b_P[10404], const double
   int S_feature_size[2];
   int y_size[2];
   int b_tmp_data[4];
-  double x_apo_data[102];
-  double b_x_apo_data;
+  double x_it2_data[102];
+  double b_x_it2_data;
   double dv23[4];
-  emxArray_real_T *C;
-  static double dv24[10404];
+  double dv24[4];
+  double dv25[4];
+  emxArray_real_T *b_C;
+  static double dv26[10404];
   emxArray_real_T *g_y;
   emxArray_real_T *d_S;
   emxArray_real_T *h_y;
-  double dv25[10404];
+  double dv27[10404];
   double rejected_ratio;
   char cv46[66];
   static const char cv47[66] = { '1', '-', 'p', 'o', 'i', 'n', 't', ' ', 'R',
@@ -529,9 +530,9 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, double b_P[10404], const double
 
   // 'OnePointRANSAC_EKF:20' activeFeatures = false(size(updateVect));
   // 'OnePointRANSAC_EKF:21' delayedFeatures = activeFeatures;
-  for (apnd = 0; apnd < 48; apnd++) {
-    activeFeatures[apnd] = false;
-    delayedFeatures[apnd] = false;
+  for (cdiff = 0; cdiff < 48; cdiff++) {
+    activeFeatures[cdiff] = false;
+    delayedFeatures[cdiff] = false;
   }
 
   // 'OnePointRANSAC_EKF:22' for anchorIdx = 1:numAnchors
@@ -559,10 +560,10 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, double b_P[10404], const double
   // 'OnePointRANSAC_EKF:32' activeFeatures = activeFeatures & (updateVect==1);
   // 'OnePointRANSAC_EKF:33' delayedFeatures = delayedFeatures & (updateVect==1); 
   // 'OnePointRANSAC_EKF:35' LI_inlier_status = false(size(updateVect));
-  for (apnd = 0; apnd < 48; apnd++) {
-    LI_inlier_status[apnd] = false;
-    activeFeatures[apnd] = (activeFeatures[apnd] && (updateVect[apnd] == 1));
-    delayedFeatures[apnd] = (delayedFeatures[apnd] && (updateVect[apnd] == 1));
+  for (cdiff = 0; cdiff < 48; cdiff++) {
+    LI_inlier_status[cdiff] = false;
+    activeFeatures[cdiff] = (activeFeatures[cdiff] && (updateVect[cdiff] == 1));
+    delayedFeatures[cdiff] = (delayedFeatures[cdiff] && (updateVect[cdiff] == 1));
   }
 
   // % B 1-point hypotheses generation and evaluation
@@ -580,13 +581,13 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, double b_P[10404], const double
     //  randomly permute the active feature indices for 1-point RANSAC
     // 'OnePointRANSAC_EKF:42' hyp_ind = find(activeFeatures);
     idx = 0;
-    b_m = 1;
+    cdiff = 1;
     exitg2 = false;
-    while ((!exitg2) && (b_m < 49)) {
+    while ((!exitg2) && (cdiff < 49)) {
       guard2 = false;
-      if (activeFeatures[b_m - 1]) {
+      if (activeFeatures[cdiff - 1]) {
         idx++;
-        ii_data[idx - 1] = (signed char)b_m;
+        ii_data[idx - 1] = (signed char)cdiff;
         if (idx >= 48) {
           exitg2 = true;
         } else {
@@ -597,7 +598,7 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, double b_P[10404], const double
       }
 
       if (guard2) {
-        b_m++;
+        cdiff++;
       }
     }
 
@@ -630,9 +631,9 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, double b_P[10404], const double
       // 'OnePointRANSAC_EKF:51' hyp_idx = hyp_ind(hyp_it);
       // 'OnePointRANSAC_EKF:53' LI_inlier_status_i(:) = false;
       // 'OnePointRANSAC_EKF:55' hyp_status(:) = false;
-      for (apnd = 0; apnd < 48; apnd++) {
-        HI_inlierCandidates[apnd] = false;
-        HI_inlierStatus[apnd] = false;
+      for (cdiff = 0; cdiff < 48; cdiff++) {
+        HI_inlierCandidates[cdiff] = false;
+        HI_inlierStatus[cdiff] = false;
       }
 
       // 'OnePointRANSAC_EKF:56' hyp_status(hyp_idx) = true;
@@ -684,7 +685,7 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, double b_P[10404], const double
 
       i49 = (int)i50;
       for (i51 = 0; i51 < 6; i51++) {
-        for (i52 = 0; i52 < residualDim; i52++) {
+        for (b_m = 0; b_m < residualDim; b_m++) {
           i50 = (long)i49 + (1 + i51);
           if (i50 > 2147483647L) {
             i50 = 2147483647L;
@@ -694,7 +695,7 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, double b_P[10404], const double
             }
           }
 
-          H_b_data[i52 + residualDim * i51] = H->data[i52 + H->size[0] * ((int)
+          H_b_data[b_m + residualDim * i51] = H->data[b_m + H->size[0] * ((int)
             i50 - 1)];
         }
       }
@@ -780,8 +781,8 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, double b_P[10404], const double
 
       i49 = (int)i50;
       for (i51 = 0; i51 < 6; i51++) {
-        for (i52 = 0; i52 < 6; i52++) {
-          i50 = (long)i49 + (1 + i52);
+        for (b_m = 0; b_m < 6; b_m++) {
+          i50 = (long)i49 + (1 + b_m);
           if (i50 > 2147483647L) {
             i50 = 2147483647L;
           } else {
@@ -790,7 +791,7 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, double b_P[10404], const double
             }
           }
 
-          P_b[i52 + 6 * i51] = b_P[((int)i50 + 102 * i51) - 1];
+          P_b[b_m + 6 * i51] = b_P[((int)i50 + 102 * i51) - 1];
         }
       }
 
@@ -845,8 +846,8 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, double b_P[10404], const double
       // 'OnePointRANSAC_EKF:68' P_d = P_b';
       for (i51 = 0; i51 < 6; i51++) {
         P_c[i51] = b_P[(i49 + 102 * i51) - 1];
-        for (i52 = 0; i52 < 6; i52++) {
-          P_d[i52 + 6 * i51] = P_b[i51 + 6 * i52];
+        for (b_m = 0; b_m < 6; b_m++) {
+          P_d[b_m + 6 * i51] = P_b[i51 + 6 * b_m];
         }
       }
 
@@ -933,8 +934,8 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, double b_P[10404], const double
       // 'OnePointRANSAC_EKF:74' S = (H_a*P_a + H_b*P_b + H_c*P_c)*H_a' + ...
       // 'OnePointRANSAC_EKF:75'             (H_a*P_d + H_b*P_e + H_c*P_f)*H_b' + ... 
       // 'OnePointRANSAC_EKF:76'             (H_a*P_g + H_b*P_h + H_c*P_i)*H_c'; 
-      for (i52 = 0; i52 < 6; i52++) {
-        i50 = (long)i49 + (1 + i52);
+      for (b_m = 0; b_m < 6; b_m++) {
+        i50 = (long)i49 + (1 + b_m);
         if (i50 > 2147483647L) {
           i50 = 2147483647L;
         } else {
@@ -943,29 +944,29 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, double b_P[10404], const double
           }
         }
 
-        P_f[i52] = b_P[(i51 + 102 * ((int)i50 - 1)) - 1];
+        P_f[b_m] = b_P[(i51 + 102 * ((int)i50 - 1)) - 1];
         idx = residualDim;
-        for (b_m = 0; b_m < idx; b_m++) {
-          H_a_data[b_m + residualDim * i52] = 0.0;
+        for (cdiff = 0; cdiff < idx; cdiff++) {
+          H_a_data[cdiff + residualDim * b_m] = 0.0;
         }
       }
 
       idx = residualDim * 5;
-      for (apnd = 0; apnd <= idx; apnd += residualDim) {
-        i49 = apnd + residualDim;
-        for (ic = apnd; ic + 1 <= i49; ic++) {
+      for (cr = 0; cr <= idx; cr += residualDim) {
+        i49 = cr + residualDim;
+        for (ic = cr; ic + 1 <= i49; ic++) {
           H_a_data[ic] = 0.0;
         }
       }
 
       br = 0;
-      for (apnd = 0; apnd <= idx; apnd += residualDim) {
+      for (cr = 0; cr <= idx; cr += residualDim) {
         ar = 0;
         for (ib = br; ib + 1 <= br + 6; ib++) {
           if (b_P[ib % 6 + 102 * (ib / 6)] != 0.0) {
             ia = ar;
-            i49 = apnd + residualDim;
-            for (ic = apnd; ic + 1 <= i49; ic++) {
+            i49 = cr + residualDim;
+            for (ic = cr; ic + 1 <= i49; ic++) {
               ia++;
               H_a_data[ic] += b_P[ib % 6 + 102 * (ib / 6)] * H->data[(ia - 1) %
                 residualDim + H->size[0] * ((ia - 1) / residualDim)];
@@ -986,15 +987,15 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, double b_P[10404], const double
       }
 
       idx = residualDim * 5;
-      for (apnd = 0; apnd <= idx; apnd += residualDim) {
-        i49 = apnd + residualDim;
-        for (ic = apnd; ic + 1 <= i49; ic++) {
+      for (cr = 0; cr <= idx; cr += residualDim) {
+        i49 = cr + residualDim;
+        for (ic = cr; ic + 1 <= i49; ic++) {
           C_data[ic] = 0.0;
         }
       }
 
       br = 0;
-      for (apnd = 0; apnd <= idx; apnd += residualDim) {
+      for (cr = 0; cr <= idx; cr += residualDim) {
         ar = 0;
         for (ib = br; ib + 1 <= br + 6; ib++) {
           i50 = anchorIdx - 1L;
@@ -1035,8 +1036,8 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, double b_P[10404], const double
 
           if (b_P[((int)i50 + 102 * (ib / 6)) - 1] != 0.0) {
             ia = ar;
-            i49 = apnd + residualDim;
-            for (ic = apnd; ic + 1 <= i49; ic++) {
+            i49 = cr + residualDim;
+            for (ic = cr; ic + 1 <= i49; ic++) {
               ia++;
               i50 = ind->data[0] - 1L;
               if (i50 > 2147483647L) {
@@ -1072,6 +1073,258 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, double b_P[10404], const double
               } else {
                 if (i50 < -2147483648L) {
                   i50 = -2147483648L;
+                }
+              }
+
+              i52 = anchorIdx - 1L;
+              if (i52 > 2147483647L) {
+                i52 = 2147483647L;
+              } else {
+                if (i52 < -2147483648L) {
+                  i52 = -2147483648L;
+                }
+              }
+
+              i52 = (int)i52 * 14L;
+              if (i52 > 2147483647L) {
+                i52 = 2147483647L;
+              } else {
+                if (i52 < -2147483648L) {
+                  i52 = -2147483648L;
+                }
+              }
+
+              i52 = 18L + (int)i52;
+              if (i52 > 2147483647L) {
+                i52 = 2147483647L;
+              } else {
+                if (i52 < -2147483648L) {
+                  i52 = -2147483648L;
+                }
+              }
+
+              i52 = (long)(int)i52 + (1 + (ia - 1) / residualDim);
+              if (i52 > 2147483647L) {
+                i52 = 2147483647L;
+              } else {
+                if (i52 < -2147483648L) {
+                  i52 = -2147483648L;
+                }
+              }
+
+              C_data[ic] += b_P[((int)i50 + 102 * (ib / 6)) - 1] * H->data[(ia -
+                1) % residualDim + H->size[0] * ((int)i52 - 1)];
+            }
+          }
+
+          ar += residualDim;
+        }
+
+        br += 6;
+      }
+
+      for (i49 = 0; i49 < 6; i49++) {
+        idx = residualDim;
+        for (i51 = 0; i51 < idx; i51++) {
+          b_C_data[i51 + residualDim * i49] = 0.0;
+        }
+      }
+
+      idx = residualDim * 5;
+      for (cr = 0; cr <= idx; cr += residualDim) {
+        i49 = cr + residualDim;
+        for (ic = cr; ic + 1 <= i49; ic++) {
+          b_C_data[ic] = 0.0;
+        }
+      }
+
+      br = 0;
+      for (cr = 0; cr <= idx; cr += residualDim) {
+        ar = 0;
+        for (ib = br; ib + 1 <= br + 6; ib++) {
+          if (P_d[ib] != 0.0) {
+            ia = ar;
+            i49 = cr + residualDim;
+            for (ic = cr; ic + 1 <= i49; ic++) {
+              ia++;
+              b_C_data[ic] += P_d[ib] * H->data[(ia - 1) % residualDim + H->
+                size[0] * ((ia - 1) / residualDim)];
+            }
+          }
+
+          ar += residualDim;
+        }
+
+        br += 6;
+      }
+
+      for (i49 = 0; i49 < 6; i49++) {
+        idx = residualDim;
+        for (i51 = 0; i51 < idx; i51++) {
+          c_C_data[i51 + residualDim * i49] = 0.0;
+        }
+      }
+
+      idx = residualDim * 5;
+      for (cr = 0; cr <= idx; cr += residualDim) {
+        i49 = cr + residualDim;
+        for (ic = cr; ic + 1 <= i49; ic++) {
+          c_C_data[ic] = 0.0;
+        }
+      }
+
+      br = 0;
+      for (cr = 0; cr <= idx; cr += residualDim) {
+        ar = 0;
+        for (ib = br; ib + 1 <= br + 6; ib++) {
+          i50 = anchorIdx - 1L;
+          if (i50 > 2147483647L) {
+            i50 = 2147483647L;
+          } else {
+            if (i50 < -2147483648L) {
+              i50 = -2147483648L;
+            }
+          }
+
+          i50 = (int)i50 * 14L;
+          if (i50 > 2147483647L) {
+            i50 = 2147483647L;
+          } else {
+            if (i50 < -2147483648L) {
+              i50 = -2147483648L;
+            }
+          }
+
+          i50 = 18L + (int)i50;
+          if (i50 > 2147483647L) {
+            i50 = 2147483647L;
+          } else {
+            if (i50 < -2147483648L) {
+              i50 = -2147483648L;
+            }
+          }
+
+          i50 = (long)(int)i50 + (1 + ib % 6);
+          if (i50 > 2147483647L) {
+            i50 = 2147483647L;
+          } else {
+            if (i50 < -2147483648L) {
+              i50 = -2147483648L;
+            }
+          }
+
+          i52 = anchorIdx - 1L;
+          if (i52 > 2147483647L) {
+            i52 = 2147483647L;
+          } else {
+            if (i52 < -2147483648L) {
+              i52 = -2147483648L;
+            }
+          }
+
+          i52 = (int)i52 * 14L;
+          if (i52 > 2147483647L) {
+            i52 = 2147483647L;
+          } else {
+            if (i52 < -2147483648L) {
+              i52 = -2147483648L;
+            }
+          }
+
+          i52 = 18L + (int)i52;
+          if (i52 > 2147483647L) {
+            i52 = 2147483647L;
+          } else {
+            if (i52 < -2147483648L) {
+              i52 = -2147483648L;
+            }
+          }
+
+          i52 = (long)(int)i52 + (1 + ib / 6);
+          if (i52 > 2147483647L) {
+            i52 = 2147483647L;
+          } else {
+            if (i52 < -2147483648L) {
+              i52 = -2147483648L;
+            }
+          }
+
+          if (b_P[((int)i50 + 102 * ((int)i52 - 1)) - 1] != 0.0) {
+            ia = ar;
+            i49 = cr + residualDim;
+            for (ic = cr; ic + 1 <= i49; ic++) {
+              ia++;
+              i50 = ind->data[0] - 1L;
+              if (i50 > 2147483647L) {
+                i50 = 2147483647L;
+              } else {
+                if (i50 < -2147483648L) {
+                  i50 = -2147483648L;
+                }
+              }
+
+              i50 = (int)i50 * 14L;
+              if (i50 > 2147483647L) {
+                i50 = 2147483647L;
+              } else {
+                if (i50 < -2147483648L) {
+                  i50 = -2147483648L;
+                }
+              }
+
+              i50 = 18L + (int)i50;
+              if (i50 > 2147483647L) {
+                i50 = 2147483647L;
+              } else {
+                if (i50 < -2147483648L) {
+                  i50 = -2147483648L;
+                }
+              }
+
+              i51 = (int)i50;
+              i50 = ind->data[0] - 1L;
+              if (i50 > 2147483647L) {
+                i50 = 2147483647L;
+              } else {
+                if (i50 < -2147483648L) {
+                  i50 = -2147483648L;
+                }
+              }
+
+              i50 = (int)i50 * 14L;
+              if (i50 > 2147483647L) {
+                i50 = 2147483647L;
+              } else {
+                if (i50 < -2147483648L) {
+                  i50 = -2147483648L;
+                }
+              }
+
+              i50 = 18L + (int)i50;
+              if (i50 > 2147483647L) {
+                i50 = 2147483647L;
+              } else {
+                if (i50 < -2147483648L) {
+                  i50 = -2147483648L;
+                }
+              }
+
+              b_m = (int)i50;
+              i50 = (long)i51 + (1 + ib % 6);
+              if (i50 > 2147483647L) {
+                i50 = 2147483647L;
+              } else {
+                if (i50 < -2147483648L) {
+                  i50 = -2147483648L;
+                }
+              }
+
+              i52 = (long)b_m + (1 + ib / 6);
+              if (i52 > 2147483647L) {
+                i52 = 2147483647L;
+              } else {
+                if (i52 < -2147483648L) {
+                  i52 = -2147483648L;
                 }
               }
 
@@ -1111,260 +1364,8 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, double b_P[10404], const double
                 }
               }
 
-              C_data[ic] += b_P[((int)i50 + 102 * (ib / 6)) - 1] * H->data[(ia -
-                1) % residualDim + H->size[0] * ((int)i53 - 1)];
-            }
-          }
-
-          ar += residualDim;
-        }
-
-        br += 6;
-      }
-
-      for (i49 = 0; i49 < 6; i49++) {
-        idx = residualDim;
-        for (i51 = 0; i51 < idx; i51++) {
-          b_C_data[i51 + residualDim * i49] = 0.0;
-        }
-      }
-
-      idx = residualDim * 5;
-      for (apnd = 0; apnd <= idx; apnd += residualDim) {
-        i49 = apnd + residualDim;
-        for (ic = apnd; ic + 1 <= i49; ic++) {
-          b_C_data[ic] = 0.0;
-        }
-      }
-
-      br = 0;
-      for (apnd = 0; apnd <= idx; apnd += residualDim) {
-        ar = 0;
-        for (ib = br; ib + 1 <= br + 6; ib++) {
-          if (P_d[ib] != 0.0) {
-            ia = ar;
-            i49 = apnd + residualDim;
-            for (ic = apnd; ic + 1 <= i49; ic++) {
-              ia++;
-              b_C_data[ic] += P_d[ib] * H->data[(ia - 1) % residualDim + H->
-                size[0] * ((ia - 1) / residualDim)];
-            }
-          }
-
-          ar += residualDim;
-        }
-
-        br += 6;
-      }
-
-      for (i49 = 0; i49 < 6; i49++) {
-        idx = residualDim;
-        for (i51 = 0; i51 < idx; i51++) {
-          c_C_data[i51 + residualDim * i49] = 0.0;
-        }
-      }
-
-      idx = residualDim * 5;
-      for (apnd = 0; apnd <= idx; apnd += residualDim) {
-        i49 = apnd + residualDim;
-        for (ic = apnd; ic + 1 <= i49; ic++) {
-          c_C_data[ic] = 0.0;
-        }
-      }
-
-      br = 0;
-      for (apnd = 0; apnd <= idx; apnd += residualDim) {
-        ar = 0;
-        for (ib = br; ib + 1 <= br + 6; ib++) {
-          i50 = anchorIdx - 1L;
-          if (i50 > 2147483647L) {
-            i50 = 2147483647L;
-          } else {
-            if (i50 < -2147483648L) {
-              i50 = -2147483648L;
-            }
-          }
-
-          i50 = (int)i50 * 14L;
-          if (i50 > 2147483647L) {
-            i50 = 2147483647L;
-          } else {
-            if (i50 < -2147483648L) {
-              i50 = -2147483648L;
-            }
-          }
-
-          i50 = 18L + (int)i50;
-          if (i50 > 2147483647L) {
-            i50 = 2147483647L;
-          } else {
-            if (i50 < -2147483648L) {
-              i50 = -2147483648L;
-            }
-          }
-
-          i50 = (long)(int)i50 + (1 + ib % 6);
-          if (i50 > 2147483647L) {
-            i50 = 2147483647L;
-          } else {
-            if (i50 < -2147483648L) {
-              i50 = -2147483648L;
-            }
-          }
-
-          i53 = anchorIdx - 1L;
-          if (i53 > 2147483647L) {
-            i53 = 2147483647L;
-          } else {
-            if (i53 < -2147483648L) {
-              i53 = -2147483648L;
-            }
-          }
-
-          i53 = (int)i53 * 14L;
-          if (i53 > 2147483647L) {
-            i53 = 2147483647L;
-          } else {
-            if (i53 < -2147483648L) {
-              i53 = -2147483648L;
-            }
-          }
-
-          i53 = 18L + (int)i53;
-          if (i53 > 2147483647L) {
-            i53 = 2147483647L;
-          } else {
-            if (i53 < -2147483648L) {
-              i53 = -2147483648L;
-            }
-          }
-
-          i53 = (long)(int)i53 + (1 + ib / 6);
-          if (i53 > 2147483647L) {
-            i53 = 2147483647L;
-          } else {
-            if (i53 < -2147483648L) {
-              i53 = -2147483648L;
-            }
-          }
-
-          if (b_P[((int)i50 + 102 * ((int)i53 - 1)) - 1] != 0.0) {
-            ia = ar;
-            i49 = apnd + residualDim;
-            for (ic = apnd; ic + 1 <= i49; ic++) {
-              ia++;
-              i50 = ind->data[0] - 1L;
-              if (i50 > 2147483647L) {
-                i50 = 2147483647L;
-              } else {
-                if (i50 < -2147483648L) {
-                  i50 = -2147483648L;
-                }
-              }
-
-              i50 = (int)i50 * 14L;
-              if (i50 > 2147483647L) {
-                i50 = 2147483647L;
-              } else {
-                if (i50 < -2147483648L) {
-                  i50 = -2147483648L;
-                }
-              }
-
-              i50 = 18L + (int)i50;
-              if (i50 > 2147483647L) {
-                i50 = 2147483647L;
-              } else {
-                if (i50 < -2147483648L) {
-                  i50 = -2147483648L;
-                }
-              }
-
-              i51 = (int)i50;
-              i50 = ind->data[0] - 1L;
-              if (i50 > 2147483647L) {
-                i50 = 2147483647L;
-              } else {
-                if (i50 < -2147483648L) {
-                  i50 = -2147483648L;
-                }
-              }
-
-              i50 = (int)i50 * 14L;
-              if (i50 > 2147483647L) {
-                i50 = 2147483647L;
-              } else {
-                if (i50 < -2147483648L) {
-                  i50 = -2147483648L;
-                }
-              }
-
-              i50 = 18L + (int)i50;
-              if (i50 > 2147483647L) {
-                i50 = 2147483647L;
-              } else {
-                if (i50 < -2147483648L) {
-                  i50 = -2147483648L;
-                }
-              }
-
-              i52 = (int)i50;
-              i50 = (long)i51 + (1 + ib % 6);
-              if (i50 > 2147483647L) {
-                i50 = 2147483647L;
-              } else {
-                if (i50 < -2147483648L) {
-                  i50 = -2147483648L;
-                }
-              }
-
-              i53 = (long)i52 + (1 + ib / 6);
-              if (i53 > 2147483647L) {
-                i53 = 2147483647L;
-              } else {
-                if (i53 < -2147483648L) {
-                  i53 = -2147483648L;
-                }
-              }
-
-              i54 = anchorIdx - 1L;
-              if (i54 > 2147483647L) {
-                i54 = 2147483647L;
-              } else {
-                if (i54 < -2147483648L) {
-                  i54 = -2147483648L;
-                }
-              }
-
-              i54 = (int)i54 * 14L;
-              if (i54 > 2147483647L) {
-                i54 = 2147483647L;
-              } else {
-                if (i54 < -2147483648L) {
-                  i54 = -2147483648L;
-                }
-              }
-
-              i54 = 18L + (int)i54;
-              if (i54 > 2147483647L) {
-                i54 = 2147483647L;
-              } else {
-                if (i54 < -2147483648L) {
-                  i54 = -2147483648L;
-                }
-              }
-
-              i54 = (long)(int)i54 + (1 + (ia - 1) / residualDim);
-              if (i54 > 2147483647L) {
-                i54 = 2147483647L;
-              } else {
-                if (i54 < -2147483648L) {
-                  i54 = -2147483648L;
-                }
-              }
-
-              c_C_data[ic] += b_P[((int)i50 + 102 * ((int)i53 - 1)) - 1] *
-                H->data[(ia - 1) % residualDim + H->size[0] * ((int)i54 - 1)];
+              c_C_data[ic] += b_P[((int)i50 + 102 * ((int)i52 - 1)) - 1] *
+                H->data[(ia - 1) % residualDim + H->size[0] * ((int)i53 - 1)];
             }
           }
 
@@ -1395,21 +1396,21 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, double b_P[10404], const double
       }
 
       idx = residualDim * (residualDim - 1);
-      for (apnd = 0; apnd <= idx; apnd += residualDim) {
-        i49 = apnd + residualDim;
-        for (ic = apnd; ic + 1 <= i49; ic++) {
+      for (cr = 0; cr <= idx; cr += residualDim) {
+        i49 = cr + residualDim;
+        for (ic = cr; ic + 1 <= i49; ic++) {
           S_feature_data[ic] = 0.0;
         }
       }
 
       br = 0;
-      for (apnd = 0; apnd <= idx; apnd += residualDim) {
+      for (cr = 0; cr <= idx; cr += residualDim) {
         ar = 0;
         for (ib = br; ib + 1 <= br + 6; ib++) {
           if (b_data[ib] != 0.0) {
             ia = ar;
-            i49 = apnd + residualDim;
-            for (ic = apnd; ic + 1 <= i49; ic++) {
+            i49 = cr + residualDim;
+            for (ic = cr; ic + 1 <= i49; ic++) {
               ia++;
               S_feature_data[ic] += b_data[ib] * a_data[ia - 1];
             }
@@ -1442,21 +1443,21 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, double b_P[10404], const double
       }
 
       idx = residualDim * (residualDim - 1);
-      for (apnd = 0; apnd <= idx; apnd += residualDim) {
-        i49 = apnd + residualDim;
-        for (ic = apnd; ic + 1 <= i49; ic++) {
+      for (cr = 0; cr <= idx; cr += residualDim) {
+        i49 = cr + residualDim;
+        for (ic = cr; ic + 1 <= i49; ic++) {
           d_C_data[ic] = 0.0;
         }
       }
 
       br = 0;
-      for (apnd = 0; apnd <= idx; apnd += residualDim) {
+      for (cr = 0; cr <= idx; cr += residualDim) {
         ar = 0;
         for (ib = br; ib + 1 <= br + 6; ib++) {
           if (b_data[ib] != 0.0) {
             ia = ar;
-            i49 = apnd + residualDim;
-            for (ic = apnd; ic + 1 <= i49; ic++) {
+            i49 = cr + residualDim;
+            for (ic = cr; ic + 1 <= i49; ic++) {
               ia++;
               d_C_data[ic] += b_data[ib] * a_data[ia - 1];
             }
@@ -1468,23 +1469,23 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, double b_P[10404], const double
         br += 6;
       }
 
-      b_m = residualDim;
-      for (i49 = 0; i49 < b_m; i49++) {
+      cdiff = residualDim;
+      for (i49 = 0; i49 < cdiff; i49++) {
         y_data[i49] = 0.0;
       }
 
-      apnd = 0;
-      while (apnd <= 0) {
+      cr = 0;
+      while (cr <= 0) {
         for (ic = 1; ic <= residualDim; ic++) {
           y_data[ic - 1] = 0.0;
         }
 
-        apnd = residualDim;
+        cr = residualDim;
       }
 
       br = 6;
-      apnd = 0;
-      while (apnd <= 0) {
+      cr = 0;
+      while (cr <= 0) {
         ar = 0;
         for (ib = br - 5; ib <= br; ib++) {
           i50 = ind->data[0] - 1L;
@@ -1592,25 +1593,25 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, double b_P[10404], const double
         }
 
         br += 6;
-        apnd = residualDim;
+        cr = residualDim;
       }
 
-      for (i49 = 0; i49 < b_m; i49++) {
+      for (i49 = 0; i49 < cdiff; i49++) {
         e_C_data[i49] = 0.0;
       }
 
-      apnd = 0;
-      while (apnd <= 0) {
+      cr = 0;
+      while (cr <= 0) {
         for (ic = 1; ic <= residualDim; ic++) {
           e_C_data[ic - 1] = 0.0;
         }
 
-        apnd = residualDim;
+        cr = residualDim;
       }
 
       br = 6;
-      apnd = 0;
-      while (apnd <= 0) {
+      cr = 0;
+      while (cr <= 0) {
         ar = 0;
         for (ib = br - 5; ib <= br; ib++) {
           i50 = ind->data[0] - 1L;
@@ -1783,44 +1784,44 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, double b_P[10404], const double
                 }
               }
 
-              i53 = anchorIdx - 1L;
-              if (i53 > 2147483647L) {
-                i53 = 2147483647L;
+              i52 = anchorIdx - 1L;
+              if (i52 > 2147483647L) {
+                i52 = 2147483647L;
               } else {
-                if (i53 < -2147483648L) {
-                  i53 = -2147483648L;
+                if (i52 < -2147483648L) {
+                  i52 = -2147483648L;
                 }
               }
 
-              i53 = (int)i53 * 14L;
-              if (i53 > 2147483647L) {
-                i53 = 2147483647L;
+              i52 = (int)i52 * 14L;
+              if (i52 > 2147483647L) {
+                i52 = 2147483647L;
               } else {
-                if (i53 < -2147483648L) {
-                  i53 = -2147483648L;
+                if (i52 < -2147483648L) {
+                  i52 = -2147483648L;
                 }
               }
 
-              i53 = 18L + (int)i53;
-              if (i53 > 2147483647L) {
-                i53 = 2147483647L;
+              i52 = 18L + (int)i52;
+              if (i52 > 2147483647L) {
+                i52 = 2147483647L;
               } else {
-                if (i53 < -2147483648L) {
-                  i53 = -2147483648L;
+                if (i52 < -2147483648L) {
+                  i52 = -2147483648L;
                 }
               }
 
-              i53 = (long)(int)i53 + (1 + (ia - 1) / residualDim);
-              if (i53 > 2147483647L) {
-                i53 = 2147483647L;
+              i52 = (long)(int)i52 + (1 + (ia - 1) / residualDim);
+              if (i52 > 2147483647L) {
+                i52 = 2147483647L;
               } else {
-                if (i53 < -2147483648L) {
-                  i53 = -2147483648L;
+                if (i52 < -2147483648L) {
+                  i52 = -2147483648L;
                 }
               }
 
               e_C_data[ic] += b_P[(i51 + 102 * ((int)i50 - 1)) - 1] * H->data
-                [(ia - 1) % residualDim + H->size[0] * ((int)i53 - 1)];
+                [(ia - 1) % residualDim + H->size[0] * ((int)i52 - 1)];
             }
           }
 
@@ -1828,7 +1829,7 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, double b_P[10404], const double
         }
 
         br += 6;
-        apnd = residualDim;
+        cr = residualDim;
       }
 
       i50 = ind->data[0] - 1L;
@@ -1876,52 +1877,52 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, double b_P[10404], const double
         }
       }
 
-      i53 = ind->data[0] - 1L;
-      if (i53 > 2147483647L) {
-        i53 = 2147483647L;
+      i52 = ind->data[0] - 1L;
+      if (i52 > 2147483647L) {
+        i52 = 2147483647L;
       } else {
-        if (i53 < -2147483648L) {
-          i53 = -2147483648L;
+        if (i52 < -2147483648L) {
+          i52 = -2147483648L;
         }
       }
 
-      i53 = (int)i53 * 14L;
-      if (i53 > 2147483647L) {
-        i53 = 2147483647L;
+      i52 = (int)i52 * 14L;
+      if (i52 > 2147483647L) {
+        i52 = 2147483647L;
       } else {
-        if (i53 < -2147483648L) {
-          i53 = -2147483648L;
+        if (i52 < -2147483648L) {
+          i52 = -2147483648L;
         }
       }
 
-      i53 = 18L + (int)i53;
-      if (i53 > 2147483647L) {
-        i53 = 2147483647L;
+      i52 = 18L + (int)i52;
+      if (i52 > 2147483647L) {
+        i52 = 2147483647L;
       } else {
-        if (i53 < -2147483648L) {
-          i53 = -2147483648L;
+        if (i52 < -2147483648L) {
+          i52 = -2147483648L;
         }
       }
 
-      i53 = (int)i53 + 6L;
-      if (i53 > 2147483647L) {
-        i53 = 2147483647L;
+      i52 = (int)i52 + 6L;
+      if (i52 > 2147483647L) {
+        i52 = 2147483647L;
       } else {
-        if (i53 < -2147483648L) {
-          i53 = -2147483648L;
+        if (i52 < -2147483648L) {
+          i52 = -2147483648L;
         }
       }
 
-      i53 = (long)(int)i53 + ind->data[ind->size[0]];
-      if (i53 > 2147483647L) {
-        i53 = 2147483647L;
+      i52 = (long)(int)i52 + ind->data[ind->size[0]];
+      if (i52 > 2147483647L) {
+        i52 = 2147483647L;
       } else {
-        if (i53 < -2147483648L) {
-          i53 = -2147483648L;
+        if (i52 < -2147483648L) {
+          i52 = -2147483648L;
         }
       }
 
-      c_P = b_P[((int)i50 + 102 * ((int)i53 - 1)) - 1];
+      c_P = b_P[((int)i50 + 102 * ((int)i52 - 1)) - 1];
       idx = residualDim;
       for (i49 = 0; i49 < idx; i49++) {
         c_xt[i49] = (y_data[i49] + e_C_data[i49]) + H_c_data[i49] * c_P;
@@ -1943,8 +1944,8 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, double b_P[10404], const double
       i49 = residualDim * residualDim - 1;
       i51 = residualDim + 1;
       idx = div_s32_floor(i49, i51);
-      for (i52 = 0; i52 <= idx; i52++) {
-        b_S_feature_data[i52] = S->data[i51 * i52] + noiseParameters_image_noise;
+      for (b_m = 0; b_m <= idx; b_m++) {
+        b_S_feature_data[b_m] = S->data[i51 * b_m] + noiseParameters_image_noise;
       }
 
       idx = div_s32_floor(i49, i51) + 1;
@@ -1982,19 +1983,19 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, double b_P[10404], const double
       if (K->size[1] == 0) {
       } else {
         idx = 102 * (K->size[1] - 1);
-        for (apnd = 0; apnd <= idx; apnd += 102) {
-          for (ic = apnd + 1; ic <= apnd + 102; ic++) {
+        for (cr = 0; cr <= idx; cr += 102) {
+          for (ic = cr + 1; ic <= cr + 102; ic++) {
             y->data[ic - 1] = 0.0;
           }
         }
 
         br = 0;
-        for (apnd = 0; apnd <= idx; apnd += 102) {
+        for (cr = 0; cr <= idx; cr += 102) {
           ar = 0;
           for (ib = br; ib + 1 <= br + 102; ib++) {
             if (K->data[ib] != 0.0) {
               ia = ar;
-              for (ic = apnd; ic + 1 <= apnd + 102; ic++) {
+              for (ic = cr; ic + 1 <= cr + 102; ic++) {
                 ia++;
                 y->data[ic] += K->data[ib] * b_P[ia - 1];
               }
@@ -2018,26 +2019,26 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, double b_P[10404], const double
 
       mrdivide(K, S);
 
-      // 'OnePointRANSAC_EKF:89' x_apo = K*r;
+      // 'OnePointRANSAC_EKF:89' x_it = K*r;
       if ((K->size[1] == 1) || (r->size[0] == 1)) {
         for (i49 = 0; i49 < 102; i49++) {
-          x_apo[i49] = 0.0;
+          x_it[i49] = 0.0;
           idx = K->size[1];
           for (i51 = 0; i51 < idx; i51++) {
-            b_x_apo = x_apo[i49] + K->data[i49 + K->size[0] * i51] * r->data[i51];
-            x_apo[i49] = b_x_apo;
+            b_x_it = x_it[i49] + K->data[i49 + K->size[0] * i51] * r->data[i51];
+            x_it[i49] = b_x_it;
           }
         }
       } else {
-        memset(&x_apo[0], 0, 102U * sizeof(double));
+        memset(&x_it[0], 0, 102U * sizeof(double));
         ar = 0;
         for (ib = 0; ib + 1 <= K->size[1]; ib++) {
           if (r->data[ib] != 0.0) {
             ia = ar;
             for (ic = 0; ic < 102; ic++) {
               ia++;
-              b_x_apo = x_apo[ic] + r->data[ib] * K->data[ia - 1];
-              x_apo[ic] = b_x_apo;
+              b_x_it = x_it[ic] + r->data[ib] * K->data[ia - 1];
+              x_it[ic] = b_x_it;
             }
           }
 
@@ -2045,8 +2046,8 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, double b_P[10404], const double
         }
       }
 
-      // 'OnePointRANSAC_EKF:91' R_cw = RotFromQuatJ(quatmultJ(quatPlusThetaJ(x_apo(4:6)), xt.robot_state.att)); 
-      quatPlusThetaJ(*(double (*)[3])&x_apo[3], b_y_data);
+      // 'OnePointRANSAC_EKF:91' R_cw = RotFromQuatJ(quatmultJ(quatPlusThetaJ(x_it(4:6)), xt.robot_state.att)); 
+      quatPlusThetaJ(*(double (*)[3])&x_it[3], b_y_data);
       quatmultJ(b_y_data, b_xt->robot_state.att, c_xt);
 
       //  if ~all(size(q) == [4, 1])
@@ -2071,25 +2072,25 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, double b_P[10404], const double
       R_cw[8] = ((-(c_xt[0] * c_xt[0]) - c_xt[1] * c_xt[1]) + c_xt[2] * c_xt[2])
         + c_xt[3] * c_xt[3];
 
-      // 'OnePointRANSAC_EKF:92' r_wc = xt.robot_state.pos + x_apo(1:3);
-      for (apnd = 0; apnd < 3; apnd++) {
-        r_wc[apnd] = b_xt->robot_state.pos[apnd] + x_apo[apnd];
+      // 'OnePointRANSAC_EKF:92' r_wc = xt.robot_state.pos + x_it(1:3);
+      for (cdiff = 0; cdiff < 3; cdiff++) {
+        r_wc[cdiff] = b_xt->robot_state.pos[cdiff] + x_it[cdiff];
       }
 
       // 'OnePointRANSAC_EKF:94' for anchorIdx = 1:numAnchors
       for (anchorIdx = 0; anchorIdx < 6; anchorIdx++) {
-        // 'OnePointRANSAC_EKF:95' anchorPos = xt.anchor_states(anchorIdx).pos + x_apo(numStates + (anchorIdx-1)*numStatesPerAnchor + int32(1:3)); 
+        // 'OnePointRANSAC_EKF:95' anchorPos = xt.anchor_states(anchorIdx).pos + x_it(numStates + (anchorIdx-1)*numStatesPerAnchor + int32(1:3)); 
         i49 = anchorIdx * 14;
 
-        // 'OnePointRANSAC_EKF:96' anchorRot = RotFromQuatJ(quatmultJ(quatPlusThetaJ(x_apo(numStates + (anchorIdx-1)*numStatesPerAnchor + int32(4:6))), xt.anchor_states(anchorIdx).att)); 
+        // 'OnePointRANSAC_EKF:96' anchorRot = RotFromQuatJ(quatmultJ(quatPlusThetaJ(x_it(numStates + (anchorIdx-1)*numStatesPerAnchor + int32(4:6))), xt.anchor_states(anchorIdx).att)); 
         i51 = anchorIdx * 14;
-        for (i52 = 0; i52 < 3; i52++) {
-          anchorPos[i52] = b_xt->anchor_states[anchorIdx].pos[i52] + x_apo[(i52
-            + i49) + 18];
-          c_x_apo[i52] = x_apo[(i52 + i51) + 21];
+        for (b_m = 0; b_m < 3; b_m++) {
+          anchorPos[b_m] = b_xt->anchor_states[anchorIdx].pos[b_m] + x_it[(b_m +
+            i49) + 18];
+          x_it2[b_m] = x_it[(b_m + i51) + 21];
         }
 
-        quatPlusThetaJ(c_x_apo, dv18);
+        quatPlusThetaJ(x_it2, dv18);
         quatmultJ(dv18, b_xt->anchor_states[anchorIdx].att, c_xt);
 
         //  if ~all(size(q) == [4, 1])
@@ -2120,9 +2121,9 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, double b_P[10404], const double
           if (b_xt->anchor_states[anchorIdx].feature_states[featureIdx].status ==
               1) {
             //  only update active features
-            // 'OnePointRANSAC_EKF:100' rho = xt.anchor_states(anchorIdx).feature_states(featureIdx).inverse_depth + x_apo(numStates + (anchorIdx-1)*numStatesPerAnchor + 6 + featureIdx); 
+            // 'OnePointRANSAC_EKF:100' rho = xt.anchor_states(anchorIdx).feature_states(featureIdx).inverse_depth + x_it(numStates + (anchorIdx-1)*numStatesPerAnchor + 6 + featureIdx); 
             rho = b_xt->anchor_states[anchorIdx].feature_states[featureIdx].
-              inverse_depth + x_apo[(anchorIdx * 14 + featureIdx) + 24];
+              inverse_depth + x_it[(anchorIdx * 14 + featureIdx) + 24];
 
             // 'OnePointRANSAC_EKF:101' m = xt.anchor_states(anchorIdx).feature_states(featureIdx).m; 
             // 'OnePointRANSAC_EKF:102' fp = R_cw*(anchorPos + anchorRot'*m/rho - r_wc); 
@@ -2133,13 +2134,13 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, double b_P[10404], const double
                   anchor_states[anchorIdx].feature_states[featureIdx].m[i51];
               }
 
-              c_x_apo[i49] = (anchorPos[i49] + c_P / rho) - r_wc[i49];
+              x_it2[i49] = (anchorPos[i49] + c_P / rho) - r_wc[i49];
             }
 
             for (i49 = 0; i49 < 3; i49++) {
               fp[i49] = 0.0;
               for (i51 = 0; i51 < 3; i51++) {
-                fp[i49] += R_cw[i49 + 3 * i51] * c_x_apo[i51];
+                fp[i49] += R_cw[i49 + 3 * i51] * x_it2[i51];
               }
             }
 
@@ -2164,11 +2165,11 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, double b_P[10404], const double
 
               i49 = (int)i50;
               if (i49 > 1073741823) {
-                idx = MAX_int32_T;
+                b_m = MAX_int32_T;
               } else if (i49 <= -1073741824) {
-                idx = MIN_int32_T;
+                b_m = MIN_int32_T;
               } else {
-                idx = i49 << 1;
+                b_m = i49 << 1;
               }
 
               // 'OnePointRANSAC_EKF:106' z_r = z_u_r((xt.anchor_states(anchorIdx).feature_states(featureIdx).status_idx-1)*2 + int32(1:2)); 
@@ -2184,16 +2185,16 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, double b_P[10404], const double
 
               i49 = (int)i50;
               if (i49 > 1073741823) {
-                b_m = MAX_int32_T;
+                idx = MAX_int32_T;
               } else if (i49 <= -1073741824) {
-                b_m = MIN_int32_T;
+                idx = MIN_int32_T;
               } else {
-                b_m = i49 << 1;
+                idx = i49 << 1;
               }
 
               // 'OnePointRANSAC_EKF:107' innov = norm([h_u_l - z_l; h_u_r - z_r]); 
-              for (apnd = 0; apnd < 2; apnd++) {
-                i50 = (long)idx + (1 + apnd);
+              for (cdiff = 0; cdiff < 2; cdiff++) {
+                i50 = (long)b_m + (1 + cdiff);
                 if (i50 > 2147483647L) {
                   i50 = 2147483647L;
                 } else {
@@ -2202,8 +2203,8 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, double b_P[10404], const double
                   }
                 }
 
-                c_xt[apnd] = h_u_l[apnd] - z_u_l[(int)i50 - 1];
-                i50 = (long)b_m + (1 + apnd);
+                c_xt[cdiff] = h_u_l[cdiff] - z_u_l[(int)i50 - 1];
+                i50 = (long)idx + (1 + cdiff);
                 if (i50 > 2147483647L) {
                   i50 = 2147483647L;
                 } else {
@@ -2212,7 +2213,7 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, double b_P[10404], const double
                   }
                 }
 
-                c_xt[apnd + 2] = h_u_r[apnd] - z_u_r[(int)i50 - 1];
+                c_xt[cdiff + 2] = h_u_r[cdiff] - z_u_r[(int)i50 - 1];
               }
 
               innov = b_norm(c_xt);
@@ -2232,18 +2233,18 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, double b_P[10404], const double
 
               i49 = (int)i50;
               if (i49 > 1073741823) {
-                idx = MAX_int32_T;
+                b_m = MAX_int32_T;
               } else if (i49 <= -1073741824) {
-                idx = MIN_int32_T;
+                b_m = MIN_int32_T;
               } else {
-                idx = i49 << 1;
+                b_m = i49 << 1;
               }
 
               // 'OnePointRANSAC_EKF:111' innov = norm(h_u_l - z_l);
               predictMeasurementMono(fp, c_stereoParams_CameraParameters,
                 d_stereoParams_CameraParameters, h_u_l);
-              for (apnd = 0; apnd < 2; apnd++) {
-                i50 = (long)idx + (1 + apnd);
+              for (cdiff = 0; cdiff < 2; cdiff++) {
+                i50 = (long)b_m + (1 + cdiff);
                 if (i50 > 2147483647L) {
                   i50 = 2147483647L;
                 } else {
@@ -2252,7 +2253,7 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, double b_P[10404], const double
                   }
                 }
 
-                b_h_u_l[apnd] = h_u_l[apnd] - z_u_l[(int)i50 - 1];
+                b_h_u_l[cdiff] = h_u_l[cdiff] - z_u_l[(int)i50 - 1];
               }
 
               innov = c_norm(b_h_u_l);
@@ -2270,22 +2271,22 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, double b_P[10404], const double
 
       // 'OnePointRANSAC_EKF:120' if nnz(LI_inlier_status_i) > nnz(LI_inlier_status) 
       n = 0;
-      b_m = 0;
+      cdiff = 0;
       for (k = 0; k < 48; k++) {
         if (HI_inlierCandidates[k]) {
           n++;
         }
 
         if (LI_inlier_status[k]) {
-          b_m++;
+          cdiff++;
         }
       }
 
-      if (n > b_m) {
+      if (n > cdiff) {
         // 'OnePointRANSAC_EKF:121' LI_inlier_status = LI_inlier_status_i;
         // 'OnePointRANSAC_EKF:122' epsilon = 1 - nnz(LI_inlier_status_i)/nnz(activeFeatures); 
         n = 0;
-        b_m = 0;
+        cdiff = 0;
         for (k = 0; k < 48; k++) {
           LI_inlier_status[k] = HI_inlierCandidates[k];
           if (HI_inlierCandidates[k]) {
@@ -2293,13 +2294,13 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, double b_P[10404], const double
           }
 
           if (activeFeatures[k]) {
-            b_m++;
+            cdiff++;
           }
         }
 
         // 'OnePointRANSAC_EKF:123' assert(epsilon <= 1)
         // 'OnePointRANSAC_EKF:124' num_hyp = log(1-0.99)/log(epsilon);
-        num_hyp = -4.60517018598809 / log(1.0 - (double)n / (double)b_m);
+        num_hyp = -4.60517018598809 / log(1.0 - (double)n / (double)cdiff);
       }
 
       // 'OnePointRANSAC_EKF:127' hyp_it = hyp_it + 1;
@@ -2349,25 +2350,25 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, double b_P[10404], const double
       if (H->size[0] == 0) {
       } else {
         idx = H->size[0] * 101;
-        apnd = 0;
-        while ((b_m > 0) && (apnd <= idx)) {
-          i49 = apnd + b_m;
-          for (ic = apnd; ic + 1 <= i49; ic++) {
+        cr = 0;
+        while ((b_m > 0) && (cr <= idx)) {
+          i49 = cr + b_m;
+          for (ic = cr; ic + 1 <= i49; ic++) {
             b_y->data[ic] = 0.0;
           }
 
-          apnd += b_m;
+          cr += b_m;
         }
 
         br = 0;
-        apnd = 0;
-        while ((b_m > 0) && (apnd <= idx)) {
+        cr = 0;
+        while ((b_m > 0) && (cr <= idx)) {
           ar = 0;
           for (ib = br; ib + 1 <= br + 102; ib++) {
             if (b_P[ib] != 0.0) {
               ia = ar;
-              i49 = apnd + b_m;
-              for (ic = apnd; ic + 1 <= i49; ic++) {
+              i49 = cr + b_m;
+              for (ic = cr; ic + 1 <= i49; ic++) {
                 ia++;
                 b_y->data[ic] += b_P[ib] * H->data[ia - 1];
               }
@@ -2377,7 +2378,7 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, double b_P[10404], const double
           }
 
           br += 102;
-          apnd += b_m;
+          cr += b_m;
         }
       }
 
@@ -2412,25 +2413,25 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, double b_P[10404], const double
       if ((b_y->size[0] == 0) || (K->size[1] == 0)) {
       } else {
         idx = b_y->size[0] * (K->size[1] - 1);
-        apnd = 0;
-        while ((b_m > 0) && (apnd <= idx)) {
-          i49 = apnd + b_m;
-          for (ic = apnd; ic + 1 <= i49; ic++) {
+        cr = 0;
+        while ((b_m > 0) && (cr <= idx)) {
+          i49 = cr + b_m;
+          for (ic = cr; ic + 1 <= i49; ic++) {
             S->data[ic] = 0.0;
           }
 
-          apnd += b_m;
+          cr += b_m;
         }
 
         br = 0;
-        apnd = 0;
-        while ((b_m > 0) && (apnd <= idx)) {
+        cr = 0;
+        while ((b_m > 0) && (cr <= idx)) {
           ar = 0;
           for (ib = br; ib + 1 <= br + 102; ib++) {
             if (K->data[ib] != 0.0) {
               ia = ar;
-              i49 = apnd + b_m;
-              for (ic = apnd; ic + 1 <= i49; ic++) {
+              i49 = cr + b_m;
+              for (ic = cr; ic + 1 <= i49; ic++) {
                 ia++;
                 S->data[ic] += K->data[ib] * b_y->data[ia - 1];
               }
@@ -2440,7 +2441,7 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, double b_P[10404], const double
           }
 
           br += 102;
-          apnd += b_m;
+          cr += b_m;
         }
       }
 
@@ -2470,16 +2471,16 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, double b_P[10404], const double
       c_P = size_S * size_S;
       if ((size_S + 1.0 == 0.0) || (((size_S + 1.0 > 0.0) && (1.0 > c_P)) ||
            ((0.0 > size_S + 1.0) && (c_P > 1.0)))) {
-        i52 = 1;
+        b_m = 1;
       } else {
-        i52 = (int)(size_S + 1.0);
+        b_m = (int)(size_S + 1.0);
       }
 
       emxInit_real_T1(&b_S, 2);
-      b_m = b_S->size[0] * b_S->size[1];
+      cdiff = b_S->size[0] * b_S->size[1];
       b_S->size[0] = 1;
       b_S->size[1] = div_s32_floor(i51, i49) + 1;
-      emxEnsureCapacity((emxArray__common *)b_S, b_m, (int)sizeof(double));
+      emxEnsureCapacity((emxArray__common *)b_S, cdiff, (int)sizeof(double));
       ndbl = div_s32_floor(i51, i49);
       for (i51 = 0; i51 <= ndbl; i51++) {
         b_S->data[b_S->size[0] * i51] = S->data[i49 * i51] +
@@ -2488,7 +2489,7 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, double b_P[10404], const double
 
       ndbl = b_S->size[1];
       for (i49 = 0; i49 < ndbl; i49++) {
-        S->data[i52 * i49] = b_S->data[b_S->size[0] * i49];
+        S->data[b_m * i49] = b_S->data[b_S->size[0] * i49];
       }
 
       emxFree_real_T(&b_S);
@@ -2523,19 +2524,19 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, double b_P[10404], const double
       if (K->size[1] == 0) {
       } else {
         idx = 102 * (K->size[1] - 1);
-        for (apnd = 0; apnd <= idx; apnd += 102) {
-          for (ic = apnd + 1; ic <= apnd + 102; ic++) {
+        for (cr = 0; cr <= idx; cr += 102) {
+          for (ic = cr + 1; ic <= cr + 102; ic++) {
             c_y->data[ic - 1] = 0.0;
           }
         }
 
         br = 0;
-        for (apnd = 0; apnd <= idx; apnd += 102) {
+        for (cr = 0; cr <= idx; cr += 102) {
           ar = 0;
           for (ib = br; ib + 1 <= br + 102; ib++) {
             if (K->data[ib] != 0.0) {
               ia = ar;
-              for (ic = apnd; ic + 1 <= apnd + 102; ic++) {
+              for (ic = cr; ic + 1 <= cr + 102; ic++) {
                 ia++;
                 c_y->data[ic] += K->data[ib] * b_P[ia - 1];
               }
@@ -2560,26 +2561,26 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, double b_P[10404], const double
       emxFree_real_T(&c_y);
       mrdivide(K, S);
 
-      // 'OnePointRANSAC_EKF:139' x_apo = K*r;
+      // 'OnePointRANSAC_EKF:139' x_it = K*r;
       if ((K->size[1] == 1) || (r->size[0] == 1)) {
         for (i49 = 0; i49 < 102; i49++) {
-          x_apo[i49] = 0.0;
+          x_it[i49] = 0.0;
           ndbl = K->size[1];
           for (i51 = 0; i51 < ndbl; i51++) {
-            b_x_apo = x_apo[i49] + K->data[i49 + K->size[0] * i51] * r->data[i51];
-            x_apo[i49] = b_x_apo;
+            b_x_it = x_it[i49] + K->data[i49 + K->size[0] * i51] * r->data[i51];
+            x_it[i49] = b_x_it;
           }
         }
       } else {
-        memset(&x_apo[0], 0, 102U * sizeof(double));
+        memset(&x_it[0], 0, 102U * sizeof(double));
         ar = 0;
         for (ib = 0; ib + 1 <= K->size[1]; ib++) {
           if (r->data[ib] != 0.0) {
             ia = ar;
             for (ic = 0; ic < 102; ic++) {
               ia++;
-              b_x_apo = x_apo[ic] + r->data[ib] * K->data[ia - 1];
-              x_apo[ic] = b_x_apo;
+              b_x_it = x_it[ic] + r->data[ib] * K->data[ia - 1];
+              x_it[ic] = b_x_it;
             }
           }
 
@@ -2587,53 +2588,53 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, double b_P[10404], const double
         }
       }
 
-      // 'OnePointRANSAC_EKF:141' xt.robot_state.pos           = xt.robot_state.pos       + x_apo(1:3); 
+      // 'OnePointRANSAC_EKF:141' xt.robot_state.pos           = xt.robot_state.pos       + x_it(1:3); 
       for (i49 = 0; i49 < 3; i49++) {
-        b_xt->robot_state.pos[i49] += x_apo[i49];
+        b_xt->robot_state.pos[i49] += x_it[i49];
       }
 
-      // 'OnePointRANSAC_EKF:142' xt.robot_state.att           = quatmultJ(quatPlusThetaJ(x_apo(4:6)), xt.robot_state.att); 
-      quatPlusThetaJ(*(double (*)[3])&x_apo[3], b_y_data);
-      for (apnd = 0; apnd < 4; apnd++) {
-        c_xt[apnd] = b_xt->robot_state.att[apnd];
+      // 'OnePointRANSAC_EKF:142' xt.robot_state.att           = quatmultJ(quatPlusThetaJ(x_it(4:6)), xt.robot_state.att); 
+      quatPlusThetaJ(*(double (*)[3])&x_it[3], b_y_data);
+      for (cdiff = 0; cdiff < 4; cdiff++) {
+        c_xt[cdiff] = b_xt->robot_state.att[cdiff];
       }
 
       quatmultJ(b_y_data, c_xt, b_xt->robot_state.att);
 
-      // 'OnePointRANSAC_EKF:143' xt.robot_state.vel           = xt.robot_state.vel       + x_apo(7:9); 
-      // 'OnePointRANSAC_EKF:144' xt.robot_state.IMU.gyro_bias = xt.robot_state.IMU.gyro_bias + x_apo(10:12); 
-      // 'OnePointRANSAC_EKF:145' xt.robot_state.IMU.acc_bias  = xt.robot_state.IMU.acc_bias + x_apo(13:15); 
+      // 'OnePointRANSAC_EKF:143' xt.robot_state.vel           = xt.robot_state.vel       + x_it(7:9); 
+      // 'OnePointRANSAC_EKF:144' xt.robot_state.IMU.gyro_bias = xt.robot_state.IMU.gyro_bias + x_it(10:12); 
+      // 'OnePointRANSAC_EKF:145' xt.robot_state.IMU.acc_bias  = xt.robot_state.IMU.acc_bias + x_it(13:15); 
       for (i49 = 0; i49 < 3; i49++) {
-        b_xt->robot_state.vel[i49] += x_apo[6 + i49];
-        b_xt->robot_state.IMU.gyro_bias[i49] += x_apo[9 + i49];
-        b_xt->robot_state.IMU.acc_bias[i49] += x_apo[12 + i49];
+        b_xt->robot_state.vel[i49] += x_it[6 + i49];
+        b_xt->robot_state.IMU.gyro_bias[i49] += x_it[9 + i49];
+        b_xt->robot_state.IMU.acc_bias[i49] += x_it[12 + i49];
       }
 
-      // 'OnePointRANSAC_EKF:146' xt.origin.att                = quatmultJ(quatPlusThetaJ(x_apo(16:18)), xt.origin.att); 
-      quatPlusThetaJ(*(double (*)[3])&x_apo[15], b_y_data);
-      for (apnd = 0; apnd < 4; apnd++) {
-        c_xt[apnd] = b_xt->origin.att[apnd];
+      // 'OnePointRANSAC_EKF:146' xt.origin.att                = quatmultJ(quatPlusThetaJ(x_it(16:18)), xt.origin.att); 
+      quatPlusThetaJ(*(double (*)[3])&x_it[15], b_y_data);
+      for (cdiff = 0; cdiff < 4; cdiff++) {
+        c_xt[cdiff] = b_xt->origin.att[cdiff];
       }
 
       quatmultJ(b_y_data, c_xt, b_xt->origin.att);
 
       // 'OnePointRANSAC_EKF:148' for anchorIdx = 1:numAnchors
       for (anchorIdx = 0; anchorIdx < 6; anchorIdx++) {
-        // 'OnePointRANSAC_EKF:149' xt.anchor_states(anchorIdx).pos = xt.anchor_states(anchorIdx).pos + x_apo(numStates + (anchorIdx-1)*numStatesPerAnchor + int32(1:3)); 
+        // 'OnePointRANSAC_EKF:149' xt.anchor_states(anchorIdx).pos = xt.anchor_states(anchorIdx).pos + x_it(numStates + (anchorIdx-1)*numStatesPerAnchor + int32(1:3)); 
         i49 = anchorIdx * 14;
 
-        // 'OnePointRANSAC_EKF:150' xt.anchor_states(anchorIdx).att = quatmultJ(quatPlusThetaJ(x_apo(numStates + (anchorIdx-1)*numStatesPerAnchor + int32(4:6))), xt.anchor_states(anchorIdx).att); 
+        // 'OnePointRANSAC_EKF:150' xt.anchor_states(anchorIdx).att = quatmultJ(quatPlusThetaJ(x_it(numStates + (anchorIdx-1)*numStatesPerAnchor + int32(4:6))), xt.anchor_states(anchorIdx).att); 
         i51 = anchorIdx * 14;
-        for (i52 = 0; i52 < 3; i52++) {
-          b_xt->anchor_states[anchorIdx].pos[i52] += x_apo[(i52 + i49) + 18];
-          c_x_apo[i52] = x_apo[(i52 + i51) + 21];
+        for (b_m = 0; b_m < 3; b_m++) {
+          b_xt->anchor_states[anchorIdx].pos[b_m] += x_it[(b_m + i49) + 18];
+          x_it2[b_m] = x_it[(b_m + i51) + 21];
         }
 
-        for (apnd = 0; apnd < 4; apnd++) {
-          c_xt[apnd] = b_xt->anchor_states[anchorIdx].att[apnd];
+        for (cdiff = 0; cdiff < 4; cdiff++) {
+          c_xt[cdiff] = b_xt->anchor_states[anchorIdx].att[cdiff];
         }
 
-        quatPlusThetaJ(c_x_apo, dv19);
+        quatPlusThetaJ(x_it2, dv19);
         quatmultJ(dv19, c_xt, b_xt->anchor_states[anchorIdx].att);
 
         // 'OnePointRANSAC_EKF:152' for featureIdx = 1:numPointsPerAnchor
@@ -2642,9 +2643,9 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, double b_P[10404], const double
           if (b_xt->anchor_states[anchorIdx].feature_states[featureIdx].status ==
               1) {
             //  only update active features
-            // 'OnePointRANSAC_EKF:154' xt.anchor_states(anchorIdx).feature_states(featureIdx).inverse_depth = xt.anchor_states(anchorIdx).feature_states(featureIdx).inverse_depth + x_apo(numStates + (anchorIdx-1)*numStatesPerAnchor + 6 + featureIdx); 
+            // 'OnePointRANSAC_EKF:154' xt.anchor_states(anchorIdx).feature_states(featureIdx).inverse_depth = xt.anchor_states(anchorIdx).feature_states(featureIdx).inverse_depth + x_it(numStates + (anchorIdx-1)*numStatesPerAnchor + 6 + featureIdx); 
             b_xt->anchor_states[anchorIdx].feature_states[featureIdx].
-              inverse_depth += x_apo[(anchorIdx * 14 + featureIdx) + 24];
+              inverse_depth += x_it[(anchorIdx * 14 + featureIdx) + 24];
 
             // 'OnePointRANSAC_EKF:155' if xt.anchor_states(anchorIdx).feature_states(featureIdx).inverse_depth < 0 
             if (b_xt->anchor_states[anchorIdx].feature_states[featureIdx].
@@ -2675,29 +2676,29 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, double b_P[10404], const double
           for (i51 = 0; i51 < 102; i51++) {
             d_y[i49 + 102 * i51] = 0.0;
             ndbl = K->size[1];
-            for (i52 = 0; i52 < ndbl; i52++) {
-              d_y[i49 + 102 * i51] += K->data[i49 + K->size[0] * i52] * H->
-                data[i52 + H->size[0] * i51];
+            for (b_m = 0; b_m < ndbl; b_m++) {
+              d_y[i49 + 102 * i51] += K->data[i49 + K->size[0] * b_m] * H->
+                data[b_m + H->size[0] * i51];
             }
           }
         }
       } else {
         k = K->size[1];
         memset(&d_y[0], 0, 10404U * sizeof(double));
-        for (apnd = 0; apnd <= 10303; apnd += 102) {
-          for (ic = apnd; ic + 1 <= apnd + 102; ic++) {
+        for (cr = 0; cr <= 10303; cr += 102) {
+          for (ic = cr; ic + 1 <= cr + 102; ic++) {
             d_y[ic] = 0.0;
           }
         }
 
         br = 0;
-        for (apnd = 0; apnd <= 10303; apnd += 102) {
+        for (cr = 0; cr <= 10303; cr += 102) {
           ar = 0;
           i49 = br + k;
           for (ib = br; ib + 1 <= i49; ib++) {
             if (H->data[ib] != 0.0) {
               ia = ar;
-              for (ic = apnd; ic + 1 <= apnd + 102; ic++) {
+              for (ic = cr; ic + 1 <= cr + 102; ic++) {
                 ia++;
                 d_y[ic] += H->data[ib] * K->data[ia - 1];
               }
@@ -2720,8 +2721,8 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, double b_P[10404], const double
       for (i49 = 0; i49 < 102; i49++) {
         for (i51 = 0; i51 < 102; i51++) {
           dv22[i49 + 102 * i51] = 0.0;
-          for (i52 = 0; i52 < 102; i52++) {
-            dv22[i49 + 102 * i51] += dv21[i49 + 102 * i52] * b_P[i52 + 102 * i51];
+          for (b_m = 0; b_m < 102; b_m++) {
+            dv22[i49 + 102 * i51] += dv21[i49 + 102 * b_m] * b_P[b_m + 102 * i51];
           }
         }
       }
@@ -2732,8 +2733,8 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, double b_P[10404], const double
     } else {
       // 'OnePointRANSAC_EKF:167' else
       // 'OnePointRANSAC_EKF:168' LI_inlier_status(:) = false;
-      for (apnd = 0; apnd < 48; apnd++) {
-        LI_inlier_status[apnd] = false;
+      for (cdiff = 0; cdiff < 48; cdiff++) {
+        LI_inlier_status[cdiff] = false;
       }
 
       // 'OnePointRANSAC_EKF:169' ros_warn('1-Point RANSAC didnt find enough LI inliers') 
@@ -2745,21 +2746,21 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, double b_P[10404], const double
   // 'OnePointRANSAC_EKF:174' HI_inlierCandidates = activeFeatures & ~LI_inlier_status; 
   //  high innovation inliers (ordered like updateVect)
   // 'OnePointRANSAC_EKF:175' HI_inlierStatus = HI_inlierCandidates;
-  for (apnd = 0; apnd < 48; apnd++) {
-    b_HI_inlierCandidates = (activeFeatures[apnd] && (!LI_inlier_status[apnd]));
-    HI_inlierStatus[apnd] = b_HI_inlierCandidates;
-    HI_inlierCandidates[apnd] = b_HI_inlierCandidates;
+  for (cdiff = 0; cdiff < 48; cdiff++) {
+    b_HI_inlierCandidates = (activeFeatures[cdiff] && (!LI_inlier_status[cdiff]));
+    HI_inlierStatus[cdiff] = b_HI_inlierCandidates;
+    HI_inlierCandidates[cdiff] = b_HI_inlierCandidates;
   }
 
   // 'OnePointRANSAC_EKF:176' HI_ind = find(HI_inlierStatus);
   idx = 0;
-  b_m = 1;
+  cdiff = 1;
   exitg1 = false;
-  while ((!exitg1) && (b_m < 49)) {
+  while ((!exitg1) && (cdiff < 49)) {
     guard1 = false;
-    if (HI_inlierCandidates[b_m - 1]) {
+    if (HI_inlierCandidates[cdiff - 1]) {
       idx++;
-      ii_data[idx - 1] = (signed char)b_m;
+      ii_data[idx - 1] = (signed char)cdiff;
       if (idx >= 48) {
         exitg1 = true;
       } else {
@@ -2770,7 +2771,7 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, double b_P[10404], const double
     }
 
     if (guard1) {
-      b_m++;
+      cdiff++;
     }
   }
 
@@ -2819,21 +2820,30 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, double b_P[10404], const double
     b_H->data[0] = 0.0;
 
     //  for coder
-    // 'OnePointRANSAC_EKF:182' for it = 1:VIOParameters.max_ekf_iterations
+    // 'OnePointRANSAC_EKF:182' xt_it = xt;
+    xt_it = *b_xt;
+
+    //  total state for iteration
+    // 'OnePointRANSAC_EKF:183' x_it = zeros(numStates + numAnchors*(6 + numPointsPerAnchor), 1); 
+    memset(&x_it[0], 0, 102U * sizeof(double));
+
+    //  error state for iteration
+    // 'OnePointRANSAC_EKF:184' for it = 1:VIOParameters.max_ekf_iterations
     it = 1;
+    emxInit_real_T(&C, 1);
     emxInit_real_T1(&e_y, 2);
     emxInit_real_T1(&f_y, 2);
     emxInit_real_T1(&c_H, 2);
     emxInit_real_T1(&c_S, 2);
     emxInit_real_T1(&d_H, 2);
     while (it <= c_VIOParameters_max_ekf_iterati) {
-      // 'OnePointRANSAC_EKF:183' xt = getScaledMap(xt);
-      getScaledMap(b_xt);
+      // 'OnePointRANSAC_EKF:185' xt_it = getScaledMap(xt_it);
+      getScaledMap(&xt_it);
 
       //  build the map according to the current estimate
-      // 'OnePointRANSAC_EKF:185' [r, H, ind] = getH_R_res(xt, z_u_l, z_u_r, HI_inlierStatus, stereoParams, VIOParameters); 
-      getH_R_res(b_xt->robot_state.pos, b_xt->robot_state.att,
-                 b_xt->anchor_states, z_u_l, z_u_r, HI_inlierStatus,
+      // 'OnePointRANSAC_EKF:187' [r, H, ind] = getH_R_res(xt_it, z_u_l, z_u_r, HI_inlierStatus, stereoParams, VIOParameters); 
+      getH_R_res(xt_it.robot_state.pos, xt_it.robot_state.att,
+                 xt_it.anchor_states, z_u_l, z_u_r, HI_inlierStatus,
                  c_stereoParams_CameraParameters,
                  d_stereoParams_CameraParameters,
                  e_stereoParams_CameraParameters,
@@ -2849,88 +2859,90 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, double b_P[10404], const double
       }
 
       //  the residual is ordered by anchors/features, not like updateVect
-      // 'OnePointRANSAC_EKF:188' P_a = P(1:6, 1:6);
-      // 'OnePointRANSAC_EKF:190' for k = 1:length(HI_ind)
+      // 'OnePointRANSAC_EKF:190' P_a = P(1:6, 1:6);
+      // 'OnePointRANSAC_EKF:192' for k = 1:length(HI_ind)
       for (k = 0; k < ii_size_idx_0; k++) {
-        // 'OnePointRANSAC_EKF:191' anchorIdx = ind(k, 1);
+        // 'OnePointRANSAC_EKF:193' anchorIdx = ind(k, 1);
         anchorIdx = ind->data[k];
 
-        // 'OnePointRANSAC_EKF:192' featureIdx = ind(k, 2);
-        // 'OnePointRANSAC_EKF:193' H_a = H((k-1)*residualDim + (1:residualDim), 1:6); 
+        // 'OnePointRANSAC_EKF:194' featureIdx = ind(k, 2);
+        // 'OnePointRANSAC_EKF:195' H_a = H((k-1)*residualDim + (1:residualDim), 1:6); 
         ndbl = (int)floor(((double)residualDim - 1.0) + 0.5);
-        apnd = ndbl + 1;
-        b_m = (ndbl - residualDim) + 1;
-        if (fabs((double)b_m) < 4.4408920985006262E-16 * (double)residualDim) {
+        b_m = ndbl + 1;
+        cdiff = (ndbl - residualDim) + 1;
+        if (fabs((double)cdiff) < 4.4408920985006262E-16 * (double)residualDim)
+        {
           ndbl++;
-          apnd = residualDim;
-        } else if (b_m > 0) {
-          apnd = ndbl;
+          b_m = residualDim;
+        } else if (cdiff > 0) {
+          b_m = ndbl;
         } else {
           ndbl++;
         }
 
         c_xt[0] = 1.0;
         if (ndbl > 1) {
-          c_xt[ndbl - 1] = apnd;
+          c_xt[ndbl - 1] = b_m;
           i49 = ndbl - 1;
           idx = i49 / 2;
-          b_m = 1;
-          while (b_m <= idx - 1) {
+          cdiff = 1;
+          while (cdiff <= idx - 1) {
             c_xt[1] = 2.0;
-            c_xt[ndbl - 2] = (double)apnd - 1.0;
-            b_m = 2;
+            c_xt[ndbl - 2] = (double)b_m - 1.0;
+            cdiff = 2;
           }
 
           if (idx << 1 == ndbl - 1) {
-            c_xt[idx] = (1.0 + (double)apnd) / 2.0;
+            c_xt[idx] = (1.0 + (double)b_m) / 2.0;
           } else {
             c_xt[idx] = 1.0 + (double)idx;
-            c_xt[idx + 1] = apnd - idx;
+            c_xt[idx + 1] = b_m - idx;
           }
         }
 
-        b_m = (unsigned char)((unsigned int)(unsigned char)k * residualDim);
+        cdiff = (unsigned char)((unsigned int)(unsigned char)k * residualDim);
         for (i49 = 0; i49 < 6; i49++) {
           for (i51 = 0; i51 < ndbl; i51++) {
-            H_a_data[i51 + ndbl * i49] = b_H->data[((int)((double)b_m + c_xt[i51])
-              + b_H->size[0] * i49) - 1];
+            H_a_data[i51 + ndbl * i49] = b_H->data[((int)((double)cdiff +
+              c_xt[i51]) + b_H->size[0] * i49) - 1];
           }
         }
 
-        // 'OnePointRANSAC_EKF:194' H_b = H((k-1)*residualDim + (1:residualDim), numStates + (anchorIdx-1)*numStatesPerAnchor + int32(1:6)); 
+        // 'OnePointRANSAC_EKF:196' H_b = H((k-1)*residualDim + (1:residualDim), numStates + (anchorIdx-1)*numStatesPerAnchor + int32(1:6)); 
         b_ndbl = (int)floor(((double)residualDim - 1.0) + 0.5);
-        apnd = b_ndbl + 1;
-        b_m = (b_ndbl - residualDim) + 1;
-        if (fabs((double)b_m) < 4.4408920985006262E-16 * (double)residualDim) {
+        b_m = b_ndbl + 1;
+        cdiff = (b_ndbl - residualDim) + 1;
+        if (fabs((double)cdiff) < 4.4408920985006262E-16 * (double)residualDim)
+        {
           b_ndbl++;
-          apnd = residualDim;
-        } else if (b_m > 0) {
-          apnd = b_ndbl;
+          b_m = residualDim;
+        } else if (cdiff > 0) {
+          b_m = b_ndbl;
         } else {
           b_ndbl++;
         }
 
         b_y_data[0] = 1.0;
         if (b_ndbl > 1) {
-          b_y_data[b_ndbl - 1] = apnd;
+          b_y_data[b_ndbl - 1] = b_m;
           i49 = b_ndbl - 1;
           idx = i49 / 2;
-          b_m = 1;
-          while (b_m <= idx - 1) {
+          cdiff = 1;
+          while (cdiff <= idx - 1) {
             b_y_data[1] = 2.0;
-            b_y_data[b_ndbl - 2] = (double)apnd - 1.0;
-            b_m = 2;
+            b_y_data[b_ndbl - 2] = (double)b_m - 1.0;
+            cdiff = 2;
           }
 
           if (idx << 1 == b_ndbl - 1) {
-            b_y_data[idx] = (1.0 + (double)apnd) / 2.0;
+            b_y_data[idx] = (1.0 + (double)b_m) / 2.0;
           } else {
             b_y_data[idx] = 1.0 + (double)idx;
-            b_y_data[idx + 1] = apnd - idx;
+            b_y_data[idx + 1] = b_m - idx;
           }
         }
 
-        b_m = (unsigned char)((unsigned int)(unsigned char)k * residualDim);
+        cdiff = (unsigned char)((unsigned int)(unsigned char)k * residualDim);
         i50 = ind->data[k] - 1L;
         if (i50 > 2147483647L) {
           i50 = 2147483647L;
@@ -2960,7 +2972,7 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, double b_P[10404], const double
 
         i49 = (int)i50;
         for (i51 = 0; i51 < 6; i51++) {
-          for (i52 = 0; i52 < b_ndbl; i52++) {
+          for (b_m = 0; b_m < b_ndbl; b_m++) {
             i50 = (long)i49 + (1 + i51);
             if (i50 > 2147483647L) {
               i50 = 2147483647L;
@@ -2970,45 +2982,46 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, double b_P[10404], const double
               }
             }
 
-            H_b_data[i52 + b_ndbl * i51] = b_H->data[((int)((double)b_m +
-              b_y_data[i52]) + b_H->size[0] * ((int)i50 - 1)) - 1];
+            H_b_data[b_m + b_ndbl * i51] = b_H->data[((int)((double)cdiff +
+              b_y_data[b_m]) + b_H->size[0] * ((int)i50 - 1)) - 1];
           }
         }
 
-        // 'OnePointRANSAC_EKF:195' H_c = H((k-1)*residualDim + (1:residualDim), numStates + (anchorIdx-1)*numStatesPerAnchor + 6 + featureIdx); 
+        // 'OnePointRANSAC_EKF:197' H_c = H((k-1)*residualDim + (1:residualDim), numStates + (anchorIdx-1)*numStatesPerAnchor + 6 + featureIdx); 
         c_ndbl = (int)floor(((double)residualDim - 1.0) + 0.5);
-        apnd = c_ndbl + 1;
-        b_m = (c_ndbl - residualDim) + 1;
-        if (fabs((double)b_m) < 4.4408920985006262E-16 * (double)residualDim) {
+        b_m = c_ndbl + 1;
+        cdiff = (c_ndbl - residualDim) + 1;
+        if (fabs((double)cdiff) < 4.4408920985006262E-16 * (double)residualDim)
+        {
           c_ndbl++;
-          apnd = residualDim;
-        } else if (b_m > 0) {
-          apnd = c_ndbl;
+          b_m = residualDim;
+        } else if (cdiff > 0) {
+          b_m = c_ndbl;
         } else {
           c_ndbl++;
         }
 
         y_data[0] = 1.0;
         if (c_ndbl > 1) {
-          y_data[c_ndbl - 1] = apnd;
+          y_data[c_ndbl - 1] = b_m;
           i49 = c_ndbl - 1;
           idx = i49 / 2;
-          b_m = 1;
-          while (b_m <= idx - 1) {
+          cdiff = 1;
+          while (cdiff <= idx - 1) {
             y_data[1] = 2.0;
-            y_data[c_ndbl - 2] = (double)apnd - 1.0;
-            b_m = 2;
+            y_data[c_ndbl - 2] = (double)b_m - 1.0;
+            cdiff = 2;
           }
 
           if (idx << 1 == c_ndbl - 1) {
-            y_data[idx] = (1.0 + (double)apnd) / 2.0;
+            y_data[idx] = (1.0 + (double)b_m) / 2.0;
           } else {
             y_data[idx] = 1.0 + (double)idx;
-            y_data[idx + 1] = apnd - idx;
+            y_data[idx + 1] = b_m - idx;
           }
         }
 
-        b_m = (unsigned char)((unsigned int)(unsigned char)k * residualDim);
+        cdiff = (unsigned char)((unsigned int)(unsigned char)k * residualDim);
         i50 = ind->data[k] - 1L;
         if (i50 > 2147483647L) {
           i50 = 2147483647L;
@@ -3056,11 +3069,11 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, double b_P[10404], const double
 
         i49 = (int)i50;
         for (i51 = 0; i51 < c_ndbl; i51++) {
-          H_c_data[i51] = b_H->data[((int)((double)b_m + y_data[i51]) +
+          H_c_data[i51] = b_H->data[((int)((double)cdiff + y_data[i51]) +
             b_H->size[0] * (i49 - 1)) - 1];
         }
 
-        // 'OnePointRANSAC_EKF:196' P_b = P(numStates + (anchorIdx-1)*numStatesPerAnchor + int32(1:6), 1:6); 
+        // 'OnePointRANSAC_EKF:198' P_b = P(numStates + (anchorIdx-1)*numStatesPerAnchor + int32(1:6), 1:6); 
         i50 = ind->data[k] - 1L;
         if (i50 > 2147483647L) {
           i50 = 2147483647L;
@@ -3090,8 +3103,8 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, double b_P[10404], const double
 
         i49 = (int)i50;
         for (i51 = 0; i51 < 6; i51++) {
-          for (i52 = 0; i52 < 6; i52++) {
-            i50 = (long)i49 + (1 + i52);
+          for (b_m = 0; b_m < 6; b_m++) {
+            i50 = (long)i49 + (1 + b_m);
             if (i50 > 2147483647L) {
               i50 = 2147483647L;
             } else {
@@ -3100,11 +3113,11 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, double b_P[10404], const double
               }
             }
 
-            P_b[i52 + 6 * i51] = b_P[((int)i50 + 102 * i51) - 1];
+            P_b[b_m + 6 * i51] = b_P[((int)i50 + 102 * i51) - 1];
           }
         }
 
-        // 'OnePointRANSAC_EKF:197' P_c = P(numStates + (anchorIdx-1)*numStatesPerAnchor + 6 + featureIdx, 1:6); 
+        // 'OnePointRANSAC_EKF:199' P_c = P(numStates + (anchorIdx-1)*numStatesPerAnchor + 6 + featureIdx, 1:6); 
         i50 = ind->data[k] - 1L;
         if (i50 > 2147483647L) {
           i50 = 2147483647L;
@@ -3152,16 +3165,16 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, double b_P[10404], const double
 
         i49 = (int)i50;
 
-        // 'OnePointRANSAC_EKF:198' P_d = P_b';
+        // 'OnePointRANSAC_EKF:200' P_d = P_b';
         for (i51 = 0; i51 < 6; i51++) {
           P_c[i51] = b_P[(i49 + 102 * i51) - 1];
-          for (i52 = 0; i52 < 6; i52++) {
-            P_d[i52 + 6 * i51] = P_b[i51 + 6 * i52];
+          for (b_m = 0; b_m < 6; b_m++) {
+            P_d[b_m + 6 * i51] = P_b[i51 + 6 * b_m];
           }
         }
 
-        // 'OnePointRANSAC_EKF:199' P_e = P(numStates + (anchorIdx-1)*numStatesPerAnchor + int32(1:6), numStates + (anchorIdx-1)*numStatesPerAnchor + int32(1:6)); 
-        // 'OnePointRANSAC_EKF:200' P_f = P(numStates + (anchorIdx-1)*numStatesPerAnchor + 6 + featureIdx, numStates + (anchorIdx-1)*numStatesPerAnchor + int32(1:6)); 
+        // 'OnePointRANSAC_EKF:201' P_e = P(numStates + (anchorIdx-1)*numStatesPerAnchor + int32(1:6), numStates + (anchorIdx-1)*numStatesPerAnchor + int32(1:6)); 
+        // 'OnePointRANSAC_EKF:202' P_f = P(numStates + (anchorIdx-1)*numStatesPerAnchor + 6 + featureIdx, numStates + (anchorIdx-1)*numStatesPerAnchor + int32(1:6)); 
         i50 = ind->data[k] - 1L;
         if (i50 > 2147483647L) {
           i50 = 2147483647L;
@@ -3237,14 +3250,14 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, double b_P[10404], const double
 
         i51 = (int)i50;
 
-        // 'OnePointRANSAC_EKF:201' P_g = P_c';
-        // 'OnePointRANSAC_EKF:202' P_h = P_f';
-        // 'OnePointRANSAC_EKF:203' P_i = P(numStates + (anchorIdx-1)*numStatesPerAnchor + 6 + featureIdx, numStates + (anchorIdx-1)*numStatesPerAnchor + 6 + featureIdx); 
-        // 'OnePointRANSAC_EKF:204' S_feature = (H_a*P_a + H_b*P_b + H_c*P_c)*H_a' + ... 
-        // 'OnePointRANSAC_EKF:205'                         (H_a*P_d + H_b*P_e + H_c*P_f)*H_b' + ... 
-        // 'OnePointRANSAC_EKF:206'                         (H_a*P_g + H_b*P_h + H_c*P_i)*H_c'; 
-        for (i52 = 0; i52 < 6; i52++) {
-          i50 = (long)i49 + (1 + i52);
+        // 'OnePointRANSAC_EKF:203' P_g = P_c';
+        // 'OnePointRANSAC_EKF:204' P_h = P_f';
+        // 'OnePointRANSAC_EKF:205' P_i = P(numStates + (anchorIdx-1)*numStatesPerAnchor + 6 + featureIdx, numStates + (anchorIdx-1)*numStatesPerAnchor + 6 + featureIdx); 
+        // 'OnePointRANSAC_EKF:206' S_feature = (H_a*P_a + H_b*P_b + H_c*P_c)*H_a' + ... 
+        // 'OnePointRANSAC_EKF:207'                         (H_a*P_d + H_b*P_e + H_c*P_f)*H_b' + ... 
+        // 'OnePointRANSAC_EKF:208'                         (H_a*P_g + H_b*P_h + H_c*P_i)*H_c'; 
+        for (b_m = 0; b_m < 6; b_m++) {
+          i50 = (long)i49 + (1 + b_m);
           if (i50 > 2147483647L) {
             i50 = 2147483647L;
           } else {
@@ -3253,33 +3266,33 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, double b_P[10404], const double
             }
           }
 
-          P_f[i52] = b_P[(i51 + 102 * ((int)i50 - 1)) - 1];
-          for (b_m = 0; b_m < ndbl; b_m++) {
-            f_C_data[b_m + ndbl * i52] = 0.0;
+          P_f[b_m] = b_P[(i51 + 102 * ((int)i50 - 1)) - 1];
+          for (cdiff = 0; cdiff < ndbl; cdiff++) {
+            f_C_data[cdiff + ndbl * b_m] = 0.0;
           }
         }
 
         idx = ndbl * 5;
-        for (apnd = 0; apnd <= idx; apnd += ndbl) {
-          i49 = apnd + ndbl;
-          for (ic = apnd; ic + 1 <= i49; ic++) {
+        for (cr = 0; cr <= idx; cr += ndbl) {
+          i49 = cr + ndbl;
+          for (ic = cr; ic + 1 <= i49; ic++) {
             f_C_data[ic] = 0.0;
           }
         }
 
         br = 0;
-        for (apnd = 0; apnd <= idx; apnd += ndbl) {
+        for (cr = 0; cr <= idx; cr += ndbl) {
           ar = 0;
           for (ib = br; ib + 1 <= br + 6; ib++) {
             if (b_P[ib % 6 + 102 * (ib / 6)] != 0.0) {
               ia = ar;
-              i49 = apnd + ndbl;
-              for (ic = apnd; ic + 1 <= i49; ic++) {
+              i49 = cr + ndbl;
+              for (ic = cr; ic + 1 <= i49; ic++) {
                 ia++;
-                b_m = (unsigned char)((unsigned int)(unsigned char)k *
-                                      residualDim);
+                cdiff = (unsigned char)((unsigned int)(unsigned char)k *
+                  residualDim);
                 for (i51 = 0; i51 < ndbl; i51++) {
-                  tmp_data[i51] = (int)((double)b_m + c_xt[i51]);
+                  tmp_data[i51] = (int)((double)cdiff + c_xt[i51]);
                 }
 
                 f_C_data[ic] += b_P[ib % 6 + 102 * (ib / 6)] * b_H->data
@@ -3301,15 +3314,15 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, double b_P[10404], const double
         }
 
         idx = b_ndbl * 5;
-        for (apnd = 0; apnd <= idx; apnd += b_ndbl) {
-          i49 = apnd + b_ndbl;
-          for (ic = apnd; ic + 1 <= i49; ic++) {
+        for (cr = 0; cr <= idx; cr += b_ndbl) {
+          i49 = cr + b_ndbl;
+          for (ic = cr; ic + 1 <= i49; ic++) {
             g_C_data[ic] = 0.0;
           }
         }
 
         br = 0;
-        for (apnd = 0; apnd <= idx; apnd += b_ndbl) {
+        for (cr = 0; cr <= idx; cr += b_ndbl) {
           ar = 0;
           for (ib = br; ib + 1 <= br + 6; ib++) {
             i50 = anchorIdx - 1L;
@@ -3350,13 +3363,13 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, double b_P[10404], const double
 
             if (b_P[((int)i50 + 102 * (ib / 6)) - 1] != 0.0) {
               ia = ar;
-              i49 = apnd + b_ndbl;
-              for (ic = apnd; ic + 1 <= i49; ic++) {
+              i49 = cr + b_ndbl;
+              for (ic = cr; ic + 1 <= i49; ic++) {
                 ia++;
-                b_m = (unsigned char)((unsigned int)(unsigned char)k *
-                                      residualDim);
+                cdiff = (unsigned char)((unsigned int)(unsigned char)k *
+                  residualDim);
                 for (i51 = 0; i51 < b_ndbl; i51++) {
-                  tmp_data[i51] = (int)((double)b_m + b_y_data[i51]);
+                  tmp_data[i51] = (int)((double)cdiff + b_y_data[i51]);
                 }
 
                 i50 = ind->data[k] - 1L;
@@ -3393,6 +3406,269 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, double b_P[10404], const double
                 } else {
                   if (i50 < -2147483648L) {
                     i50 = -2147483648L;
+                  }
+                }
+
+                i52 = anchorIdx - 1L;
+                if (i52 > 2147483647L) {
+                  i52 = 2147483647L;
+                } else {
+                  if (i52 < -2147483648L) {
+                    i52 = -2147483648L;
+                  }
+                }
+
+                i52 = (int)i52 * 14L;
+                if (i52 > 2147483647L) {
+                  i52 = 2147483647L;
+                } else {
+                  if (i52 < -2147483648L) {
+                    i52 = -2147483648L;
+                  }
+                }
+
+                i52 = 18L + (int)i52;
+                if (i52 > 2147483647L) {
+                  i52 = 2147483647L;
+                } else {
+                  if (i52 < -2147483648L) {
+                    i52 = -2147483648L;
+                  }
+                }
+
+                i52 = (long)(int)i52 + (1 + (ia - 1) / b_ndbl);
+                if (i52 > 2147483647L) {
+                  i52 = 2147483647L;
+                } else {
+                  if (i52 < -2147483648L) {
+                    i52 = -2147483648L;
+                  }
+                }
+
+                g_C_data[ic] += b_P[((int)i50 + 102 * (ib / 6)) - 1] * b_H->
+                  data[(tmp_data[(ia - 1) % b_ndbl] + b_H->size[0] * ((int)i52 -
+                         1)) - 1];
+              }
+            }
+
+            ar += b_ndbl;
+          }
+
+          br += 6;
+        }
+
+        for (i49 = 0; i49 < 6; i49++) {
+          for (i51 = 0; i51 < ndbl; i51++) {
+            h_C_data[i51 + ndbl * i49] = 0.0;
+          }
+        }
+
+        idx = ndbl * 5;
+        for (cr = 0; cr <= idx; cr += ndbl) {
+          i49 = cr + ndbl;
+          for (ic = cr; ic + 1 <= i49; ic++) {
+            h_C_data[ic] = 0.0;
+          }
+        }
+
+        br = 0;
+        for (cr = 0; cr <= idx; cr += ndbl) {
+          ar = 0;
+          for (ib = br; ib + 1 <= br + 6; ib++) {
+            if (P_d[ib] != 0.0) {
+              ia = ar;
+              i49 = cr + ndbl;
+              for (ic = cr; ic + 1 <= i49; ic++) {
+                ia++;
+                cdiff = (unsigned char)((unsigned int)(unsigned char)k *
+                  residualDim);
+                for (i51 = 0; i51 < ndbl; i51++) {
+                  tmp_data[i51] = (int)((double)cdiff + c_xt[i51]);
+                }
+
+                h_C_data[ic] += P_d[ib] * b_H->data[(tmp_data[(ia - 1) % ndbl] +
+                  b_H->size[0] * ((ia - 1) / ndbl)) - 1];
+              }
+            }
+
+            ar += ndbl;
+          }
+
+          br += 6;
+        }
+
+        for (i49 = 0; i49 < 6; i49++) {
+          for (i51 = 0; i51 < b_ndbl; i51++) {
+            i_C_data[i51 + b_ndbl * i49] = 0.0;
+          }
+        }
+
+        idx = b_ndbl * 5;
+        for (cr = 0; cr <= idx; cr += b_ndbl) {
+          i49 = cr + b_ndbl;
+          for (ic = cr; ic + 1 <= i49; ic++) {
+            i_C_data[ic] = 0.0;
+          }
+        }
+
+        br = 0;
+        for (cr = 0; cr <= idx; cr += b_ndbl) {
+          ar = 0;
+          for (ib = br; ib + 1 <= br + 6; ib++) {
+            i50 = anchorIdx - 1L;
+            if (i50 > 2147483647L) {
+              i50 = 2147483647L;
+            } else {
+              if (i50 < -2147483648L) {
+                i50 = -2147483648L;
+              }
+            }
+
+            i50 = (int)i50 * 14L;
+            if (i50 > 2147483647L) {
+              i50 = 2147483647L;
+            } else {
+              if (i50 < -2147483648L) {
+                i50 = -2147483648L;
+              }
+            }
+
+            i50 = 18L + (int)i50;
+            if (i50 > 2147483647L) {
+              i50 = 2147483647L;
+            } else {
+              if (i50 < -2147483648L) {
+                i50 = -2147483648L;
+              }
+            }
+
+            i50 = (long)(int)i50 + (1 + ib % 6);
+            if (i50 > 2147483647L) {
+              i50 = 2147483647L;
+            } else {
+              if (i50 < -2147483648L) {
+                i50 = -2147483648L;
+              }
+            }
+
+            i52 = anchorIdx - 1L;
+            if (i52 > 2147483647L) {
+              i52 = 2147483647L;
+            } else {
+              if (i52 < -2147483648L) {
+                i52 = -2147483648L;
+              }
+            }
+
+            i52 = (int)i52 * 14L;
+            if (i52 > 2147483647L) {
+              i52 = 2147483647L;
+            } else {
+              if (i52 < -2147483648L) {
+                i52 = -2147483648L;
+              }
+            }
+
+            i52 = 18L + (int)i52;
+            if (i52 > 2147483647L) {
+              i52 = 2147483647L;
+            } else {
+              if (i52 < -2147483648L) {
+                i52 = -2147483648L;
+              }
+            }
+
+            i52 = (long)(int)i52 + (1 + ib / 6);
+            if (i52 > 2147483647L) {
+              i52 = 2147483647L;
+            } else {
+              if (i52 < -2147483648L) {
+                i52 = -2147483648L;
+              }
+            }
+
+            if (b_P[((int)i50 + 102 * ((int)i52 - 1)) - 1] != 0.0) {
+              ia = ar;
+              i49 = cr + b_ndbl;
+              for (ic = cr; ic + 1 <= i49; ic++) {
+                ia++;
+                cdiff = (unsigned char)((unsigned int)(unsigned char)k *
+                  residualDim);
+                for (i51 = 0; i51 < b_ndbl; i51++) {
+                  tmp_data[i51] = (int)((double)cdiff + b_y_data[i51]);
+                }
+
+                i50 = ind->data[k] - 1L;
+                if (i50 > 2147483647L) {
+                  i50 = 2147483647L;
+                } else {
+                  if (i50 < -2147483648L) {
+                    i50 = -2147483648L;
+                  }
+                }
+
+                i50 = (int)i50 * 14L;
+                if (i50 > 2147483647L) {
+                  i50 = 2147483647L;
+                } else {
+                  if (i50 < -2147483648L) {
+                    i50 = -2147483648L;
+                  }
+                }
+
+                i50 = 18L + (int)i50;
+                if (i50 > 2147483647L) {
+                  i50 = 2147483647L;
+                } else {
+                  if (i50 < -2147483648L) {
+                    i50 = -2147483648L;
+                  }
+                }
+
+                i51 = (int)i50;
+                i50 = ind->data[k] - 1L;
+                if (i50 > 2147483647L) {
+                  i50 = 2147483647L;
+                } else {
+                  if (i50 < -2147483648L) {
+                    i50 = -2147483648L;
+                  }
+                }
+
+                i50 = (int)i50 * 14L;
+                if (i50 > 2147483647L) {
+                  i50 = 2147483647L;
+                } else {
+                  if (i50 < -2147483648L) {
+                    i50 = -2147483648L;
+                  }
+                }
+
+                i50 = 18L + (int)i50;
+                if (i50 > 2147483647L) {
+                  i50 = 2147483647L;
+                } else {
+                  if (i50 < -2147483648L) {
+                    i50 = -2147483648L;
+                  }
+                }
+
+                b_m = (int)i50;
+                i50 = (long)i51 + (1 + ib % 6);
+                if (i50 > 2147483647L) {
+                  i50 = 2147483647L;
+                } else {
+                  if (i50 < -2147483648L) {
+                    i50 = -2147483648L;
+                  }
+                }
+
+                i52 = (long)b_m + (1 + ib / 6);
+                if (i52 > 2147483647L) {
+                  i52 = 2147483647L;
+                } else {
+                  if (i52 < -2147483648L) {
+                    i52 = -2147483648L;
                   }
                 }
 
@@ -3432,272 +3708,9 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, double b_P[10404], const double
                   }
                 }
 
-                g_C_data[ic] += b_P[((int)i50 + 102 * (ib / 6)) - 1] * b_H->
-                  data[(tmp_data[(ia - 1) % b_ndbl] + b_H->size[0] * ((int)i53 -
-                         1)) - 1];
-              }
-            }
-
-            ar += b_ndbl;
-          }
-
-          br += 6;
-        }
-
-        for (i49 = 0; i49 < 6; i49++) {
-          for (i51 = 0; i51 < ndbl; i51++) {
-            h_C_data[i51 + ndbl * i49] = 0.0;
-          }
-        }
-
-        idx = ndbl * 5;
-        for (apnd = 0; apnd <= idx; apnd += ndbl) {
-          i49 = apnd + ndbl;
-          for (ic = apnd; ic + 1 <= i49; ic++) {
-            h_C_data[ic] = 0.0;
-          }
-        }
-
-        br = 0;
-        for (apnd = 0; apnd <= idx; apnd += ndbl) {
-          ar = 0;
-          for (ib = br; ib + 1 <= br + 6; ib++) {
-            if (P_d[ib] != 0.0) {
-              ia = ar;
-              i49 = apnd + ndbl;
-              for (ic = apnd; ic + 1 <= i49; ic++) {
-                ia++;
-                b_m = (unsigned char)((unsigned int)(unsigned char)k *
-                                      residualDim);
-                for (i51 = 0; i51 < ndbl; i51++) {
-                  tmp_data[i51] = (int)((double)b_m + c_xt[i51]);
-                }
-
-                h_C_data[ic] += P_d[ib] * b_H->data[(tmp_data[(ia - 1) % ndbl] +
-                  b_H->size[0] * ((ia - 1) / ndbl)) - 1];
-              }
-            }
-
-            ar += ndbl;
-          }
-
-          br += 6;
-        }
-
-        for (i49 = 0; i49 < 6; i49++) {
-          for (i51 = 0; i51 < b_ndbl; i51++) {
-            i_C_data[i51 + b_ndbl * i49] = 0.0;
-          }
-        }
-
-        idx = b_ndbl * 5;
-        for (apnd = 0; apnd <= idx; apnd += b_ndbl) {
-          i49 = apnd + b_ndbl;
-          for (ic = apnd; ic + 1 <= i49; ic++) {
-            i_C_data[ic] = 0.0;
-          }
-        }
-
-        br = 0;
-        for (apnd = 0; apnd <= idx; apnd += b_ndbl) {
-          ar = 0;
-          for (ib = br; ib + 1 <= br + 6; ib++) {
-            i50 = anchorIdx - 1L;
-            if (i50 > 2147483647L) {
-              i50 = 2147483647L;
-            } else {
-              if (i50 < -2147483648L) {
-                i50 = -2147483648L;
-              }
-            }
-
-            i50 = (int)i50 * 14L;
-            if (i50 > 2147483647L) {
-              i50 = 2147483647L;
-            } else {
-              if (i50 < -2147483648L) {
-                i50 = -2147483648L;
-              }
-            }
-
-            i50 = 18L + (int)i50;
-            if (i50 > 2147483647L) {
-              i50 = 2147483647L;
-            } else {
-              if (i50 < -2147483648L) {
-                i50 = -2147483648L;
-              }
-            }
-
-            i50 = (long)(int)i50 + (1 + ib % 6);
-            if (i50 > 2147483647L) {
-              i50 = 2147483647L;
-            } else {
-              if (i50 < -2147483648L) {
-                i50 = -2147483648L;
-              }
-            }
-
-            i53 = anchorIdx - 1L;
-            if (i53 > 2147483647L) {
-              i53 = 2147483647L;
-            } else {
-              if (i53 < -2147483648L) {
-                i53 = -2147483648L;
-              }
-            }
-
-            i53 = (int)i53 * 14L;
-            if (i53 > 2147483647L) {
-              i53 = 2147483647L;
-            } else {
-              if (i53 < -2147483648L) {
-                i53 = -2147483648L;
-              }
-            }
-
-            i53 = 18L + (int)i53;
-            if (i53 > 2147483647L) {
-              i53 = 2147483647L;
-            } else {
-              if (i53 < -2147483648L) {
-                i53 = -2147483648L;
-              }
-            }
-
-            i53 = (long)(int)i53 + (1 + ib / 6);
-            if (i53 > 2147483647L) {
-              i53 = 2147483647L;
-            } else {
-              if (i53 < -2147483648L) {
-                i53 = -2147483648L;
-              }
-            }
-
-            if (b_P[((int)i50 + 102 * ((int)i53 - 1)) - 1] != 0.0) {
-              ia = ar;
-              i49 = apnd + b_ndbl;
-              for (ic = apnd; ic + 1 <= i49; ic++) {
-                ia++;
-                b_m = (unsigned char)((unsigned int)(unsigned char)k *
-                                      residualDim);
-                for (i51 = 0; i51 < b_ndbl; i51++) {
-                  tmp_data[i51] = (int)((double)b_m + b_y_data[i51]);
-                }
-
-                i50 = ind->data[k] - 1L;
-                if (i50 > 2147483647L) {
-                  i50 = 2147483647L;
-                } else {
-                  if (i50 < -2147483648L) {
-                    i50 = -2147483648L;
-                  }
-                }
-
-                i50 = (int)i50 * 14L;
-                if (i50 > 2147483647L) {
-                  i50 = 2147483647L;
-                } else {
-                  if (i50 < -2147483648L) {
-                    i50 = -2147483648L;
-                  }
-                }
-
-                i50 = 18L + (int)i50;
-                if (i50 > 2147483647L) {
-                  i50 = 2147483647L;
-                } else {
-                  if (i50 < -2147483648L) {
-                    i50 = -2147483648L;
-                  }
-                }
-
-                i51 = (int)i50;
-                i50 = ind->data[k] - 1L;
-                if (i50 > 2147483647L) {
-                  i50 = 2147483647L;
-                } else {
-                  if (i50 < -2147483648L) {
-                    i50 = -2147483648L;
-                  }
-                }
-
-                i50 = (int)i50 * 14L;
-                if (i50 > 2147483647L) {
-                  i50 = 2147483647L;
-                } else {
-                  if (i50 < -2147483648L) {
-                    i50 = -2147483648L;
-                  }
-                }
-
-                i50 = 18L + (int)i50;
-                if (i50 > 2147483647L) {
-                  i50 = 2147483647L;
-                } else {
-                  if (i50 < -2147483648L) {
-                    i50 = -2147483648L;
-                  }
-                }
-
-                i52 = (int)i50;
-                i50 = (long)i51 + (1 + ib % 6);
-                if (i50 > 2147483647L) {
-                  i50 = 2147483647L;
-                } else {
-                  if (i50 < -2147483648L) {
-                    i50 = -2147483648L;
-                  }
-                }
-
-                i53 = (long)i52 + (1 + ib / 6);
-                if (i53 > 2147483647L) {
-                  i53 = 2147483647L;
-                } else {
-                  if (i53 < -2147483648L) {
-                    i53 = -2147483648L;
-                  }
-                }
-
-                i54 = anchorIdx - 1L;
-                if (i54 > 2147483647L) {
-                  i54 = 2147483647L;
-                } else {
-                  if (i54 < -2147483648L) {
-                    i54 = -2147483648L;
-                  }
-                }
-
-                i54 = (int)i54 * 14L;
-                if (i54 > 2147483647L) {
-                  i54 = 2147483647L;
-                } else {
-                  if (i54 < -2147483648L) {
-                    i54 = -2147483648L;
-                  }
-                }
-
-                i54 = 18L + (int)i54;
-                if (i54 > 2147483647L) {
-                  i54 = 2147483647L;
-                } else {
-                  if (i54 < -2147483648L) {
-                    i54 = -2147483648L;
-                  }
-                }
-
-                i54 = (long)(int)i54 + (1 + (ia - 1) / b_ndbl);
-                if (i54 > 2147483647L) {
-                  i54 = 2147483647L;
-                } else {
-                  if (i54 < -2147483648L) {
-                    i54 = -2147483648L;
-                  }
-                }
-
-                i_C_data[ic] += b_P[((int)i50 + 102 * ((int)i53 - 1)) - 1] *
+                i_C_data[ic] += b_P[((int)i50 + 102 * ((int)i52 - 1)) - 1] *
                   b_H->data[(tmp_data[(ia - 1) % b_ndbl] + b_H->size[0] * ((int)
-                  i54 - 1)) - 1];
+                  i53 - 1)) - 1];
               }
             }
 
@@ -3727,21 +3740,21 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, double b_P[10404], const double
         }
 
         idx = c_ndbl * (ndbl - 1);
-        for (apnd = 0; apnd <= idx; apnd += c_ndbl) {
-          i49 = apnd + c_ndbl;
-          for (ic = apnd; ic + 1 <= i49; ic++) {
+        for (cr = 0; cr <= idx; cr += c_ndbl) {
+          i49 = cr + c_ndbl;
+          for (ic = cr; ic + 1 <= i49; ic++) {
             j_C_data[ic] = 0.0;
           }
         }
 
         br = 0;
-        for (apnd = 0; apnd <= idx; apnd += c_ndbl) {
+        for (cr = 0; cr <= idx; cr += c_ndbl) {
           ar = 0;
           for (ib = br; ib + 1 <= br + 6; ib++) {
             if (b_data[ib] != 0.0) {
               ia = ar;
-              i49 = apnd + c_ndbl;
-              for (ic = apnd; ic + 1 <= i49; ic++) {
+              i49 = cr + c_ndbl;
+              for (ic = cr; ic + 1 <= i49; ic++) {
                 ia++;
                 j_C_data[ic] += b_data[ib] * a_data[ia - 1];
               }
@@ -3773,21 +3786,21 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, double b_P[10404], const double
         }
 
         idx = c_ndbl * (b_ndbl - 1);
-        for (apnd = 0; apnd <= idx; apnd += c_ndbl) {
-          i49 = apnd + c_ndbl;
-          for (ic = apnd; ic + 1 <= i49; ic++) {
+        for (cr = 0; cr <= idx; cr += c_ndbl) {
+          i49 = cr + c_ndbl;
+          for (ic = cr; ic + 1 <= i49; ic++) {
             k_C_data[ic] = 0.0;
           }
         }
 
         br = 0;
-        for (apnd = 0; apnd <= idx; apnd += c_ndbl) {
+        for (cr = 0; cr <= idx; cr += c_ndbl) {
           ar = 0;
           for (ib = br; ib + 1 <= br + 6; ib++) {
             if (b_data[ib] != 0.0) {
               ia = ar;
-              i49 = apnd + c_ndbl;
-              for (ic = apnd; ic + 1 <= i49; ic++) {
+              i49 = cr + c_ndbl;
+              for (ic = cr; ic + 1 <= i49; ic++) {
                 ia++;
                 k_C_data[ic] += b_data[ib] * a_data[ia - 1];
               }
@@ -3803,18 +3816,18 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, double b_P[10404], const double
           l_C_data[i49] = 0.0;
         }
 
-        apnd = 0;
-        while (apnd <= 0) {
+        cr = 0;
+        while (cr <= 0) {
           for (ic = 1; ic <= ndbl; ic++) {
             l_C_data[ic - 1] = 0.0;
           }
 
-          apnd = ndbl;
+          cr = ndbl;
         }
 
         br = 6;
-        apnd = 0;
-        while (apnd <= 0) {
+        cr = 0;
+        while (cr <= 0) {
           ar = 0;
           for (ib = br - 5; ib <= br; ib++) {
             i50 = ind->data[k] - 1L;
@@ -3867,10 +3880,10 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, double b_P[10404], const double
               ia = ar;
               for (ic = 0; ic + 1 <= ndbl; ic++) {
                 ia++;
-                b_m = (unsigned char)((unsigned int)(unsigned char)k *
-                                      residualDim);
+                cdiff = (unsigned char)((unsigned int)(unsigned char)k *
+                  residualDim);
                 for (i49 = 0; i49 < ndbl; i49++) {
-                  tmp_data[i49] = (int)((double)b_m + c_xt[i49]);
+                  tmp_data[i49] = (int)((double)cdiff + c_xt[i49]);
                 }
 
                 i50 = ind->data[k] - 1L;
@@ -3929,25 +3942,25 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, double b_P[10404], const double
           }
 
           br += 6;
-          apnd = ndbl;
+          cr = ndbl;
         }
 
         for (i49 = 0; i49 < b_ndbl; i49++) {
           m_C_data[i49] = 0.0;
         }
 
-        apnd = 0;
-        while (apnd <= 0) {
+        cr = 0;
+        while (cr <= 0) {
           for (ic = 1; ic <= b_ndbl; ic++) {
             m_C_data[ic - 1] = 0.0;
           }
 
-          apnd = b_ndbl;
+          cr = b_ndbl;
         }
 
         br = 6;
-        apnd = 0;
-        while (apnd <= 0) {
+        cr = 0;
+        while (cr <= 0) {
           ar = 0;
           for (ib = br - 5; ib <= br; ib++) {
             i50 = ind->data[k] - 1L;
@@ -4037,10 +4050,10 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, double b_P[10404], const double
               ia = ar;
               for (ic = 0; ic + 1 <= b_ndbl; ic++) {
                 ia++;
-                b_m = (unsigned char)((unsigned int)(unsigned char)k *
-                                      residualDim);
+                cdiff = (unsigned char)((unsigned int)(unsigned char)k *
+                  residualDim);
                 for (i49 = 0; i49 < b_ndbl; i49++) {
-                  tmp_data[i49] = (int)((double)b_m + b_y_data[i49]);
+                  tmp_data[i49] = (int)((double)cdiff + b_y_data[i49]);
                 }
 
                 i50 = ind->data[k] - 1L;
@@ -4126,45 +4139,45 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, double b_P[10404], const double
                   }
                 }
 
-                i53 = anchorIdx - 1L;
-                if (i53 > 2147483647L) {
-                  i53 = 2147483647L;
+                i52 = anchorIdx - 1L;
+                if (i52 > 2147483647L) {
+                  i52 = 2147483647L;
                 } else {
-                  if (i53 < -2147483648L) {
-                    i53 = -2147483648L;
+                  if (i52 < -2147483648L) {
+                    i52 = -2147483648L;
                   }
                 }
 
-                i53 = (int)i53 * 14L;
-                if (i53 > 2147483647L) {
-                  i53 = 2147483647L;
+                i52 = (int)i52 * 14L;
+                if (i52 > 2147483647L) {
+                  i52 = 2147483647L;
                 } else {
-                  if (i53 < -2147483648L) {
-                    i53 = -2147483648L;
+                  if (i52 < -2147483648L) {
+                    i52 = -2147483648L;
                   }
                 }
 
-                i53 = 18L + (int)i53;
-                if (i53 > 2147483647L) {
-                  i53 = 2147483647L;
+                i52 = 18L + (int)i52;
+                if (i52 > 2147483647L) {
+                  i52 = 2147483647L;
                 } else {
-                  if (i53 < -2147483648L) {
-                    i53 = -2147483648L;
+                  if (i52 < -2147483648L) {
+                    i52 = -2147483648L;
                   }
                 }
 
-                i53 = (long)(int)i53 + (1 + (ia - 1) / b_ndbl);
-                if (i53 > 2147483647L) {
-                  i53 = 2147483647L;
+                i52 = (long)(int)i52 + (1 + (ia - 1) / b_ndbl);
+                if (i52 > 2147483647L) {
+                  i52 = 2147483647L;
                 } else {
-                  if (i53 < -2147483648L) {
-                    i53 = -2147483648L;
+                  if (i52 < -2147483648L) {
+                    i52 = -2147483648L;
                   }
                 }
 
                 m_C_data[ic] += b_P[(i51 + 102 * ((int)i50 - 1)) - 1] *
                   b_H->data[(tmp_data[(ia - 1) % b_ndbl] + b_H->size[0] * ((int)
-                  i53 - 1)) - 1];
+                  i52 - 1)) - 1];
               }
             }
 
@@ -4172,7 +4185,7 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, double b_P[10404], const double
           }
 
           br += 6;
-          apnd = b_ndbl;
+          cr = b_ndbl;
         }
 
         i50 = ind->data[k] - 1L;
@@ -4220,52 +4233,52 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, double b_P[10404], const double
           }
         }
 
-        i53 = ind->data[k] - 1L;
-        if (i53 > 2147483647L) {
-          i53 = 2147483647L;
+        i52 = ind->data[k] - 1L;
+        if (i52 > 2147483647L) {
+          i52 = 2147483647L;
         } else {
-          if (i53 < -2147483648L) {
-            i53 = -2147483648L;
+          if (i52 < -2147483648L) {
+            i52 = -2147483648L;
           }
         }
 
-        i53 = (int)i53 * 14L;
-        if (i53 > 2147483647L) {
-          i53 = 2147483647L;
+        i52 = (int)i52 * 14L;
+        if (i52 > 2147483647L) {
+          i52 = 2147483647L;
         } else {
-          if (i53 < -2147483648L) {
-            i53 = -2147483648L;
+          if (i52 < -2147483648L) {
+            i52 = -2147483648L;
           }
         }
 
-        i53 = 18L + (int)i53;
-        if (i53 > 2147483647L) {
-          i53 = 2147483647L;
+        i52 = 18L + (int)i52;
+        if (i52 > 2147483647L) {
+          i52 = 2147483647L;
         } else {
-          if (i53 < -2147483648L) {
-            i53 = -2147483648L;
+          if (i52 < -2147483648L) {
+            i52 = -2147483648L;
           }
         }
 
-        i53 = (int)i53 + 6L;
-        if (i53 > 2147483647L) {
-          i53 = 2147483647L;
+        i52 = (int)i52 + 6L;
+        if (i52 > 2147483647L) {
+          i52 = 2147483647L;
         } else {
-          if (i53 < -2147483648L) {
-            i53 = -2147483648L;
+          if (i52 < -2147483648L) {
+            i52 = -2147483648L;
           }
         }
 
-        i53 = (long)(int)i53 + ind->data[k + ind->size[0]];
-        if (i53 > 2147483647L) {
-          i53 = 2147483647L;
+        i52 = (long)(int)i52 + ind->data[k + ind->size[0]];
+        if (i52 > 2147483647L) {
+          i52 = 2147483647L;
         } else {
-          if (i53 < -2147483648L) {
-            i53 = -2147483648L;
+          if (i52 < -2147483648L) {
+            i52 = -2147483648L;
           }
         }
 
-        c_P = b_P[((int)i50 + 102 * ((int)i53 - 1)) - 1];
+        c_P = b_P[((int)i50 + 102 * ((int)i52 - 1)) - 1];
         for (i49 = 0; i49 < ndbl; i49++) {
           c_xt[i49] = (l_C_data[i49] + m_C_data[i49]) + H_c_data[i49] * c_P;
         }
@@ -4279,13 +4292,13 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, double b_P[10404], const double
           }
         }
 
-        // 'OnePointRANSAC_EKF:208' size_S = residualDim;
-        // 'OnePointRANSAC_EKF:209' S_feature(1:(size_S+1):size_S^2) = S_feature(1:(size_S+1):size_S^2) + noiseParameters.image_noise; 
+        // 'OnePointRANSAC_EKF:210' size_S = residualDim;
+        // 'OnePointRANSAC_EKF:211' S_feature(1:(size_S+1):size_S^2) = S_feature(1:(size_S+1):size_S^2) + noiseParameters.image_noise; 
         i49 = residualDim * residualDim - 1;
         i51 = residualDim + 1;
         ndbl = div_s32_floor(i49, i51);
-        for (i52 = 0; i52 <= ndbl; i52++) {
-          b_S_feature_data[i52] = S_feature_data[i51 * i52] +
+        for (b_m = 0; b_m <= ndbl; b_m++) {
+          b_S_feature_data[b_m] = S_feature_data[i51 * b_m] +
             noiseParameters_image_noise;
         }
 
@@ -4295,83 +4308,85 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, double b_P[10404], const double
         }
 
         //  add R to HPH'
-        // 'OnePointRANSAC_EKF:211' if coder.target('MATLAB')
-        // 'OnePointRANSAC_EKF:219' innov = r((k-1)*residualDim + (1:residualDim))' / S_feature * r((k-1)*residualDim + (1:residualDim)); 
+        // 'OnePointRANSAC_EKF:213' if coder.target('MATLAB')
+        // 'OnePointRANSAC_EKF:221' innov = r((k-1)*residualDim + (1:residualDim))' / S_feature * r((k-1)*residualDim + (1:residualDim)); 
         ndbl = (int)floor(((double)residualDim - 1.0) + 0.5);
-        apnd = ndbl + 1;
-        b_m = (ndbl - residualDim) + 1;
-        if (fabs((double)b_m) < 4.4408920985006262E-16 * (double)residualDim) {
+        b_m = ndbl + 1;
+        cdiff = (ndbl - residualDim) + 1;
+        if (fabs((double)cdiff) < 4.4408920985006262E-16 * (double)residualDim)
+        {
           ndbl++;
-          apnd = residualDim;
-        } else if (b_m > 0) {
-          apnd = ndbl;
+          b_m = residualDim;
+        } else if (cdiff > 0) {
+          b_m = ndbl;
         } else {
           ndbl++;
         }
 
         c_xt[0] = 1.0;
         if (ndbl > 1) {
-          c_xt[ndbl - 1] = apnd;
+          c_xt[ndbl - 1] = b_m;
           i49 = ndbl - 1;
           idx = i49 / 2;
-          b_m = 1;
-          while (b_m <= idx - 1) {
+          cdiff = 1;
+          while (cdiff <= idx - 1) {
             c_xt[1] = 2.0;
-            c_xt[ndbl - 2] = (double)apnd - 1.0;
-            b_m = 2;
+            c_xt[ndbl - 2] = (double)b_m - 1.0;
+            cdiff = 2;
           }
 
           if (idx << 1 == ndbl - 1) {
-            c_xt[idx] = (1.0 + (double)apnd) / 2.0;
+            c_xt[idx] = (1.0 + (double)b_m) / 2.0;
           } else {
             c_xt[idx] = 1.0 + (double)idx;
-            c_xt[idx + 1] = apnd - idx;
+            c_xt[idx + 1] = b_m - idx;
           }
         }
 
         b_ndbl = (int)floor(((double)residualDim - 1.0) + 0.5);
-        apnd = b_ndbl + 1;
-        b_m = (b_ndbl - residualDim) + 1;
-        if (fabs((double)b_m) < 4.4408920985006262E-16 * (double)residualDim) {
+        b_m = b_ndbl + 1;
+        cdiff = (b_ndbl - residualDim) + 1;
+        if (fabs((double)cdiff) < 4.4408920985006262E-16 * (double)residualDim)
+        {
           b_ndbl++;
-          apnd = residualDim;
-        } else if (b_m > 0) {
-          apnd = b_ndbl;
+          b_m = residualDim;
+        } else if (cdiff > 0) {
+          b_m = b_ndbl;
         } else {
           b_ndbl++;
         }
 
         b_y_data[0] = 1.0;
         if (b_ndbl > 1) {
-          b_y_data[b_ndbl - 1] = apnd;
+          b_y_data[b_ndbl - 1] = b_m;
           i49 = b_ndbl - 1;
           idx = i49 / 2;
-          b_m = 1;
-          while (b_m <= idx - 1) {
+          cdiff = 1;
+          while (cdiff <= idx - 1) {
             b_y_data[1] = 2.0;
-            b_y_data[b_ndbl - 2] = (double)apnd - 1.0;
-            b_m = 2;
+            b_y_data[b_ndbl - 2] = (double)b_m - 1.0;
+            cdiff = 2;
           }
 
           if (idx << 1 == b_ndbl - 1) {
-            b_y_data[idx] = (1.0 + (double)apnd) / 2.0;
+            b_y_data[idx] = (1.0 + (double)b_m) / 2.0;
           } else {
             b_y_data[idx] = 1.0 + (double)idx;
-            b_y_data[idx + 1] = apnd - idx;
+            b_y_data[idx + 1] = b_m - idx;
           }
         }
 
         y_size[0] = 1;
         y_size[1] = ndbl;
-        b_m = (unsigned char)((unsigned int)(unsigned char)k * residualDim);
+        cdiff = (unsigned char)((unsigned int)(unsigned char)k * residualDim);
         for (i49 = 0; i49 < ndbl; i49++) {
-          y_data[i49] = r->data[(int)((double)b_m + c_xt[i49]) - 1];
+          y_data[i49] = r->data[(int)((double)cdiff + c_xt[i49]) - 1];
         }
 
         b_mrdivide(y_data, y_size, S_feature_data, S_feature_size);
-        b_m = (unsigned char)((unsigned int)(unsigned char)k * residualDim);
+        cdiff = (unsigned char)((unsigned int)(unsigned char)k * residualDim);
         for (i49 = 0; i49 < b_ndbl; i49++) {
-          H_c_data[i49] = r->data[(int)((double)b_m + b_y_data[i49]) - 1];
+          H_c_data[i49] = r->data[(int)((double)cdiff + b_y_data[i49]) - 1];
         }
 
         if ((y_size[1] == 1) || (b_ndbl == 1)) {
@@ -4390,88 +4405,88 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, double b_P[10404], const double
           innov = c_P;
         }
 
-        // 'OnePointRANSAC_EKF:220' if innov > mahalanobis_thresh
+        // 'OnePointRANSAC_EKF:222' if innov > mahalanobis_thresh
         if (innov > mahalanobis_thresh) {
-          // 'OnePointRANSAC_EKF:221' r((k-1)*residualDim + (1:residualDim)) = 0; 
+          // 'OnePointRANSAC_EKF:223' r((k-1)*residualDim + (1:residualDim)) = 0; 
           ndbl = (int)floor(((double)residualDim - 1.0) + 0.5);
-          apnd = ndbl + 1;
-          b_m = (ndbl - residualDim) + 1;
-          if (fabs((double)b_m) < 4.4408920985006262E-16 * (double)residualDim)
+          b_m = ndbl + 1;
+          cdiff = (ndbl - residualDim) + 1;
+          if (fabs((double)cdiff) < 4.4408920985006262E-16 * (double)residualDim)
           {
             ndbl++;
-            apnd = residualDim;
-          } else if (b_m > 0) {
-            apnd = ndbl;
+            b_m = residualDim;
+          } else if (cdiff > 0) {
+            b_m = ndbl;
           } else {
             ndbl++;
           }
 
           c_xt[0] = 1.0;
           if (ndbl > 1) {
-            c_xt[ndbl - 1] = apnd;
+            c_xt[ndbl - 1] = b_m;
             i49 = ndbl - 1;
             idx = i49 / 2;
-            b_m = 1;
-            while (b_m <= idx - 1) {
+            cdiff = 1;
+            while (cdiff <= idx - 1) {
               c_xt[1] = 2.0;
-              c_xt[ndbl - 2] = (double)apnd - 1.0;
-              b_m = 2;
+              c_xt[ndbl - 2] = (double)b_m - 1.0;
+              cdiff = 2;
             }
 
             if (idx << 1 == ndbl - 1) {
-              c_xt[idx] = (1.0 + (double)apnd) / 2.0;
+              c_xt[idx] = (1.0 + (double)b_m) / 2.0;
             } else {
               c_xt[idx] = 1.0 + (double)idx;
-              c_xt[idx + 1] = apnd - idx;
+              c_xt[idx + 1] = b_m - idx;
             }
           }
 
-          b_m = (unsigned char)((unsigned int)(unsigned char)k * residualDim);
+          cdiff = (unsigned char)((unsigned int)(unsigned char)k * residualDim);
           for (i49 = 0; i49 < ndbl; i49++) {
-            b_tmp_data[i49] = (int)((double)b_m + c_xt[i49]);
+            b_tmp_data[i49] = (int)((double)cdiff + c_xt[i49]);
           }
 
           for (i49 = 0; i49 < ndbl; i49++) {
             r->data[b_tmp_data[i49] - 1] = 0.0;
           }
 
-          // 'OnePointRANSAC_EKF:222' H((k-1)*residualDim + (1:residualDim), :) = 0; 
+          // 'OnePointRANSAC_EKF:224' H((k-1)*residualDim + (1:residualDim), :) = 0; 
           ndbl = (int)floor(((double)residualDim - 1.0) + 0.5);
-          apnd = ndbl + 1;
-          b_m = (ndbl - residualDim) + 1;
-          if (fabs((double)b_m) < 4.4408920985006262E-16 * (double)residualDim)
+          b_m = ndbl + 1;
+          cdiff = (ndbl - residualDim) + 1;
+          if (fabs((double)cdiff) < 4.4408920985006262E-16 * (double)residualDim)
           {
             ndbl++;
-            apnd = residualDim;
-          } else if (b_m > 0) {
-            apnd = ndbl;
+            b_m = residualDim;
+          } else if (cdiff > 0) {
+            b_m = ndbl;
           } else {
             ndbl++;
           }
 
           c_xt[0] = 1.0;
           if (ndbl > 1) {
-            c_xt[ndbl - 1] = apnd;
+            c_xt[ndbl - 1] = b_m;
             i49 = ndbl - 1;
             idx = i49 / 2;
-            b_m = 1;
-            while (b_m <= idx - 1) {
+            cdiff = 1;
+            while (cdiff <= idx - 1) {
               c_xt[1] = 2.0;
-              c_xt[ndbl - 2] = (double)apnd - 1.0;
-              b_m = 2;
+              c_xt[ndbl - 2] = (double)b_m - 1.0;
+              cdiff = 2;
             }
 
             if (idx << 1 == ndbl - 1) {
-              c_xt[idx] = (1.0 + (double)apnd) / 2.0;
+              c_xt[idx] = (1.0 + (double)b_m) / 2.0;
             } else {
               c_xt[idx] = 1.0 + (double)idx;
-              c_xt[idx + 1] = apnd - idx;
+              c_xt[idx + 1] = b_m - idx;
             }
           }
 
-          b_m = (unsigned char)((unsigned int)(unsigned char)k * residualDim);
+          cdiff = (unsigned char)((unsigned int)(unsigned char)k * residualDim);
           for (i49 = 0; i49 < ndbl; i49++) {
-            tmp_data[i49] = (int)((double)b_m + c_xt[i49]);
+            tmp_data[i49] = (int)((double)cdiff + c_xt[i49]);
           }
 
           for (i49 = 0; i49 < 102; i49++) {
@@ -4480,24 +4495,24 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, double b_P[10404], const double
             }
           }
 
-          // 'OnePointRANSAC_EKF:223' if it == VIOParameters.max_ekf_iterations
+          // 'OnePointRANSAC_EKF:225' if it == VIOParameters.max_ekf_iterations
           if (it == c_VIOParameters_max_ekf_iterati) {
-            // 'OnePointRANSAC_EKF:224' HI_inlierStatus(HI_ind(k)) = false;
+            // 'OnePointRANSAC_EKF:226' HI_inlierStatus(HI_ind(k)) = false;
             HI_inlierStatus[hyp_ind_data[k] - 1] = false;
 
             //  only reject the feature if its still bad in last iteration, otherwise just dont use for this update 
           }
 
           //                  ros_info('rejecting %i', HI_ind(k))
-          // 'OnePointRANSAC_EKF:227' if updateVect(HI_ind(k)) == 2
+          // 'OnePointRANSAC_EKF:229' if updateVect(HI_ind(k)) == 2
           if (updateVect[hyp_ind_data[k] - 1] == 2) {
-            // 'OnePointRANSAC_EKF:228' ros_error('inconsistency')
+            // 'OnePointRANSAC_EKF:230' ros_error('inconsistency')
             b_ros_error();
           }
         }
       }
 
-      // 'OnePointRANSAC_EKF:233' S = (H*P*H');
+      // 'OnePointRANSAC_EKF:235' S = (H*P*H');
       H_idx_0 = (unsigned int)b_H->size[0];
       i49 = e_y->size[0] * e_y->size[1];
       e_y->size[0] = (int)H_idx_0;
@@ -4517,25 +4532,25 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, double b_P[10404], const double
       if (b_H->size[0] == 0) {
       } else {
         idx = b_H->size[0] * 101;
-        apnd = 0;
-        while ((b_m > 0) && (apnd <= idx)) {
-          i49 = apnd + b_m;
-          for (ic = apnd; ic + 1 <= i49; ic++) {
+        cr = 0;
+        while ((b_m > 0) && (cr <= idx)) {
+          i49 = cr + b_m;
+          for (ic = cr; ic + 1 <= i49; ic++) {
             e_y->data[ic] = 0.0;
           }
 
-          apnd += b_m;
+          cr += b_m;
         }
 
         br = 0;
-        apnd = 0;
-        while ((b_m > 0) && (apnd <= idx)) {
+        cr = 0;
+        while ((b_m > 0) && (cr <= idx)) {
           ar = 0;
           for (ib = br; ib + 1 <= br + 102; ib++) {
             if (b_P[ib] != 0.0) {
               ia = ar;
-              i49 = apnd + b_m;
-              for (ic = apnd; ic + 1 <= i49; ic++) {
+              i49 = cr + b_m;
+              for (ic = cr; ic + 1 <= i49; ic++) {
                 ia++;
                 e_y->data[ic] += b_P[ib] * b_H->data[ia - 1];
               }
@@ -4545,7 +4560,7 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, double b_P[10404], const double
           }
 
           br += 102;
-          apnd += b_m;
+          cr += b_m;
         }
       }
 
@@ -4562,12 +4577,12 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, double b_P[10404], const double
         }
       }
 
-      b_m = b_H->size[0];
+      cdiff = b_H->size[0];
       i49 = K->size[0] * K->size[1];
       K->size[0] = 102;
-      K->size[1] = b_m;
+      K->size[1] = cdiff;
       emxEnsureCapacity((emxArray__common *)K, i49, (int)sizeof(double));
-      for (i49 = 0; i49 < b_m; i49++) {
+      for (i49 = 0; i49 < cdiff; i49++) {
         for (i51 = 0; i51 < 102; i51++) {
           K->data[i51 + K->size[0] * i49] = c_H->data[i51 + 102 * i49];
         }
@@ -4593,25 +4608,25 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, double b_P[10404], const double
       if ((e_y->size[0] == 0) || (K->size[1] == 0)) {
       } else {
         idx = e_y->size[0] * (K->size[1] - 1);
-        apnd = 0;
-        while ((b_m > 0) && (apnd <= idx)) {
-          i49 = apnd + b_m;
-          for (ic = apnd; ic + 1 <= i49; ic++) {
+        cr = 0;
+        while ((b_m > 0) && (cr <= idx)) {
+          i49 = cr + b_m;
+          for (ic = cr; ic + 1 <= i49; ic++) {
             S->data[ic] = 0.0;
           }
 
-          apnd += b_m;
+          cr += b_m;
         }
 
         br = 0;
-        apnd = 0;
-        while ((b_m > 0) && (apnd <= idx)) {
+        cr = 0;
+        while ((b_m > 0) && (cr <= idx)) {
           ar = 0;
           for (ib = br; ib + 1 <= br + 102; ib++) {
             if (K->data[ib] != 0.0) {
               ia = ar;
-              i49 = apnd + b_m;
-              for (ic = apnd; ic + 1 <= i49; ic++) {
+              i49 = cr + b_m;
+              for (ic = cr; ic + 1 <= i49; ic++) {
                 ia++;
                 S->data[ic] += K->data[ib] * e_y->data[ia - 1];
               }
@@ -4621,14 +4636,14 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, double b_P[10404], const double
           }
 
           br += 102;
-          apnd += b_m;
+          cr += b_m;
         }
       }
 
-      // 'OnePointRANSAC_EKF:234' size_S = num_HI_inlierCandidates*residualDim;
+      // 'OnePointRANSAC_EKF:236' size_S = num_HI_inlierCandidates*residualDim;
       size_S = (double)n * (double)residualDim;
 
-      // 'OnePointRANSAC_EKF:235' S(1:(size_S+1):size_S^2) = S(1:(size_S+1):size_S^2) + noiseParameters.image_noise; 
+      // 'OnePointRANSAC_EKF:237' S(1:(size_S+1):size_S^2) = S(1:(size_S+1):size_S^2) + noiseParameters.image_noise; 
       c_P = size_S * size_S;
       if ((size_S + 1.0 == 0.0) || (((size_S + 1.0 > 0.0) && (1.0 > c_P)) ||
            ((0.0 > size_S + 1.0) && (c_P > 1.0)))) {
@@ -4642,15 +4657,15 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, double b_P[10404], const double
       c_P = size_S * size_S;
       if ((size_S + 1.0 == 0.0) || (((size_S + 1.0 > 0.0) && (1.0 > c_P)) ||
            ((0.0 > size_S + 1.0) && (c_P > 1.0)))) {
-        i52 = 1;
+        b_m = 1;
       } else {
-        i52 = (int)(size_S + 1.0);
+        b_m = (int)(size_S + 1.0);
       }
 
-      b_m = c_S->size[0] * c_S->size[1];
+      cdiff = c_S->size[0] * c_S->size[1];
       c_S->size[0] = 1;
       c_S->size[1] = div_s32_floor(i51, i49) + 1;
-      emxEnsureCapacity((emxArray__common *)c_S, b_m, (int)sizeof(double));
+      emxEnsureCapacity((emxArray__common *)c_S, cdiff, (int)sizeof(double));
       ndbl = div_s32_floor(i51, i49);
       for (i51 = 0; i51 <= ndbl; i51++) {
         c_S->data[c_S->size[0] * i51] = S->data[i49 * i51] +
@@ -4659,11 +4674,11 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, double b_P[10404], const double
 
       ndbl = c_S->size[1];
       for (i49 = 0; i49 < ndbl; i49++) {
-        S->data[i52 * i49] = c_S->data[c_S->size[0] * i49];
+        S->data[b_m * i49] = c_S->data[c_S->size[0] * i49];
       }
 
       //  add R to HPH'
-      // 'OnePointRANSAC_EKF:237' K = (P*H')/S;
+      // 'OnePointRANSAC_EKF:239' K = (P*H')/S;
       i49 = d_H->size[0] * d_H->size[1];
       d_H->size[0] = b_H->size[1];
       d_H->size[1] = b_H->size[0];
@@ -4677,12 +4692,12 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, double b_P[10404], const double
         }
       }
 
-      b_m = b_H->size[0];
+      cdiff = b_H->size[0];
       i49 = K->size[0] * K->size[1];
       K->size[0] = 102;
-      K->size[1] = b_m;
+      K->size[1] = cdiff;
       emxEnsureCapacity((emxArray__common *)K, i49, (int)sizeof(double));
-      for (i49 = 0; i49 < b_m; i49++) {
+      for (i49 = 0; i49 < cdiff; i49++) {
         for (i51 = 0; i51 < 102; i51++) {
           K->data[i51 + K->size[0] * i49] = d_H->data[i51 + 102 * i49];
         }
@@ -4704,19 +4719,19 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, double b_P[10404], const double
       if (K->size[1] == 0) {
       } else {
         idx = 102 * (K->size[1] - 1);
-        for (apnd = 0; apnd <= idx; apnd += 102) {
-          for (ic = apnd + 1; ic <= apnd + 102; ic++) {
+        for (cr = 0; cr <= idx; cr += 102) {
+          for (ic = cr + 1; ic <= cr + 102; ic++) {
             f_y->data[ic - 1] = 0.0;
           }
         }
 
         br = 0;
-        for (apnd = 0; apnd <= idx; apnd += 102) {
+        for (cr = 0; cr <= idx; cr += 102) {
           ar = 0;
           for (ib = br; ib + 1 <= br + 102; ib++) {
             if (K->data[ib] != 0.0) {
               ia = ar;
-              for (ic = apnd; ic + 1 <= apnd + 102; ic++) {
+              for (ic = cr; ic + 1 <= cr + 102; ic++) {
                 ia++;
                 f_y->data[ic] += K->data[ib] * b_P[ia - 1];
               }
@@ -4748,23 +4763,75 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, double b_P[10404], const double
         b_K->data[i49] = K->data[i49];
       }
 
-      // 'OnePointRANSAC_EKF:239' x_apo = K*r;
+      // 'OnePointRANSAC_EKF:241' x_it2 = K*(r + H * x_it);
+      H_idx_0 = (unsigned int)b_H->size[0];
+      i49 = C->size[0];
+      C->size[0] = (int)H_idx_0;
+      emxEnsureCapacity((emxArray__common *)C, i49, (int)sizeof(double));
+      b_m = b_H->size[0];
+      cdiff = C->size[0];
+      i49 = C->size[0];
+      C->size[0] = cdiff;
+      emxEnsureCapacity((emxArray__common *)C, i49, (int)sizeof(double));
+      for (i49 = 0; i49 < cdiff; i49++) {
+        C->data[i49] = 0.0;
+      }
+
+      if (b_H->size[0] == 0) {
+      } else {
+        cr = 0;
+        while ((b_m > 0) && (cr <= 0)) {
+          for (ic = 1; ic <= b_m; ic++) {
+            C->data[ic - 1] = 0.0;
+          }
+
+          cr = b_m;
+        }
+
+        br = 0;
+        cr = 0;
+        while ((b_m > 0) && (cr <= 0)) {
+          ar = 0;
+          for (ib = br; ib + 1 <= br + 102; ib++) {
+            if (x_it[ib] != 0.0) {
+              ia = ar;
+              for (ic = 0; ic + 1 <= b_m; ic++) {
+                ia++;
+                C->data[ic] += x_it[ib] * b_H->data[ia - 1];
+              }
+            }
+
+            ar += b_m;
+          }
+
+          br += 102;
+          cr = b_m;
+        }
+      }
+
+      i49 = r->size[0];
+      emxEnsureCapacity((emxArray__common *)r, i49, (int)sizeof(double));
+      ndbl = r->size[0];
+      for (i49 = 0; i49 < ndbl; i49++) {
+        r->data[i49] += C->data[i49];
+      }
+
       if ((b_K->size[1] == 1) || (r->size[0] == 1)) {
         ndbl = b_K->size[0];
         for (i49 = 0; i49 < ndbl; i49++) {
-          x_apo_data[i49] = 0.0;
+          x_it2_data[i49] = 0.0;
           idx = b_K->size[1];
           for (i51 = 0; i51 < idx; i51++) {
-            b_x_apo_data = x_apo_data[i49] + b_K->data[i49 + b_K->size[0] * i51]
+            b_x_it2_data = x_it2_data[i49] + b_K->data[i49 + b_K->size[0] * i51]
               * r->data[i51];
-            x_apo_data[i49] = b_x_apo_data;
+            x_it2_data[i49] = b_x_it2_data;
           }
         }
       } else {
         k = b_K->size[1];
-        memset(&x_apo_data[0], 0, 102U * sizeof(double));
+        memset(&x_it2_data[0], 0, 102U * sizeof(double));
         for (ic = 1; ic < 103; ic++) {
-          x_apo_data[ic - 1] = 0.0;
+          x_it2_data[ic - 1] = 0.0;
         }
 
         ar = 0;
@@ -4773,7 +4840,7 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, double b_P[10404], const double
             ia = ar;
             for (ic = 0; ic + 1 < 103; ic++) {
               ia++;
-              x_apo_data[ic] += r->data[ib] * b_K->data[ia - 1];
+              x_it2_data[ic] += r->data[ib] * b_K->data[ia - 1];
             }
           }
 
@@ -4781,127 +4848,127 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, double b_P[10404], const double
         }
       }
 
-      // 'OnePointRANSAC_EKF:241' xt.robot_state.pos           = xt.robot_state.pos       + x_apo(1:3); 
+      // 'OnePointRANSAC_EKF:242' x_it = x_it2(int32(1:(numStates + numAnchors*(6+numPointsPerAnchor)))); 
+      memcpy(&x_it[0], &x_it2_data[0], 102U * sizeof(double));
+
+      // 'OnePointRANSAC_EKF:244' xt_it.robot_state.pos           = xt.robot_state.pos       + x_it(1:3); 
+      // 'OnePointRANSAC_EKF:245' xt_it.robot_state.att           = quatmultJ(quatPlusThetaJ(x_it(4:6)), xt.robot_state.att); 
       for (i49 = 0; i49 < 3; i49++) {
-        b_xt->robot_state.pos[i49] += x_apo_data[i49];
+        xt_it.robot_state.pos[i49] = b_xt->robot_state.pos[i49] + x_it2_data[i49];
+        x_it2[i49] = x_it2_data[3 + i49];
       }
 
-      // 'OnePointRANSAC_EKF:242' xt.robot_state.att           = quatmultJ(quatPlusThetaJ(x_apo(4:6)), xt.robot_state.att); 
-      quatPlusThetaJ(*(double (*)[3])&x_apo_data[3], b_y_data);
-      for (apnd = 0; apnd < 4; apnd++) {
-        c_xt[apnd] = b_xt->robot_state.att[apnd];
-      }
+      quatPlusThetaJ(x_it2, dv23);
+      quatmultJ(dv23, b_xt->robot_state.att, xt_it.robot_state.att);
 
-      quatmultJ(b_y_data, c_xt, b_xt->robot_state.att);
-
-      // 'OnePointRANSAC_EKF:243' xt.robot_state.vel           = xt.robot_state.vel       + x_apo(7:9); 
-      // 'OnePointRANSAC_EKF:244' xt.robot_state.IMU.gyro_bias = xt.robot_state.IMU.gyro_bias + x_apo(10:12); 
-      // 'OnePointRANSAC_EKF:245' xt.robot_state.IMU.acc_bias  = xt.robot_state.IMU.acc_bias + x_apo(13:15); 
+      // 'OnePointRANSAC_EKF:246' xt_it.robot_state.vel           = xt.robot_state.vel       + x_it(7:9); 
+      // 'OnePointRANSAC_EKF:247' xt_it.robot_state.IMU.gyro_bias = xt.robot_state.IMU.gyro_bias + x_it(10:12); 
+      // 'OnePointRANSAC_EKF:248' xt_it.robot_state.IMU.acc_bias  = xt.robot_state.IMU.acc_bias + x_it(13:15); 
+      // 'OnePointRANSAC_EKF:249' xt_it.origin.att                = quatmultJ(quatPlusThetaJ(x_it(16:18)), xt.origin.att); 
       for (i49 = 0; i49 < 3; i49++) {
-        b_xt->robot_state.vel[i49] += x_apo_data[6 + i49];
-        b_xt->robot_state.IMU.gyro_bias[i49] += x_apo_data[9 + i49];
-        b_xt->robot_state.IMU.acc_bias[i49] += x_apo_data[12 + i49];
+        xt_it.robot_state.vel[i49] = b_xt->robot_state.vel[i49] + x_it2_data[6 +
+          i49];
+        xt_it.robot_state.IMU.gyro_bias[i49] = b_xt->
+          robot_state.IMU.gyro_bias[i49] + x_it2_data[9 + i49];
+        xt_it.robot_state.IMU.acc_bias[i49] = b_xt->robot_state.IMU.acc_bias[i49]
+          + x_it2_data[12 + i49];
+        x_it2[i49] = x_it2_data[15 + i49];
       }
 
-      // 'OnePointRANSAC_EKF:246' xt.origin.att                = quatmultJ(quatPlusThetaJ(x_apo(16:18)), xt.origin.att); 
-      quatPlusThetaJ(*(double (*)[3])&x_apo_data[15], b_y_data);
-      for (apnd = 0; apnd < 4; apnd++) {
-        c_xt[apnd] = b_xt->origin.att[apnd];
-      }
+      quatPlusThetaJ(x_it2, dv24);
+      quatmultJ(dv24, b_xt->origin.att, xt_it.origin.att);
 
-      quatmultJ(b_y_data, c_xt, b_xt->origin.att);
-
-      // 'OnePointRANSAC_EKF:248' meas_idx = 1;
-      // 'OnePointRANSAC_EKF:249' for anchorIdx = 1:numAnchors
+      // 'OnePointRANSAC_EKF:251' meas_idx = 1;
+      // 'OnePointRANSAC_EKF:252' for anchorIdx = 1:numAnchors
       for (anchorIdx = 0; anchorIdx < 6; anchorIdx++) {
-        // 'OnePointRANSAC_EKF:250' xt.anchor_states(anchorIdx).pos = xt.anchor_states(anchorIdx).pos + x_apo(numStates + (anchorIdx-1)*numStatesPerAnchor + int32(1:3)); 
+        // 'OnePointRANSAC_EKF:253' xt_it.anchor_states(anchorIdx).pos = xt.anchor_states(anchorIdx).pos + x_it(numStates + (anchorIdx-1)*numStatesPerAnchor + int32(1:3)); 
         i49 = anchorIdx * 14;
 
-        // 'OnePointRANSAC_EKF:251' xt.anchor_states(anchorIdx).att = quatmultJ(quatPlusThetaJ(x_apo(numStates + (anchorIdx-1)*numStatesPerAnchor + int32(4:6))), xt.anchor_states(anchorIdx).att); 
+        // 'OnePointRANSAC_EKF:254' xt_it.anchor_states(anchorIdx).att = quatmultJ(quatPlusThetaJ(x_it(numStates + (anchorIdx-1)*numStatesPerAnchor + int32(4:6))), xt.anchor_states(anchorIdx).att); 
         i51 = anchorIdx * 14;
-        for (i52 = 0; i52 < 3; i52++) {
-          b_xt->anchor_states[anchorIdx].pos[i52] += x_apo_data[(i52 + i49) + 18];
-          c_x_apo[i52] = x_apo_data[(i52 + i51) + 21];
+        for (b_m = 0; b_m < 3; b_m++) {
+          xt_it.anchor_states[anchorIdx].pos[b_m] = b_xt->
+            anchor_states[anchorIdx].pos[b_m] + x_it2_data[(b_m + i49) + 18];
+          x_it2[b_m] = x_it2_data[(b_m + i51) + 21];
         }
 
-        for (apnd = 0; apnd < 4; apnd++) {
-          c_xt[apnd] = b_xt->anchor_states[anchorIdx].att[apnd];
-        }
+        quatPlusThetaJ(x_it2, dv25);
+        quatmultJ(dv25, b_xt->anchor_states[anchorIdx].att,
+                  xt_it.anchor_states[anchorIdx].att);
 
-        quatPlusThetaJ(c_x_apo, dv23);
-        quatmultJ(dv23, c_xt, b_xt->anchor_states[anchorIdx].att);
-
-        // 'OnePointRANSAC_EKF:253' for featureIdx = 1:numPointsPerAnchor
+        // 'OnePointRANSAC_EKF:256' for featureIdx = 1:numPointsPerAnchor
         for (featureIdx = 0; featureIdx < 8; featureIdx++) {
-          // 'OnePointRANSAC_EKF:254' if xt.anchor_states(anchorIdx).feature_states(featureIdx).status == 1 
-          if (b_xt->anchor_states[anchorIdx].feature_states[featureIdx].status ==
+          // 'OnePointRANSAC_EKF:257' if xt_it.anchor_states(anchorIdx).feature_states(featureIdx).status == 1 
+          if (xt_it.anchor_states[anchorIdx].feature_states[featureIdx].status ==
               1) {
             //  only update active features
-            // 'OnePointRANSAC_EKF:255' if HI_inlierStatus(xt.anchor_states(anchorIdx).feature_states(featureIdx).status_idx) 
-            if (HI_inlierStatus[b_xt->anchor_states[anchorIdx]
+            // 'OnePointRANSAC_EKF:258' if HI_inlierStatus(xt_it.anchor_states(anchorIdx).feature_states(featureIdx).status_idx) 
+            if (HI_inlierStatus[xt_it.anchor_states[anchorIdx]
                 .feature_states[featureIdx].status_idx - 1]) {
-              // 'OnePointRANSAC_EKF:256' xt.anchor_states(anchorIdx).feature_states(featureIdx).inverse_depth = xt.anchor_states(anchorIdx).feature_states(featureIdx).inverse_depth + x_apo(numStates + (anchorIdx-1)*numStatesPerAnchor + 6 + featureIdx); 
-              b_xt->anchor_states[anchorIdx].feature_states[featureIdx].
-                inverse_depth += x_apo_data[(anchorIdx * 14 + featureIdx) + 24];
+              // 'OnePointRANSAC_EKF:259' xt_it.anchor_states(anchorIdx).feature_states(featureIdx).inverse_depth = xt.anchor_states(anchorIdx).feature_states(featureIdx).inverse_depth + x_it(numStates + (anchorIdx-1)*numStatesPerAnchor + 6 + featureIdx); 
+              xt_it.anchor_states[anchorIdx].feature_states[featureIdx].
+                inverse_depth = b_xt->anchor_states[anchorIdx]
+                .feature_states[featureIdx].inverse_depth + x_it2_data
+                [(anchorIdx * 14 + featureIdx) + 24];
 
-              // 'OnePointRANSAC_EKF:257' if it == VIOParameters.max_ekf_iterations && xt.anchor_states(anchorIdx).feature_states(featureIdx).inverse_depth > 10 
+              // 'OnePointRANSAC_EKF:260' if it == VIOParameters.max_ekf_iterations && xt_it.anchor_states(anchorIdx).feature_states(featureIdx).inverse_depth > 10 
               if ((it == c_VIOParameters_max_ekf_iterati) &&
-                  (b_xt->anchor_states[anchorIdx].feature_states[featureIdx].
+                  (xt_it.anchor_states[anchorIdx].feature_states[featureIdx].
                    inverse_depth > 10.0)) {
-                // 'OnePointRANSAC_EKF:258' ros_warn('Feature %i is very close. Depth: %f', int32(xt.anchor_states(anchorIdx).feature_states(featureIdx).status_idx), 1/xt.anchor_states(anchorIdx).feature_states(featureIdx).inverse_depth) 
-                c_ros_warn(b_xt->anchor_states[anchorIdx]
+                // 'OnePointRANSAC_EKF:261' ros_warn('Feature %i is very close. Depth: %f', int32(xt_it.anchor_states(anchorIdx).feature_states(featureIdx).status_idx), 1/xt.anchor_states(anchorIdx).feature_states(featureIdx).inverse_depth) 
+                c_ros_warn(xt_it.anchor_states[anchorIdx]
                            .feature_states[featureIdx].status_idx, 1.0 /
                            b_xt->anchor_states[anchorIdx]
                            .feature_states[featureIdx].inverse_depth);
               }
 
-              // 'OnePointRANSAC_EKF:260' if xt.anchor_states(anchorIdx).feature_states(featureIdx).inverse_depth < 0 
-              if ((b_xt->anchor_states[anchorIdx].feature_states[featureIdx].
+              // 'OnePointRANSAC_EKF:263' if xt_it.anchor_states(anchorIdx).feature_states(featureIdx).inverse_depth < 0 
+              if ((xt_it.anchor_states[anchorIdx].feature_states[featureIdx].
                    inverse_depth < 0.0) && (it ==
                    c_VIOParameters_max_ekf_iterati)) {
-                // 'OnePointRANSAC_EKF:261' if it == VIOParameters.max_ekf_iterations 
+                // 'OnePointRANSAC_EKF:264' if it == VIOParameters.max_ekf_iterations 
                 //  only reject if we are done iterating
-                // 'OnePointRANSAC_EKF:262' ros_warn('Feature %i (%i on %i) is behind its anchor, rejecting', int32(xt.anchor_states(anchorIdx).feature_states(featureIdx).status_idx), int32(featureIdx), int32(anchorIdx)) 
-                ros_warn(b_xt->anchor_states[anchorIdx]
+                // 'OnePointRANSAC_EKF:265' ros_warn('Feature %i (%i on %i) is behind its anchor, rejecting', int32(xt_it.anchor_states(anchorIdx).feature_states(featureIdx).status_idx), int32(featureIdx), int32(anchorIdx)) 
+                ros_warn(xt_it.anchor_states[anchorIdx]
                          .feature_states[featureIdx].status_idx, featureIdx + 1,
                          anchorIdx + 1);
 
-                // 'OnePointRANSAC_EKF:263' updateVect(xt.anchor_states(anchorIdx).feature_states(featureIdx).status_idx) = int32(0); 
-                updateVect[b_xt->anchor_states[anchorIdx]
+                // 'OnePointRANSAC_EKF:266' updateVect(xt_it.anchor_states(anchorIdx).feature_states(featureIdx).status_idx) = int32(0); 
+                updateVect[xt_it.anchor_states[anchorIdx]
                   .feature_states[featureIdx].status_idx - 1] = 0;
 
-                // 'OnePointRANSAC_EKF:264' xt.anchor_states(anchorIdx).feature_states(featureIdx).status = int32(0); 
-                b_xt->anchor_states[anchorIdx].feature_states[featureIdx].status
+                // 'OnePointRANSAC_EKF:267' xt_it.anchor_states(anchorIdx).feature_states(featureIdx).status = int32(0); 
+                xt_it.anchor_states[anchorIdx].feature_states[featureIdx].status
                   = 0;
 
-                // 'OnePointRANSAC_EKF:265' xt.anchor_states(anchorIdx).feature_states(featureIdx).status_idx = int32(0); 
-                b_xt->anchor_states[anchorIdx].feature_states[featureIdx].
+                // 'OnePointRANSAC_EKF:268' xt_it.anchor_states(anchorIdx).feature_states(featureIdx).status_idx = int32(0); 
+                xt_it.anchor_states[anchorIdx].feature_states[featureIdx].
                   status_idx = 0;
               }
             } else {
-              if (HI_inlierCandidates[b_xt->anchor_states[anchorIdx].
+              if (HI_inlierCandidates[xt_it.anchor_states[anchorIdx].
                   feature_states[featureIdx].status_idx - 1] && (it ==
                    c_VIOParameters_max_ekf_iterati)) {
-                // 'OnePointRANSAC_EKF:268' elseif HI_inlierCandidates(xt.anchor_states(anchorIdx).feature_states(featureIdx).status_idx) 
+                // 'OnePointRANSAC_EKF:271' elseif HI_inlierCandidates(xt_it.anchor_states(anchorIdx).feature_states(featureIdx).status_idx) 
                 //  if it is not a HI inlier, but was a candidate, it was rejected by mahalanobis 
-                // 'OnePointRANSAC_EKF:269' if it == VIOParameters.max_ekf_iterations 
+                // 'OnePointRANSAC_EKF:272' if it == VIOParameters.max_ekf_iterations 
                 //  only reject if we are done iterating
-                // 'OnePointRANSAC_EKF:270' updateVect(xt.anchor_states(anchorIdx).feature_states(featureIdx).status_idx) = int32(0); 
-                updateVect[b_xt->anchor_states[anchorIdx]
+                // 'OnePointRANSAC_EKF:273' updateVect(xt_it.anchor_states(anchorIdx).feature_states(featureIdx).status_idx) = int32(0); 
+                updateVect[xt_it.anchor_states[anchorIdx]
                   .feature_states[featureIdx].status_idx - 1] = 0;
 
-                // 'OnePointRANSAC_EKF:271' xt.anchor_states(anchorIdx).feature_states(featureIdx).status = int32(0); 
-                b_xt->anchor_states[anchorIdx].feature_states[featureIdx].status
+                // 'OnePointRANSAC_EKF:274' xt_it.anchor_states(anchorIdx).feature_states(featureIdx).status = int32(0); 
+                xt_it.anchor_states[anchorIdx].feature_states[featureIdx].status
                   = 0;
 
-                // 'OnePointRANSAC_EKF:272' xt.anchor_states(anchorIdx).feature_states(featureIdx).status_idx = int32(0); 
-                b_xt->anchor_states[anchorIdx].feature_states[featureIdx].
+                // 'OnePointRANSAC_EKF:275' xt_it.anchor_states(anchorIdx).feature_states(featureIdx).status_idx = int32(0); 
+                xt_it.anchor_states[anchorIdx].feature_states[featureIdx].
                   status_idx = 0;
               }
             }
           }
 
-          // 'OnePointRANSAC_EKF:276' meas_idx = meas_idx + 1;
+          // 'OnePointRANSAC_EKF:279' meas_idx = meas_idx + 1;
         }
       }
 
@@ -4913,23 +4980,27 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, double b_P[10404], const double
     emxFree_real_T(&c_H);
     emxFree_real_T(&f_y);
     emxFree_real_T(&e_y);
+    emxFree_real_T(&C);
 
-    // 'OnePointRANSAC_EKF:282' P = (eye(numStates + numAnchors*numStatesPerAnchor)-K*H)*P; 
-    emxInit_real_T1(&C, 2);
+    // 'OnePointRANSAC_EKF:285' xt = xt_it;
+    *b_xt = xt_it;
+
+    // 'OnePointRANSAC_EKF:287' P = (eye(numStates + numAnchors*numStatesPerAnchor)-K*H)*P; 
+    emxInit_real_T1(&b_C, 2);
     if ((b_K->size[1] == 1) || (b_H->size[0] == 1)) {
-      i49 = C->size[0] * C->size[1];
-      C->size[0] = b_K->size[0];
-      C->size[1] = b_H->size[1];
-      emxEnsureCapacity((emxArray__common *)C, i49, (int)sizeof(double));
+      i49 = b_C->size[0] * b_C->size[1];
+      b_C->size[0] = b_K->size[0];
+      b_C->size[1] = b_H->size[1];
+      emxEnsureCapacity((emxArray__common *)b_C, i49, (int)sizeof(double));
       ndbl = b_K->size[0];
       for (i49 = 0; i49 < ndbl; i49++) {
         idx = b_H->size[1];
         for (i51 = 0; i51 < idx; i51++) {
-          C->data[i49 + C->size[0] * i51] = 0.0;
-          b_m = b_K->size[1];
-          for (i52 = 0; i52 < b_m; i52++) {
-            C->data[i49 + C->size[0] * i51] += b_K->data[i49 + b_K->size[0] *
-              i52] * b_H->data[i52 + b_H->size[0] * i51];
+          b_C->data[i49 + b_C->size[0] * i51] = 0.0;
+          cdiff = b_K->size[1];
+          for (b_m = 0; b_m < cdiff; b_m++) {
+            b_C->data[i49 + b_C->size[0] * i51] += b_K->data[i49 + b_K->size[0] *
+              b_m] * b_H->data[b_m + b_H->size[0] * i51];
           }
         }
       }
@@ -4937,40 +5008,40 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, double b_P[10404], const double
       k = b_K->size[1];
       H_idx_0 = (unsigned int)b_K->size[0];
       unnamed_idx_1 = (unsigned int)b_H->size[1];
-      i49 = C->size[0] * C->size[1];
-      C->size[0] = (int)H_idx_0;
-      C->size[1] = (int)unnamed_idx_1;
-      emxEnsureCapacity((emxArray__common *)C, i49, (int)sizeof(double));
+      i49 = b_C->size[0] * b_C->size[1];
+      b_C->size[0] = (int)H_idx_0;
+      b_C->size[1] = (int)unnamed_idx_1;
+      emxEnsureCapacity((emxArray__common *)b_C, i49, (int)sizeof(double));
       b_m = b_K->size[0];
-      i49 = C->size[0] * C->size[1];
-      emxEnsureCapacity((emxArray__common *)C, i49, (int)sizeof(double));
-      ndbl = C->size[1];
+      i49 = b_C->size[0] * b_C->size[1];
+      emxEnsureCapacity((emxArray__common *)b_C, i49, (int)sizeof(double));
+      ndbl = b_C->size[1];
       for (i49 = 0; i49 < ndbl; i49++) {
-        idx = C->size[0];
+        idx = b_C->size[0];
         for (i51 = 0; i51 < idx; i51++) {
-          C->data[i51 + C->size[0] * i49] = 0.0;
+          b_C->data[i51 + b_C->size[0] * i49] = 0.0;
         }
       }
 
       idx = b_K->size[0] * (b_H->size[1] - 1);
-      for (apnd = 0; apnd <= idx; apnd += b_m) {
-        i49 = apnd + b_m;
-        for (ic = apnd; ic + 1 <= i49; ic++) {
-          C->data[ic] = 0.0;
+      for (cr = 0; cr <= idx; cr += b_m) {
+        i49 = cr + b_m;
+        for (ic = cr; ic + 1 <= i49; ic++) {
+          b_C->data[ic] = 0.0;
         }
       }
 
       br = 0;
-      for (apnd = 0; apnd <= idx; apnd += b_m) {
+      for (cr = 0; cr <= idx; cr += b_m) {
         ar = 0;
         i49 = br + k;
         for (ib = br; ib + 1 <= i49; ib++) {
           if (b_H->data[ib] != 0.0) {
             ia = ar;
-            i51 = apnd + b_m;
-            for (ic = apnd; ic + 1 <= i51; ic++) {
+            i51 = cr + b_m;
+            for (ic = cr; ic + 1 <= i51; ic++) {
               ia++;
-              C->data[ic] += b_H->data[ib] * b_K->data[ia - 1];
+              b_C->data[ic] += b_H->data[ib] * b_K->data[ia - 1];
             }
           }
 
@@ -4986,36 +5057,37 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, double b_P[10404], const double
     c_eye(dv20);
     for (i49 = 0; i49 < 102; i49++) {
       for (i51 = 0; i51 < 102; i51++) {
-        dv21[i51 + 102 * i49] = dv20[i51 + 102 * i49] - C->data[i51 + 102 * i49];
+        dv21[i51 + 102 * i49] = dv20[i51 + 102 * i49] - b_C->data[i51 + 102 *
+          i49];
       }
     }
 
-    emxFree_real_T(&C);
+    emxFree_real_T(&b_C);
     for (i49 = 0; i49 < 102; i49++) {
       for (i51 = 0; i51 < 102; i51++) {
-        dv24[i49 + 102 * i51] = 0.0;
-        for (i52 = 0; i52 < 102; i52++) {
-          dv24[i49 + 102 * i51] += dv21[i49 + 102 * i52] * b_P[i52 + 102 * i51];
+        dv26[i49 + 102 * i51] = 0.0;
+        for (b_m = 0; b_m < 102; b_m++) {
+          dv26[i49 + 102 * i51] += dv21[i49 + 102 * b_m] * b_P[b_m + 102 * i51];
         }
       }
     }
 
     for (i49 = 0; i49 < 102; i49++) {
-      memcpy(&b_P[i49 * 102], &dv24[i49 * 102], 102U * sizeof(double));
+      memcpy(&b_P[i49 * 102], &dv26[i49 * 102], 102U * sizeof(double));
     }
   }
 
   emxFree_int32_T(&ind);
 
   // % Update the delayed initialization features
-  // 'OnePointRANSAC_EKF:287' if VIOParameters.delayed_initialization
+  // 'OnePointRANSAC_EKF:292' if VIOParameters.delayed_initialization
   if (c_VIOParameters_delayed_initial) {
     emxInit_real_T1(&g_y, 2);
 
-    // 'OnePointRANSAC_EKF:288' xt = getScaledMap(xt);
+    // 'OnePointRANSAC_EKF:293' xt = getScaledMap(xt);
     getScaledMap(b_xt);
 
-    // 'OnePointRANSAC_EKF:289' [r, H] = getH_R_res(xt, z_u_l, z_u_r, delayedFeatures, stereoParams, VIOParameters); 
+    // 'OnePointRANSAC_EKF:294' [r, H] = getH_R_res(xt, z_u_l, z_u_r, delayedFeatures, stereoParams, VIOParameters); 
     b_getH_R_res(b_xt->robot_state.pos, b_xt->robot_state.att,
                  b_xt->anchor_states, z_u_l, z_u_r, delayedFeatures,
                  c_stereoParams_CameraParameters,
@@ -5024,7 +5096,7 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, double b_P[10404], const double
                  f_stereoParams_CameraParameters, stereoParams_r_lr,
                  stereoParams_R_rl, VIOParameters_full_stereo, r, H);
 
-    // 'OnePointRANSAC_EKF:291' S = (H*P*H');
+    // 'OnePointRANSAC_EKF:296' S = (H*P*H');
     H_idx_0 = (unsigned int)H->size[0];
     i49 = g_y->size[0] * g_y->size[1];
     g_y->size[0] = (int)H_idx_0;
@@ -5044,25 +5116,25 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, double b_P[10404], const double
     if (H->size[0] == 0) {
     } else {
       idx = H->size[0] * 101;
-      apnd = 0;
-      while ((b_m > 0) && (apnd <= idx)) {
-        i49 = apnd + b_m;
-        for (ic = apnd; ic + 1 <= i49; ic++) {
+      cr = 0;
+      while ((b_m > 0) && (cr <= idx)) {
+        i49 = cr + b_m;
+        for (ic = cr; ic + 1 <= i49; ic++) {
           g_y->data[ic] = 0.0;
         }
 
-        apnd += b_m;
+        cr += b_m;
       }
 
       br = 0;
-      apnd = 0;
-      while ((b_m > 0) && (apnd <= idx)) {
+      cr = 0;
+      while ((b_m > 0) && (cr <= idx)) {
         ar = 0;
         for (ib = br; ib + 1 <= br + 102; ib++) {
           if (b_P[ib] != 0.0) {
             ia = ar;
-            i49 = apnd + b_m;
-            for (ic = apnd; ic + 1 <= i49; ic++) {
+            i49 = cr + b_m;
+            for (ic = cr; ic + 1 <= i49; ic++) {
               ia++;
               g_y->data[ic] += b_P[ib] * H->data[ia - 1];
             }
@@ -5072,7 +5144,7 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, double b_P[10404], const double
         }
 
         br += 102;
-        apnd += b_m;
+        cr += b_m;
       }
     }
 
@@ -5107,25 +5179,25 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, double b_P[10404], const double
     if ((g_y->size[0] == 0) || (K->size[1] == 0)) {
     } else {
       idx = g_y->size[0] * (K->size[1] - 1);
-      apnd = 0;
-      while ((b_m > 0) && (apnd <= idx)) {
-        i49 = apnd + b_m;
-        for (ic = apnd; ic + 1 <= i49; ic++) {
+      cr = 0;
+      while ((b_m > 0) && (cr <= idx)) {
+        i49 = cr + b_m;
+        for (ic = cr; ic + 1 <= i49; ic++) {
           S->data[ic] = 0.0;
         }
 
-        apnd += b_m;
+        cr += b_m;
       }
 
       br = 0;
-      apnd = 0;
-      while ((b_m > 0) && (apnd <= idx)) {
+      cr = 0;
+      while ((b_m > 0) && (cr <= idx)) {
         ar = 0;
         for (ib = br; ib + 1 <= br + 102; ib++) {
           if (K->data[ib] != 0.0) {
             ia = ar;
-            i49 = apnd + b_m;
-            for (ic = apnd; ic + 1 <= i49; ic++) {
+            i49 = cr + b_m;
+            for (ic = cr; ic + 1 <= i49; ic++) {
               ia++;
               S->data[ic] += K->data[ib] * g_y->data[ia - 1];
             }
@@ -5135,13 +5207,13 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, double b_P[10404], const double
         }
 
         br += 102;
-        apnd += b_m;
+        cr += b_m;
       }
     }
 
     emxFree_real_T(&g_y);
 
-    // 'OnePointRANSAC_EKF:292' size_S = nnz(delayedFeatures)*residualDim;
+    // 'OnePointRANSAC_EKF:297' size_S = nnz(delayedFeatures)*residualDim;
     n = 0;
     for (k = 0; k < 48; k++) {
       if (delayedFeatures[k]) {
@@ -5151,7 +5223,7 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, double b_P[10404], const double
 
     size_S = (double)n * (double)residualDim;
 
-    // 'OnePointRANSAC_EKF:293' S(1:(size_S+1):size_S^2) = S(1:(size_S+1):size_S^2) + noiseParameters.image_noise; 
+    // 'OnePointRANSAC_EKF:298' S(1:(size_S+1):size_S^2) = S(1:(size_S+1):size_S^2) + noiseParameters.image_noise; 
     c_P = size_S * size_S;
     if ((size_S + 1.0 == 0.0) || (((size_S + 1.0 > 0.0) && (1.0 > c_P)) || ((0.0
            > size_S + 1.0) && (c_P > 1.0)))) {
@@ -5165,16 +5237,16 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, double b_P[10404], const double
     c_P = size_S * size_S;
     if ((size_S + 1.0 == 0.0) || (((size_S + 1.0 > 0.0) && (1.0 > c_P)) || ((0.0
            > size_S + 1.0) && (c_P > 1.0)))) {
-      i52 = 1;
+      b_m = 1;
     } else {
-      i52 = (int)(size_S + 1.0);
+      b_m = (int)(size_S + 1.0);
     }
 
     emxInit_real_T1(&d_S, 2);
-    b_m = d_S->size[0] * d_S->size[1];
+    cdiff = d_S->size[0] * d_S->size[1];
     d_S->size[0] = 1;
     d_S->size[1] = div_s32_floor(i51, i49) + 1;
-    emxEnsureCapacity((emxArray__common *)d_S, b_m, (int)sizeof(double));
+    emxEnsureCapacity((emxArray__common *)d_S, cdiff, (int)sizeof(double));
     ndbl = div_s32_floor(i51, i49);
     for (i51 = 0; i51 <= ndbl; i51++) {
       d_S->data[d_S->size[0] * i51] = S->data[i49 * i51] +
@@ -5183,13 +5255,13 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, double b_P[10404], const double
 
     ndbl = d_S->size[1];
     for (i49 = 0; i49 < ndbl; i49++) {
-      S->data[i52 * i49] = d_S->data[d_S->size[0] * i49];
+      S->data[b_m * i49] = d_S->data[d_S->size[0] * i49];
     }
 
     emxFree_real_T(&d_S);
 
     //  add R to HPH'
-    // 'OnePointRANSAC_EKF:294' K = (P*H')/S;
+    // 'OnePointRANSAC_EKF:299' K = (P*H')/S;
     i49 = K->size[0] * K->size[1];
     K->size[0] = 102;
     K->size[1] = H->size[0];
@@ -5218,19 +5290,19 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, double b_P[10404], const double
     if (K->size[1] == 0) {
     } else {
       idx = 102 * (K->size[1] - 1);
-      for (apnd = 0; apnd <= idx; apnd += 102) {
-        for (ic = apnd + 1; ic <= apnd + 102; ic++) {
+      for (cr = 0; cr <= idx; cr += 102) {
+        for (ic = cr + 1; ic <= cr + 102; ic++) {
           h_y->data[ic - 1] = 0.0;
         }
       }
 
       br = 0;
-      for (apnd = 0; apnd <= idx; apnd += 102) {
+      for (cr = 0; cr <= idx; cr += 102) {
         ar = 0;
         for (ib = br; ib + 1 <= br + 102; ib++) {
           if (K->data[ib] != 0.0) {
             ia = ar;
-            for (ic = apnd; ic + 1 <= apnd + 102; ic++) {
+            for (ic = cr; ic + 1 <= cr + 102; ic++) {
               ia++;
               h_y->data[ic] += K->data[ib] * b_P[ia - 1];
             }
@@ -5255,26 +5327,26 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, double b_P[10404], const double
     emxFree_real_T(&h_y);
     mrdivide(K, S);
 
-    // 'OnePointRANSAC_EKF:296' x_apo = K*r;
+    // 'OnePointRANSAC_EKF:301' x_it = K*r;
     if ((K->size[1] == 1) || (r->size[0] == 1)) {
       for (i49 = 0; i49 < 102; i49++) {
-        x_apo[i49] = 0.0;
+        x_it[i49] = 0.0;
         ndbl = K->size[1];
         for (i51 = 0; i51 < ndbl; i51++) {
-          b_x_apo = x_apo[i49] + K->data[i49 + K->size[0] * i51] * r->data[i51];
-          x_apo[i49] = b_x_apo;
+          b_x_it = x_it[i49] + K->data[i49 + K->size[0] * i51] * r->data[i51];
+          x_it[i49] = b_x_it;
         }
       }
     } else {
-      memset(&x_apo[0], 0, 102U * sizeof(double));
+      memset(&x_it[0], 0, 102U * sizeof(double));
       ar = 0;
       for (ib = 0; ib + 1 <= K->size[1]; ib++) {
         if (r->data[ib] != 0.0) {
           ia = ar;
           for (ic = 0; ic < 102; ic++) {
             ia++;
-            b_x_apo = x_apo[ic] + r->data[ib] * K->data[ia - 1];
-            x_apo[ic] = b_x_apo;
+            b_x_it = x_it[ic] + r->data[ib] * K->data[ia - 1];
+            x_it[ic] = b_x_it;
           }
         }
 
@@ -5282,49 +5354,49 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, double b_P[10404], const double
       }
     }
 
-    // 'OnePointRANSAC_EKF:298' for anchorIdx = 1:numAnchors
+    // 'OnePointRANSAC_EKF:303' for anchorIdx = 1:numAnchors
     for (anchorIdx = 0; anchorIdx < 6; anchorIdx++) {
-      // 'OnePointRANSAC_EKF:299' for featureIdx = 1:numPointsPerAnchor
+      // 'OnePointRANSAC_EKF:304' for featureIdx = 1:numPointsPerAnchor
       for (featureIdx = 0; featureIdx < 8; featureIdx++) {
-        // 'OnePointRANSAC_EKF:300' if xt.anchor_states(anchorIdx).feature_states(featureIdx).status == 2 
+        // 'OnePointRANSAC_EKF:305' if xt.anchor_states(anchorIdx).feature_states(featureIdx).status == 2 
         if (b_xt->anchor_states[anchorIdx].feature_states[featureIdx].status ==
             2) {
-          // 'OnePointRANSAC_EKF:301' xt.anchor_states(anchorIdx).feature_states(featureIdx).inverse_depth = xt.anchor_states(anchorIdx).feature_states(featureIdx).inverse_depth + x_apo(numStates + (anchorIdx-1)*numStatesPerAnchor + 6 + featureIdx); 
+          // 'OnePointRANSAC_EKF:306' xt.anchor_states(anchorIdx).feature_states(featureIdx).inverse_depth = xt.anchor_states(anchorIdx).feature_states(featureIdx).inverse_depth + x_it(numStates + (anchorIdx-1)*numStatesPerAnchor + 6 + featureIdx); 
           b_xt->anchor_states[anchorIdx].feature_states[featureIdx].
-            inverse_depth += x_apo[(anchorIdx * 14 + featureIdx) + 24];
+            inverse_depth += x_it[(anchorIdx * 14 + featureIdx) + 24];
         }
       }
     }
 
-    // 'OnePointRANSAC_EKF:306' P = (eye(numStates + numAnchors*numStatesPerAnchor)-K*H)*P; 
+    // 'OnePointRANSAC_EKF:311' P = (eye(numStates + numAnchors*numStatesPerAnchor)-K*H)*P; 
     if ((K->size[1] == 1) || (H->size[0] == 1)) {
       for (i49 = 0; i49 < 102; i49++) {
         for (i51 = 0; i51 < 102; i51++) {
           d_y[i49 + 102 * i51] = 0.0;
           ndbl = K->size[1];
-          for (i52 = 0; i52 < ndbl; i52++) {
-            d_y[i49 + 102 * i51] += K->data[i49 + K->size[0] * i52] * H->
-              data[i52 + H->size[0] * i51];
+          for (b_m = 0; b_m < ndbl; b_m++) {
+            d_y[i49 + 102 * i51] += K->data[i49 + K->size[0] * b_m] * H->
+              data[b_m + H->size[0] * i51];
           }
         }
       }
     } else {
       k = K->size[1];
       memset(&d_y[0], 0, 10404U * sizeof(double));
-      for (apnd = 0; apnd <= 10303; apnd += 102) {
-        for (ic = apnd; ic + 1 <= apnd + 102; ic++) {
+      for (cr = 0; cr <= 10303; cr += 102) {
+        for (ic = cr; ic + 1 <= cr + 102; ic++) {
           d_y[ic] = 0.0;
         }
       }
 
       br = 0;
-      for (apnd = 0; apnd <= 10303; apnd += 102) {
+      for (cr = 0; cr <= 10303; cr += 102) {
         ar = 0;
         i49 = br + k;
         for (ib = br; ib + 1 <= i49; ib++) {
           if (H->data[ib] != 0.0) {
             ia = ar;
-            for (ic = apnd; ic + 1 <= apnd + 102; ic++) {
+            for (ic = cr; ic + 1 <= cr + 102; ic++) {
               ia++;
               d_y[ic] += H->data[ib] * K->data[ia - 1];
             }
@@ -5346,15 +5418,15 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, double b_P[10404], const double
 
     for (i49 = 0; i49 < 102; i49++) {
       for (i51 = 0; i51 < 102; i51++) {
-        dv25[i49 + 102 * i51] = 0.0;
-        for (i52 = 0; i52 < 102; i52++) {
-          dv25[i49 + 102 * i51] += dv21[i49 + 102 * i52] * b_P[i52 + 102 * i51];
+        dv27[i49 + 102 * i51] = 0.0;
+        for (b_m = 0; b_m < 102; b_m++) {
+          dv27[i49 + 102 * i51] += dv21[i49 + 102 * b_m] * b_P[b_m + 102 * i51];
         }
       }
     }
 
     for (i49 = 0; i49 < 102; i49++) {
-      memcpy(&b_P[i49 * 102], &dv25[i49 * 102], 102U * sizeof(double));
+      memcpy(&b_P[i49 * 102], &dv27[i49 * 102], 102U * sizeof(double));
     }
   }
 
@@ -5364,28 +5436,28 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, double b_P[10404], const double
   emxFree_real_T(&S);
 
   // %
-  // 'OnePointRANSAC_EKF:310' num_active_features_before = nnz(activeFeatures);
+  // 'OnePointRANSAC_EKF:315' num_active_features_before = nnz(activeFeatures);
   n = 0;
 
-  // 'OnePointRANSAC_EKF:311' num_active_features_after  = nnz(HI_inlierStatus | LI_inlier_status); 
-  b_m = 0;
+  // 'OnePointRANSAC_EKF:316' num_active_features_after  = nnz(HI_inlierStatus | LI_inlier_status); 
+  cdiff = 0;
   for (k = 0; k < 48; k++) {
     if (activeFeatures[k]) {
       n++;
     }
 
     if (HI_inlierStatus[k] || LI_inlier_status[k]) {
-      b_m++;
+      cdiff++;
     }
   }
 
-  // 'OnePointRANSAC_EKF:312' rejected_ratio = num_active_features_after/num_active_features_before; 
-  rejected_ratio = (double)b_m / (double)n;
+  // 'OnePointRANSAC_EKF:317' rejected_ratio = num_active_features_after/num_active_features_before; 
+  rejected_ratio = (double)cdiff / (double)n;
 
-  // 'OnePointRANSAC_EKF:314' if rejected_ratio < 0.1
+  // 'OnePointRANSAC_EKF:319' if rejected_ratio < 0.1
   if (rejected_ratio < 0.1) {
     //  if more than 90% were rejected
-    // 'OnePointRANSAC_EKF:315' ros_error('1-point RANSAC rejected %d%% of all features! Resetting velocity.', int32(100-rejected_ratio*100)) 
+    // 'OnePointRANSAC_EKF:320' ros_error('1-point RANSAC rejected %d%% of all features! Resetting velocity.', int32(100-rejected_ratio*100)) 
     // ROS_ERROR Print to ROS_ERROR in ROS or to console in Matlab
     // 'ros_error:4' if coder.target('MATLAB')
     // 'ros_error:6' elseif ~coder.target('MEX')
@@ -5401,10 +5473,10 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, double b_P[10404], const double
 
     ROS_ERROR(cv46, i49);
 
-    // 'OnePointRANSAC_EKF:317' gryro_bias_cov = P(10:12, 10:12);
-    // 'OnePointRANSAC_EKF:318' acc_bias_cov = P(13:15, 13:15);
-    // 'OnePointRANSAC_EKF:319' R_ci_cov = P(19:21, 19:21);
-    // 'OnePointRANSAC_EKF:321' R_cw = RotFromQuatJ(xt.robot_state.att)*RotFromQuatJ(xt.origin.att); 
+    // 'OnePointRANSAC_EKF:322' gryro_bias_cov = P(10:12, 10:12);
+    // 'OnePointRANSAC_EKF:323' acc_bias_cov = P(13:15, 13:15);
+    // 'OnePointRANSAC_EKF:324' R_ci_cov = P(19:21, 19:21);
+    // 'OnePointRANSAC_EKF:326' R_cw = RotFromQuatJ(xt.robot_state.att)*RotFromQuatJ(xt.origin.att); 
     //  if ~all(size(q) == [4, 1])
     //      error('q does not have the size of a quaternion')
     //  end
@@ -5474,26 +5546,26 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, double b_P[10404], const double
         acc_bias_cov[i51 + 3 * i49] = b_P[(i51 + 102 * (12 + i49)) + 12];
         R_ci_cov[i51 + 3 * i49] = b_P[(i51 + 102 * (18 + i49)) + 18];
         R_cw[i49 + 3 * i51] = 0.0;
-        for (i52 = 0; i52 < 3; i52++) {
-          R_cw[i49 + 3 * i51] += d_xt[i49 + 3 * i52] * e_xt[i52 + 3 * i51];
+        for (b_m = 0; b_m < 3; b_m++) {
+          R_cw[i49 + 3 * i51] += d_xt[i49 + 3 * b_m] * e_xt[b_m + 3 * i51];
         }
       }
     }
 
-    // 'OnePointRANSAC_EKF:323' P(:, :) = 0;
+    // 'OnePointRANSAC_EKF:328' P(:, :) = 0;
     for (i49 = 0; i49 < 10404; i49++) {
       b_P[i49] = 0.0;
     }
 
-    // 'OnePointRANSAC_EKF:325' P(  4:6,   4:6) = zeros(3);
+    // 'OnePointRANSAC_EKF:330' P(  4:6,   4:6) = zeros(3);
     //  orientation of camera in origin frame
-    // 'OnePointRANSAC_EKF:326' P(  7:9,   7:9) = 1*eye(3);
+    // 'OnePointRANSAC_EKF:331' P(  7:9,   7:9) = 1*eye(3);
     //  velocity
-    // 'OnePointRANSAC_EKF:327' P(10:12, 10:12) = gryro_bias_cov;
+    // 'OnePointRANSAC_EKF:332' P(10:12, 10:12) = gryro_bias_cov;
     //  gyro bias
-    // 'OnePointRANSAC_EKF:328' P(13:15, 13:15) = acc_bias_cov;
+    // 'OnePointRANSAC_EKF:333' P(13:15, 13:15) = acc_bias_cov;
     //  acc bias
-    // 'OnePointRANSAC_EKF:329' P(16:18, 16:18) = 0.1*R_cw * diag([1 1 0]) * R_cw'; 
+    // 'OnePointRANSAC_EKF:334' P(16:18, 16:18) = 0.1*R_cw * diag([1 1 0]) * R_cw'; 
     for (i49 = 0; i49 < 3; i49++) {
       for (i51 = 0; i51 < 3; i51++) {
         b_P[(i51 + 102 * (3 + i49)) + 3] = 0.0;
@@ -5501,8 +5573,8 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, double b_P[10404], const double
         b_P[(i51 + 102 * (9 + i49)) + 9] = gryro_bias_cov[i51 + 3 * i49];
         b_P[(i51 + 102 * (12 + i49)) + 12] = acc_bias_cov[i51 + 3 * i49];
         d_xt[i49 + 3 * i51] = 0.0;
-        for (i52 = 0; i52 < 3; i52++) {
-          d_xt[i49 + 3 * i51] += 0.1 * R_cw[i49 + 3 * i52] * (double)b[i52 + 3 *
+        for (b_m = 0; b_m < 3; b_m++) {
+          d_xt[i49 + 3 * i51] += 0.1 * R_cw[i49 + 3 * b_m] * (double)b[b_m + 3 *
             i51];
         }
       }
@@ -5511,15 +5583,15 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, double b_P[10404], const double
     for (i49 = 0; i49 < 3; i49++) {
       for (i51 = 0; i51 < 3; i51++) {
         b_P[(i49 + 102 * (15 + i51)) + 15] = 0.0;
-        for (i52 = 0; i52 < 3; i52++) {
-          b_P[(i49 + 102 * (15 + i51)) + 15] += d_xt[i49 + 3 * i52] * R_cw[i51 +
-            3 * i52];
+        for (b_m = 0; b_m < 3; b_m++) {
+          b_P[(i49 + 102 * (15 + i51)) + 15] += d_xt[i49 + 3 * b_m] * R_cw[i51 +
+            3 * b_m];
         }
       }
     }
 
     //  origin orientation
-    // 'OnePointRANSAC_EKF:330' P(19:21, 19:21) = R_ci_cov;
+    // 'OnePointRANSAC_EKF:335' P(19:21, 19:21) = R_ci_cov;
     for (i49 = 0; i49 < 3; i49++) {
       for (i51 = 0; i51 < 3; i51++) {
         b_P[(i51 + 102 * (18 + i49)) + 18] = R_ci_cov[i51 + 3 * i49];
@@ -5528,21 +5600,21 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, double b_P[10404], const double
 
     //  R_ci
     //  set all features inactive
-    // 'OnePointRANSAC_EKF:333' for anchorIdx = 1:numAnchors
+    // 'OnePointRANSAC_EKF:338' for anchorIdx = 1:numAnchors
     for (anchorIdx = 0; anchorIdx < 6; anchorIdx++) {
-      // 'OnePointRANSAC_EKF:334' for featureIdx = 1:numPointsPerAnchor
+      // 'OnePointRANSAC_EKF:339' for featureIdx = 1:numPointsPerAnchor
       for (featureIdx = 0; featureIdx < 8; featureIdx++) {
-        // 'OnePointRANSAC_EKF:335' if xt.anchor_states(anchorIdx).feature_states(featureIdx).status 
+        // 'OnePointRANSAC_EKF:340' if xt.anchor_states(anchorIdx).feature_states(featureIdx).status 
         if (b_xt->anchor_states[anchorIdx].feature_states[featureIdx].status !=
             0) {
-          // 'OnePointRANSAC_EKF:336' updateVect(xt.anchor_states(anchorIdx).feature_states(featureIdx).status_idx) = int32(0); 
+          // 'OnePointRANSAC_EKF:341' updateVect(xt.anchor_states(anchorIdx).feature_states(featureIdx).status_idx) = int32(0); 
           updateVect[b_xt->anchor_states[anchorIdx].feature_states[featureIdx].
             status_idx - 1] = 0;
 
-          // 'OnePointRANSAC_EKF:337' xt.anchor_states(anchorIdx).feature_states(featureIdx).status = int32(0); 
+          // 'OnePointRANSAC_EKF:342' xt.anchor_states(anchorIdx).feature_states(featureIdx).status = int32(0); 
           b_xt->anchor_states[anchorIdx].feature_states[featureIdx].status = 0;
 
-          // 'OnePointRANSAC_EKF:338' xt.anchor_states(anchorIdx).feature_states(featureIdx).status_idx = int32(0); 
+          // 'OnePointRANSAC_EKF:343' xt.anchor_states(anchorIdx).feature_states(featureIdx).status_idx = int32(0); 
           b_xt->anchor_states[anchorIdx].feature_states[featureIdx].status_idx =
             0;
         }
@@ -5718,11 +5790,11 @@ static void SLAM_pred_euler(double P_apo[10404], g_struct_T *x, double dt,
   measurements_acc_duo[3], const double measurements_gyr_duo[3])
 {
   double R_cw[9];
+  double R_ci[9];
   double b_R_ci[9];
-  double c_R_ci[9];
   int i44;
   int i;
-  double b_t_ci[3];
+  double t_ci[3];
   double w_imu[3];
   double R[9];
   double b_measurements_acc_duo[3];
@@ -5819,29 +5891,29 @@ static void SLAM_pred_euler(double P_apo[10404], g_struct_T *x, double dt,
   // 'RotFromQuatJ:10' R=[q(1)^2-q(2)^2-q(3)^2+q(4)^2, 2*(q(1)*q(2)+q(3)*q(4)), 2*(q(1)*q(3)-q(2)*q(4)); 
   // 'RotFromQuatJ:11'     2*(q(1)*q(2)-q(3)*q(4)),-q(1)^2+q(2)^2-q(3)^2+q(4)^2, 2*(q(2)*q(3)+q(1)*q(4)); 
   // 'RotFromQuatJ:12'     2*(q(1)*q(3)+q(2)*q(4)), 2*(q(2)*q(3)-q(1)*q(4)),-q(1)^2-q(2)^2+q(3)^2+q(4)^2]; 
-  b_R_ci[0] = ((x->robot_state.IMU.att[0] * x->robot_state.IMU.att[0] -
-                x->robot_state.IMU.att[1] * x->robot_state.IMU.att[1]) -
-               x->robot_state.IMU.att[2] * x->robot_state.IMU.att[2]) +
+  R_ci[0] = ((x->robot_state.IMU.att[0] * x->robot_state.IMU.att[0] -
+              x->robot_state.IMU.att[1] * x->robot_state.IMU.att[1]) -
+             x->robot_state.IMU.att[2] * x->robot_state.IMU.att[2]) +
     x->robot_state.IMU.att[3] * x->robot_state.IMU.att[3];
-  b_R_ci[3] = 2.0 * (x->robot_state.IMU.att[0] * x->robot_state.IMU.att[1] +
-                     x->robot_state.IMU.att[2] * x->robot_state.IMU.att[3]);
-  b_R_ci[6] = 2.0 * (x->robot_state.IMU.att[0] * x->robot_state.IMU.att[2] -
-                     x->robot_state.IMU.att[1] * x->robot_state.IMU.att[3]);
-  b_R_ci[1] = 2.0 * (x->robot_state.IMU.att[0] * x->robot_state.IMU.att[1] -
-                     x->robot_state.IMU.att[2] * x->robot_state.IMU.att[3]);
-  b_R_ci[4] = ((-(x->robot_state.IMU.att[0] * x->robot_state.IMU.att[0]) +
-                x->robot_state.IMU.att[1] * x->robot_state.IMU.att[1]) -
-               x->robot_state.IMU.att[2] * x->robot_state.IMU.att[2]) +
+  R_ci[3] = 2.0 * (x->robot_state.IMU.att[0] * x->robot_state.IMU.att[1] +
+                   x->robot_state.IMU.att[2] * x->robot_state.IMU.att[3]);
+  R_ci[6] = 2.0 * (x->robot_state.IMU.att[0] * x->robot_state.IMU.att[2] -
+                   x->robot_state.IMU.att[1] * x->robot_state.IMU.att[3]);
+  R_ci[1] = 2.0 * (x->robot_state.IMU.att[0] * x->robot_state.IMU.att[1] -
+                   x->robot_state.IMU.att[2] * x->robot_state.IMU.att[3]);
+  R_ci[4] = ((-(x->robot_state.IMU.att[0] * x->robot_state.IMU.att[0]) +
+              x->robot_state.IMU.att[1] * x->robot_state.IMU.att[1]) -
+             x->robot_state.IMU.att[2] * x->robot_state.IMU.att[2]) +
     x->robot_state.IMU.att[3] * x->robot_state.IMU.att[3];
-  b_R_ci[7] = 2.0 * (x->robot_state.IMU.att[1] * x->robot_state.IMU.att[2] +
-                     x->robot_state.IMU.att[0] * x->robot_state.IMU.att[3]);
-  b_R_ci[2] = 2.0 * (x->robot_state.IMU.att[0] * x->robot_state.IMU.att[2] +
-                     x->robot_state.IMU.att[1] * x->robot_state.IMU.att[3]);
-  b_R_ci[5] = 2.0 * (x->robot_state.IMU.att[1] * x->robot_state.IMU.att[2] -
-                     x->robot_state.IMU.att[0] * x->robot_state.IMU.att[3]);
-  b_R_ci[8] = ((-(x->robot_state.IMU.att[0] * x->robot_state.IMU.att[0]) -
-                x->robot_state.IMU.att[1] * x->robot_state.IMU.att[1]) +
-               x->robot_state.IMU.att[2] * x->robot_state.IMU.att[2]) +
+  R_ci[7] = 2.0 * (x->robot_state.IMU.att[1] * x->robot_state.IMU.att[2] +
+                   x->robot_state.IMU.att[0] * x->robot_state.IMU.att[3]);
+  R_ci[2] = 2.0 * (x->robot_state.IMU.att[0] * x->robot_state.IMU.att[2] +
+                   x->robot_state.IMU.att[1] * x->robot_state.IMU.att[3]);
+  R_ci[5] = 2.0 * (x->robot_state.IMU.att[1] * x->robot_state.IMU.att[2] -
+                   x->robot_state.IMU.att[0] * x->robot_state.IMU.att[3]);
+  R_ci[8] = ((-(x->robot_state.IMU.att[0] * x->robot_state.IMU.att[0]) -
+              x->robot_state.IMU.att[1] * x->robot_state.IMU.att[1]) +
+             x->robot_state.IMU.att[2] * x->robot_state.IMU.att[2]) +
     x->robot_state.IMU.att[3] * x->robot_state.IMU.att[3];
 
   // 'SLAM_pred_euler:6' t_ci = x.robot_state.IMU.pos;
@@ -5849,16 +5921,16 @@ static void SLAM_pred_euler(double P_apo[10404], g_struct_T *x, double dt,
   // 'SLAM_pred_euler:7' t_ci = -R_ci' * t_ci;
   for (i44 = 0; i44 < 3; i44++) {
     for (i = 0; i < 3; i++) {
-      c_R_ci[i + 3 * i44] = -b_R_ci[i44 + 3 * i];
+      b_R_ci[i + 3 * i44] = -R_ci[i44 + 3 * i];
     }
   }
 
   //  in imu frame
   // 'SLAM_pred_euler:8' w_imu = measurements.gyr_duo - x.robot_state.IMU.gyro_bias; 
   for (i = 0; i < 3; i++) {
-    b_t_ci[i] = 0.0;
+    t_ci[i] = 0.0;
     for (i44 = 0; i44 < 3; i44++) {
-      b_t_ci[i] += c_R_ci[i + 3 * i44] * x->robot_state.IMU.pos[i44];
+      t_ci[i] += b_R_ci[i + 3 * i44] * x->robot_state.IMU.pos[i44];
     }
 
     w_imu[i] = measurements_gyr_duo[i] - x->robot_state.IMU.gyro_bias[i];
@@ -5887,13 +5959,13 @@ static void SLAM_pred_euler(double P_apo[10404], g_struct_T *x, double dt,
     w_c[i44] = 0.0;
     d10 = 0.0;
     for (i = 0; i < 3; i++) {
-      w_c[i44] += b_R_ci[i44 + 3 * i] * w_imu[i];
-      c_R_ci[i44 + 3 * i] = 0.0;
+      w_c[i44] += R_ci[i44 + 3 * i] * w_imu[i];
+      b_R_ci[i44 + 3 * i] = 0.0;
       for (i45 = 0; i45 < 3; i45++) {
-        c_R_ci[i44 + 3 * i] += R[i44 + 3 * i45] * R[i45 + 3 * i];
+        b_R_ci[i44 + 3 * i] += R[i44 + 3 * i45] * R[i45 + 3 * i];
       }
 
-      d10 += c_R_ci[i44 + 3 * i] * b_t_ci[i];
+      d10 += b_R_ci[i44 + 3 * i] * t_ci[i];
     }
 
     b_measurements_acc_duo[i44] = (measurements_acc_duo[i44] -
@@ -5973,9 +6045,9 @@ static void SLAM_pred_euler(double P_apo[10404], g_struct_T *x, double dt,
     grav_origin[i44] = 0.0;
     y[i44] = 0.0;
     for (i = 0; i < 3; i++) {
-      a_c[i44] += b_R_ci[i44 + 3 * i] * b_measurements_acc_duo[i];
+      a_c[i44] += R_ci[i44 + 3 * i] * b_measurements_acc_duo[i];
       grav_origin[i44] += b_x[i44 + 3 * i] * b[i];
-      y[i44] += dv9[i44 + 3 * i] * b_t_ci[i];
+      y[i44] += dv9[i44 + 3 * i] * t_ci[i];
     }
   }
 
@@ -6067,18 +6139,18 @@ static void SLAM_pred_euler(double P_apo[10404], g_struct_T *x, double dt,
   dv13[5] = w_imu[0];
   dv13[8] = 0.0;
   dv14[0] = 0.0;
-  dv14[3] = -b_t_ci[2];
-  dv14[6] = b_t_ci[1];
-  dv14[1] = b_t_ci[2];
+  dv14[3] = -t_ci[2];
+  dv14[6] = t_ci[1];
+  dv14[1] = t_ci[2];
   dv14[4] = 0.0;
-  dv14[7] = -b_t_ci[0];
-  dv14[2] = -b_t_ci[1];
-  dv14[5] = b_t_ci[0];
+  dv14[7] = -t_ci[0];
+  dv14[2] = -t_ci[1];
+  dv14[5] = t_ci[0];
   dv14[8] = 0.0;
   for (i44 = 0; i44 < 3; i44++) {
     for (i = 0; i < 3; i++) {
       R[i + 3 * i44] = -R_cw[i44 + 3 * i];
-      c_R_ci[i + 3 * i44] = -R_cw[i44 + 3 * i];
+      b_R_ci[i + 3 * i44] = -R_cw[i44 + 3 * i];
     }
   }
 
@@ -6103,7 +6175,7 @@ static void SLAM_pred_euler(double P_apo[10404], g_struct_T *x, double dt,
       dv9[i44 + 3 * i] = -dv12[i44 + 3 * i] - d10;
       b_R_cw[i44 + 3 * i] = 0.0;
       for (i45 = 0; i45 < 3; i45++) {
-        b_R_cw[i44 + 3 * i] += c_R_ci[i44 + 3 * i45] * b_R_ci[i45 + 3 * i];
+        b_R_cw[i44 + 3 * i] += b_R_ci[i44 + 3 * i45] * R_ci[i45 + 3 * i];
       }
     }
   }
@@ -10919,7 +10991,7 @@ static void b_xgeqp3(double A[30], double tau[5], int jpvt[5])
   int i_i;
   int ix;
   int pvt;
-  int i61;
+  int i60;
   int i_ip1;
   int lastv;
   int lastc;
@@ -10996,8 +11068,8 @@ static void b_xgeqp3(double A[30], double tau[5], int jpvt[5])
         itemp = 0;
         do {
           itemp++;
-          i61 = i_i - i;
-          for (k = i_i + 1; k + 1 <= i61 + 6; k++) {
+          i60 = i_i - i;
+          for (k = i_i + 1; k + 1 <= i60 + 6; k++) {
             A[k] *= 9.9792015476736E+291;
           }
 
@@ -11012,8 +11084,8 @@ static void b_xgeqp3(double A[30], double tau[5], int jpvt[5])
 
         temp2 = (smax - absxk) / smax;
         absxk = 1.0 / (absxk - smax);
-        i61 = i_i - i;
-        for (k = i_i + 1; k + 1 <= i61 + 6; k++) {
+        i60 = i_i - i;
+        for (k = i_i + 1; k + 1 <= i60 + 6; k++) {
           A[k] *= absxk;
         }
 
@@ -11025,8 +11097,8 @@ static void b_xgeqp3(double A[30], double tau[5], int jpvt[5])
       } else {
         temp2 = (smax - A[i_i]) / smax;
         absxk = 1.0 / (A[i_i] - smax);
-        i61 = i_i - i;
-        for (k = i_i + 1; k + 1 <= i61 + 6; k++) {
+        i60 = i_i - i;
+        for (k = i_i + 1; k + 1 <= i60 + 6; k++) {
           A[k] *= absxk;
         }
 
@@ -11084,8 +11156,8 @@ static void b_xgeqp3(double A[30], double tau[5], int jpvt[5])
           }
 
           iy = 0;
-          i61 = i_ip1 + 6 * (lastc - 1);
-          for (itemp = i_ip1; itemp <= i61; itemp += 6) {
+          i60 = i_ip1 + 6 * (lastc - 1);
+          for (itemp = i_ip1; itemp <= i60; itemp += 6) {
             ix = i_i;
             smax = 0.0;
             pvt = (itemp + lastv) - 1;
@@ -11107,8 +11179,8 @@ static void b_xgeqp3(double A[30], double tau[5], int jpvt[5])
             if (work[pvt] != 0.0) {
               smax = work[pvt] * -tau[i];
               ix = i_i;
-              i61 = lastv + itemp;
-              for (k = itemp; k + 1 <= i61; k++) {
+              i60 = lastv + itemp;
+              for (k = itemp; k + 1 <= i60; k++) {
                 A[k] += A[ix] * smax;
                 ix++;
               }
@@ -11616,21 +11688,21 @@ static void d_ros_warn(signed char varargin_1)
 //
 static void d_sort(emxArray_real_T *x, int dim, emxArray_int32_T *idx)
 {
-  int i62;
+  int i61;
   emxArray_real_T *vwork;
   int vstride;
   int x_idx_0;
   int j;
   emxArray_int32_T *iidx;
   if (dim <= 1) {
-    i62 = x->size[0];
+    i61 = x->size[0];
   } else {
-    i62 = 1;
+    i61 = 1;
   }
 
   emxInit_real_T(&vwork, 1);
   vstride = vwork->size[0];
-  vwork->size[0] = i62;
+  vwork->size[0] = i61;
   emxEnsureCapacity((emxArray__common *)vwork, vstride, (int)sizeof(double));
   x_idx_0 = x->size[0];
   vstride = idx->size[0];
@@ -11646,12 +11718,12 @@ static void d_sort(emxArray_real_T *x, int dim, emxArray_int32_T *idx)
   j = 0;
   emxInit_int32_T(&iidx, 1);
   while (j + 1 <= vstride) {
-    for (x_idx_0 = 0; x_idx_0 + 1 <= i62; x_idx_0++) {
+    for (x_idx_0 = 0; x_idx_0 + 1 <= i61; x_idx_0++) {
       vwork->data[x_idx_0] = x->data[j + x_idx_0 * vstride];
     }
 
     sortIdx(vwork, iidx);
-    for (x_idx_0 = 0; x_idx_0 + 1 <= i62; x_idx_0++) {
+    for (x_idx_0 = 0; x_idx_0 + 1 <= i61; x_idx_0++) {
       x->data[j + x_idx_0 * vstride] = vwork->data[x_idx_0];
       idx->data[j + x_idx_0 * vstride] = iidx->data[x_idx_0];
     }
@@ -14161,9 +14233,9 @@ static void getScaledMap(g_struct_T *b_xt)
   double anchorRot[9];
   int featureIdx;
   double c_xt[3];
-  int i55;
+  int i54;
   double d11;
-  int i56;
+  int i55;
 
   // 'getScaledMap:22' R_cw = RotFromQuatJ(xt.robot_state.att);
   //  if ~all(size(q) == [4, 1])
@@ -14268,25 +14340,25 @@ static void getScaledMap(g_struct_T *b_xt)
         // 'getScaledMap:32' m = xt.anchor_states(anchorIdx).feature_states(featureIdx).m; 
         // 'getScaledMap:34' fp_scaled = R_cw*(rho*anchorPos + anchorRot'*m - xt.robot_state.pos*rho); 
         // 'getScaledMap:36' xt.anchor_states(anchorIdx).feature_states(featureIdx).scaled_map_point = fp_scaled; 
-        for (i55 = 0; i55 < 3; i55++) {
+        for (i54 = 0; i54 < 3; i54++) {
           d11 = 0.0;
-          for (i56 = 0; i56 < 3; i56++) {
-            d11 += anchorRot[i56 + 3 * i55] * b_xt->anchor_states[anchorIdx].
-              feature_states[featureIdx].m[i56];
+          for (i55 = 0; i55 < 3; i55++) {
+            d11 += anchorRot[i55 + 3 * i54] * b_xt->anchor_states[anchorIdx].
+              feature_states[featureIdx].m[i55];
           }
 
-          c_xt[i55] = (b_xt->anchor_states[anchorIdx].feature_states[featureIdx]
-                       .inverse_depth * b_xt->anchor_states[anchorIdx].pos[i55]
-                       + d11) - b_xt->robot_state.pos[i55] * b_xt->
+          c_xt[i54] = (b_xt->anchor_states[anchorIdx].feature_states[featureIdx]
+                       .inverse_depth * b_xt->anchor_states[anchorIdx].pos[i54]
+                       + d11) - b_xt->robot_state.pos[i54] * b_xt->
             anchor_states[anchorIdx].feature_states[featureIdx].inverse_depth;
         }
 
-        for (i55 = 0; i55 < 3; i55++) {
+        for (i54 = 0; i54 < 3; i54++) {
           b_xt->anchor_states[anchorIdx].feature_states[featureIdx].
-            scaled_map_point[i55] = 0.0;
-          for (i56 = 0; i56 < 3; i56++) {
+            scaled_map_point[i54] = 0.0;
+          for (i55 = 0; i55 < 3; i55++) {
             b_xt->anchor_states[anchorIdx].feature_states[featureIdx].
-              scaled_map_point[i55] += R_cw[i55 + 3 * i56] * c_xt[i56];
+              scaled_map_point[i54] += R_cw[i54 + 3 * i55] * c_xt[i55];
           }
         }
       }
@@ -14923,8 +14995,9 @@ static double l_fprintf(int varargin_1)
   FILE * b_NULL;
   boolean_T autoflush;
   FILE * filestar;
-  static const char cfmt[18] = { '\x09', 'n', 'u', 'm', '_', 'a', 'n', 'c', 'h',
-    'o', 'r', 's', ':', ' ', '%', 'd', '\x0a', '\x00' };
+  static const char cfmt[25] = { '\x09', 'm', 'a', 'x', '_', 'e', 'k', 'f', '_',
+    'i', 't', 'e', 'r', 'a', 't', 'i', 'o', 'n', 's', ':', ' ', '%', 'd', '\x0a',
+    '\x00' };
 
   nbytesint = 0;
   b_NULL = NULL;
@@ -14939,25 +15012,35 @@ static double l_fprintf(int varargin_1)
 }
 
 //
-// Arguments    : int varargin_1
+// Arguments    : const char varargin_1_data[]
+//                const int varargin_1_size[2]
 // Return Type  : double
 //
-static double m_fprintf(int varargin_1)
+static double m_fprintf(const char varargin_1_data[], const int varargin_1_size
+  [2])
 {
   int nbytesint;
   FILE * b_NULL;
   boolean_T autoflush;
   FILE * filestar;
-  static const char cfmt[28] = { '\x09', 'n', 'u', 'm', '_', 'p', 'o', 'i', 'n',
-    't', 's', '_', 'p', 'e', 'r', '_', 'a', 'n', 'c', 'h', 'o', 'r', ':', ' ',
-    '%', 'd', '\x0a', '\x00' };
+  int i4;
+  char varargout_1_data[6];
+  static const char cfmt[29] = { '\x09', 'd', 'e', 'l', 'a', 'y', 'e', 'd', '_',
+    'i', 'n', 'i', 't', 'i', 'a', 'l', 'i', 'z', 'a', 't', 'i', 'o', 'n', ':',
+    ' ', '%', 's', '\x0a', '\x00' };
 
   nbytesint = 0;
   b_NULL = NULL;
   fileManager(&filestar, &autoflush);
   if (filestar == b_NULL) {
   } else {
-    nbytesint = fprintf(filestar, cfmt, varargin_1);
+    nbytesint = varargin_1_size[1];
+    for (i4 = 0; i4 < nbytesint; i4++) {
+      varargout_1_data[i4] = varargin_1_data[i4];
+    }
+
+    varargout_1_data[varargin_1_size[1]] = '\x00';
+    nbytesint = fprintf(filestar, cfmt, &varargout_1_data[0]);
     fflush(filestar);
   }
 
@@ -15445,25 +15528,34 @@ static void multiplyIdx(const double idx_data[], const int idx_size[1], double
 }
 
 //
-// Arguments    : int varargin_1
+// Arguments    : const char varargin_1_data[]
+//                const int varargin_1_size[2]
 // Return Type  : double
 //
-static double n_fprintf(int varargin_1)
+static double n_fprintf(const char varargin_1_data[], const int varargin_1_size
+  [2])
 {
   int nbytesint;
   FILE * b_NULL;
   boolean_T autoflush;
   FILE * filestar;
-  static const char cfmt[25] = { '\x09', 'm', 'a', 'x', '_', 'e', 'k', 'f', '_',
-    'i', 't', 'e', 'r', 'a', 't', 'i', 'o', 'n', 's', ':', ' ', '%', 'd', '\x0a',
-    '\x00' };
+  int i5;
+  char varargout_1_data[6];
+  static const char cfmt[20] = { '\x09', 'f', 'i', 'x', 'e', 'd', '_', 'f', 'e',
+    'a', 't', 'u', 'r', 'e', ':', ' ', '%', 's', '\x0a', '\x00' };
 
   nbytesint = 0;
   b_NULL = NULL;
   fileManager(&filestar, &autoflush);
   if (filestar == b_NULL) {
   } else {
-    nbytesint = fprintf(filestar, cfmt, varargin_1);
+    nbytesint = varargin_1_size[1];
+    for (i5 = 0; i5 < nbytesint; i5++) {
+      varargout_1_data[i5] = varargin_1_data[i5];
+    }
+
+    varargout_1_data[varargin_1_size[1]] = '\x00';
+    nbytesint = fprintf(filestar, cfmt, &varargout_1_data[0]);
     fflush(filestar);
   }
 
@@ -15510,11 +15602,10 @@ static double o_fprintf(const char varargin_1_data[], const int varargin_1_size
   FILE * b_NULL;
   boolean_T autoflush;
   FILE * filestar;
-  int i4;
+  int i6;
   char varargout_1_data[6];
-  static const char cfmt[29] = { '\x09', 'd', 'e', 'l', 'a', 'y', 'e', 'd', '_',
-    'i', 'n', 'i', 't', 'i', 'a', 'l', 'i', 'z', 'a', 't', 'i', 'o', 'n', ':',
-    ' ', '%', 's', '\x0a', '\x00' };
+  static const char cfmt[11] = { '\x09', 'm', 'o', 'n', 'o', ':', ' ', '%', 's',
+    '\x0a', '\x00' };
 
   nbytesint = 0;
   b_NULL = NULL;
@@ -15522,8 +15613,8 @@ static double o_fprintf(const char varargin_1_data[], const int varargin_1_size
   if (filestar == b_NULL) {
   } else {
     nbytesint = varargin_1_size[1];
-    for (i4 = 0; i4 < nbytesint; i4++) {
-      varargout_1_data[i4] = varargin_1_data[i4];
+    for (i6 = 0; i6 < nbytesint; i6++) {
+      varargout_1_data[i6] = varargin_1_data[i6];
     }
 
     varargout_1_data[varargin_1_size[1]] = '\x00';
@@ -15546,10 +15637,10 @@ static double p_fprintf(const char varargin_1_data[], const int varargin_1_size
   FILE * b_NULL;
   boolean_T autoflush;
   FILE * filestar;
-  int i5;
+  int i7;
   char varargout_1_data[6];
-  static const char cfmt[20] = { '\x09', 'f', 'i', 'x', 'e', 'd', '_', 'f', 'e',
-    'a', 't', 'u', 'r', 'e', ':', ' ', '%', 's', '\x0a', '\x00' };
+  static const char cfmt[18] = { '\x09', 'f', 'u', 'l', 'l', '_', 's', 't', 'e',
+    'r', 'e', 'o', ':', ' ', '%', 's', '\x0a', '\x00' };
 
   nbytesint = 0;
   b_NULL = NULL;
@@ -15557,8 +15648,8 @@ static double p_fprintf(const char varargin_1_data[], const int varargin_1_size
   if (filestar == b_NULL) {
   } else {
     nbytesint = varargin_1_size[1];
-    for (i5 = 0; i5 < nbytesint; i5++) {
-      varargout_1_data[i5] = varargin_1_data[i5];
+    for (i7 = 0; i7 < nbytesint; i7++) {
+      varargout_1_data[i7] = varargin_1_data[i7];
     }
 
     varargout_1_data[varargin_1_size[1]] = '\x00';
@@ -15700,8 +15791,6 @@ static void predictMeasurementStereo(const double fp_l[3], const double
 //                const double c_noiseParameters_acc_bias_init[3]
 //                double noiseParameters_image_noise
 //                double c_noiseParameters_inv_depth_ini
-//                int c_VIOParameters_num_points_per_
-//                int VIOParameters_num_anchors
 //                int c_VIOParameters_max_ekf_iterati
 //                boolean_T VIOParameters_fixed_feature
 //                boolean_T c_VIOParameters_delayed_initial
@@ -15715,11 +15804,10 @@ static void printParams(double c_noiseParameters_process_noise, double
   double f_noiseParameters_process_noise, double g_noiseParameters_process_noise,
   const double c_noiseParameters_gyro_bias_ini[3], const double
   c_noiseParameters_acc_bias_init[3], double noiseParameters_image_noise, double
-  c_noiseParameters_inv_depth_ini, int c_VIOParameters_num_points_per_, int
-  VIOParameters_num_anchors, int c_VIOParameters_max_ekf_iterati, boolean_T
-  VIOParameters_fixed_feature, boolean_T c_VIOParameters_delayed_initial,
-  boolean_T VIOParameters_mono, boolean_T VIOParameters_full_stereo, boolean_T
-  VIOParameters_RANSAC)
+  c_noiseParameters_inv_depth_ini, int c_VIOParameters_max_ekf_iterati,
+  boolean_T VIOParameters_fixed_feature, boolean_T
+  c_VIOParameters_delayed_initial, boolean_T VIOParameters_mono, boolean_T
+  VIOParameters_full_stereo, boolean_T VIOParameters_RANSAC)
 {
   char cv0[18];
   int i3;
@@ -15736,10 +15824,10 @@ static void printParams(double c_noiseParameters_process_noise, double
   char s_data[5];
   static const char cv5[5] = { 'F', 'a', 'l', 's', 'e' };
 
-  // 'SLAM:131' fprintf('\n');
+  // 'SLAM:130' fprintf('\n');
   b_fprintf();
 
-  // 'SLAM:132' ros_info('Noise parameters:');
+  // 'SLAM:131' ros_info('Noise parameters:');
   // ROS_INFO Print to ROS_INFO in ROS or to console in Matlab
   //  debug_level == 0: print errors, == 1: print warnings, == 2: print info
   // 'ros_info:5' if coder.target('MATLAB')
@@ -15755,39 +15843,39 @@ static void printParams(double c_noiseParameters_process_noise, double
     ROS_INFO(cv0);
   }
 
-  // 'SLAM:133' fprintf('\tqv: %f\n', noiseParameters.process_noise.qv);
+  // 'SLAM:132' fprintf('\tqv: %f\n', noiseParameters.process_noise.qv);
   c_fprintf(c_noiseParameters_process_noise);
 
-  // 'SLAM:134' fprintf('\tqw: %f\n', noiseParameters.process_noise.qw);
+  // 'SLAM:133' fprintf('\tqw: %f\n', noiseParameters.process_noise.qw);
   d_fprintf(d_noiseParameters_process_noise);
 
-  // 'SLAM:135' fprintf('\tqao: %f\n', noiseParameters.process_noise.qao);
+  // 'SLAM:134' fprintf('\tqao: %f\n', noiseParameters.process_noise.qao);
   e_fprintf(e_noiseParameters_process_noise);
 
-  // 'SLAM:136' fprintf('\tqwo: %f\n', noiseParameters.process_noise.qwo);
+  // 'SLAM:135' fprintf('\tqwo: %f\n', noiseParameters.process_noise.qwo);
   f_fprintf(f_noiseParameters_process_noise);
 
-  // 'SLAM:137' fprintf('\tqR_ci: %f\n', noiseParameters.process_noise.qR_ci);
+  // 'SLAM:136' fprintf('\tqR_ci: %f\n', noiseParameters.process_noise.qR_ci);
   g_fprintf(g_noiseParameters_process_noise);
 
-  // 'SLAM:138' fprintf('\tgyro bias initial unc: [%f, %f, %f]\n', noiseParameters.gyro_bias_initial_unc(1), noiseParameters.gyro_bias_initial_unc(2), noiseParameters.gyro_bias_initial_unc(3)); 
+  // 'SLAM:137' fprintf('\tgyro bias initial unc: [%f, %f, %f]\n', noiseParameters.gyro_bias_initial_unc(1), noiseParameters.gyro_bias_initial_unc(2), noiseParameters.gyro_bias_initial_unc(3)); 
   h_fprintf(c_noiseParameters_gyro_bias_ini[0], c_noiseParameters_gyro_bias_ini
             [1], c_noiseParameters_gyro_bias_ini[2]);
 
-  // 'SLAM:139' fprintf('\tacc bias initial unc: [%f, %f, %f]\n', noiseParameters.acc_bias_initial_unc(1), noiseParameters.acc_bias_initial_unc(2), noiseParameters.acc_bias_initial_unc(3)); 
+  // 'SLAM:138' fprintf('\tacc bias initial unc: [%f, %f, %f]\n', noiseParameters.acc_bias_initial_unc(1), noiseParameters.acc_bias_initial_unc(2), noiseParameters.acc_bias_initial_unc(3)); 
   i_fprintf(c_noiseParameters_acc_bias_init[0], c_noiseParameters_acc_bias_init
             [1], c_noiseParameters_acc_bias_init[2]);
 
-  // 'SLAM:140' fprintf('\timage_noise: %f\n', noiseParameters.image_noise);
+  // 'SLAM:139' fprintf('\timage_noise: %f\n', noiseParameters.image_noise);
   j_fprintf(noiseParameters_image_noise);
 
-  // 'SLAM:141' fprintf('\tinv_depth_initial_unc: %f\n', noiseParameters.inv_depth_initial_unc); 
+  // 'SLAM:140' fprintf('\tinv_depth_initial_unc: %f\n', noiseParameters.inv_depth_initial_unc); 
   k_fprintf(c_noiseParameters_inv_depth_ini);
 
-  // 'SLAM:143' fprintf('\n');
+  // 'SLAM:142' fprintf('\n');
   b_fprintf();
 
-  // 'SLAM:144' ros_info('VIO parameters');
+  // 'SLAM:143' ros_info('VIO parameters');
   // ROS_INFO Print to ROS_INFO in ROS or to console in Matlab
   //  debug_level == 0: print errors, == 1: print warnings, == 2: print info
   // 'ros_info:5' if coder.target('MATLAB')
@@ -15803,27 +15891,65 @@ static void printParams(double c_noiseParameters_process_noise, double
     ROS_INFO(cv2);
   }
 
-  // 'SLAM:145' fprintf('\tnum_anchors: %d\n', int32(VIOParameters.num_anchors)); 
-  l_fprintf(VIOParameters_num_anchors);
+  //  fprintf('\tnum_anchors: %d\n', int32(VIOParameters.num_anchors));
+  //  fprintf('\tnum_points_per_anchor: %d\n', int32(VIOParameters.num_points_per_anchor)); 
+  // 'SLAM:146' fprintf('\tmax_ekf_iterations: %d\n', int32(VIOParameters.max_ekf_iterations)); 
+  l_fprintf(c_VIOParameters_max_ekf_iterati);
 
-  // 'SLAM:146' fprintf('\tnum_points_per_anchor: %d\n', int32(VIOParameters.num_points_per_anchor)); 
-  m_fprintf(c_VIOParameters_num_points_per_);
-
-  // 'SLAM:147' fprintf('\tmax_ekf_iterations: %d\n', int32(VIOParameters.max_ekf_iterations)); 
-  n_fprintf(c_VIOParameters_max_ekf_iterati);
-
-  // 'SLAM:148' fprintf('\tdelayed_initialization: %s\n', bool2str(VIOParameters.delayed_initialization)); 
-  // 'SLAM:157' if bool
+  // 'SLAM:147' fprintf('\tdelayed_initialization: %s\n', bool2str(VIOParameters.delayed_initialization)); 
+  // 'SLAM:156' if bool
   if (c_VIOParameters_delayed_initial) {
-    // 'SLAM:158' s = 'True';
+    // 'SLAM:157' s = 'True';
     s_size[0] = 1;
     s_size[1] = 4;
     for (i3 = 0; i3 < 4; i3++) {
       s_data[i3] = cv4[i3];
     }
   } else {
-    // 'SLAM:159' else
-    // 'SLAM:160' s = 'False';
+    // 'SLAM:158' else
+    // 'SLAM:159' s = 'False';
+    s_size[0] = 1;
+    s_size[1] = 5;
+    for (i3 = 0; i3 < 5; i3++) {
+      s_data[i3] = cv5[i3];
+    }
+  }
+
+  m_fprintf(s_data, s_size);
+
+  // 'SLAM:148' fprintf('\tfixed_feature: %s\n', bool2str(VIOParameters.fixed_feature)); 
+  // 'SLAM:156' if bool
+  if (VIOParameters_fixed_feature) {
+    // 'SLAM:157' s = 'True';
+    s_size[0] = 1;
+    s_size[1] = 4;
+    for (i3 = 0; i3 < 4; i3++) {
+      s_data[i3] = cv4[i3];
+    }
+  } else {
+    // 'SLAM:158' else
+    // 'SLAM:159' s = 'False';
+    s_size[0] = 1;
+    s_size[1] = 5;
+    for (i3 = 0; i3 < 5; i3++) {
+      s_data[i3] = cv5[i3];
+    }
+  }
+
+  n_fprintf(s_data, s_size);
+
+  // 'SLAM:149' fprintf('\tmono: %s\n', bool2str(VIOParameters.mono));
+  // 'SLAM:156' if bool
+  if (VIOParameters_mono) {
+    // 'SLAM:157' s = 'True';
+    s_size[0] = 1;
+    s_size[1] = 4;
+    for (i3 = 0; i3 < 4; i3++) {
+      s_data[i3] = cv4[i3];
+    }
+  } else {
+    // 'SLAM:158' else
+    // 'SLAM:159' s = 'False';
     s_size[0] = 1;
     s_size[1] = 5;
     for (i3 = 0; i3 < 5; i3++) {
@@ -15833,18 +15959,18 @@ static void printParams(double c_noiseParameters_process_noise, double
 
   o_fprintf(s_data, s_size);
 
-  // 'SLAM:149' fprintf('\tfixed_feature: %s\n', bool2str(VIOParameters.fixed_feature)); 
-  // 'SLAM:157' if bool
-  if (VIOParameters_fixed_feature) {
-    // 'SLAM:158' s = 'True';
+  // 'SLAM:150' fprintf('\tfull_stereo: %s\n', bool2str(VIOParameters.full_stereo)); 
+  // 'SLAM:156' if bool
+  if (VIOParameters_full_stereo) {
+    // 'SLAM:157' s = 'True';
     s_size[0] = 1;
     s_size[1] = 4;
     for (i3 = 0; i3 < 4; i3++) {
       s_data[i3] = cv4[i3];
     }
   } else {
-    // 'SLAM:159' else
-    // 'SLAM:160' s = 'False';
+    // 'SLAM:158' else
+    // 'SLAM:159' s = 'False';
     s_size[0] = 1;
     s_size[1] = 5;
     for (i3 = 0; i3 < 5; i3++) {
@@ -15854,18 +15980,18 @@ static void printParams(double c_noiseParameters_process_noise, double
 
   p_fprintf(s_data, s_size);
 
-  // 'SLAM:150' fprintf('\tmono: %s\n', bool2str(VIOParameters.mono));
-  // 'SLAM:157' if bool
-  if (VIOParameters_mono) {
-    // 'SLAM:158' s = 'True';
+  // 'SLAM:151' fprintf('\tRANSAC: %s\n', bool2str(VIOParameters.RANSAC));
+  // 'SLAM:156' if bool
+  if (VIOParameters_RANSAC) {
+    // 'SLAM:157' s = 'True';
     s_size[0] = 1;
     s_size[1] = 4;
     for (i3 = 0; i3 < 4; i3++) {
       s_data[i3] = cv4[i3];
     }
   } else {
-    // 'SLAM:159' else
-    // 'SLAM:160' s = 'False';
+    // 'SLAM:158' else
+    // 'SLAM:159' s = 'False';
     s_size[0] = 1;
     s_size[1] = 5;
     for (i3 = 0; i3 < 5; i3++) {
@@ -15875,49 +16001,7 @@ static void printParams(double c_noiseParameters_process_noise, double
 
   q_fprintf(s_data, s_size);
 
-  // 'SLAM:151' fprintf('\tfull_stereo: %s\n', bool2str(VIOParameters.full_stereo)); 
-  // 'SLAM:157' if bool
-  if (VIOParameters_full_stereo) {
-    // 'SLAM:158' s = 'True';
-    s_size[0] = 1;
-    s_size[1] = 4;
-    for (i3 = 0; i3 < 4; i3++) {
-      s_data[i3] = cv4[i3];
-    }
-  } else {
-    // 'SLAM:159' else
-    // 'SLAM:160' s = 'False';
-    s_size[0] = 1;
-    s_size[1] = 5;
-    for (i3 = 0; i3 < 5; i3++) {
-      s_data[i3] = cv5[i3];
-    }
-  }
-
-  r_fprintf(s_data, s_size);
-
-  // 'SLAM:152' fprintf('\tRANSAC: %s\n', bool2str(VIOParameters.RANSAC));
-  // 'SLAM:157' if bool
-  if (VIOParameters_RANSAC) {
-    // 'SLAM:158' s = 'True';
-    s_size[0] = 1;
-    s_size[1] = 4;
-    for (i3 = 0; i3 < 4; i3++) {
-      s_data[i3] = cv4[i3];
-    }
-  } else {
-    // 'SLAM:159' else
-    // 'SLAM:160' s = 'False';
-    s_size[0] = 1;
-    s_size[1] = 5;
-    for (i3 = 0; i3 < 5; i3++) {
-      s_data[i3] = cv5[i3];
-    }
-  }
-
-  s_fprintf(s_data, s_size);
-
-  // 'SLAM:153' fprintf('\n');
+  // 'SLAM:152' fprintf('\n');
   b_fprintf();
 }
 
@@ -15933,10 +16017,10 @@ static double q_fprintf(const char varargin_1_data[], const int varargin_1_size
   FILE * b_NULL;
   boolean_T autoflush;
   FILE * filestar;
-  int i6;
+  int i8;
   char varargout_1_data[6];
-  static const char cfmt[11] = { '\x09', 'm', 'o', 'n', 'o', ':', ' ', '%', 's',
-    '\x0a', '\x00' };
+  static const char cfmt[13] = { '\x09', 'R', 'A', 'N', 'S', 'A', 'C', ':', ' ',
+    '%', 's', '\x0a', '\x00' };
 
   nbytesint = 0;
   b_NULL = NULL;
@@ -15944,8 +16028,8 @@ static double q_fprintf(const char varargin_1_data[], const int varargin_1_size
   if (filestar == b_NULL) {
   } else {
     nbytesint = varargin_1_size[1];
-    for (i6 = 0; i6 < nbytesint; i6++) {
-      varargout_1_data[i6] = varargin_1_data[i6];
+    for (i8 = 0; i8 < nbytesint; i8++) {
+      varargout_1_data[i8] = varargin_1_data[i8];
     }
 
     varargout_1_data[varargin_1_size[1]] = '\x00';
@@ -16056,41 +16140,6 @@ static void quatmultJ(const double q[4], const double p[4], double qp[4])
   for (i9 = 0; i9 < 4; i9++) {
     qp[i9] /= B;
   }
-}
-
-//
-// Arguments    : const char varargin_1_data[]
-//                const int varargin_1_size[2]
-// Return Type  : double
-//
-static double r_fprintf(const char varargin_1_data[], const int varargin_1_size
-  [2])
-{
-  int nbytesint;
-  FILE * b_NULL;
-  boolean_T autoflush;
-  FILE * filestar;
-  int i7;
-  char varargout_1_data[6];
-  static const char cfmt[18] = { '\x09', 'f', 'u', 'l', 'l', '_', 's', 't', 'e',
-    'r', 'e', 'o', ':', ' ', '%', 's', '\x0a', '\x00' };
-
-  nbytesint = 0;
-  b_NULL = NULL;
-  fileManager(&filestar, &autoflush);
-  if (filestar == b_NULL) {
-  } else {
-    nbytesint = varargin_1_size[1];
-    for (i7 = 0; i7 < nbytesint; i7++) {
-      varargout_1_data[i7] = varargin_1_data[i7];
-    }
-
-    varargout_1_data[varargin_1_size[1]] = '\x00';
-    nbytesint = fprintf(filestar, cfmt, &varargout_1_data[0]);
-    fflush(filestar);
-  }
-
-  return nbytesint;
 }
 
 //
@@ -16295,41 +16344,6 @@ static double rt_roundd_snf(double u)
   }
 
   return y;
-}
-
-//
-// Arguments    : const char varargin_1_data[]
-//                const int varargin_1_size[2]
-// Return Type  : double
-//
-static double s_fprintf(const char varargin_1_data[], const int varargin_1_size
-  [2])
-{
-  int nbytesint;
-  FILE * b_NULL;
-  boolean_T autoflush;
-  FILE * filestar;
-  int i8;
-  char varargout_1_data[6];
-  static const char cfmt[13] = { '\x09', 'R', 'A', 'N', 'S', 'A', 'C', ':', ' ',
-    '%', 's', '\x0a', '\x00' };
-
-  nbytesint = 0;
-  b_NULL = NULL;
-  fileManager(&filestar, &autoflush);
-  if (filestar == b_NULL) {
-  } else {
-    nbytesint = varargin_1_size[1];
-    for (i8 = 0; i8 < nbytesint; i8++) {
-      varargout_1_data[i8] = varargin_1_data[i8];
-    }
-
-    varargout_1_data[varargin_1_size[1]] = '\x00';
-    nbytesint = fprintf(filestar, cfmt, &varargout_1_data[0]);
-    fflush(filestar);
-  }
-
-  return nbytesint;
 }
 
 //
@@ -17416,7 +17430,7 @@ static void xgeqp3(emxArray_real_T *A, emxArray_real_T *tau, emxArray_int32_T
   int b_m;
   int n;
   int mn;
-  int i59;
+  int i58;
   emxArray_real_T *work;
   int itemp;
   emxArray_real_T *vn1;
@@ -17446,30 +17460,30 @@ static void xgeqp3(emxArray_real_T *A, emxArray_real_T *tau, emxArray_int32_T
     mn = A->size[1];
   }
 
-  i59 = tau->size[0];
+  i58 = tau->size[0];
   tau->size[0] = mn;
-  emxEnsureCapacity((emxArray__common *)tau, i59, (int)sizeof(double));
+  emxEnsureCapacity((emxArray__common *)tau, i58, (int)sizeof(double));
   eml_signed_integer_colon(A->size[1], jpvt);
   if ((A->size[0] == 0) || (A->size[1] == 0)) {
   } else {
     emxInit_real_T(&work, 1);
     itemp = A->size[1];
-    i59 = work->size[0];
+    i58 = work->size[0];
     work->size[0] = itemp;
-    emxEnsureCapacity((emxArray__common *)work, i59, (int)sizeof(double));
-    for (i59 = 0; i59 < itemp; i59++) {
-      work->data[i59] = 0.0;
+    emxEnsureCapacity((emxArray__common *)work, i58, (int)sizeof(double));
+    for (i58 = 0; i58 < itemp; i58++) {
+      work->data[i58] = 0.0;
     }
 
     emxInit_real_T(&vn1, 1);
     emxInit_real_T(&vn2, 1);
     itemp = A->size[1];
-    i59 = vn1->size[0];
+    i58 = vn1->size[0];
     vn1->size[0] = itemp;
-    emxEnsureCapacity((emxArray__common *)vn1, i59, (int)sizeof(double));
-    i59 = vn2->size[0];
+    emxEnsureCapacity((emxArray__common *)vn1, i58, (int)sizeof(double));
+    i58 = vn2->size[0];
     vn2->size[0] = vn1->size[0];
-    emxEnsureCapacity((emxArray__common *)vn2, i59, (int)sizeof(double));
+    emxEnsureCapacity((emxArray__common *)vn2, i58, (int)sizeof(double));
     k = 1;
     for (nmi = 0; nmi + 1 <= n; nmi++) {
       vn1->data[nmi] = b_xnrm2(b_m, A, k);
@@ -17614,9 +17628,9 @@ static void xgeqp3(emxArray_real_T *A, emxArray_real_T *tau, emxArray_int32_T
             }
 
             iy = 0;
-            i59 = i_ip1 + b_m * (lastc - 1);
+            i58 = i_ip1 + b_m * (lastc - 1);
             itemp = i_ip1;
-            while ((b_m > 0) && (itemp <= i59)) {
+            while ((b_m > 0) && (itemp <= i58)) {
               ix = i_i;
               smax = 0.0;
               pvt = itemp + lastv;
@@ -17638,8 +17652,8 @@ static void xgeqp3(emxArray_real_T *A, emxArray_real_T *tau, emxArray_int32_T
               if (work->data[itemp] != 0.0) {
                 smax = work->data[itemp] * -tau->data[i];
                 ix = i_i;
-                i59 = lastv + i_ip1;
-                for (pvt = i_ip1; pvt <= i59; pvt++) {
+                i58 = lastv + i_ip1;
+                for (pvt = i_ip1; pvt <= i58; pvt++) {
                   A->data[pvt - 1] += A->data[ix] * smax;
                   ix++;
                 }
@@ -17724,7 +17738,7 @@ static void xgetrf(int b_m, int n, emxArray_real_T *A, int lda, emxArray_int32_T
 {
   int c_m;
   int b_info;
-  int i57;
+  int i56;
   int j;
   int mmj;
   int c;
@@ -17733,7 +17747,7 @@ static void xgetrf(int b_m, int n, emxArray_real_T *A, int lda, emxArray_int32_T
   double smax;
   int jA;
   double s;
-  int i58;
+  int i57;
   int jy;
   int b_j;
   int ijA;
@@ -17748,12 +17762,12 @@ static void xgetrf(int b_m, int n, emxArray_real_T *A, int lda, emxArray_int32_T
   if ((b_m < 1) || (n < 1)) {
   } else {
     if (b_m - 1 <= n) {
-      i57 = b_m - 1;
+      i56 = b_m - 1;
     } else {
-      i57 = n;
+      i56 = n;
     }
 
-    for (j = 0; j + 1 <= i57; j++) {
+    for (j = 0; j + 1 <= i56; j++) {
       mmj = b_m - j;
       c = j * (lda + 1);
       if (mmj < 1) {
@@ -17788,8 +17802,8 @@ static void xgetrf(int b_m, int n, emxArray_real_T *A, int lda, emxArray_int32_T
           }
         }
 
-        i58 = c + mmj;
-        for (iy = c + 1; iy + 1 <= i58; iy++) {
+        i57 = c + mmj;
+        for (iy = c + 1; iy + 1 <= i57; iy++) {
           A->data[iy] /= A->data[c];
         }
       } else {
@@ -17803,8 +17817,8 @@ static void xgetrf(int b_m, int n, emxArray_real_T *A, int lda, emxArray_int32_T
         smax = A->data[jy];
         if (A->data[jy] != 0.0) {
           ix = c + 1;
-          i58 = mmj + jA;
-          for (ijA = 1 + jA; ijA + 1 <= i58; ijA++) {
+          i57 = mmj + jA;
+          for (ijA = 1 + jA; ijA + 1 <= i57; ijA++) {
             A->data[ijA] += A->data[ix] * -smax;
             ix++;
           }
@@ -17911,24 +17925,23 @@ static void xrotg(double *a, double *b, double *c, double *s)
 //
 static void xscal(int n, double a, emxArray_real_T *x, int ix0)
 {
-  int i60;
+  int i59;
   int k;
-  i60 = (ix0 + n) - 1;
-  for (k = ix0; k <= i60; k++) {
+  i59 = (ix0 + n) - 1;
+  for (k = ix0; k <= i59; k++) {
     x->data[k - 1] *= a;
   }
 }
 
 //
 // input
-//  NOTE: Comment this out for MEXing
-//  coder.cstructname(measurements, 'VIOMeasurements', 'extern', 'HeaderFile', '../InterfaceStructs.h');
-//  coder.cstructname(noiseParameters, 'NoiseParameters', 'extern', 'HeaderFile', '../InterfaceStructs.h');
-//  coder.cstructname(noiseParameters.process_noise, 'ProcessNoise', 'extern', 'HeaderFile', '../InterfaceStructs.h');
-//  coder.cstructname(cameraParameters, 'DUOParameters', 'extern', 'HeaderFile', '../InterfaceStructs.h');
-//  coder.cstructname(cameraParameters.CameraParameters1, 'CameraParameters', 'extern', 'HeaderFile', '../InterfaceStructs.h');
-//  coder.cstructname(cameraParameters.CameraParameters2, 'CameraParameters', 'extern', 'HeaderFile', '../InterfaceStructs.h');
-//  coder.cstructname(VIOParameters, 'VIOParameters', 'extern', 'HeaderFile', '../InterfaceStructs.h');
+//  coder.cstructname(measurements, 'VIOMeasurements');
+//  coder.cstructname(noiseParameters, 'NoiseParameters');
+//  coder.cstructname(noiseParameters.process_noise, 'ProcessNoise');
+//  coder.cstructname(cameraParameters, 'DUOParameters');
+//  coder.cstructname(cameraParameters.CameraParameters1, 'CameraParameters');
+//  coder.cstructname(cameraParameters.CameraParameters2, 'CameraParameters');
+//  coder.cstructname(VIOParameters, 'VIOParameters');
 // Arguments    : int updateVect[48]
 //                const double z_all_l[96]
 //                const double z_all_r[96]
@@ -18030,34 +18043,34 @@ void SLAM(int updateVect[48], const double z_all_l[96], const double z_all_r[96]
   double t0_att[4];
   struct_T rv1[6];
 
-  // 'SLAM:12' coder.cstructname(measurements, 'VIOMeasurements');
-  // 'SLAM:13' coder.cstructname(noiseParameters, 'NoiseParameters');
-  // 'SLAM:14' coder.cstructname(noiseParameters.process_noise, 'ProcessNoise'); 
-  // 'SLAM:15' coder.cstructname(cameraParameters, 'DUOParameters');
-  // 'SLAM:16' coder.cstructname(cameraParameters.CameraParameters1, 'CameraParameters'); 
-  // 'SLAM:17' coder.cstructname(cameraParameters.CameraParameters2, 'CameraParameters'); 
-  // 'SLAM:18' coder.cstructname(VIOParameters, 'VIOParameters');
-  // 'SLAM:20' assert ( all ( size (updateVect) == [numTrackFeatures 1] ) );
-  // 'SLAM:20' assert(isa(updateVect,'int32'));
-  // 'SLAM:21' assert ( all ( size (z_all_l) == [numTrackFeatures*2 1] ) )
-  // 'SLAM:22' assert ( all ( size (z_all_r) == [numTrackFeatures*2 1] ) )
-  // 'SLAM:23' assert ( all ( size (dt) == [1] ) )
-  // 'SLAM:24' assert(isa(vision,'logical'));
-  // 'SLAM:25' assert(isa(reset,'logical'));
-  // 'SLAM:29' if isempty(initialized) || reset
+  // 'SLAM:11' coder.cstructname(measurements, 'VIOMeasurements', 'extern', 'HeaderFile', '../parseYaml.h'); 
+  // 'SLAM:12' coder.cstructname(noiseParameters, 'NoiseParameters', 'extern', 'HeaderFile', '../parseYaml.h'); 
+  // 'SLAM:13' coder.cstructname(noiseParameters.process_noise, 'ProcessNoise', 'extern', 'HeaderFile', '../parseYaml.h'); 
+  // 'SLAM:14' coder.cstructname(cameraParameters, 'DUOParameters', 'extern', 'HeaderFile', '../parseYaml.h'); 
+  // 'SLAM:15' coder.cstructname(cameraParameters.CameraParameters1, 'CameraParameters', 'extern', 'HeaderFile', '../parseYaml.h'); 
+  // 'SLAM:16' coder.cstructname(cameraParameters.CameraParameters2, 'CameraParameters', 'extern', 'HeaderFile', '../parseYaml.h'); 
+  // 'SLAM:17' coder.cstructname(VIOParameters, 'VIOParameters', 'extern', 'HeaderFile', '../parseYaml.h'); 
+  // 'SLAM:19' assert ( all ( size (updateVect) == [numTrackFeatures 1] ) );
+  // 'SLAM:19' assert(isa(updateVect,'int32'));
+  // 'SLAM:20' assert ( all ( size (z_all_l) == [numTrackFeatures*2 1] ) )
+  // 'SLAM:21' assert ( all ( size (z_all_r) == [numTrackFeatures*2 1] ) )
+  // 'SLAM:22' assert ( all ( size (dt) == [1] ) )
+  // 'SLAM:23' assert(isa(vision,'logical'));
+  // 'SLAM:24' assert(isa(reset,'logical'));
+  // 'SLAM:28' if isempty(initialized) || reset
   if ((!initialized_not_empty) || reset) {
-    // 'SLAM:30' updateVect(:) = 0;
+    // 'SLAM:29' updateVect(:) = 0;
     for (i = 0; i < 48; i++) {
       updateVect[i] = 0;
     }
 
-    // 'SLAM:32' xt.robot_state.IMU.pos = cameraParameters.t_ci;
-    // 'SLAM:33' xt.robot_state.IMU.att = QuatFromRotJ(cameraParameters.R_ci);
+    // 'SLAM:31' xt.robot_state.IMU.pos = cameraParameters.t_ci;
+    // 'SLAM:32' xt.robot_state.IMU.att = QuatFromRotJ(cameraParameters.R_ci);
     QuatFromRotJ(cameraParameters->R_ci, xt.robot_state.IMU.att);
 
-    // 'SLAM:35' xt.robot_state.IMU.gyro_bias = cameraParameters.gyro_bias;
-    // 'SLAM:36' xt.robot_state.IMU.acc_bias = cameraParameters.acc_bias;
-    // 'SLAM:38' xt.robot_state.pos = [0; 0; 0];
+    // 'SLAM:34' xt.robot_state.IMU.gyro_bias = cameraParameters.gyro_bias;
+    // 'SLAM:35' xt.robot_state.IMU.acc_bias = cameraParameters.acc_bias;
+    // 'SLAM:37' xt.robot_state.pos = [0; 0; 0];
     for (i = 0; i < 3; i++) {
       xt.robot_state.IMU.pos[i] = cameraParameters->t_ci[i];
       xt.robot_state.IMU.gyro_bias[i] = cameraParameters->gyro_bias[i];
@@ -18066,102 +18079,102 @@ void SLAM(int updateVect[48], const double z_all_l[96], const double z_all_r[96]
     }
 
     //  position relative to the origin frame
-    // 'SLAM:39' xt.robot_state.att = [0; 0; 0; 1];
+    // 'SLAM:38' xt.robot_state.att = [0; 0; 0; 1];
     for (i = 0; i < 4; i++) {
       xt.robot_state.att[i] = iv1[i];
     }
 
     //  orientation relative to the origin frame
-    // 'SLAM:40' xt.robot_state.vel = [0; 0; 0];
+    // 'SLAM:39' xt.robot_state.vel = [0; 0; 0];
     //  velocity in the origin frame
-    // 'SLAM:41' xt.fixed_feature = int32(0);
+    // 'SLAM:40' xt.fixed_feature = int32(0);
     xt.fixed_feature = 0;
 
-    // 'SLAM:42' xt.origin.anchor_idx = int32(0);
+    // 'SLAM:41' xt.origin.anchor_idx = int32(0);
     xt.origin.anchor_idx = 0;
 
     //  idx of the anchor that is at the origin
-    // 'SLAM:43' xt.origin.pos = [0; 0; 0];
+    // 'SLAM:42' xt.origin.pos = [0; 0; 0];
     for (i = 0; i < 3; i++) {
       xt.robot_state.vel[i] = 0.0;
       xt.origin.pos[i] = 0.0;
     }
 
     //  position of the origin in the world frame
-    // 'SLAM:44' xt.origin.att = [0; 0; 0; 1];
+    // 'SLAM:43' xt.origin.att = [0; 0; 0; 1];
     for (i = 0; i < 4; i++) {
       xt.origin.att[i] = iv1[i];
     }
 
     //  orientation of the origin in the world frame
-    // 'SLAM:46' P = zeros(numStates + numAnchors*(6+numPointsPerAnchor));
+    // 'SLAM:45' P = zeros(numStates + numAnchors*(6+numPointsPerAnchor));
     memset(&P[0], 0, 10404U * sizeof(double));
 
     //  initial error state covariance
-    // 'SLAM:48' anchor_state.pos = [0; 0; 0];
-    // 'SLAM:49' anchor_state.att = [0; 0; 0; 1];
-    // 'SLAM:50' anchor_state.P_idx = int32(zeros(1, 6));
-    // 'SLAM:52' feature_state.inverse_depth = 0;
-    // 'SLAM:53' feature_state.m = zeros(3,1);
-    // 'SLAM:54' feature_state.scaled_map_point = zeros(3,1);
-    // 'SLAM:55' feature_state.status = int32(0);
-    // 'SLAM:56' feature_state.status_idx = int32(0);
-    // 'SLAM:57' feature_state.P_idx = int32(0);
-    // 'SLAM:59' anchor_state.feature_states = repmat(feature_state, numPointsPerAnchor,1); 
-    // 'SLAM:61' xt.anchor_states = repmat(anchor_state, numAnchors, 1);
-    // 'SLAM:63' for anchorIdx = 1:numAnchors
+    // 'SLAM:47' anchor_state.pos = [0; 0; 0];
+    // 'SLAM:48' anchor_state.att = [0; 0; 0; 1];
+    // 'SLAM:49' anchor_state.P_idx = int32(zeros(1, 6));
+    // 'SLAM:51' feature_state.inverse_depth = 0;
+    // 'SLAM:52' feature_state.m = zeros(3,1);
+    // 'SLAM:53' feature_state.scaled_map_point = zeros(3,1);
+    // 'SLAM:54' feature_state.status = int32(0);
+    // 'SLAM:55' feature_state.status_idx = int32(0);
+    // 'SLAM:56' feature_state.P_idx = int32(0);
+    // 'SLAM:58' anchor_state.feature_states = repmat(feature_state, numPointsPerAnchor,1); 
+    // 'SLAM:60' xt.anchor_states = repmat(anchor_state, numAnchors, 1);
+    // 'SLAM:62' for anchorIdx = 1:numAnchors
     memcpy(&xt.anchor_states[0], &rv0[0], 6U * sizeof(f_struct_T));
     for (anchorIdx = 0; anchorIdx < 6; anchorIdx++) {
-      // 'SLAM:64' xt.anchor_states(anchorIdx).P_idx = numStates + (anchorIdx-1)*numStatesPerAnchor + int32(1:6); 
+      // 'SLAM:63' xt.anchor_states(anchorIdx).P_idx = numStates + (anchorIdx-1)*numStatesPerAnchor + int32(1:6); 
       i42 = anchorIdx * 14;
       for (i43 = 0; i43 < 6; i43++) {
         xt.anchor_states[anchorIdx].P_idx[i43] = (i43 + i42) + 19;
       }
     }
 
-    // 'SLAM:67' if vision
+    // 'SLAM:66' if vision
     if (vision) {
-      // 'SLAM:68' map = zeros(numTrackFeatures*3, 1);
+      // 'SLAM:67' map = zeros(numTrackFeatures*3, 1);
       memset(&map[0], 0, 144U * sizeof(double));
 
-      // 'SLAM:69' delayedStatus = zeros(numTrackFeatures, 1);
+      // 'SLAM:68' delayedStatus = zeros(numTrackFeatures, 1);
       memset(&delayedStatus[0], 0, 48U * sizeof(double));
     } else {
-      // 'SLAM:70' else
-      // 'SLAM:71' z_b = measurements.acc_duo - xt.robot_state.IMU.acc_bias;
+      // 'SLAM:69' else
+      // 'SLAM:70' z_b = measurements.acc_duo - xt.robot_state.IMU.acc_bias;
       for (i = 0; i < 3; i++) {
         z_b[i] = measurements->acc_duo[i] - xt.robot_state.IMU.acc_bias[i];
       }
 
-      // 'SLAM:72' z_n_b = z_b/norm(z_b);
+      // 'SLAM:71' z_n_b = z_b/norm(z_b);
       B = norm(z_b);
       for (i42 = 0; i42 < 3; i42++) {
         z_b[i42] /= B;
       }
 
-      // 'SLAM:73' m_n_b = [0;0;1];
-      // 'SLAM:74' y_n_b = cross(z_n_b,m_n_b);
+      // 'SLAM:72' m_n_b = [0;0;1];
+      // 'SLAM:73' y_n_b = cross(z_n_b,m_n_b);
       cross(z_b, dv6, y_n_b);
 
-      // 'SLAM:75' y_n_b = y_n_b./norm(y_n_b);
+      // 'SLAM:74' y_n_b = y_n_b./norm(y_n_b);
       for (i = 0; i < 3; i++) {
         b_y_n_b[i] = y_n_b[i];
       }
 
       rdivide(b_y_n_b, norm(y_n_b), y_n_b);
 
-      // 'SLAM:76' x_n_b = (cross(y_n_b,z_n_b));
+      // 'SLAM:75' x_n_b = (cross(y_n_b,z_n_b));
       cross(y_n_b, z_b, x_n_b);
 
-      // 'SLAM:77' x_n_b = x_n_b./norm(x_n_b);
+      // 'SLAM:76' x_n_b = x_n_b./norm(x_n_b);
       for (i = 0; i < 3; i++) {
         b_y_n_b[i] = x_n_b[i];
       }
 
       rdivide(b_y_n_b, norm(x_n_b), x_n_b);
 
-      // 'SLAM:79' R_iw_init = [x_n_b,y_n_b,z_n_b];
-      // 'SLAM:80' R_cw_init = RotFromQuatJ(xt.robot_state.IMU.att) * R_iw_init; 
+      // 'SLAM:78' R_iw_init = [x_n_b,y_n_b,z_n_b];
+      // 'SLAM:79' R_cw_init = RotFromQuatJ(xt.robot_state.IMU.att) * R_iw_init; 
       //  if ~all(size(q) == [4, 1])
       //      error('q does not have the size of a quaternion')
       //  end
@@ -18201,7 +18214,7 @@ void SLAM(int updateVect[48], const double z_all_l[96], const double z_all_r[96]
         b_x_n_b[6 + i42] = z_b[i42];
       }
 
-      // 'SLAM:82' xt.origin.att = QuatFromRotJ(R_cw_init);
+      // 'SLAM:81' xt.origin.att = QuatFromRotJ(R_cw_init);
       for (i42 = 0; i42 < 3; i42++) {
         for (i43 = 0; i43 < 3; i43++) {
           R_cw_init[i42 + 3 * i43] = 0.0;
@@ -18218,21 +18231,21 @@ void SLAM(int updateVect[48], const double z_all_l[96], const double z_all_r[96]
       QuatFromRotJ(R_cw_init, xt.origin.att);
 
       //  orientation of the origin in the world frame
-      // 'SLAM:84' P(  1:3,   1:3) = zeros(3);
+      // 'SLAM:83' P(  1:3,   1:3) = zeros(3);
       //  position
-      // 'SLAM:85' P(  4:6,   4:6) = zeros(3);
+      // 'SLAM:84' P(  4:6,   4:6) = zeros(3);
       //  orientation of camera in origin frame
-      // 'SLAM:86' P(  7:9,   7:9) = 1*eye(3);
+      // 'SLAM:85' P(  7:9,   7:9) = 1*eye(3);
       //  velocity
-      // 'SLAM:87' P(10:12, 10:12) = diag(noiseParameters.gyro_bias_initial_unc); 
+      // 'SLAM:86' P(10:12, 10:12) = diag(noiseParameters.gyro_bias_initial_unc); 
       diag(noiseParameters->gyro_bias_initial_unc, dv7);
 
       //  gyro bias
-      // 'SLAM:88' P(13:15, 13:15) = diag(noiseParameters.acc_bias_initial_unc); 
+      // 'SLAM:87' P(13:15, 13:15) = diag(noiseParameters.acc_bias_initial_unc); 
       diag(noiseParameters->acc_bias_initial_unc, b_x_n_b);
 
       //  acc bias
-      // 'SLAM:89' P(16:18, 16:18) = 0.1*R_cw_init * diag([1 1 0]) * R_cw_init'; 
+      // 'SLAM:88' P(16:18, 16:18) = 0.1*R_cw_init * diag([1 1 0]) * R_cw_init'; 
       for (i42 = 0; i42 < 3; i42++) {
         for (i43 = 0; i43 < 3; i43++) {
           P[(i43 + 102 * (9 + i42)) + 9] = dv7[i43 + 3 * i42];
@@ -18257,13 +18270,13 @@ void SLAM(int updateVect[48], const double z_all_l[96], const double z_all_r[96]
 
       //  origin orientation
       //          P(19:21, 19:21) = 0*0.01*eye(3); % R_ci
-      // 'SLAM:92' map = getMap(xt);
+      // 'SLAM:91' map = getMap(xt);
       getMap(xt.origin.pos, xt.origin.att, xt.anchor_states, map);
 
-      // 'SLAM:93' delayedStatus = zeros(size(updateVect));
+      // 'SLAM:92' delayedStatus = zeros(size(updateVect));
       memset(&delayedStatus[0], 0, 48U * sizeof(double));
 
-      // 'SLAM:95' printParams(noiseParameters, VIOParameters)
+      // 'SLAM:94' printParams(noiseParameters, VIOParameters)
       printParams(noiseParameters->process_noise.qv,
                   noiseParameters->process_noise.qw,
                   noiseParameters->process_noise.qao,
@@ -18273,22 +18286,20 @@ void SLAM(int updateVect[48], const double z_all_l[96], const double z_all_r[96]
                   noiseParameters->acc_bias_initial_unc,
                   noiseParameters->image_noise,
                   noiseParameters->inv_depth_initial_unc,
-                  b_VIOParameters->num_points_per_anchor,
-                  b_VIOParameters->num_anchors,
                   b_VIOParameters->max_ekf_iterations,
                   b_VIOParameters->fixed_feature,
                   b_VIOParameters->delayed_initialization, b_VIOParameters->mono,
                   b_VIOParameters->full_stereo, b_VIOParameters->RANSAC);
 
-      // 'SLAM:96' initialized = 1;
+      // 'SLAM:95' initialized = 1;
       initialized_not_empty = true;
     }
   } else {
-    // 'SLAM:99' else
-    // 'SLAM:101' if ~vision
+    // 'SLAM:98' else
+    // 'SLAM:100' if ~vision
     if (!vision) {
       //      [xt,P] =  SLAM_pred(P, xt, dt, noiseParameters.process_noise, measurements, numStates); 
-      // 'SLAM:103' [xt,P] =  SLAM_pred_euler(P, xt, dt, noiseParameters.process_noise, measurements); 
+      // 'SLAM:102' [xt,P] =  SLAM_pred_euler(P, xt, dt, noiseParameters.process_noise, measurements); 
       SLAM_pred_euler(P, &xt, dt, noiseParameters->process_noise.qv,
                       noiseParameters->process_noise.qw,
                       noiseParameters->process_noise.qao,
@@ -18296,8 +18307,8 @@ void SLAM(int updateVect[48], const double z_all_l[96], const double z_all_r[96]
                       noiseParameters->process_noise.qR_ci,
                       measurements->acc_duo, measurements->gyr_duo);
     } else {
-      // 'SLAM:104' else
-      // 'SLAM:105' [xt, P, updateVect, map, delayedStatus] = SLAM_upd(P, xt, cameraParameters, updateVect, z_all_l, z_all_r, noiseParameters, VIOParameters); 
+      // 'SLAM:103' else
+      // 'SLAM:104' [xt, P, updateVect, map, delayedStatus] = SLAM_upd(P, xt, cameraParameters, updateVect, z_all_l, z_all_r, noiseParameters, VIOParameters); 
       memcpy(&b_z_all_l[0], &z_all_l[0], 96U * sizeof(double));
       memcpy(&b_z_all_r[0], &z_all_r[0], 96U * sizeof(double));
       SLAM_upd(P, &xt, cameraParameters->CameraParameters1.ATAN,
@@ -18318,10 +18329,10 @@ void SLAM(int updateVect[48], const double z_all_l[96], const double z_all_r[96]
     }
   }
 
-  // 'SLAM:108' map_out = map;
+  // 'SLAM:107' map_out = map;
   memcpy(&map_out[0], &map[0], 144U * sizeof(double));
 
-  // 'SLAM:109' xt_out = getWorldState(xt);
+  // 'SLAM:108' xt_out = getWorldState(xt);
   getWorldState(xt.robot_state.IMU.pos, xt.robot_state.IMU.att,
                 xt.robot_state.IMU.gyro_bias, xt.robot_state.IMU.acc_bias,
                 xt.robot_state.pos, xt.robot_state.att, xt.robot_state.vel,
@@ -18346,25 +18357,24 @@ void SLAM(int updateVect[48], const double z_all_l[96], const double z_all_r[96]
     xt_out->IMU.att[i] = t0_IMU_att[i];
   }
 
-  // 'SLAM:110' anchor_poses_out = getAnchorPoses(xt);
+  // 'SLAM:109' anchor_poses_out = getAnchorPoses(xt);
   getAnchorPoses(xt.origin.pos, xt.origin.att, xt.anchor_states, rv1);
   cast(rv1, anchor_poses_out);
 
-  // 'SLAM:111' delayedStatus_out = delayedStatus;
+  // 'SLAM:110' delayedStatus_out = delayedStatus;
   memcpy(&delayedStatus_out[0], &delayedStatus[0], 48U * sizeof(double));
 
   //  output
-  //  NOTE: Comment this out for MEXing
-  //  coder.cstructname(xt_out, 'RobotState', 'extern', 'HeaderFile', '../InterfaceStructs.h'); 
-  //  coder.cstructname(xt_out.IMU, 'IMUState', 'extern', 'HeaderFile', '../InterfaceStructs.h'); 
-  //  coder.cstructname(anchor_poses_out(1), 'AnchorPose', 'extern', 'HeaderFile', '../InterfaceStructs.h'); 
-  // 'SLAM:118' coder.cstructname(xt_out, 'RobotState');
-  // 'SLAM:119' coder.cstructname(xt_out.IMU, 'IMUState');
-  // 'SLAM:120' coder.cstructname(anchor_poses_out(1), 'AnchorPose');
-  // 'SLAM:122' assert ( all ( size (map_out) == [numTrackFeatures*3 1] ) )
-  // 'SLAM:123' assert ( all ( size (anchor_poses_out) == [numAnchors 1] ) )
-  // 'SLAM:124' assert ( all ( size (updateVect) == [numTrackFeatures 1] ) )
-  // 'SLAM:125' assert ( all ( size (delayedStatus_out) == [numTrackFeatures 1] ) ) 
+  //  coder.cstructname(xt_out, 'RobotState');
+  //  coder.cstructname(xt_out.IMU, 'IMUState');
+  //  coder.cstructname(anchor_poses_out(1), 'AnchorPose');
+  // 'SLAM:117' coder.cstructname(xt_out, 'RobotState', 'extern', 'HeaderFile', '../parseYaml.h'); 
+  // 'SLAM:118' coder.cstructname(xt_out.IMU, 'IMUState', 'extern', 'HeaderFile', '../parseYaml.h'); 
+  // 'SLAM:119' coder.cstructname(anchor_poses_out(1), 'AnchorPose', 'extern', 'HeaderFile', '../parseYaml.h'); 
+  // 'SLAM:121' assert ( all ( size (map_out) == [numTrackFeatures*3 1] ) )
+  // 'SLAM:122' assert ( all ( size (anchor_poses_out) == [numAnchors 1] ) )
+  // 'SLAM:123' assert ( all ( size (updateVect) == [numTrackFeatures 1] ) )
+  // 'SLAM:124' assert ( all ( size (delayedStatus_out) == [numTrackFeatures 1] ) ) 
 }
 
 //
