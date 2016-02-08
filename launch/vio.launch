@@ -6,13 +6,12 @@
   <arg name="FPS_duo" default="100" />
   <arg name="resolution_width_duo" default="320" />
   <arg name="resolution_height_duo" default="240" />
-  <arg name="camera_name" default="101" /> <!-- the camera name is equal to the last 3 digits of the odroid's IP -->
   <arg name="lense_type" default="FS3028B13M8" />
   <arg name="vision_subsample" default="2" />
 
   <!-- noise parameters -->
   <arg name="image_noise" default="1" />
-  <arg name="acc_noise" default="10" />
+  <arg name="acc_noise" default="100" />
   <arg name="gyro_noise" default="0.1" />
   <arg name="gyro_bias_noise" default="0.00000" />
   <arg name="acc_bias_noise" default="0.000" />
@@ -61,9 +60,6 @@
     <param name="vio_mono" type="bool" value="$(arg mono)" />
     <param name="vio_RANSAC" type="bool" value="$(arg RANSAC)" />
     <param name="vio_full_stereo" type="bool" value="$(arg full_stereo)" />
-    <!-- note that these parameters are not free. The total number of points num_anchors*num_points_per_anchor must equal the total number of points with wich SLAM was codered in Matlab. -->
-    <param name="vio_num_points_per_anchor" type="int" value="8" />
-    <param name="vio_num_anchors" type="int" value="6" />
 
     <!-- controller gains -->
     <param name="ctrl_Kp_xy" type="double" value="$(arg Kp_xy)" />
@@ -78,7 +74,6 @@
 
     <!-- camera settings -->
     <param name="cam_FPS_duo" type="double" value="$(arg FPS_duo)" />
-    <param name="cam_camera_name" type="string" value="$(arg camera_name)" />
     <param name="cam_lense_type" type="string" value="$(arg lense_type)" />
     <param name="cam_resolution_width" type="int" value="$(arg resolution_width_duo)" />
     <param name="cam_resolution_height" type="int" value="$(arg resolution_height_duo)" />

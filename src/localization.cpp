@@ -97,10 +97,6 @@ Localization::Localization()
 		ROS_WARN("Failed to load parameter noise_acc_bias_initial_unc");
 	}
 
-	if(!nh_.getParam("vio_num_points_per_anchor", vioParams.num_points_per_anchor))
-		ROS_WARN("Failed to load parameter vio_num_points_per_anchor");
-	if(!nh_.getParam ("vio_num_anchors", vioParams.num_anchors))
-		ROS_WARN("Failed to load parameter vio_num_anchors");
 	if(!nh_.getParam("vio_max_ekf_iterations", vioParams.max_ekf_iterations))
 		ROS_WARN("Failed to load parameter vio_max_ekf_iterations");
 
@@ -165,12 +161,12 @@ Localization::Localization()
 	dynamic_reconfigure::Server<vio_ros::vio_rosConfig>::CallbackType f = boost::bind(&Localization::dynamicReconfigureCb, this, _1, _2);
 	dynamic_reconfigure_server.setCallback(f);
 
-	num_points_ = vioParams.num_anchors*vioParams.num_points_per_anchor;
+	num_points_ = matlab_consts::numTrackFeatures;
 
 	update_vec_.assign(num_points_, 0);
 	h_u_apo.resize(num_points_*4);
 	map.resize(num_points_*3);
-	anchor_poses.resize(vioParams.num_anchors);
+	anchor_poses.resize(matlab_consts::numAnchors);
 
 	// publishers to check timings
 	timing_SLAM_pub = nh_.advertise<std_msgs::Float32>("timing_SLAM",10);
@@ -502,7 +498,7 @@ void Localization::updateVis(RobotState &robot_state,
 	msg.robot_pose.orientation.z = robot_state.att[2];
 	msg.robot_pose.orientation.w = robot_state.att[3];
 
-	for (int i = 0; i < vioParams.num_anchors; i++)
+	for (int i = 0; i < matlab_consts::numAnchors; i++)
 	{
 		geometry_msgs::Pose pose;
 		pose.position.x =  anchor_poses[i].pos[0];
