@@ -14,6 +14,130 @@
 #include "Precision.h"
 #include "SLAM_includes.h"
 
+// VIOParameters
+// =========================================================
+struct VIOParameters
+{
+	int num_points_per_anchor;
+	int num_anchors;
+	int max_ekf_iterations;
+	bool fixed_feature;
+	bool delayed_initialization;
+	bool mono;
+	bool RANSAC;
+	bool full_stereo;
+};
+
+// ControllerGains
+// =========================================================
+struct ControllerGains
+{
+	FloatType Kp_xy;
+	FloatType Ki_xy;
+	FloatType Kd_xy;
+	FloatType Kp_z;
+	FloatType Ki_z;
+	FloatType Kd_z;
+	FloatType Kp_yaw;
+	FloatType Kd_yaw;
+	FloatType i_lim;
+};
+
+// ProcessNoise
+// =========================================================
+struct ProcessNoise
+{
+	FloatType qv;
+	FloatType qw;
+	FloatType qao;
+	FloatType qwo;
+	FloatType qR_ci;
+};
+
+// NoiseParamters
+// =========================================================
+struct NoiseParameters
+{
+	ProcessNoise process_noise;
+	FloatType image_noise;
+	FloatType inv_depth_initial_unc;
+	FloatType gyro_bias_initial_unc[3];
+	FloatType acc_bias_initial_unc[3];
+};
+
+// VIOMeasurements
+// =========================================================
+struct VIOMeasurements
+{
+	FloatType gyr_duo[3];
+	FloatType acc_duo[3];
+};
+
+// IMUOffset
+// =========================================================
+struct IMUState
+{
+	FloatType pos[3];
+	FloatType att[4];
+	FloatType gyro_bias[3];
+	FloatType acc_bias[3];
+};
+
+// RobotState
+// =========================================================
+struct RobotState
+{
+	FloatType pos[3];
+	FloatType att[4];
+	FloatType vel[3];
+	IMUState IMU;
+};
+
+// AnchorPose
+// =========================================================
+struct AnchorPose
+{
+	FloatType pos[3];
+	FloatType att[4];
+};
+
+// ReferenceCommand
+// =========================================================
+struct ReferenceCommand
+{
+	FloatType position[4]; // x, y, z, yaw
+	FloatType velocity[4];
+};
+
+// cameraParameters
+// =========================================================
+struct CameraParameters // parameters of one camera
+{
+	FloatType RadialDistortion[3];
+	FloatType TangentialDistortion[2];
+	FloatType FocalLength[2];
+	FloatType PrincipalPoint[2];
+	enum {PLUMB_BOB = 0, ATAN = 1};
+	int DistortionModel;
+};
+
+struct DUOParameters // parameters of both cameras plus stereo calibration
+{
+	CameraParameters CameraParameters1;
+	CameraParameters CameraParameters2;
+
+	FloatType r_lr[3];
+	FloatType R_lr[9];
+	FloatType R_rl[9];
+	FloatType R_ci[9];
+	FloatType t_ci[3];
+	FloatType gyro_bias[3];
+	FloatType acc_bias[3];
+	FloatType time_shift;
+
+};
+
+
 inline DUOParameters parseYaml(const YAML::Node& node)
 {
 	DUOParameters v;
