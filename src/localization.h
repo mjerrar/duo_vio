@@ -25,10 +25,6 @@
 
 #include "SLAM.h"
 #include "SLAM_includes.h"
-#include "InterfaceStructs.h"
-
-//#include "onboard_localization/ControllerOut.h"
-
 #include <dynamic_reconfigure/server.h>
 #include <vio_ros/vio_rosConfig.h>
 
@@ -48,7 +44,7 @@
 #include "std_msgs/Float32MultiArray.h"
 #include "std_msgs/UInt32.h"
 
-//#include "onboard_localization/PositionReference.h"
+#include "parseYaml.h"
 
 #include "Precision.h"
 
@@ -74,7 +70,6 @@ private:
 
 	DUOParameters cameraParams;
 	NoiseParameters noiseParams;
-	ControllerGains controllerGains;
 	VIOParameters vioParams;
 	ros::NodeHandle nh_;
 

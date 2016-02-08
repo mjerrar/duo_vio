@@ -5,150 +5,14 @@
  *      Author: nicolas
  */
 
-#ifndef VIO_ROS_SRC_INTERFACESTRUCTS_H_
-#define VIO_ROS_SRC_INTERFACESTRUCTS_H_
+#ifndef VIO_ROS_SRC_PARSEYAML_H_
+#define VIO_ROS_SRC_PARSEYAML_H_
 
 #include <yaml-cpp/yaml.h>
 #include <string>
 #include <ros/console.h>
 #include "Precision.h"
-
-
-// VIOParameters
-// =========================================================
-struct VIOParameters
-{
-	int num_points_per_anchor;
-	int num_anchors;
-	int max_ekf_iterations;
-	bool fixed_feature;
-	bool delayed_initialization;
-	bool mono;
-	bool RANSAC;
-	bool full_stereo;
-};
-
-// ControllerGains
-// =========================================================
-struct ControllerGains
-{
-	FloatType Kp_xy;
-	FloatType Ki_xy;
-	FloatType Kd_xy;
-	FloatType Kp_z;
-	FloatType Ki_z;
-	FloatType Kd_z;
-	FloatType Kp_yaw;
-	FloatType Kd_yaw;
-	FloatType i_lim;
-};
-
-// ProcessNoise
-// =========================================================
-struct ProcessNoise
-{
-	FloatType qv;
-	FloatType qw;
-	FloatType qao;
-	FloatType qwo;
-	FloatType qR_ci;
-};
-
-// NoiseParamters
-// =========================================================
-struct NoiseParameters
-{
-	ProcessNoise process_noise;
-	FloatType image_noise;
-	FloatType inv_depth_initial_unc;
-	FloatType gyro_bias_initial_unc[3];
-	FloatType acc_bias_initial_unc[3];
-};
-
-// VIOMeasurements
-// =========================================================
-struct VIOMeasurements
-{
-	FloatType gyr_duo[3];
-	FloatType acc_duo[3];
-};
-
-// IMUOffset
-// =========================================================
-struct IMUState
-{
-	FloatType pos[3];
-	FloatType att[4];
-	FloatType gyro_bias[3];
-	FloatType acc_bias[3];
-};
-
-// RobotState
-// =========================================================
-struct RobotState
-{
-	FloatType pos[3];
-	FloatType att[4];
-	FloatType vel[3];
-	IMUState IMU;
-};
-
-// AnchorPose
-// =========================================================
-struct AnchorPose
-{
-	FloatType pos[3];
-	FloatType att[4];
-};
-
-// ReferenceCommand
-// =========================================================
-struct ReferenceCommand
-{
-	FloatType position[4]; // x, y, z, yaw
-	FloatType velocity[4];
-};
-
-// Kalibr_params
-// =========================================================
-struct Kalibr_params // parameters used in Kalibr
-{
-	FloatType update_rate;
-	FloatType accelerometer_noise_density;
-	FloatType accelerometer_random_walk;
-	FloatType gyroscope_noise_density;
-	FloatType gyroscope_random_walk;
-};
-
-// cameraParameters
-// =========================================================
-struct CameraParameters // parameters of one camera
-{
-	FloatType RadialDistortion[3];
-	FloatType TangentialDistortion[2];
-	FloatType FocalLength[2];
-	FloatType PrincipalPoint[2];
-	enum {PLUMB_BOB = 0, ATAN = 1};
-	int DistortionModel;
-};
-
-struct DUOParameters // parameters of both cameras plus stereo calibration
-{
-	CameraParameters CameraParameters1;
-	CameraParameters CameraParameters2;
-
-	FloatType r_lr[3];
-	FloatType R_lr[9];
-	FloatType R_rl[9];
-	FloatType R_ci[9];
-	FloatType t_ci[3];
-	FloatType gyro_bias[3];
-	FloatType acc_bias[3];
-	FloatType time_shift;
-
-	Kalibr_params kalibr_params;
-
-};
+#include "SLAM_includes.h"
 
 inline DUOParameters parseYaml(const YAML::Node& node)
 {
@@ -261,9 +125,9 @@ inline DUOParameters parseYaml(const YAML::Node& node)
 	for (std::size_t i = RadialDistortion.size(); i < 3; i++)
 		v.CameraParameters1.RadialDistortion[i] = 0.0;
 
-	YAML::Node TangentialDistortion = node["CameraParameters1"]["TangentialDistortion"];
-	for (std::size_t i = 0; i < TangentialDistortion.size(); i++)
-		v.CameraParameters1.TangentialDistortion[i] = TangentialDistortion[i].as<double>();
+//	YAML::Node TangentialDistortion = node["CameraParameters1"]["TangentialDistortion"];
+//	for (std::size_t i = 0; i < TangentialDistortion.size(); i++)
+//		v.CameraParameters1.TangentialDistortion[i] = TangentialDistortion[i].as<double>();
 
 	YAML::Node FocalLength = node["CameraParameters1"]["FocalLength"];
 	for (std::size_t i = 0; i < FocalLength.size(); i++)
@@ -286,9 +150,9 @@ inline DUOParameters parseYaml(const YAML::Node& node)
 	for (std::size_t i = RadialDistortion.size(); i < 3; i++)
 		v.CameraParameters2.RadialDistortion[i] = 0.0;
 
-	TangentialDistortion = node["CameraParameters2"]["TangentialDistortion"];
-	for (std::size_t i = 0; i < TangentialDistortion.size(); i++)
-		v.CameraParameters2.TangentialDistortion[i] = TangentialDistortion[i].as<double>();
+//	TangentialDistortion = node["CameraParameters2"]["TangentialDistortion"];
+//	for (std::size_t i = 0; i < TangentialDistortion.size(); i++)
+//		v.CameraParameters2.TangentialDistortion[i] = TangentialDistortion[i].as<double>();
 
 	FocalLength = node["CameraParameters2"]["FocalLength"];
 	for (std::size_t i = 0; i < FocalLength.size(); i++)
@@ -298,25 +162,7 @@ inline DUOParameters parseYaml(const YAML::Node& node)
 	for (std::size_t i = 0; i < PrincipalPoint.size(); i++)
 		v.CameraParameters2.PrincipalPoint[i] = PrincipalPoint[i].as<double>();
 
-	if(const YAML::Node n = node["Kalibr_params"]["update_rate"])
-		v.kalibr_params.update_rate = n.as<double>();
-
-	if(const YAML::Node n = node["Kalibr_params"]["accelerometer_noise_density"])
-		v.kalibr_params.accelerometer_noise_density = n.as<double>();
-
-	if(const YAML::Node n = node["Kalibr_params"]["accelerometer_random_walk"])
-		v.kalibr_params.accelerometer_random_walk = n.as<double>();
-
-	if(const YAML::Node n = node["Kalibr_params"]["gyroscope_noise_density"])
-		v.kalibr_params.gyroscope_noise_density = n.as<double>();
-
-	if(const YAML::Node n = node["Kalibr_params"]["gyroscope_random_walk"])
-		v.kalibr_params.gyroscope_random_walk = n.as<double>();
-
 	return v;
 }
 
-
-
-
-#endif /* VIO_ROS_SRC_INTERFACESTRUCTS_H_ */
+#endif /* VIO_ROS_SRC_PARSEYAML_H_ */

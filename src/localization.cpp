@@ -31,7 +31,6 @@ Localization::Localization()
 	// initialize structs
 	cameraParams = {{},{}};
 	noiseParams = {};
-	controllerGains = {};
 	vioParams = {};
 
 	duo_sub = nh_.subscribe("/vio_sensor", VIO_SENSOR_QUEUE_SIZE, &Localization::vioSensorMsgCb,this);
@@ -104,53 +103,43 @@ Localization::Localization()
 		ROS_WARN("Failed to load parameter vio_num_anchors");
 	if(!nh_.getParam("vio_max_ekf_iterations", vioParams.max_ekf_iterations))
 		ROS_WARN("Failed to load parameter vio_max_ekf_iterations");
-	if(!nh_.getParam("vio_delayed_initiazation", vioParams.delayed_initialization))
-		ROS_WARN("Failed to load parameter vio_delayed_initiazation");
-	if(!nh_.getParam("vio_mono", vioParams.mono))
-		ROS_WARN("Failed to load parameter vio_mono");
-	if(!nh_.getParam("vio_fixed_feature", vioParams.fixed_feature))
-		ROS_WARN("Failed to load parameter vio_fixed_feature");
-	if(!nh_.getParam("vio_RANSAC", vioParams.RANSAC))
-		ROS_WARN("Failed to load parameter vio_RANSAC");
-	if(!nh_.getParam("vio_full_stereo", vioParams.full_stereo))
-		ROS_WARN("Failed to load parameter vio_full_stereo");
 
-	if(!nh_.getParam("ctrl_Kp_xy", tmp_scalar))
-		ROS_WARN("Failed to load parameter ctrl_Kp_xy");
-	else
-		controllerGains.Kp_xy = tmp_scalar;
-	if(!nh_.getParam("ctrl_Ki_xy", tmp_scalar))
-		ROS_WARN("Failed to load parameter ctrl_Ki_xy");
-	else
-		controllerGains.Ki_xy = tmp_scalar;
-	if(!nh_.getParam("ctrl_Kd_xy", tmp_scalar))
-		ROS_WARN("Failed to load parameter ctrl_Kd_xy");
-	else
-		controllerGains.Kd_xy = tmp_scalar;
-	if(!nh_.getParam("ctrl_Kp_z", tmp_scalar))
-		ROS_WARN("Failed to load parameter ctrl_Kp_z");
-	else
-		controllerGains.Kp_z = tmp_scalar;
-	if(!nh_.getParam("ctrl_Ki_z", tmp_scalar))
-		ROS_WARN("Failed to load parameter ctrl_Ki_z");
-	else
-		controllerGains.Ki_z = tmp_scalar;
-	if(!nh_.getParam("ctrl_Kd_z", tmp_scalar))
-		ROS_WARN("Failed to load parameter ctrl_Kd_z");
-	else
-		controllerGains.Kd_z = tmp_scalar;
-	if(!nh_.getParam("ctrl_Kp_yaw", tmp_scalar))
-		ROS_WARN("Failed to load parameter ctrl_Kp_yaw");
-	else
-		controllerGains.Kp_yaw = tmp_scalar;
-	if(!nh_.getParam("ctrl_Kd_yaw", tmp_scalar))
-		ROS_WARN("Failed to load parameter ctrl_Kd_yaw");
-	else
-		controllerGains.Kd_yaw = tmp_scalar;
-	if(!nh_.getParam("ctrl_i_lim", tmp_scalar))
-		ROS_WARN("Failed to load parameter ctrl_i_lim");
-	else
-		controllerGains.i_lim = tmp_scalar;
+	bool tmp_bool;
+	if(!nh_.getParam("vio_delayed_initiazation", tmp_bool))
+	{
+		ROS_WARN("Failed to load parameter vio_delayed_initiazation");
+		vioParams.delayed_initialization = false;
+	} else {
+		vioParams.delayed_initialization = tmp_bool;
+	}
+	if(!nh_.getParam("vio_mono", tmp_bool))
+	{
+		ROS_WARN("Failed to load parameter vio_mono");
+		vioParams.mono = false;
+	} else {
+		vioParams.mono = tmp_bool;
+	}
+	if(!nh_.getParam("vio_fixed_feature", tmp_bool))
+	{
+		ROS_WARN("Failed to load parameter vio_fixed_feature");
+		vioParams.fixed_feature = false;
+	} else {
+		vioParams.fixed_feature = tmp_bool;
+	}
+	if(!nh_.getParam("vio_RANSAC", tmp_bool))
+	{
+		ROS_WARN("Failed to load parameter vio_RANSAC");
+		vioParams.RANSAC = false;
+	} else {
+		vioParams.RANSAC = tmp_bool;
+	}
+	if(!nh_.getParam("vio_full_stereo", tmp_bool))
+	{
+		ROS_WARN("Failed to load parameter vio_full_stereo");
+		vioParams.full_stereo = false;
+	} else {
+		vioParams.full_stereo = tmp_bool;
+	}
 
 	if(!nh_.getParam("cam_FPS_duo", fps_duo))
 		ROS_WARN("Failed to load parameter cam_FPS_duo");
@@ -161,9 +150,6 @@ Localization::Localization()
 		auto_subsample = true;
 		ROS_INFO("Auto subsamlple: Using every VIO message with images to update, others to predict");
 	}
-
-	if (fps_duo != cameraParams.kalibr_params.update_rate)
-		ROS_WARN("The specified camera frame rate %.2f does not match the frame rate used for Kalibr calibration %.2f", fps_duo, cameraParams.kalibr_params.update_rate);
 
 	double visualization_freq;
 	if(!nh_.getParam("visualization_freq", visualization_freq))
@@ -192,7 +178,6 @@ Localization::Localization()
 	timing_total_pub = nh_.advertise<std_msgs::Float32>("timing_total",10);
 
 	body_tf.setOrigin(tf::Vector3(0.0, 0.0, 0.0));
-
 }
 
 Localization::~Localization()
