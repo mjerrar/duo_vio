@@ -5,7 +5,7 @@
 // File: SLAM.cpp
 //
 // MATLAB Coder version            : 3.0
-// C/C++ source code generated on  : 05-Feb-2016 17:15:17
+// C/C++ source code generated on  : 08-Feb-2016 09:58:24
 //
 
 // Include Files
@@ -5718,11 +5718,11 @@ static void SLAM_pred_euler(double P_apo[10404], g_struct_T *x, double dt,
   measurements_acc_duo[3], const double measurements_gyr_duo[3])
 {
   double R_cw[9];
-  double R_ci[9];
   double b_R_ci[9];
+  double c_R_ci[9];
   int i44;
   int i;
-  double t_ci[3];
+  double b_t_ci[3];
   double w_imu[3];
   double R[9];
   double b_measurements_acc_duo[3];
@@ -5819,29 +5819,29 @@ static void SLAM_pred_euler(double P_apo[10404], g_struct_T *x, double dt,
   // 'RotFromQuatJ:10' R=[q(1)^2-q(2)^2-q(3)^2+q(4)^2, 2*(q(1)*q(2)+q(3)*q(4)), 2*(q(1)*q(3)-q(2)*q(4)); 
   // 'RotFromQuatJ:11'     2*(q(1)*q(2)-q(3)*q(4)),-q(1)^2+q(2)^2-q(3)^2+q(4)^2, 2*(q(2)*q(3)+q(1)*q(4)); 
   // 'RotFromQuatJ:12'     2*(q(1)*q(3)+q(2)*q(4)), 2*(q(2)*q(3)-q(1)*q(4)),-q(1)^2-q(2)^2+q(3)^2+q(4)^2]; 
-  R_ci[0] = ((x->robot_state.IMU.att[0] * x->robot_state.IMU.att[0] -
-              x->robot_state.IMU.att[1] * x->robot_state.IMU.att[1]) -
-             x->robot_state.IMU.att[2] * x->robot_state.IMU.att[2]) +
+  b_R_ci[0] = ((x->robot_state.IMU.att[0] * x->robot_state.IMU.att[0] -
+                x->robot_state.IMU.att[1] * x->robot_state.IMU.att[1]) -
+               x->robot_state.IMU.att[2] * x->robot_state.IMU.att[2]) +
     x->robot_state.IMU.att[3] * x->robot_state.IMU.att[3];
-  R_ci[3] = 2.0 * (x->robot_state.IMU.att[0] * x->robot_state.IMU.att[1] +
-                   x->robot_state.IMU.att[2] * x->robot_state.IMU.att[3]);
-  R_ci[6] = 2.0 * (x->robot_state.IMU.att[0] * x->robot_state.IMU.att[2] -
-                   x->robot_state.IMU.att[1] * x->robot_state.IMU.att[3]);
-  R_ci[1] = 2.0 * (x->robot_state.IMU.att[0] * x->robot_state.IMU.att[1] -
-                   x->robot_state.IMU.att[2] * x->robot_state.IMU.att[3]);
-  R_ci[4] = ((-(x->robot_state.IMU.att[0] * x->robot_state.IMU.att[0]) +
-              x->robot_state.IMU.att[1] * x->robot_state.IMU.att[1]) -
-             x->robot_state.IMU.att[2] * x->robot_state.IMU.att[2]) +
+  b_R_ci[3] = 2.0 * (x->robot_state.IMU.att[0] * x->robot_state.IMU.att[1] +
+                     x->robot_state.IMU.att[2] * x->robot_state.IMU.att[3]);
+  b_R_ci[6] = 2.0 * (x->robot_state.IMU.att[0] * x->robot_state.IMU.att[2] -
+                     x->robot_state.IMU.att[1] * x->robot_state.IMU.att[3]);
+  b_R_ci[1] = 2.0 * (x->robot_state.IMU.att[0] * x->robot_state.IMU.att[1] -
+                     x->robot_state.IMU.att[2] * x->robot_state.IMU.att[3]);
+  b_R_ci[4] = ((-(x->robot_state.IMU.att[0] * x->robot_state.IMU.att[0]) +
+                x->robot_state.IMU.att[1] * x->robot_state.IMU.att[1]) -
+               x->robot_state.IMU.att[2] * x->robot_state.IMU.att[2]) +
     x->robot_state.IMU.att[3] * x->robot_state.IMU.att[3];
-  R_ci[7] = 2.0 * (x->robot_state.IMU.att[1] * x->robot_state.IMU.att[2] +
-                   x->robot_state.IMU.att[0] * x->robot_state.IMU.att[3]);
-  R_ci[2] = 2.0 * (x->robot_state.IMU.att[0] * x->robot_state.IMU.att[2] +
-                   x->robot_state.IMU.att[1] * x->robot_state.IMU.att[3]);
-  R_ci[5] = 2.0 * (x->robot_state.IMU.att[1] * x->robot_state.IMU.att[2] -
-                   x->robot_state.IMU.att[0] * x->robot_state.IMU.att[3]);
-  R_ci[8] = ((-(x->robot_state.IMU.att[0] * x->robot_state.IMU.att[0]) -
-              x->robot_state.IMU.att[1] * x->robot_state.IMU.att[1]) +
-             x->robot_state.IMU.att[2] * x->robot_state.IMU.att[2]) +
+  b_R_ci[7] = 2.0 * (x->robot_state.IMU.att[1] * x->robot_state.IMU.att[2] +
+                     x->robot_state.IMU.att[0] * x->robot_state.IMU.att[3]);
+  b_R_ci[2] = 2.0 * (x->robot_state.IMU.att[0] * x->robot_state.IMU.att[2] +
+                     x->robot_state.IMU.att[1] * x->robot_state.IMU.att[3]);
+  b_R_ci[5] = 2.0 * (x->robot_state.IMU.att[1] * x->robot_state.IMU.att[2] -
+                     x->robot_state.IMU.att[0] * x->robot_state.IMU.att[3]);
+  b_R_ci[8] = ((-(x->robot_state.IMU.att[0] * x->robot_state.IMU.att[0]) -
+                x->robot_state.IMU.att[1] * x->robot_state.IMU.att[1]) +
+               x->robot_state.IMU.att[2] * x->robot_state.IMU.att[2]) +
     x->robot_state.IMU.att[3] * x->robot_state.IMU.att[3];
 
   // 'SLAM_pred_euler:6' t_ci = x.robot_state.IMU.pos;
@@ -5849,16 +5849,16 @@ static void SLAM_pred_euler(double P_apo[10404], g_struct_T *x, double dt,
   // 'SLAM_pred_euler:7' t_ci = -R_ci' * t_ci;
   for (i44 = 0; i44 < 3; i44++) {
     for (i = 0; i < 3; i++) {
-      b_R_ci[i + 3 * i44] = -R_ci[i44 + 3 * i];
+      c_R_ci[i + 3 * i44] = -b_R_ci[i44 + 3 * i];
     }
   }
 
   //  in imu frame
   // 'SLAM_pred_euler:8' w_imu = measurements.gyr_duo - x.robot_state.IMU.gyro_bias; 
   for (i = 0; i < 3; i++) {
-    t_ci[i] = 0.0;
+    b_t_ci[i] = 0.0;
     for (i44 = 0; i44 < 3; i44++) {
-      t_ci[i] += b_R_ci[i + 3 * i44] * x->robot_state.IMU.pos[i44];
+      b_t_ci[i] += c_R_ci[i + 3 * i44] * x->robot_state.IMU.pos[i44];
     }
 
     w_imu[i] = measurements_gyr_duo[i] - x->robot_state.IMU.gyro_bias[i];
@@ -5887,13 +5887,13 @@ static void SLAM_pred_euler(double P_apo[10404], g_struct_T *x, double dt,
     w_c[i44] = 0.0;
     d10 = 0.0;
     for (i = 0; i < 3; i++) {
-      w_c[i44] += R_ci[i44 + 3 * i] * w_imu[i];
-      b_R_ci[i44 + 3 * i] = 0.0;
+      w_c[i44] += b_R_ci[i44 + 3 * i] * w_imu[i];
+      c_R_ci[i44 + 3 * i] = 0.0;
       for (i45 = 0; i45 < 3; i45++) {
-        b_R_ci[i44 + 3 * i] += R[i44 + 3 * i45] * R[i45 + 3 * i];
+        c_R_ci[i44 + 3 * i] += R[i44 + 3 * i45] * R[i45 + 3 * i];
       }
 
-      d10 += b_R_ci[i44 + 3 * i] * t_ci[i];
+      d10 += c_R_ci[i44 + 3 * i] * b_t_ci[i];
     }
 
     b_measurements_acc_duo[i44] = (measurements_acc_duo[i44] -
@@ -5973,9 +5973,9 @@ static void SLAM_pred_euler(double P_apo[10404], g_struct_T *x, double dt,
     grav_origin[i44] = 0.0;
     y[i44] = 0.0;
     for (i = 0; i < 3; i++) {
-      a_c[i44] += R_ci[i44 + 3 * i] * b_measurements_acc_duo[i];
+      a_c[i44] += b_R_ci[i44 + 3 * i] * b_measurements_acc_duo[i];
       grav_origin[i44] += b_x[i44 + 3 * i] * b[i];
-      y[i44] += dv9[i44 + 3 * i] * t_ci[i];
+      y[i44] += dv9[i44 + 3 * i] * b_t_ci[i];
     }
   }
 
@@ -6067,18 +6067,18 @@ static void SLAM_pred_euler(double P_apo[10404], g_struct_T *x, double dt,
   dv13[5] = w_imu[0];
   dv13[8] = 0.0;
   dv14[0] = 0.0;
-  dv14[3] = -t_ci[2];
-  dv14[6] = t_ci[1];
-  dv14[1] = t_ci[2];
+  dv14[3] = -b_t_ci[2];
+  dv14[6] = b_t_ci[1];
+  dv14[1] = b_t_ci[2];
   dv14[4] = 0.0;
-  dv14[7] = -t_ci[0];
-  dv14[2] = -t_ci[1];
-  dv14[5] = t_ci[0];
+  dv14[7] = -b_t_ci[0];
+  dv14[2] = -b_t_ci[1];
+  dv14[5] = b_t_ci[0];
   dv14[8] = 0.0;
   for (i44 = 0; i44 < 3; i44++) {
     for (i = 0; i < 3; i++) {
       R[i + 3 * i44] = -R_cw[i44 + 3 * i];
-      b_R_ci[i + 3 * i44] = -R_cw[i44 + 3 * i];
+      c_R_ci[i + 3 * i44] = -R_cw[i44 + 3 * i];
     }
   }
 
@@ -6103,7 +6103,7 @@ static void SLAM_pred_euler(double P_apo[10404], g_struct_T *x, double dt,
       dv9[i44 + 3 * i] = -dv12[i44 + 3 * i] - d10;
       b_R_cw[i44 + 3 * i] = 0.0;
       for (i45 = 0; i45 < 3; i45++) {
-        b_R_cw[i44 + 3 * i] += b_R_ci[i44 + 3 * i45] * R_ci[i45 + 3 * i];
+        b_R_cw[i44 + 3 * i] += c_R_ci[i44 + 3 * i45] * b_R_ci[i45 + 3 * i];
       }
     }
   }
@@ -15736,10 +15736,10 @@ static void printParams(double c_noiseParameters_process_noise, double
   char s_data[5];
   static const char cv5[5] = { 'F', 'a', 'l', 's', 'e' };
 
-  // 'SLAM:120' fprintf('\n');
+  // 'SLAM:131' fprintf('\n');
   b_fprintf();
 
-  // 'SLAM:121' ros_info('Noise parameters:');
+  // 'SLAM:132' ros_info('Noise parameters:');
   // ROS_INFO Print to ROS_INFO in ROS or to console in Matlab
   //  debug_level == 0: print errors, == 1: print warnings, == 2: print info
   // 'ros_info:5' if coder.target('MATLAB')
@@ -15755,39 +15755,39 @@ static void printParams(double c_noiseParameters_process_noise, double
     ROS_INFO(cv0);
   }
 
-  // 'SLAM:122' fprintf('\tqv: %f\n', noiseParameters.process_noise.qv);
+  // 'SLAM:133' fprintf('\tqv: %f\n', noiseParameters.process_noise.qv);
   c_fprintf(c_noiseParameters_process_noise);
 
-  // 'SLAM:123' fprintf('\tqw: %f\n', noiseParameters.process_noise.qw);
+  // 'SLAM:134' fprintf('\tqw: %f\n', noiseParameters.process_noise.qw);
   d_fprintf(d_noiseParameters_process_noise);
 
-  // 'SLAM:124' fprintf('\tqao: %f\n', noiseParameters.process_noise.qao);
+  // 'SLAM:135' fprintf('\tqao: %f\n', noiseParameters.process_noise.qao);
   e_fprintf(e_noiseParameters_process_noise);
 
-  // 'SLAM:125' fprintf('\tqwo: %f\n', noiseParameters.process_noise.qwo);
+  // 'SLAM:136' fprintf('\tqwo: %f\n', noiseParameters.process_noise.qwo);
   f_fprintf(f_noiseParameters_process_noise);
 
-  // 'SLAM:126' fprintf('\tqR_ci: %f\n', noiseParameters.process_noise.qR_ci);
+  // 'SLAM:137' fprintf('\tqR_ci: %f\n', noiseParameters.process_noise.qR_ci);
   g_fprintf(g_noiseParameters_process_noise);
 
-  // 'SLAM:127' fprintf('\tgyro bias initial unc: [%f, %f, %f]\n', noiseParameters.gyro_bias_initial_unc(1), noiseParameters.gyro_bias_initial_unc(2), noiseParameters.gyro_bias_initial_unc(3)); 
+  // 'SLAM:138' fprintf('\tgyro bias initial unc: [%f, %f, %f]\n', noiseParameters.gyro_bias_initial_unc(1), noiseParameters.gyro_bias_initial_unc(2), noiseParameters.gyro_bias_initial_unc(3)); 
   h_fprintf(c_noiseParameters_gyro_bias_ini[0], c_noiseParameters_gyro_bias_ini
             [1], c_noiseParameters_gyro_bias_ini[2]);
 
-  // 'SLAM:128' fprintf('\tacc bias initial unc: [%f, %f, %f]\n', noiseParameters.acc_bias_initial_unc(1), noiseParameters.acc_bias_initial_unc(2), noiseParameters.acc_bias_initial_unc(3)); 
+  // 'SLAM:139' fprintf('\tacc bias initial unc: [%f, %f, %f]\n', noiseParameters.acc_bias_initial_unc(1), noiseParameters.acc_bias_initial_unc(2), noiseParameters.acc_bias_initial_unc(3)); 
   i_fprintf(c_noiseParameters_acc_bias_init[0], c_noiseParameters_acc_bias_init
             [1], c_noiseParameters_acc_bias_init[2]);
 
-  // 'SLAM:129' fprintf('\timage_noise: %f\n', noiseParameters.image_noise);
+  // 'SLAM:140' fprintf('\timage_noise: %f\n', noiseParameters.image_noise);
   j_fprintf(noiseParameters_image_noise);
 
-  // 'SLAM:130' fprintf('\tinv_depth_initial_unc: %f\n', noiseParameters.inv_depth_initial_unc); 
+  // 'SLAM:141' fprintf('\tinv_depth_initial_unc: %f\n', noiseParameters.inv_depth_initial_unc); 
   k_fprintf(c_noiseParameters_inv_depth_ini);
 
-  // 'SLAM:132' fprintf('\n');
+  // 'SLAM:143' fprintf('\n');
   b_fprintf();
 
-  // 'SLAM:133' ros_info('VIO parameters');
+  // 'SLAM:144' ros_info('VIO parameters');
   // ROS_INFO Print to ROS_INFO in ROS or to console in Matlab
   //  debug_level == 0: print errors, == 1: print warnings, == 2: print info
   // 'ros_info:5' if coder.target('MATLAB')
@@ -15803,27 +15803,27 @@ static void printParams(double c_noiseParameters_process_noise, double
     ROS_INFO(cv2);
   }
 
-  // 'SLAM:134' fprintf('\tnum_anchors: %d\n', int32(VIOParameters.num_anchors)); 
+  // 'SLAM:145' fprintf('\tnum_anchors: %d\n', int32(VIOParameters.num_anchors)); 
   l_fprintf(VIOParameters_num_anchors);
 
-  // 'SLAM:135' fprintf('\tnum_points_per_anchor: %d\n', int32(VIOParameters.num_points_per_anchor)); 
+  // 'SLAM:146' fprintf('\tnum_points_per_anchor: %d\n', int32(VIOParameters.num_points_per_anchor)); 
   m_fprintf(c_VIOParameters_num_points_per_);
 
-  // 'SLAM:136' fprintf('\tmax_ekf_iterations: %d\n', int32(VIOParameters.max_ekf_iterations)); 
+  // 'SLAM:147' fprintf('\tmax_ekf_iterations: %d\n', int32(VIOParameters.max_ekf_iterations)); 
   n_fprintf(c_VIOParameters_max_ekf_iterati);
 
-  // 'SLAM:137' fprintf('\tdelayed_initialization: %s\n', bool2str(VIOParameters.delayed_initialization)); 
-  // 'SLAM:146' if bool
+  // 'SLAM:148' fprintf('\tdelayed_initialization: %s\n', bool2str(VIOParameters.delayed_initialization)); 
+  // 'SLAM:157' if bool
   if (c_VIOParameters_delayed_initial) {
-    // 'SLAM:147' s = 'True';
+    // 'SLAM:158' s = 'True';
     s_size[0] = 1;
     s_size[1] = 4;
     for (i3 = 0; i3 < 4; i3++) {
       s_data[i3] = cv4[i3];
     }
   } else {
-    // 'SLAM:148' else
-    // 'SLAM:149' s = 'False';
+    // 'SLAM:159' else
+    // 'SLAM:160' s = 'False';
     s_size[0] = 1;
     s_size[1] = 5;
     for (i3 = 0; i3 < 5; i3++) {
@@ -15833,18 +15833,18 @@ static void printParams(double c_noiseParameters_process_noise, double
 
   o_fprintf(s_data, s_size);
 
-  // 'SLAM:138' fprintf('\tfixed_feature: %s\n', bool2str(VIOParameters.fixed_feature)); 
-  // 'SLAM:146' if bool
+  // 'SLAM:149' fprintf('\tfixed_feature: %s\n', bool2str(VIOParameters.fixed_feature)); 
+  // 'SLAM:157' if bool
   if (VIOParameters_fixed_feature) {
-    // 'SLAM:147' s = 'True';
+    // 'SLAM:158' s = 'True';
     s_size[0] = 1;
     s_size[1] = 4;
     for (i3 = 0; i3 < 4; i3++) {
       s_data[i3] = cv4[i3];
     }
   } else {
-    // 'SLAM:148' else
-    // 'SLAM:149' s = 'False';
+    // 'SLAM:159' else
+    // 'SLAM:160' s = 'False';
     s_size[0] = 1;
     s_size[1] = 5;
     for (i3 = 0; i3 < 5; i3++) {
@@ -15854,18 +15854,18 @@ static void printParams(double c_noiseParameters_process_noise, double
 
   p_fprintf(s_data, s_size);
 
-  // 'SLAM:139' fprintf('\tmono: %s\n', bool2str(VIOParameters.mono));
-  // 'SLAM:146' if bool
+  // 'SLAM:150' fprintf('\tmono: %s\n', bool2str(VIOParameters.mono));
+  // 'SLAM:157' if bool
   if (VIOParameters_mono) {
-    // 'SLAM:147' s = 'True';
+    // 'SLAM:158' s = 'True';
     s_size[0] = 1;
     s_size[1] = 4;
     for (i3 = 0; i3 < 4; i3++) {
       s_data[i3] = cv4[i3];
     }
   } else {
-    // 'SLAM:148' else
-    // 'SLAM:149' s = 'False';
+    // 'SLAM:159' else
+    // 'SLAM:160' s = 'False';
     s_size[0] = 1;
     s_size[1] = 5;
     for (i3 = 0; i3 < 5; i3++) {
@@ -15875,18 +15875,18 @@ static void printParams(double c_noiseParameters_process_noise, double
 
   q_fprintf(s_data, s_size);
 
-  // 'SLAM:140' fprintf('\tfull_stereo: %s\n', bool2str(VIOParameters.full_stereo)); 
-  // 'SLAM:146' if bool
+  // 'SLAM:151' fprintf('\tfull_stereo: %s\n', bool2str(VIOParameters.full_stereo)); 
+  // 'SLAM:157' if bool
   if (VIOParameters_full_stereo) {
-    // 'SLAM:147' s = 'True';
+    // 'SLAM:158' s = 'True';
     s_size[0] = 1;
     s_size[1] = 4;
     for (i3 = 0; i3 < 4; i3++) {
       s_data[i3] = cv4[i3];
     }
   } else {
-    // 'SLAM:148' else
-    // 'SLAM:149' s = 'False';
+    // 'SLAM:159' else
+    // 'SLAM:160' s = 'False';
     s_size[0] = 1;
     s_size[1] = 5;
     for (i3 = 0; i3 < 5; i3++) {
@@ -15896,18 +15896,18 @@ static void printParams(double c_noiseParameters_process_noise, double
 
   r_fprintf(s_data, s_size);
 
-  // 'SLAM:141' fprintf('\tRANSAC: %s\n', bool2str(VIOParameters.RANSAC));
-  // 'SLAM:146' if bool
+  // 'SLAM:152' fprintf('\tRANSAC: %s\n', bool2str(VIOParameters.RANSAC));
+  // 'SLAM:157' if bool
   if (VIOParameters_RANSAC) {
-    // 'SLAM:147' s = 'True';
+    // 'SLAM:158' s = 'True';
     s_size[0] = 1;
     s_size[1] = 4;
     for (i3 = 0; i3 < 4; i3++) {
       s_data[i3] = cv4[i3];
     }
   } else {
-    // 'SLAM:148' else
-    // 'SLAM:149' s = 'False';
+    // 'SLAM:159' else
+    // 'SLAM:160' s = 'False';
     s_size[0] = 1;
     s_size[1] = 5;
     for (i3 = 0; i3 < 5; i3++) {
@@ -15917,7 +15917,7 @@ static void printParams(double c_noiseParameters_process_noise, double
 
   s_fprintf(s_data, s_size);
 
-  // 'SLAM:142' fprintf('\n');
+  // 'SLAM:153' fprintf('\n');
   b_fprintf();
 }
 
@@ -17922,6 +17922,13 @@ static void xscal(int n, double a, emxArray_real_T *x, int ix0)
 //
 // input
 //  NOTE: Comment this out for MEXing
+//  coder.cstructname(measurements, 'VIOMeasurements', 'extern', 'HeaderFile', '../InterfaceStructs.h');
+//  coder.cstructname(noiseParameters, 'NoiseParameters', 'extern', 'HeaderFile', '../InterfaceStructs.h');
+//  coder.cstructname(noiseParameters.process_noise, 'ProcessNoise', 'extern', 'HeaderFile', '../InterfaceStructs.h');
+//  coder.cstructname(cameraParameters, 'DUOParameters', 'extern', 'HeaderFile', '../InterfaceStructs.h');
+//  coder.cstructname(cameraParameters.CameraParameters1, 'CameraParameters', 'extern', 'HeaderFile', '../InterfaceStructs.h');
+//  coder.cstructname(cameraParameters.CameraParameters2, 'CameraParameters', 'extern', 'HeaderFile', '../InterfaceStructs.h');
+//  coder.cstructname(VIOParameters, 'VIOParameters', 'extern', 'HeaderFile', '../InterfaceStructs.h');
 // Arguments    : int updateVect[48]
 //                const double z_all_l[96]
 //                const double z_all_r[96]
@@ -18023,34 +18030,34 @@ void SLAM(int updateVect[48], const double z_all_l[96], const double z_all_r[96]
   double t0_att[4];
   struct_T rv1[6];
 
-  // 'SLAM:4' coder.cstructname(measurements, 'VIOMeasurements', 'extern', 'HeaderFile', '../InterfaceStructs.h'); 
-  // 'SLAM:5' coder.cstructname(noiseParameters, 'NoiseParameters', 'extern', 'HeaderFile', '../InterfaceStructs.h'); 
-  // 'SLAM:6' coder.cstructname(noiseParameters.process_noise, 'ProcessNoise', 'extern', 'HeaderFile', '../InterfaceStructs.h'); 
-  // 'SLAM:7' coder.cstructname(cameraParameters, 'DUOParameters', 'extern', 'HeaderFile', '../InterfaceStructs.h'); 
-  // 'SLAM:8' coder.cstructname(cameraParameters.CameraParameters1, 'CameraParameters', 'extern', 'HeaderFile', '../InterfaceStructs.h'); 
-  // 'SLAM:9' coder.cstructname(cameraParameters.CameraParameters2, 'CameraParameters', 'extern', 'HeaderFile', '../InterfaceStructs.h'); 
-  // 'SLAM:10' coder.cstructname(VIOParameters, 'VIOParameters', 'extern', 'HeaderFile', '../InterfaceStructs.h'); 
-  // 'SLAM:12' assert ( all ( size (updateVect) == [numTrackFeatures 1] ) );
-  // 'SLAM:12' assert(isa(updateVect,'int32'));
-  // 'SLAM:13' assert ( all ( size (z_all_l) == [numTrackFeatures*2 1] ) )
-  // 'SLAM:14' assert ( all ( size (z_all_r) == [numTrackFeatures*2 1] ) )
-  // 'SLAM:15' assert ( all ( size (dt) == [1] ) )
-  // 'SLAM:16' assert(isa(vision,'logical'));
-  // 'SLAM:17' assert(isa(reset,'logical'));
-  // 'SLAM:21' if isempty(initialized) || reset
+  // 'SLAM:12' coder.cstructname(measurements, 'VIOMeasurements');
+  // 'SLAM:13' coder.cstructname(noiseParameters, 'NoiseParameters');
+  // 'SLAM:14' coder.cstructname(noiseParameters.process_noise, 'ProcessNoise'); 
+  // 'SLAM:15' coder.cstructname(cameraParameters, 'DUOParameters');
+  // 'SLAM:16' coder.cstructname(cameraParameters.CameraParameters1, 'CameraParameters'); 
+  // 'SLAM:17' coder.cstructname(cameraParameters.CameraParameters2, 'CameraParameters'); 
+  // 'SLAM:18' coder.cstructname(VIOParameters, 'VIOParameters');
+  // 'SLAM:20' assert ( all ( size (updateVect) == [numTrackFeatures 1] ) );
+  // 'SLAM:20' assert(isa(updateVect,'int32'));
+  // 'SLAM:21' assert ( all ( size (z_all_l) == [numTrackFeatures*2 1] ) )
+  // 'SLAM:22' assert ( all ( size (z_all_r) == [numTrackFeatures*2 1] ) )
+  // 'SLAM:23' assert ( all ( size (dt) == [1] ) )
+  // 'SLAM:24' assert(isa(vision,'logical'));
+  // 'SLAM:25' assert(isa(reset,'logical'));
+  // 'SLAM:29' if isempty(initialized) || reset
   if ((!initialized_not_empty) || reset) {
-    // 'SLAM:22' updateVect(:) = 0;
+    // 'SLAM:30' updateVect(:) = 0;
     for (i = 0; i < 48; i++) {
       updateVect[i] = 0;
     }
 
-    // 'SLAM:24' xt.robot_state.IMU.pos = cameraParameters.t_ci;
-    // 'SLAM:25' xt.robot_state.IMU.att = QuatFromRotJ(cameraParameters.R_ci);
+    // 'SLAM:32' xt.robot_state.IMU.pos = cameraParameters.t_ci;
+    // 'SLAM:33' xt.robot_state.IMU.att = QuatFromRotJ(cameraParameters.R_ci);
     QuatFromRotJ(cameraParameters->R_ci, xt.robot_state.IMU.att);
 
-    // 'SLAM:27' xt.robot_state.IMU.gyro_bias = cameraParameters.gyro_bias;
-    // 'SLAM:28' xt.robot_state.IMU.acc_bias = cameraParameters.acc_bias;
-    // 'SLAM:30' xt.robot_state.pos = [0; 0; 0];
+    // 'SLAM:35' xt.robot_state.IMU.gyro_bias = cameraParameters.gyro_bias;
+    // 'SLAM:36' xt.robot_state.IMU.acc_bias = cameraParameters.acc_bias;
+    // 'SLAM:38' xt.robot_state.pos = [0; 0; 0];
     for (i = 0; i < 3; i++) {
       xt.robot_state.IMU.pos[i] = cameraParameters->t_ci[i];
       xt.robot_state.IMU.gyro_bias[i] = cameraParameters->gyro_bias[i];
@@ -18059,102 +18066,102 @@ void SLAM(int updateVect[48], const double z_all_l[96], const double z_all_r[96]
     }
 
     //  position relative to the origin frame
-    // 'SLAM:31' xt.robot_state.att = [0; 0; 0; 1];
+    // 'SLAM:39' xt.robot_state.att = [0; 0; 0; 1];
     for (i = 0; i < 4; i++) {
       xt.robot_state.att[i] = iv1[i];
     }
 
     //  orientation relative to the origin frame
-    // 'SLAM:32' xt.robot_state.vel = [0; 0; 0];
+    // 'SLAM:40' xt.robot_state.vel = [0; 0; 0];
     //  velocity in the origin frame
-    // 'SLAM:33' xt.fixed_feature = int32(0);
+    // 'SLAM:41' xt.fixed_feature = int32(0);
     xt.fixed_feature = 0;
 
-    // 'SLAM:34' xt.origin.anchor_idx = int32(0);
+    // 'SLAM:42' xt.origin.anchor_idx = int32(0);
     xt.origin.anchor_idx = 0;
 
     //  idx of the anchor that is at the origin
-    // 'SLAM:35' xt.origin.pos = [0; 0; 0];
+    // 'SLAM:43' xt.origin.pos = [0; 0; 0];
     for (i = 0; i < 3; i++) {
       xt.robot_state.vel[i] = 0.0;
       xt.origin.pos[i] = 0.0;
     }
 
     //  position of the origin in the world frame
-    // 'SLAM:36' xt.origin.att = [0; 0; 0; 1];
+    // 'SLAM:44' xt.origin.att = [0; 0; 0; 1];
     for (i = 0; i < 4; i++) {
       xt.origin.att[i] = iv1[i];
     }
 
     //  orientation of the origin in the world frame
-    // 'SLAM:38' P = zeros(numStates + numAnchors*(6+numPointsPerAnchor));
+    // 'SLAM:46' P = zeros(numStates + numAnchors*(6+numPointsPerAnchor));
     memset(&P[0], 0, 10404U * sizeof(double));
 
     //  initial error state covariance
-    // 'SLAM:40' anchor_state.pos = [0; 0; 0];
-    // 'SLAM:41' anchor_state.att = [0; 0; 0; 1];
-    // 'SLAM:42' anchor_state.P_idx = int32(zeros(1, 6));
-    // 'SLAM:44' feature_state.inverse_depth = 0;
-    // 'SLAM:45' feature_state.m = zeros(3,1);
-    // 'SLAM:46' feature_state.scaled_map_point = zeros(3,1);
-    // 'SLAM:47' feature_state.status = int32(0);
-    // 'SLAM:48' feature_state.status_idx = int32(0);
-    // 'SLAM:49' feature_state.P_idx = int32(0);
-    // 'SLAM:51' anchor_state.feature_states = repmat(feature_state, numPointsPerAnchor,1); 
-    // 'SLAM:53' xt.anchor_states = repmat(anchor_state, numAnchors, 1);
-    // 'SLAM:55' for anchorIdx = 1:numAnchors
+    // 'SLAM:48' anchor_state.pos = [0; 0; 0];
+    // 'SLAM:49' anchor_state.att = [0; 0; 0; 1];
+    // 'SLAM:50' anchor_state.P_idx = int32(zeros(1, 6));
+    // 'SLAM:52' feature_state.inverse_depth = 0;
+    // 'SLAM:53' feature_state.m = zeros(3,1);
+    // 'SLAM:54' feature_state.scaled_map_point = zeros(3,1);
+    // 'SLAM:55' feature_state.status = int32(0);
+    // 'SLAM:56' feature_state.status_idx = int32(0);
+    // 'SLAM:57' feature_state.P_idx = int32(0);
+    // 'SLAM:59' anchor_state.feature_states = repmat(feature_state, numPointsPerAnchor,1); 
+    // 'SLAM:61' xt.anchor_states = repmat(anchor_state, numAnchors, 1);
+    // 'SLAM:63' for anchorIdx = 1:numAnchors
     memcpy(&xt.anchor_states[0], &rv0[0], 6U * sizeof(f_struct_T));
     for (anchorIdx = 0; anchorIdx < 6; anchorIdx++) {
-      // 'SLAM:56' xt.anchor_states(anchorIdx).P_idx = numStates + (anchorIdx-1)*numStatesPerAnchor + int32(1:6); 
+      // 'SLAM:64' xt.anchor_states(anchorIdx).P_idx = numStates + (anchorIdx-1)*numStatesPerAnchor + int32(1:6); 
       i42 = anchorIdx * 14;
       for (i43 = 0; i43 < 6; i43++) {
         xt.anchor_states[anchorIdx].P_idx[i43] = (i43 + i42) + 19;
       }
     }
 
-    // 'SLAM:59' if vision
+    // 'SLAM:67' if vision
     if (vision) {
-      // 'SLAM:60' map = zeros(numTrackFeatures*3, 1);
+      // 'SLAM:68' map = zeros(numTrackFeatures*3, 1);
       memset(&map[0], 0, 144U * sizeof(double));
 
-      // 'SLAM:61' delayedStatus = zeros(numTrackFeatures, 1);
+      // 'SLAM:69' delayedStatus = zeros(numTrackFeatures, 1);
       memset(&delayedStatus[0], 0, 48U * sizeof(double));
     } else {
-      // 'SLAM:62' else
-      // 'SLAM:63' z_b = measurements.acc_duo - xt.robot_state.IMU.acc_bias;
+      // 'SLAM:70' else
+      // 'SLAM:71' z_b = measurements.acc_duo - xt.robot_state.IMU.acc_bias;
       for (i = 0; i < 3; i++) {
         z_b[i] = measurements->acc_duo[i] - xt.robot_state.IMU.acc_bias[i];
       }
 
-      // 'SLAM:64' z_n_b = z_b/norm(z_b);
+      // 'SLAM:72' z_n_b = z_b/norm(z_b);
       B = norm(z_b);
       for (i42 = 0; i42 < 3; i42++) {
         z_b[i42] /= B;
       }
 
-      // 'SLAM:65' m_n_b = [0;0;1];
-      // 'SLAM:66' y_n_b = cross(z_n_b,m_n_b);
+      // 'SLAM:73' m_n_b = [0;0;1];
+      // 'SLAM:74' y_n_b = cross(z_n_b,m_n_b);
       cross(z_b, dv6, y_n_b);
 
-      // 'SLAM:67' y_n_b = y_n_b./norm(y_n_b);
+      // 'SLAM:75' y_n_b = y_n_b./norm(y_n_b);
       for (i = 0; i < 3; i++) {
         b_y_n_b[i] = y_n_b[i];
       }
 
       rdivide(b_y_n_b, norm(y_n_b), y_n_b);
 
-      // 'SLAM:68' x_n_b = (cross(y_n_b,z_n_b));
+      // 'SLAM:76' x_n_b = (cross(y_n_b,z_n_b));
       cross(y_n_b, z_b, x_n_b);
 
-      // 'SLAM:69' x_n_b = x_n_b./norm(x_n_b);
+      // 'SLAM:77' x_n_b = x_n_b./norm(x_n_b);
       for (i = 0; i < 3; i++) {
         b_y_n_b[i] = x_n_b[i];
       }
 
       rdivide(b_y_n_b, norm(x_n_b), x_n_b);
 
-      // 'SLAM:71' R_iw_init = [x_n_b,y_n_b,z_n_b];
-      // 'SLAM:72' R_cw_init = RotFromQuatJ(xt.robot_state.IMU.att) * R_iw_init; 
+      // 'SLAM:79' R_iw_init = [x_n_b,y_n_b,z_n_b];
+      // 'SLAM:80' R_cw_init = RotFromQuatJ(xt.robot_state.IMU.att) * R_iw_init; 
       //  if ~all(size(q) == [4, 1])
       //      error('q does not have the size of a quaternion')
       //  end
@@ -18194,7 +18201,7 @@ void SLAM(int updateVect[48], const double z_all_l[96], const double z_all_r[96]
         b_x_n_b[6 + i42] = z_b[i42];
       }
 
-      // 'SLAM:74' xt.origin.att = QuatFromRotJ(R_cw_init);
+      // 'SLAM:82' xt.origin.att = QuatFromRotJ(R_cw_init);
       for (i42 = 0; i42 < 3; i42++) {
         for (i43 = 0; i43 < 3; i43++) {
           R_cw_init[i42 + 3 * i43] = 0.0;
@@ -18211,21 +18218,21 @@ void SLAM(int updateVect[48], const double z_all_l[96], const double z_all_r[96]
       QuatFromRotJ(R_cw_init, xt.origin.att);
 
       //  orientation of the origin in the world frame
-      // 'SLAM:76' P(  1:3,   1:3) = zeros(3);
+      // 'SLAM:84' P(  1:3,   1:3) = zeros(3);
       //  position
-      // 'SLAM:77' P(  4:6,   4:6) = zeros(3);
+      // 'SLAM:85' P(  4:6,   4:6) = zeros(3);
       //  orientation of camera in origin frame
-      // 'SLAM:78' P(  7:9,   7:9) = 1*eye(3);
+      // 'SLAM:86' P(  7:9,   7:9) = 1*eye(3);
       //  velocity
-      // 'SLAM:79' P(10:12, 10:12) = diag(noiseParameters.gyro_bias_initial_unc); 
+      // 'SLAM:87' P(10:12, 10:12) = diag(noiseParameters.gyro_bias_initial_unc); 
       diag(noiseParameters->gyro_bias_initial_unc, dv7);
 
       //  gyro bias
-      // 'SLAM:80' P(13:15, 13:15) = diag(noiseParameters.acc_bias_initial_unc); 
+      // 'SLAM:88' P(13:15, 13:15) = diag(noiseParameters.acc_bias_initial_unc); 
       diag(noiseParameters->acc_bias_initial_unc, b_x_n_b);
 
       //  acc bias
-      // 'SLAM:81' P(16:18, 16:18) = 0.1*R_cw_init * diag([1 1 0]) * R_cw_init'; 
+      // 'SLAM:89' P(16:18, 16:18) = 0.1*R_cw_init * diag([1 1 0]) * R_cw_init'; 
       for (i42 = 0; i42 < 3; i42++) {
         for (i43 = 0; i43 < 3; i43++) {
           P[(i43 + 102 * (9 + i42)) + 9] = dv7[i43 + 3 * i42];
@@ -18250,13 +18257,13 @@ void SLAM(int updateVect[48], const double z_all_l[96], const double z_all_r[96]
 
       //  origin orientation
       //          P(19:21, 19:21) = 0*0.01*eye(3); % R_ci
-      // 'SLAM:84' map = getMap(xt);
+      // 'SLAM:92' map = getMap(xt);
       getMap(xt.origin.pos, xt.origin.att, xt.anchor_states, map);
 
-      // 'SLAM:85' delayedStatus = zeros(size(updateVect));
+      // 'SLAM:93' delayedStatus = zeros(size(updateVect));
       memset(&delayedStatus[0], 0, 48U * sizeof(double));
 
-      // 'SLAM:87' printParams(noiseParameters, VIOParameters)
+      // 'SLAM:95' printParams(noiseParameters, VIOParameters)
       printParams(noiseParameters->process_noise.qv,
                   noiseParameters->process_noise.qw,
                   noiseParameters->process_noise.qao,
@@ -18273,15 +18280,15 @@ void SLAM(int updateVect[48], const double z_all_l[96], const double z_all_r[96]
                   b_VIOParameters->delayed_initialization, b_VIOParameters->mono,
                   b_VIOParameters->full_stereo, b_VIOParameters->RANSAC);
 
-      // 'SLAM:88' initialized = 1;
+      // 'SLAM:96' initialized = 1;
       initialized_not_empty = true;
     }
   } else {
-    // 'SLAM:91' else
-    // 'SLAM:93' if ~vision
+    // 'SLAM:99' else
+    // 'SLAM:101' if ~vision
     if (!vision) {
       //      [xt,P] =  SLAM_pred(P, xt, dt, noiseParameters.process_noise, measurements, numStates); 
-      // 'SLAM:95' [xt,P] =  SLAM_pred_euler(P, xt, dt, noiseParameters.process_noise, measurements); 
+      // 'SLAM:103' [xt,P] =  SLAM_pred_euler(P, xt, dt, noiseParameters.process_noise, measurements); 
       SLAM_pred_euler(P, &xt, dt, noiseParameters->process_noise.qv,
                       noiseParameters->process_noise.qw,
                       noiseParameters->process_noise.qao,
@@ -18289,8 +18296,8 @@ void SLAM(int updateVect[48], const double z_all_l[96], const double z_all_r[96]
                       noiseParameters->process_noise.qR_ci,
                       measurements->acc_duo, measurements->gyr_duo);
     } else {
-      // 'SLAM:96' else
-      // 'SLAM:97' [xt, P, updateVect, map, delayedStatus] = SLAM_upd(P, xt, cameraParameters, updateVect, z_all_l, z_all_r, noiseParameters, VIOParameters); 
+      // 'SLAM:104' else
+      // 'SLAM:105' [xt, P, updateVect, map, delayedStatus] = SLAM_upd(P, xt, cameraParameters, updateVect, z_all_l, z_all_r, noiseParameters, VIOParameters); 
       memcpy(&b_z_all_l[0], &z_all_l[0], 96U * sizeof(double));
       memcpy(&b_z_all_r[0], &z_all_r[0], 96U * sizeof(double));
       SLAM_upd(P, &xt, cameraParameters->CameraParameters1.ATAN,
@@ -18311,10 +18318,10 @@ void SLAM(int updateVect[48], const double z_all_l[96], const double z_all_r[96]
     }
   }
 
-  // 'SLAM:100' map_out = map;
+  // 'SLAM:108' map_out = map;
   memcpy(&map_out[0], &map[0], 144U * sizeof(double));
 
-  // 'SLAM:101' xt_out = getWorldState(xt);
+  // 'SLAM:109' xt_out = getWorldState(xt);
   getWorldState(xt.robot_state.IMU.pos, xt.robot_state.IMU.att,
                 xt.robot_state.IMU.gyro_bias, xt.robot_state.IMU.acc_bias,
                 xt.robot_state.pos, xt.robot_state.att, xt.robot_state.vel,
@@ -18339,22 +18346,25 @@ void SLAM(int updateVect[48], const double z_all_l[96], const double z_all_r[96]
     xt_out->IMU.att[i] = t0_IMU_att[i];
   }
 
-  // 'SLAM:102' anchor_poses_out = getAnchorPoses(xt);
+  // 'SLAM:110' anchor_poses_out = getAnchorPoses(xt);
   getAnchorPoses(xt.origin.pos, xt.origin.att, xt.anchor_states, rv1);
   cast(rv1, anchor_poses_out);
 
-  // 'SLAM:103' delayedStatus_out = delayedStatus;
+  // 'SLAM:111' delayedStatus_out = delayedStatus;
   memcpy(&delayedStatus_out[0], &delayedStatus[0], 48U * sizeof(double));
 
   //  output
   //  NOTE: Comment this out for MEXing
-  // 'SLAM:107' coder.cstructname(xt_out, 'RobotState', 'extern', 'HeaderFile', '../InterfaceStructs.h'); 
-  // 'SLAM:108' coder.cstructname(xt_out.IMU, 'IMUState', 'extern', 'HeaderFile', '../InterfaceStructs.h'); 
-  // 'SLAM:109' coder.cstructname(anchor_poses_out(1), 'AnchorPose', 'extern', 'HeaderFile', '../InterfaceStructs.h'); 
-  // 'SLAM:111' assert ( all ( size (map_out) == [numTrackFeatures*3 1] ) )
-  // 'SLAM:112' assert ( all ( size (anchor_poses_out) == [numAnchors 1] ) )
-  // 'SLAM:113' assert ( all ( size (updateVect) == [numTrackFeatures 1] ) )
-  // 'SLAM:114' assert ( all ( size (delayedStatus_out) == [numTrackFeatures 1] ) ) 
+  //  coder.cstructname(xt_out, 'RobotState', 'extern', 'HeaderFile', '../InterfaceStructs.h'); 
+  //  coder.cstructname(xt_out.IMU, 'IMUState', 'extern', 'HeaderFile', '../InterfaceStructs.h'); 
+  //  coder.cstructname(anchor_poses_out(1), 'AnchorPose', 'extern', 'HeaderFile', '../InterfaceStructs.h'); 
+  // 'SLAM:118' coder.cstructname(xt_out, 'RobotState');
+  // 'SLAM:119' coder.cstructname(xt_out.IMU, 'IMUState');
+  // 'SLAM:120' coder.cstructname(anchor_poses_out(1), 'AnchorPose');
+  // 'SLAM:122' assert ( all ( size (map_out) == [numTrackFeatures*3 1] ) )
+  // 'SLAM:123' assert ( all ( size (anchor_poses_out) == [numAnchors 1] ) )
+  // 'SLAM:124' assert ( all ( size (updateVect) == [numTrackFeatures 1] ) )
+  // 'SLAM:125' assert ( all ( size (delayedStatus_out) == [numTrackFeatures 1] ) ) 
 }
 
 //
