@@ -1,7 +1,60 @@
 <launch>
+
+  <arg name="thrust_gain" default="1" />
+  <arg name="P_xy"        default="3" />
+  <arg name="P_z"         default="3" />
+  <arg name="P_yaw"       default="2" />
+
+  <arg name="I_xy"        default="0.01" />
+  <arg name="I_z"         default="0.1" />
+  <arg name="I_yaw"       default="0.01" />
+
+  <arg name="D_xy"        default="1.5" />
+  <arg name="D_z"         default="3" />
+
+  <arg name="K_xy_speed"  default="1" />
+  <arg name="K_z_speed"   default="1" />
+  <arg name="K_yaw_speed" default="1" />
+
+  <arg name="int_lim_xy"  default="500" />
+  <arg name="int_lim_z"   default="100" />
+  <arg name="int_lim_yaw" default="100" />
+
+  <arg name="velocity_thresh" default="0.1" />
+
+  <arg name="int_height_limit" default="0.1" />
+
+  <arg name="pose_estimator_qv" default="100" />
+  <arg name="pose_estimator_qw" default="100" />
+  <arg name="pose_estimator_rp" default="0.1" />
+  <arg name="pose_estimator_ra" default="0.1" />
+
   <arg name="mav_tf_link" default="body" />
 
   <include file="$(find mav_control)/launch/joy_velocity.launch">
+    <arg name="thrust_gain"         value="$(arg thrust_gain)" />
+    <arg name="P_xy"                value="$(arg P_xy)" />
+    <arg name="P_z"                 value="$(arg P_z)" />
+    <arg name="P_yaw"               value="$(arg P_yaw)" />
+    <arg name="I_xy"                value="$(arg I_xy)" />
+    <arg name="I_z"                 value="$(arg I_z)" />
+    <arg name="I_yaw"               value="$(arg I_yaw)" />
+    <arg name="D_xy"                value="$(arg D_xy)" />
+    <arg name="D_z"                 value="$(arg D_z)" />
+    <arg name="K_xy_speed"          value="$(arg K_xy_speed)" />
+    <arg name="K_z_speed"           value="$(arg K_z_speed)" />
+    <arg name="K_yaw_speed"         value="$(arg K_yaw_speed)" />
+    <arg name="int_lim_xy"          value="$(arg int_lim_xy)" />
+    <arg name="int_lim_z"           value="$(arg int_lim_z)" />
+    <arg name="int_lim_yaw"         value="$(arg int_lim_yaw)" />
+    <arg name="int_height_limit"    value="$(arg int_height_limit)" />
+    <arg name="velocity_thresh"     value="$(arg velocity_thresh)" />
+
+    <arg name="pose_estimator_qv"  value="$(arg pose_estimator_qv)" />
+    <arg name="pose_estimator_qw"  value="$(arg pose_estimator_qw)" />
+    <arg name="pose_estimator_rp"  value="$(arg pose_estimator_rp)" />
+    <arg name="pose_estimator_qa"  value="$(arg pose_estimator_ra)" />
+
     <arg name="mav_tf_link" value="$(arg mav_tf_link)" />
   </include>
 
