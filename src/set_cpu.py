@@ -17,7 +17,7 @@ def get_pid(node_name):
 
 
 if __name__ == "__main__":
-    time.sleep(2)  # sleep 2 seconds to make sure all processes are there
+    time.sleep(5)  # sleep to make sure all processes are there
 
     # get pids
     command = 'pgrep -f ros'
