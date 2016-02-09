@@ -24,6 +24,7 @@
 
   <arg name="int_height_limit" default="0.1" />
 
+  <arg name="pose_estimator_dt" default="0.01" />
   <arg name="pose_estimator_qv" default="100" />
   <arg name="pose_estimator_qw" default="100" />
   <arg name="pose_estimator_rp" default="0.1" />
@@ -50,10 +51,11 @@
     <arg name="int_height_limit"    value="$(arg int_height_limit)" />
     <arg name="velocity_thresh"     value="$(arg velocity_thresh)" />
 
+    <arg name="pose_estimator_dt"  value="$(arg pose_estimator_dt)" />
     <arg name="pose_estimator_qv"  value="$(arg pose_estimator_qv)" />
     <arg name="pose_estimator_qw"  value="$(arg pose_estimator_qw)" />
     <arg name="pose_estimator_rp"  value="$(arg pose_estimator_rp)" />
-    <arg name="pose_estimator_qa"  value="$(arg pose_estimator_ra)" />
+    <arg name="pose_estimator_ra"  value="$(arg pose_estimator_ra)" />
 
     <arg name="mav_tf_link" value="$(arg mav_tf_link)" />
   </include>
