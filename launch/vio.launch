@@ -27,17 +27,6 @@
   <arg name="RANSAC" default="1" />
   <arg name="full_stereo" default="0" />
 
-  <!-- controller gains -->
-  <arg name="Kp_xy" default="1" />
-  <arg name="Ki_xy" default="0" />
-  <arg name="Kd_xy" default="1.4" />
-  <arg name="Kp_z" default="1" />
-  <arg name="Ki_z" default="0" />
-  <arg name="Kd_z" default="1.4" />
-  <arg name="Kp_yaw" default="1" />
-  <arg name="Kd_yaw" default="1" />
-  <arg name="i_lim" default="10" />
-
   <arg name="show_camera_image" default="1" />
   <arg name="visualization_freq" default="30" />
   <arg name="image_visualization_delay" default="1" />
@@ -60,17 +49,6 @@
     <param name="vio_mono" type="bool" value="$(arg mono)" />
     <param name="vio_RANSAC" type="bool" value="$(arg RANSAC)" />
     <param name="vio_full_stereo" type="bool" value="$(arg full_stereo)" />
-
-    <!-- controller gains -->
-    <param name="ctrl_Kp_xy" type="double" value="$(arg Kp_xy)" />
-    <param name="ctrl_Ki_xy" type="double" value="$(arg Ki_xy)" />
-    <param name="ctrl_Kd_xy" type="double" value="$(arg Kd_xy)" />
-    <param name="ctrl_Kp_z" type="double" value="$(arg Kp_z)" />
-    <param name="ctrl_Ki_z" type="double" value="$(arg Ki_z)" />
-    <param name="ctrl_Kd_z" type="double" value="$(arg Kd_z)" />
-    <param name="ctrl_Kp_yaw" type="double" value="$(arg Kp_yaw)" />
-    <param name="ctrl_Kd_yaw" type="double" value="$(arg Kd_yaw)" />
-    <param name="ctrl_i_lim" type="double" value="$(arg i_lim)" />
 
     <!-- camera settings -->
     <param name="cam_FPS_duo" type="double" value="$(arg FPS_duo)" />
