@@ -341,30 +341,31 @@ void Localization::update(double dt, const vio_ros::VioSensorMsg &msg, bool upda
 	std::vector<FloatType> z_all_r(num_points_*2, 0.0);
 	FloatType delayedStatus[num_points_];
 
-	VIOMeasurements meas;
-	getIMUData(msg.imu, meas);
-
-	double u_out[4];
-
 	//*********************************************************************
 	// SLAM prediction
 	//*********************************************************************
 	ros::Time tic_SLAM = ros::Time::now();
 
-	SLAM(&update_vec_[0],
-			&z_all_l[0],
-			&z_all_r[0],
-			dt,
-			&meas,
-			&cameraParams,
-			&noiseParams,
-			&vioParams,
-			0, // predict
-			0, // reset
-			&robot_state,
-			&map[0],
-			&anchor_poses[0],
-			delayedStatus);
+	VIOMeasurements meas;
+
+	for (int i = 0; i < msg.imu.size(); i++)
+	{
+		getIMUData(msg.imu[i], meas);
+		SLAM(&update_vec_[0],
+				&z_all_l[0],
+				&z_all_r[0],
+				dt/msg.imu.size(),
+				&meas,
+				&cameraParams,
+				&noiseParams,
+				&vioParams,
+				0, // predict
+				0, // reset
+				&robot_state,
+				&map[0],
+				&anchor_poses[0],
+				delayedStatus);
+		}
 
 	if (!reset && (auto_subsample || vio_cnt % vision_subsample == 0) && !msg.left_image.data.empty() && !msg.right_image.data.empty())
 	{
