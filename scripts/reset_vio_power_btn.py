@@ -17,5 +17,5 @@ if __name__ == "__main__":
     while not rospy.is_shutdown():
         if os.path.isfile('/home/odroid/request_reset'):
             reset_pub.publish(msg)
-            rospy.INFO('Got reset request from power button')
+            rospy.loginfo('Got reset request from power button')
         rospy.sleep(1)
