@@ -64,4 +64,6 @@
 
   </node>
 
+  <node name="reset_vio_power_btn" pkg="vio_ros" type="reset_vio_power_btn.py" />
+
 </launch>
