@@ -1,15 +1,11 @@
 <launch>
 
-  <arg name="exposure_duo" default="100" />
-  <arg name="gain_duo" default="100" />
   <arg name="FPS_duo" default="50" />
   <arg name="resolution_width_duo" default="320" />
   <arg name="resolution_height_duo" default="240" />
 
   <!-- duo camera node -->
   <include file="$(find duo3d_ros)/launch/duo.launch">
-    <arg name="exposure" value="$(arg exposure_duo)" />
-    <arg name="gain" value="$(arg gain_duo)" />
     <arg name="FPS" value="$(arg FPS_duo)" />
     <arg name="resolution_width" value="$(arg resolution_width_duo)" />
     <arg name="resolution_height" value="$(arg resolution_height_duo)" />
