@@ -360,14 +360,14 @@ void Localization::update(double dt, const vio_ros::VioSensorMsg &msg, bool upda
 				&noiseParams,
 				&vioParams,
 				0, // predict
-				0, // reset
+				reset, // reset
 				&robot_state,
 				&map[0],
 				&anchor_poses[0],
 				delayedStatus);
 		}
 
-	if (!reset && (auto_subsample || vio_cnt % vision_subsample == 0) && !msg.left_image.data.empty() && !msg.right_image.data.empty())
+	if ((auto_subsample || vio_cnt % vision_subsample == 0) && !msg.left_image.data.empty() && !msg.right_image.data.empty())
 	{
 		cv_bridge::CvImagePtr left_image;
 		cv_bridge::CvImagePtr right_image;
@@ -410,7 +410,7 @@ void Localization::update(double dt, const vio_ros::VioSensorMsg &msg, bool upda
 				&noiseParams,
 				&vioParams,
 				1, // vision update
-				reset,
+				0, // reset (reset is done in prediction)
 				&robot_state,
 				&map[0],
 				&anchor_poses[0],
