@@ -114,7 +114,7 @@ private:
 
 	void vioSensorMsgCb(const vio_ros::VioSensorMsg &msg);
 	void deviceSerialNrCb(const std_msgs::String &msg);
-
+	void loadCustomCameraCalibration(const std::string calib_path);
 	void update(double dt, const vio_ros::VioSensorMsg &msg, bool debug_publish, bool show_image, bool reset);
 
 	void getIMUData(const sensor_msgs::Imu& imu, VIOMeasurements& meas);

@@ -158,6 +158,14 @@ Localization::Localization()
 		ROS_WARN("Failed to load parameter image_visualization_delay");
 	image_visualization_delay = !image_visualization_delay ? 1 : image_visualization_delay;
 
+	// try to load a custom camera calibration file if the launch parameter was set
+	std::string calibration_path;
+	if(nh_.getParam("camera_calibration", calibration_path))
+	{
+		ROS_INFO("Got custom camera calibration path");
+		loadCustomCameraCalibration(calibration_path);
+	}
+
 	dynamic_reconfigure::Server<vio_ros::vio_rosConfig>::CallbackType f = boost::bind(&Localization::dynamicReconfigureCb, this, _1, _2);
 	dynamic_reconfigure_server.setCallback(f);
 
@@ -186,7 +194,7 @@ Localization::~Localization()
 	printf("Trajectory length: %f\n", dist);
 
 	// write the estimated biases to file
-	if (got_device_serial_nr)
+	if (got_device_serial_nr && !device_serial_nr.empty())
 	{
 		std::string file_path = ros::package::getPath("duo3d_ros") + "/calib/" + device_serial_nr + "/last_bias_estimate.yaml";
 		YAML::Node node;  // starts out as null
@@ -295,6 +303,24 @@ void Localization::deviceSerialNrCb(const std_msgs::String &msg)
 
 	ROS_INFO("Reading camera calibration from %s", calib_path.c_str());
 
+	try {
+		YAML::Node YamlNode = YAML::LoadFile(calib_path);
+		if (YamlNode.IsNull())
+		{
+			ROS_FATAL("Failed to open camera calibration %s", calib_path.c_str());
+			exit(-1);
+		}
+		cameraParams = parseYaml(YamlNode);
+	} catch (YAML::BadFile &e) {
+		ROS_FATAL("Failed to open camera calibration %s\nException: %s", calib_path.c_str(), e.what());
+		exit(-1);
+	}
+}
+
+void Localization::loadCustomCameraCalibration(const std::string calib_path)
+{
+	// load a camera calibration defined in the launch script
+	got_device_serial_nr = true;
 	try {
 		YAML::Node YamlNode = YAML::LoadFile(calib_path);
 		if (YamlNode.IsNull())
