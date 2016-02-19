@@ -384,6 +384,12 @@ void Localization::resetCb(const std_msgs::Empty &msg)
 {
 	ROS_WARN("Got reset command");
 	SLAM_reset_flag = true;
+
+	printf("Longest update duration: %.3f msec, %.3f Hz\n", float(max_clicks_)/CLOCKS_PER_SEC, CLOCKS_PER_SEC/float(max_clicks_));
+
+	printf("Last position: %f %f %f\n", robot_state.pos[0], robot_state.pos[1], robot_state.pos[2]);
+	printf("Trajectory length: %f\n", dist);
+	dist = 0;
 }
 
 void Localization::update(double dt, const vio_ros::VioSensorMsg &msg, bool update_vis, bool show_image, bool reset)
