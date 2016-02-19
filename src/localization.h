@@ -73,6 +73,9 @@ private:
 	VIOParameters vioParams;
 	ros::NodeHandle nh_;
 
+	cv::Mat darkCurrentL, darkCurrentR;
+	bool use_dark_current;
+
 	ros::Subscriber duo_sub;
 	ros::Subscriber device_serial_nr_sub;
 	std::string device_serial_nr;

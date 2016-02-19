@@ -24,7 +24,8 @@ Localization::Localization()
   image_visualization_delay(0),
   auto_subsample(false),
   dist(0.0),
-  got_device_serial_nr(false)
+  got_device_serial_nr(false),
+  use_dark_current(false)
 {
 	SLAM_initialize();
 
@@ -162,7 +163,7 @@ Localization::Localization()
 	std::string calibration_path;
 	if(nh_.getParam("camera_calibration", calibration_path))
 	{
-		ROS_INFO("Got custom camera calibration path");
+		ROS_INFO("Got custom camera calibration path %s", calibration_path.c_str());
 		loadCustomCameraCalibration(calibration_path);
 	}
 
@@ -274,13 +275,9 @@ void Localization::vioSensorMsgCb(const vio_ros::VioSensorMsg& msg)
 	std_msgs::Float32 duration_total_msg; duration_total_msg.data = duration_total;
 	timing_total_pub.publish(duration_total_msg);
 
-	if (0*vis_publish || duration_total > vision_subsample/fps_duo)
-	{
-		if (duration_total > vision_subsample/fps_duo)
-			ROS_WARN("Duration: %f ms. Theoretical max frequency: %.3f Hz", duration_total, 1/duration_total);
-		else
-			ROS_INFO("Duration: %f ms. Theoretical max frequency: %.3f Hz", duration_total, 1/duration_total);
-	}
+	if (duration_total > vision_subsample/fps_duo)
+		ROS_WARN("Duration: %f ms. Theoretical max frequency: %.3f Hz", duration_total, 1/duration_total);
+
 }
 
 void Localization::deviceSerialNrCb(const std_msgs::String &msg)
@@ -314,6 +311,34 @@ void Localization::deviceSerialNrCb(const std_msgs::String &msg)
 	} catch (YAML::BadFile &e) {
 		ROS_FATAL("Failed to open camera calibration %s\nException: %s", calib_path.c_str(), e.what());
 		exit(-1);
+	}
+
+	std::string dark_current_l_path = ros::package::getPath("duo3d_ros") + "/calib/" + device_serial_nr + "/" + lense_type + "/" + res.str() + "/dark_current_r.bmp";
+	darkCurrentL = cv::imread(dark_current_l_path, CV_LOAD_IMAGE_GRAYSCALE);
+
+	if (!darkCurrentL.data)
+	{
+		ROS_WARN("Failed to open left dark current image %s!", dark_current_l_path.c_str());
+		use_dark_current = false;
+	} else if (darkCurrentL.rows != resolution_height || darkCurrentL.cols != resolution_width)
+	{
+		ROS_WARN("Left dark current image has the wrong dimensions %s!", dark_current_l_path.c_str());
+		use_dark_current = false;
+	}
+
+	if (use_dark_current)
+	{
+		std::string dark_current_r_path = ros::package::getPath("duo3d_ros") + "/calib/" + device_serial_nr + "/" + lense_type + "/" + res.str() + "/dark_current_r.bmp";
+		darkCurrentR = cv::imread(dark_current_r_path, CV_LOAD_IMAGE_GRAYSCALE);
+		if (!darkCurrentR.data)
+		{
+			ROS_WARN("Failed to open right dark current image %s!", dark_current_r_path.c_str());
+			use_dark_current = false;
+		} else if (darkCurrentR.rows != resolution_height || darkCurrentR.cols != resolution_width)
+		{
+			ROS_WARN("Right dark current image has the wrong dimensions %s!", dark_current_r_path.c_str());
+			use_dark_current = false;
+		}
 	}
 }
 
@@ -415,8 +440,14 @@ void Localization::update(double dt, const vio_ros::VioSensorMsg &msg, bool upda
 		ros::Time tic_feature_tracking = ros::Time::now();
 
 		cv::Mat left, right;
-		left = left_image->image;
-		right = right_image->image;
+		if (use_dark_current)
+		{
+			left = left_image->image - darkCurrentL;
+			right = right_image->image - darkCurrentR;
+		} else {
+			left = left_image->image;
+			right = right_image->image;
+		}
 
 		handle_points_klt(left, right, z_all_l, z_all_r, update_vec_, vioParams.full_stereo);
 
