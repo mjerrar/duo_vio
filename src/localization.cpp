@@ -385,10 +385,10 @@ void Localization::resetCb(const std_msgs::Empty &msg)
 	ROS_WARN("Got reset command");
 	SLAM_reset_flag = true;
 
-	printf("Longest update duration: %.3f msec, %.3f Hz\n", float(max_clicks_)/CLOCKS_PER_SEC, CLOCKS_PER_SEC/float(max_clicks_));
+	ROS_INFO("Longest update duration: %.3f msec, %.3f Hz\n", float(max_clicks_)/CLOCKS_PER_SEC, CLOCKS_PER_SEC/float(max_clicks_));
 
-	printf("Last position: %f %f %f\n", robot_state.pos[0], robot_state.pos[1], robot_state.pos[2]);
-	printf("Trajectory length: %f\n", dist);
+	ROS_INFO("Last position: %f %f %f\n", robot_state.pos[0], robot_state.pos[1], robot_state.pos[2]);
+	ROS_INFO("Trajectory length: %f\n", dist);
 	dist = 0;
 }
 
