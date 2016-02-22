@@ -17,7 +17,7 @@
   <arg name="K_yaw_speed" default="1" />
 
   <arg name="int_lim_xy"  default="500" />
-  <arg name="int_lim_z"   default="100" />
+  <arg name="int_lim_z"   default="500" />
   <arg name="int_lim_yaw" default="100" />
 
   <arg name="velocity_thresh" default="0.1" />
