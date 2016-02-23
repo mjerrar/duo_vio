@@ -10,8 +10,6 @@ __author__ = 'nicolas'
 if __name__ == "__main__":
     rospy.init_node("vio_reset")
 
-    ros_master_uri = os.environ['ROS_MASTER_URI']
-
     reset_pub = rospy.Publisher("vio_ros/reset", Empty, queue_size=1)
     msg = Empty()
     while not rospy.is_shutdown():

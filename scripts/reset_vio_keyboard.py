@@ -15,5 +15,5 @@ if __name__ == "__main__":
     reset_pub = rospy.Publisher("vio_ros/reset", Empty, queue_size=1)
     msg = Empty()
     while not rospy.is_shutdown():
-        raw_input('Press any key to reset VIO at {}:'.format(ros_master_uri))
+        raw_input('Press enter to reset VIO at {}:'.format(ros_master_uri))
         reset_pub.publish(msg)

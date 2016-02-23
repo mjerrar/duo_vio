@@ -1,0 +1,6 @@
+<launch>
+  <node name="reset_vio_joy" pkg="vio_ros" type="reset_vio_joy.py" output="screen" />
+  <node name="joy" pkg="joy" type="joy_node" output="screen"/>
+</launch>
+
+
