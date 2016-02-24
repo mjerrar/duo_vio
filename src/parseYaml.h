@@ -12,7 +12,7 @@
 #include <string>
 #include <ros/console.h>
 #include "Precision.h"
-#include "SLAM_includes.h"
+//#include "SLAM_includes.h"
 
 // VIOParameters
 // =========================================================
