@@ -18,7 +18,7 @@
   <arg name="inv_depth_initial_unc" default="0.001" />
   <arg name="gyro_bias_initial_unc" default="[0.1, 0.1, 0.1]" />
   <arg name="acc_bias_initial_unc" default="[0, 0, 0]" />
-  <arg name="imu_smoothing_factor" default="1" /> <!-- 1.0 to disable smoothing -->
+  <arg name="imu_smoothing_factor" default="0.8" /> <!-- 1.0 to disable smoothing -->
 
   <!-- vio parameters -->
   <arg name="fixed_feature" default="0" />
