@@ -260,11 +260,14 @@ void Localization::vioSensorMsgCb(const vio_ros::VioSensorMsg& msg)
 		if (dt < 0)
 		{
 			ROS_ERROR("Negative time difference: %f", dt);
+//			dt = 1/fps_duo;
+			prev_time_ = msg.header.stamp;
 			return;
-//			dt = 0.01;
 		}
 		if (std::abs(dt - 1/fps_duo) > 10/fps_duo)
 			ROS_WARN("Jitter! dt: %f", dt);
+		if (dt > 100/fps_duo)
+			dt = 1/fps_duo; // sometimes dt is huge, probably a camera driver issue
 		prev_time_ = msg.header.stamp;
 	}
 
