@@ -45,6 +45,7 @@
 #include "std_msgs/UInt32.h"
 
 #include "parseYaml.h"
+#include "IMULowpass.h"
 
 #include "Precision.h"
 
@@ -72,6 +73,7 @@ private:
 	NoiseParameters noiseParams;
 	VIOParameters vioParams;
 	ros::NodeHandle nh_;
+	IMULowpass imulp_;
 
 	cv::Mat darkCurrentL, darkCurrentR;
 	bool use_dark_current;
@@ -91,6 +93,7 @@ private:
 	ros::Publisher timing_feature_tracking_pub;
 	ros::Publisher timing_total_pub;
 	ros::Publisher vis_pub_;
+	ros::Publisher smoothed_imu_pub; //debug
 
 	tf::TransformBroadcaster tf_broadcaster;
 	tf::Transform camera_tf;

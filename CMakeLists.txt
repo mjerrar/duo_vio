@@ -125,6 +125,7 @@ add_executable(vio_ros_node
   src/vio_ros_node.cpp
   src/localization.cpp
   src/klt_point_handling.cc
+  src/IMULowpass.cpp
   ${SLAMSources}
 )
 

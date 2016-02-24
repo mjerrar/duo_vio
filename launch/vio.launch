@@ -18,6 +18,7 @@
   <arg name="inv_depth_initial_unc" default="0.001" />
   <arg name="gyro_bias_initial_unc" default="[0.1, 0.1, 0.1]" />
   <arg name="acc_bias_initial_unc" default="[0, 0, 0]" />
+  <arg name="imu_smoothing_factor" default="1" /> <!-- 1.0 to disable smoothing -->
 
   <!-- vio parameters -->
   <arg name="fixed_feature" default="0" />
@@ -41,6 +42,7 @@
     <param name="noise_inv_depth_initial_unc" type="double" value="$(arg inv_depth_initial_unc)" />
     <rosparam param="noise_gyro_bias_initial_unc" subst_value="True">$(arg gyro_bias_initial_unc) </rosparam>
     <rosparam param="noise_acc_bias_initial_unc" subst_value="True">$(arg acc_bias_initial_unc) </rosparam>
+    <param name="imu_smoothing_factor" type="double" value="$(arg imu_smoothing_factor)" />
 
     <!-- vio parameters -->
     <param name="vio_fixed_feature" type="bool" value="$(arg fixed_feature)" />

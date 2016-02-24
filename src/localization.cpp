@@ -41,6 +41,8 @@ Localization::Localization()
 	pose_pub = nh_.advertise<geometry_msgs::Pose>("pose", 1);
 	vel_pub = nh_.advertise<geometry_msgs::Vector3>("vel", 1);
 
+	smoothed_imu_pub = nh_.advertise<sensor_msgs::Imu>("imu_smoothed", 1); // debug
+
 	// visualization topics
 	vio_vis_pub = nh_.advertise<vio_ros::vio_vis>("/vio_vis/vio_vis", 1);
 	vio_vis_reset_pub = nh_.advertise<std_msgs::Empty>("/vio_vis/reset", 1);
@@ -166,6 +168,11 @@ Localization::Localization()
 		ROS_INFO("Got custom camera calibration path %s", calibration_path.c_str());
 		loadCustomCameraCalibration(calibration_path);
 	}
+
+	double imu_smoothing_factor = 1.0; // default to no smoothing
+	nh_.getParam("imu_smoothing_factor", imu_smoothing_factor);
+	imulp_.setSmoothingFactor(imu_smoothing_factor);
+
 
 	dynamic_reconfigure::Server<vio_ros::vio_rosConfig>::CallbackType f = boost::bind(&Localization::dynamicReconfigureCb, this, _1, _2);
 	dynamic_reconfigure_server.setCallback(f);
@@ -408,7 +415,9 @@ void Localization::update(double dt, const vio_ros::VioSensorMsg &msg, bool upda
 
 	for (int i = 0; i < msg.imu.size(); i++)
 	{
-		getIMUData(msg.imu[i], meas);
+		getIMUData(msg.imu[i], meas); // write the IMU data into the appropriate struct
+		imulp_.put(meas); // filter the IMU data
+		imulp_.get(meas);
 		SLAM(&update_vec_[0],
 				&z_all_l[0],
 				&z_all_r[0],
@@ -423,7 +432,19 @@ void Localization::update(double dt, const vio_ros::VioSensorMsg &msg, bool upda
 				&map[0],
 				&anchor_poses[0],
 				delayedStatus);
-		}
+	}
+
+	sensor_msgs::Imu smoothed;
+	smoothed.header = msg.header;
+	smoothed.linear_acceleration.x = meas.acc_duo[0];
+	smoothed.linear_acceleration.y = meas.acc_duo[1];
+	smoothed.linear_acceleration.z = meas.acc_duo[2];
+	smoothed.angular_velocity.x = meas.gyr_duo[0];
+	smoothed.angular_velocity.y = meas.gyr_duo[1];
+	smoothed.angular_velocity.z = meas.gyr_duo[2];
+
+	smoothed_imu_pub.publish(smoothed);
+
 
 	if ((auto_subsample || vio_cnt % vision_subsample == 0) && !msg.left_image.data.empty() && !msg.right_image.data.empty())
 	{
