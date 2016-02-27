@@ -14,7 +14,7 @@
   <arg name="D_xy"        default="1.5" />
   <arg name="D_z"         default="3" />
 
-  <arg name="K_xy_speed"  default="1" />
+  <arg name="K_xy_speed"  default="2" />
   <arg name="K_z_speed"   default="1" />
   <arg name="K_yaw_speed" default="1" />
 
@@ -26,9 +26,9 @@
 
   <arg name="int_height_limit" default="0.1" />
 
-  <arg name="pose_estimator_dt" default="0.01" />
-  <arg name="pose_estimator_qv" default="100" />
-  <arg name="pose_estimator_qw" default="100" />
+  <arg name="pose_estimator_dt" default="0.02" />
+  <arg name="pose_estimator_qv" default="10" />
+  <arg name="pose_estimator_qw" default="10" />
   <arg name="pose_estimator_rp" default="0.1" />
   <arg name="pose_estimator_ra" default="0.1" />
 
