@@ -284,7 +284,7 @@ void Localization::vioSensorMsgCb(const vio_ros::VioSensorMsg& msg)
 	timing_total_pub.publish(duration_total_msg);
 
 	if (duration_total > vision_subsample/fps)
-		ROS_WARN("Duration: %f ms. Theoretical max frequency: %.3f Hz", duration_total, 1/duration_total);
+		ROS_WARN_THROTTLE(1.0, "Duration: %f ms. Theoretical max frequency: %.3f Hz", duration_total, 1/duration_total);
 
 }
 
