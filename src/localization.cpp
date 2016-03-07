@@ -193,7 +193,7 @@ Localization::~Localization()
 {
 	SLAM_terminate();
 
-	printf("Longest update duration: %.3f msec, %.3f Hz\n", float(max_clicks_)/CLOCKS_PER_SEC, CLOCKS_PER_SEC/float(max_clicks_));
+	printf("Longest update duration: %.3f msec, %.3f Hz\n", float(max_clicks_)/CLOCKS_PER_SEC*1000, CLOCKS_PER_SEC/float(max_clicks_));
 
 	printf("Last position: %f %f %f\n", robot_state.pos[0], robot_state.pos[1], robot_state.pos[2]);
 	printf("Trajectory length: %f\n", dist);
