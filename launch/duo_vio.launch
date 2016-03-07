@@ -1,21 +1,21 @@
 <launch>
 
-  <arg name="FPS_duo" default="50" />
-  <arg name="resolution_width_duo" default="320" />
-  <arg name="resolution_height_duo" default="240" />
+  <arg name="FPS" default="50" />
+  <arg name="resolution_width" default="320" />
+  <arg name="resolution_height" default="240" />
 
   <!-- duo camera node -->
   <include file="$(find duo3d_ros)/launch/duo.launch">
-    <arg name="FPS" value="$(arg FPS_duo)" />
-    <arg name="resolution_width" value="$(arg resolution_width_duo)" />
-    <arg name="resolution_height" value="$(arg resolution_height_duo)" />
+    <arg name="FPS" value="$(arg FPS)" />
+    <arg name="resolution_width" value="$(arg resolution_width)" />
+    <arg name="resolution_height" value="$(arg resolution_height)" />
   </include>
 
  <!-- visual odometry node --> 
  <include file="$(find vio_ros)/launch/vio.launch">
-    <arg name="resolution_width_duo" value="$(arg resolution_width_duo)" />
-    <arg name="resolution_height_duo" value="$(arg resolution_height_duo)" />
-    <arg name="FPS_duo" value="$(arg FPS_duo)" />
+    <arg name="resolution_width" value="$(arg resolution_width)" />
+    <arg name="resolution_height" value="$(arg resolution_height)" />
+    <arg name="FPS" value="$(arg FPS)" />
   </include>
 
   <node name="set_cpu" pkg="vio_ros" type="set_cpu.py" />

@@ -28,21 +28,6 @@ struct VIOParameters
 	bool full_stereo;
 };
 
-// ControllerGains
-// =========================================================
-struct ControllerGains
-{
-	FloatType Kp_xy;
-	FloatType Ki_xy;
-	FloatType Kd_xy;
-	FloatType Kp_z;
-	FloatType Ki_z;
-	FloatType Kd_z;
-	FloatType Kp_yaw;
-	FloatType Kd_yaw;
-	FloatType i_lim;
-};
-
 // ProcessNoise
 // =========================================================
 struct ProcessNoise
@@ -69,8 +54,8 @@ struct NoiseParameters
 // =========================================================
 struct VIOMeasurements
 {
-	FloatType gyr_duo[3];
-	FloatType acc_duo[3];
+	FloatType gyr[3];
+	FloatType acc[3];
 };
 
 // IMUOffset

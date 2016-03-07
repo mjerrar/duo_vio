@@ -1,11 +1,9 @@
 <launch>
 
   <!-- camera settings -->
-  <arg name="exposure_duo" default="100" />
-  <arg name="gain_duo" default="100" />
-  <arg name="FPS_duo" default="100" />
-  <arg name="resolution_width_duo" default="320" />
-  <arg name="resolution_height_duo" default="240" />
+  <arg name="FPS" default="50" />
+  <arg name="resolution_width" default="320" />
+  <arg name="resolution_height" default="240" />
   <arg name="lense_type" default="FS3028B13M8" />
   <arg name="vision_subsample" default="2" />
 
@@ -53,10 +51,10 @@
     <param name="vio_full_stereo" type="bool" value="$(arg full_stereo)" />
 
     <!-- camera settings -->
-    <param name="cam_FPS_duo" type="double" value="$(arg FPS_duo)" />
+    <param name="cam_FPS" type="double" value="$(arg FPS)" />
     <param name="cam_lense_type" type="string" value="$(arg lense_type)" />
-    <param name="cam_resolution_width" type="int" value="$(arg resolution_width_duo)" />
-    <param name="cam_resolution_height" type="int" value="$(arg resolution_height_duo)" />
+    <param name="cam_resolution_width" type="int" value="$(arg resolution_width)" />
+    <param name="cam_resolution_height" type="int" value="$(arg resolution_height)" />
     <param name="cam_vision_subsample" type="int" value="$(arg vision_subsample)" />
 
     <!-- other parameters -->

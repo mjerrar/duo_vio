@@ -44,7 +44,7 @@
 #include "std_msgs/Float32MultiArray.h"
 #include "std_msgs/UInt32.h"
 
-#include "parseYaml.h"
+#include "InterfaceStructs.h"
 #include "IMULowpass.h"
 
 #include "Precision.h"
@@ -65,7 +65,7 @@ private:
 	int display_tracks_cnt;
 	int max_clicks_;
 	int clear_queue_counter;
-	double fps_duo;
+	double fps;
 	int vio_cnt;
 	int vision_subsample;
 
@@ -78,13 +78,13 @@ private:
 	cv::Mat darkCurrentL, darkCurrentR;
 	bool use_dark_current;
 
-	ros::Subscriber duo_sub;
+	ros::Subscriber vio_sensor_sub;
 	ros::Subscriber device_serial_nr_sub;
 	std::string device_serial_nr;
 	bool got_device_serial_nr;
 	bool auto_subsample; // if true, predict with messages without image data, otherwise update
 
-	ros::Publisher duo_processed_pub;
+	ros::Publisher vio_sensor_processed_pub;
 	dynamic_reconfigure::Server<vio_ros::vio_rosConfig> dynamic_reconfigure_server;
 
 	ros::Publisher pose_pub;

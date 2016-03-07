@@ -34,7 +34,7 @@ Localization::Localization()
 	noiseParams = {};
 	vioParams = {};
 
-	duo_sub = nh_.subscribe("/vio_sensor", VIO_SENSOR_QUEUE_SIZE, &Localization::vioSensorMsgCb,this);
+	vio_sensor_sub = nh_.subscribe("/vio_sensor", VIO_SENSOR_QUEUE_SIZE, &Localization::vioSensorMsgCb,this);
 	device_serial_nr_sub = nh_.subscribe("/vio_sensor/device_serial_nr", 1, &Localization::deviceSerialNrCb, this);
 	reset_sub = nh_.subscribe("reset", 1, &Localization::resetCb, this);
 
@@ -49,7 +49,7 @@ Localization::Localization()
 	ros::Duration(0.5).sleep(); // otherwise the following message might not be received
 	vio_vis_reset_pub.publish(std_msgs::Empty());
 
-	duo_processed_pub = nh_.advertise<std_msgs::UInt64>("/duo3d/msg_processed", 1);
+	vio_sensor_processed_pub = nh_.advertise<std_msgs::UInt64>("/vio_sensor/msg_processed", 1);
 
 	// Load parameters from launch file
 	double tmp_scalar;
@@ -140,8 +140,8 @@ Localization::Localization()
 		vioParams.full_stereo = tmp_bool;
 	}
 
-	if(!nh_.getParam("cam_FPS_duo", fps_duo))
-		ROS_WARN("Failed to load parameter cam_FPS_duo");
+	if(!nh_.getParam("cam_FPS", fps))
+		ROS_WARN("Failed to load parameter cam_FPS");
 	if(!nh_.getParam("cam_vision_subsample", vision_subsample))
 		ROS_WARN("Failed to load parameter cam_vision_subsample");
 	if (vision_subsample < 1)
@@ -153,7 +153,7 @@ Localization::Localization()
 	double visualization_freq;
 	if(!nh_.getParam("visualization_freq", visualization_freq))
 		ROS_WARN("Failed to load parameter visualization_freq");
-	vis_publish_delay = fps_duo/vision_subsample/visualization_freq;
+	vis_publish_delay = fps/vision_subsample/visualization_freq;
 	vis_publish_delay = !vis_publish_delay ? 1 : vis_publish_delay;
 	if(!nh_.getParam("show_camera_image", show_camera_image_))
 		ROS_WARN("Failed to load parameter show_camera_image");
@@ -226,7 +226,7 @@ void Localization::vioSensorMsgCb(const vio_ros::VioSensorMsg& msg)
 	ros::Time tic_total = ros::Time::now();
 	//	ROS_INFO("Received message %d", msg.header.seq);
 	bool reset = false;
-	// upon reset, catch up with the duo messages before resetting SLAM
+	// upon reset, catch up with the sensor messages before resetting SLAM
 	if (SLAM_reset_flag)
 	{
 		if(clear_queue_counter < VIO_SENSOR_QUEUE_SIZE)
@@ -234,14 +234,14 @@ void Localization::vioSensorMsgCb(const vio_ros::VioSensorMsg& msg)
 			clear_queue_counter++;
 			std_msgs::UInt32 id_msg;
 			id_msg.data = msg.header.seq;
-			duo_processed_pub.publish(msg.seq);
+			vio_sensor_processed_pub.publish(msg.seq);
 			return;
 		} else {
 			clear_queue_counter = 0;
 			SLAM_reset_flag = false;
 			std_msgs::UInt32 id_msg;
 			id_msg.data = msg.header.seq;
-			duo_processed_pub.publish(msg.seq);
+			vio_sensor_processed_pub.publish(msg.seq);
 			//			return;
 			reset = true;
 			vio_vis_reset_pub.publish(std_msgs::Empty());
@@ -254,20 +254,20 @@ void Localization::vioSensorMsgCb(const vio_ros::VioSensorMsg& msg)
 	if (prev_time_.isZero())
 	{
 		prev_time_ = msg.header.stamp;
-		dt = vision_subsample/fps_duo;
+		dt = vision_subsample/fps;
 	} else {
 		dt = (msg.header.stamp - prev_time_).toSec();
 		if (dt < 0)
 		{
 			ROS_ERROR("Negative time difference: %f", dt);
-//			dt = 1/fps_duo;
+//			dt = 1/fps;
 			prev_time_ = msg.header.stamp;
 			return;
 		}
-		if (std::abs(dt - 1/fps_duo) > 10/fps_duo)
+		if (std::abs(dt - 1/fps) > 10/fps)
 			ROS_WARN("Jitter! dt: %f", dt);
-		if (dt > 100/fps_duo)
-			dt = 1/fps_duo; // sometimes dt is huge, probably a camera driver issue
+		if (dt > 100/fps)
+			dt = 1/fps; // sometimes dt is huge, probably a camera driver issue
 		prev_time_ = msg.header.stamp;
 	}
 
@@ -280,13 +280,13 @@ void Localization::vioSensorMsgCb(const vio_ros::VioSensorMsg& msg)
 	if (toc_total_clock - tic_total_clock > max_clicks_)
 		max_clicks_ = toc_total_clock - tic_total_clock;
 
-	duo_processed_pub.publish(msg.seq);
+	vio_sensor_processed_pub.publish(msg.seq);
 
 	double duration_total = (ros::Time::now() - tic_total).toSec();
 	std_msgs::Float32 duration_total_msg; duration_total_msg.data = duration_total;
 	timing_total_pub.publish(duration_total_msg);
 
-	if (duration_total > vision_subsample/fps_duo)
+	if (duration_total > vision_subsample/fps)
 		ROS_WARN("Duration: %f ms. Theoretical max frequency: %.3f Hz", duration_total, 1/duration_total);
 
 }
@@ -439,12 +439,12 @@ void Localization::update(double dt, const vio_ros::VioSensorMsg &msg, bool upda
 
 	sensor_msgs::Imu smoothed;
 	smoothed.header = msg.header;
-	smoothed.linear_acceleration.x = meas.acc_duo[0];
-	smoothed.linear_acceleration.y = meas.acc_duo[1];
-	smoothed.linear_acceleration.z = meas.acc_duo[2];
-	smoothed.angular_velocity.x = meas.gyr_duo[0];
-	smoothed.angular_velocity.y = meas.gyr_duo[1];
-	smoothed.angular_velocity.z = meas.gyr_duo[2];
+	smoothed.linear_acceleration.x = meas.acc[0];
+	smoothed.linear_acceleration.y = meas.acc[1];
+	smoothed.linear_acceleration.z = meas.acc[2];
+	smoothed.angular_velocity.x = meas.gyr[0];
+	smoothed.angular_velocity.y = meas.gyr[1];
+	smoothed.angular_velocity.z = meas.gyr[2];
 
 	smoothed_imu_pub.publish(smoothed);
 
@@ -559,13 +559,13 @@ void Localization::update(double dt, const vio_ros::VioSensorMsg &msg, bool upda
 
 void Localization::getIMUData(const sensor_msgs::Imu& imu, VIOMeasurements& meas)
 {
-	meas.acc_duo[0] = imu.linear_acceleration.x;
-	meas.acc_duo[1] = imu.linear_acceleration.y;
-	meas.acc_duo[2] = imu.linear_acceleration.z;
+	meas.acc[0] = imu.linear_acceleration.x;
+	meas.acc[1] = imu.linear_acceleration.y;
+	meas.acc[2] = imu.linear_acceleration.z;
 
-	meas.gyr_duo[0] = imu.angular_velocity.x;
-	meas.gyr_duo[1] = imu.angular_velocity.y;
-	meas.gyr_duo[2] = imu.angular_velocity.z;
+	meas.gyr[0] = imu.angular_velocity.x;
+	meas.gyr[1] = imu.angular_velocity.y;
+	meas.gyr[2] = imu.angular_velocity.z;
 }
 
 void Localization::updateVis(RobotState &robot_state,
