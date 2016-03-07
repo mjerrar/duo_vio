@@ -8,7 +8,7 @@
 #ifndef VIO_ROS_SRC_IMULOWPASS_H_
 #define VIO_ROS_SRC_IMULOWPASS_H_
 
-#include "parseYaml.h"
+#include "InterfaceStructs.h"
 #include "Precision.h"
 
 class IMULowpass {
