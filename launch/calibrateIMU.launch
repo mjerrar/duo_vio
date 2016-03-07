@@ -1,0 +1,41 @@
+<launch>
+
+  <!-- noise parameters -->
+  <arg name="acc_noise" default="10" />
+  <arg name="gyro_noise" default="0.1" />
+  <arg name="gyro_bias_noise" default="0.001" />
+  <arg name="acc_bias_noise" default="0.001" />
+  <arg name="inv_depth_initial_unc" default="0.001" />
+  <arg name="gyro_bias_initial_unc" default="[0.1, 0.1, 0.1]" />
+  <arg name="acc_bias_initial_unc" default="[0.1, 0.1, 0.1]" />
+  <arg name="imu_smoothing_factor" default="0.8" /> <!-- 1.0 to disable smoothing -->
+
+  <arg name="FPS_duo" default="50" />
+  <arg name="resolution_width_duo" default="320" />
+  <arg name="resolution_height_duo" default="240" />
+
+  <!-- duo camera node -->
+  <include file="$(find duo3d_ros)/launch/duo.launch">
+    <arg name="FPS" value="$(arg FPS_duo)" />
+    <arg name="resolution_width" value="$(arg resolution_width_duo)" />
+    <arg name="resolution_height" value="$(arg resolution_height_duo)" />
+  </include>
+
+ <!-- visual odometry node --> 
+ <include file="$(find vio_ros)/launch/vio.launch">
+    <arg name="resolution_width_duo" value="$(arg resolution_width_duo)" />
+    <arg name="resolution_height_duo" value="$(arg resolution_height_duo)" />
+    <arg name="FPS_duo" value="$(arg FPS_duo)" />
+    <arg name="acc_noise" value="$(arg acc_noise)" />
+    <arg name="gyro_noise" value="$(arg gyro_noise)" />
+    <arg name="gyro_bias_noise" value="$(arg gyro_bias_noise)" />
+    <arg name="acc_bias_noise" value="$(arg acc_bias_noise)" />
+    <arg name="inv_depth_initial_unc" value="$(arg inv_depth_initial_unc)" />
+    <arg name="gyro_bias_initial_unc" value="$(arg gyro_bias_initial_unc)" />
+    <arg name="acc_bias_initial_unc" value="$(arg acc_bias_initial_unc)" />
+    <arg name="imu_smoothing_factor" value="$(arg imu_smoothing_factor)" />
+  </include>
+
+  <node name="set_cpu" pkg="vio_ros" type="set_cpu.py" />
+
+</launch>
