@@ -5,7 +5,7 @@
 // File: SLAM.cpp
 //
 // MATLAB Coder version            : 3.0
-// C/C++ source code generated on  : 07-Mar-2016 11:08:41
+// C/C++ source code generated on  : 07-Mar-2016 14:06:20
 //
 
 // Include Files
@@ -6662,39 +6662,33 @@ static void SLAM_upd(double P_apr[10404], g_struct_T *b_xt, int
     }
   }
 
-  //  figure(1);
-  //  for i = 1:length(updateVect)
-  //      if updateVect(i)
-  //          plot(z_all_l((i-1)*2 + 1), z_all_l((i-1)*2 + 2), 'ro')
-  //      end
-  //  end
   //  check for lost features
-  // 'SLAM_upd:28' for anchorIdx = 1:numAnchors
+  // 'SLAM_upd:21' for anchorIdx = 1:numAnchors
   for (anchorIdx = 0; anchorIdx < 6; anchorIdx++) {
-    // 'SLAM_upd:29' for featureIdx = 1:numPointsPerAnchor
+    // 'SLAM_upd:22' for featureIdx = 1:numPointsPerAnchor
     for (featureIdx = 0; featureIdx < 8; featureIdx++) {
-      // 'SLAM_upd:30' if xt.anchor_states(anchorIdx).feature_states(featureIdx).status 
+      // 'SLAM_upd:23' if xt.anchor_states(anchorIdx).feature_states(featureIdx).status 
       if ((b_xt->anchor_states[anchorIdx].feature_states[featureIdx].status != 0)
           && (updateVect[b_xt->anchor_states[anchorIdx]
               .feature_states[featureIdx].status_idx - 1] != 1)) {
-        // 'SLAM_upd:31' idx = xt.anchor_states(anchorIdx).feature_states(featureIdx).status_idx; 
-        // 'SLAM_upd:32' if updateVect(idx) ~= 1
-        // 'SLAM_upd:33' P_apr(xt.anchor_states(anchorIdx).feature_states(featureIdx).P_idx, :) = 0; 
+        // 'SLAM_upd:24' idx = xt.anchor_states(anchorIdx).feature_states(featureIdx).status_idx; 
+        // 'SLAM_upd:25' if updateVect(idx) ~= 1
+        // 'SLAM_upd:26' P_apr(xt.anchor_states(anchorIdx).feature_states(featureIdx).P_idx, :) = 0; 
         idx = b_xt->anchor_states[anchorIdx].feature_states[featureIdx].P_idx;
         for (i47 = 0; i47 < 102; i47++) {
           P_apr[(idx + 102 * i47) - 1] = 0.0;
         }
 
-        // 'SLAM_upd:34' P_apr(:, xt.anchor_states(anchorIdx).feature_states(featureIdx).P_idx) = 0; 
+        // 'SLAM_upd:27' P_apr(:, xt.anchor_states(anchorIdx).feature_states(featureIdx).P_idx) = 0; 
         idx = b_xt->anchor_states[anchorIdx].feature_states[featureIdx].P_idx;
         for (i47 = 0; i47 < 102; i47++) {
           P_apr[i47 + 102 * (idx - 1)] = 0.0;
         }
 
-        // 'SLAM_upd:35' xt.anchor_states(anchorIdx).feature_states(featureIdx).status = int32(0); 
+        // 'SLAM_upd:28' xt.anchor_states(anchorIdx).feature_states(featureIdx).status = int32(0); 
         b_xt->anchor_states[anchorIdx].feature_states[featureIdx].status = 0;
 
-        // 'SLAM_upd:36' xt.anchor_states(anchorIdx).feature_states(featureIdx).status_idx = int32(0); 
+        // 'SLAM_upd:29' xt.anchor_states(anchorIdx).feature_states(featureIdx).status_idx = int32(0); 
         b_xt->anchor_states[anchorIdx].feature_states[featureIdx].status_idx = 0;
 
         //                  ros_info('Lost feature %i, which was %i on anchor %i', idx, featureIdx, anchorIdx) 
@@ -6702,78 +6696,78 @@ static void SLAM_upd(double P_apr[10404], g_struct_T *b_xt, int
     }
   }
 
-  // 'SLAM_upd:43' if VIOParameters.fixed_feature
+  // 'SLAM_upd:36' if VIOParameters.fixed_feature
   if (b_VIOParameters.fixed_feature) {
-    // 'SLAM_upd:44' fix_new_feature = false;
+    // 'SLAM_upd:37' fix_new_feature = false;
     fix_new_feature = false;
 
-    // 'SLAM_upd:46' if xt.origin.anchor_idx
+    // 'SLAM_upd:39' if xt.origin.anchor_idx
     if (b_xt->origin.anchor_idx != 0) {
-      // 'SLAM_upd:47' if xt.fixed_feature
+      // 'SLAM_upd:40' if xt.fixed_feature
       if (b_xt->fixed_feature != 0) {
-        // 'SLAM_upd:48' if xt.anchor_states(xt.origin.anchor_idx).feature_states(xt.fixed_feature).status ~= 1 
+        // 'SLAM_upd:41' if xt.anchor_states(xt.origin.anchor_idx).feature_states(xt.fixed_feature).status ~= 1 
         if (b_xt->anchor_states[b_xt->origin.anchor_idx - 1].feature_states
             [b_xt->fixed_feature - 1].status != 1) {
-          // 'SLAM_upd:49' fix_new_feature = true;
+          // 'SLAM_upd:42' fix_new_feature = true;
           fix_new_feature = true;
 
-          // 'SLAM_upd:50' ros_info('Fixed feature %i (%i on anchor %i) is no longer valid', xt.anchor_states(xt.origin.anchor_idx).feature_states(xt.fixed_feature).status_idx, xt.fixed_feature, xt.origin.anchor_idx) 
+          // 'SLAM_upd:43' ros_info('Fixed feature %i (%i on anchor %i) is no longer valid', xt.anchor_states(xt.origin.anchor_idx).feature_states(xt.fixed_feature).status_idx, xt.fixed_feature, xt.origin.anchor_idx) 
           ros_info(b_xt->anchor_states[b_xt->origin.anchor_idx - 1].
                    feature_states[b_xt->fixed_feature - 1].status_idx,
                    b_xt->fixed_feature, b_xt->origin.anchor_idx);
         }
       } else {
-        // 'SLAM_upd:52' else
-        // 'SLAM_upd:53' fix_new_feature = true;
+        // 'SLAM_upd:45' else
+        // 'SLAM_upd:46' fix_new_feature = true;
         fix_new_feature = true;
       }
     }
 
-    // 'SLAM_upd:57' if fix_new_feature
+    // 'SLAM_upd:50' if fix_new_feature
     if (fix_new_feature) {
-      // 'SLAM_upd:58' uncertainties = zeros(numPointsPerAnchor, 1);
-      // 'SLAM_upd:59' active_feature = uncertainties;
-      // 'SLAM_upd:60' for featureIdx = 1:numPointsPerAnchor
+      // 'SLAM_upd:51' uncertainties = zeros(numPointsPerAnchor, 1);
+      // 'SLAM_upd:52' active_feature = uncertainties;
+      // 'SLAM_upd:53' for featureIdx = 1:numPointsPerAnchor
       for (featureIdx = 0; featureIdx < 8; featureIdx++) {
         active_feature[featureIdx] = 0;
 
-        // 'SLAM_upd:61' if xt.anchor_states(xt.origin.anchor_idx).feature_states(featureIdx).status == 1 
+        // 'SLAM_upd:54' if xt.anchor_states(xt.origin.anchor_idx).feature_states(featureIdx).status == 1 
         if (b_xt->anchor_states[b_xt->origin.anchor_idx - 1]
             .feature_states[featureIdx].status == 1) {
-          // 'SLAM_upd:62' uncertainties(featureIdx) = P_apr(xt.anchor_states(xt.origin.anchor_idx).feature_states(featureIdx).P_idx, xt.anchor_states(xt.origin.anchor_idx).feature_states(featureIdx).P_idx); 
+          // 'SLAM_upd:55' uncertainties(featureIdx) = P_apr(xt.anchor_states(xt.origin.anchor_idx).feature_states(featureIdx).P_idx, xt.anchor_states(xt.origin.anchor_idx).feature_states(featureIdx).P_idx); 
           uncertainties[featureIdx] = P_apr[(b_xt->anchor_states
             [b_xt->origin.anchor_idx - 1].feature_states[featureIdx].P_idx + 102
             * (b_xt->anchor_states[b_xt->origin.anchor_idx - 1]
                .feature_states[featureIdx].P_idx - 1)) - 1];
 
-          // 'SLAM_upd:63' active_feature(featureIdx) = 1;
+          // 'SLAM_upd:56' active_feature(featureIdx) = 1;
           active_feature[featureIdx] = 1;
         } else {
-          // 'SLAM_upd:64' else
-          // 'SLAM_upd:65' uncertainties(featureIdx) = 1000;
+          // 'SLAM_upd:57' else
+          // 'SLAM_upd:58' uncertainties(featureIdx) = 1000;
           uncertainties[featureIdx] = 1000.0;
 
           //  dont fix an inactive feature
         }
       }
 
-      // 'SLAM_upd:68' [~, sortIdx] = sort(uncertainties, 'ascend');
+      // 'SLAM_upd:61' [~, sortIdx] = sort(uncertainties, 'ascend');
       sort(uncertainties, iidx);
       for (i = 0; i < 8; i++) {
         uncertainties[i] = iidx[i];
       }
 
-      // 'SLAM_upd:68' ~
-      // 'SLAM_upd:69' if ~active_feature(sortIdx(1))
+      // 'SLAM_upd:61' ~
+      // 'SLAM_upd:62' if ~active_feature(sortIdx(1))
       if (!(active_feature[(int)uncertainties[0] - 1] != 0)) {
-        // 'SLAM_upd:70' ros_error('picked an inactive feature')
+        // 'SLAM_upd:63' ros_error('picked an inactive feature')
         ros_error();
       }
 
-      // 'SLAM_upd:72' xt.fixed_feature = int32(sortIdx(1));
+      // 'SLAM_upd:65' xt.fixed_feature = int32(sortIdx(1));
       b_xt->fixed_feature = (int)uncertainties[0];
 
-      // 'SLAM_upd:73' P_apr(xt.anchor_states(xt.origin.anchor_idx).feature_states(xt.fixed_feature).P_idx, :) = 0; 
+      // 'SLAM_upd:66' P_apr(xt.anchor_states(xt.origin.anchor_idx).feature_states(xt.fixed_feature).P_idx, :) = 0; 
       idx = b_xt->anchor_states[b_xt->origin.anchor_idx - 1].feature_states
         [b_xt->fixed_feature - 1].P_idx;
       for (i47 = 0; i47 < 102; i47++) {
@@ -6781,14 +6775,14 @@ static void SLAM_upd(double P_apr[10404], g_struct_T *b_xt, int
       }
 
       //  fix the feature depth
-      // 'SLAM_upd:74' P_apr(:, xt.anchor_states(xt.origin.anchor_idx).feature_states(xt.fixed_feature).P_idx) = 0; 
+      // 'SLAM_upd:67' P_apr(:, xt.anchor_states(xt.origin.anchor_idx).feature_states(xt.fixed_feature).P_idx) = 0; 
       idx = b_xt->anchor_states[b_xt->origin.anchor_idx - 1].feature_states
         [b_xt->fixed_feature - 1].P_idx;
       for (i47 = 0; i47 < 102; i47++) {
         P_apr[i47 + 102 * (idx - 1)] = 0.0;
       }
 
-      // 'SLAM_upd:75' ros_info('Fixing feature %i (feature %i on anchor %i)', xt.anchor_states(xt.origin.anchor_idx).feature_states(xt.fixed_feature).status_idx, xt.fixed_feature, xt.origin.anchor_idx) 
+      // 'SLAM_upd:68' ros_info('Fixing feature %i (feature %i on anchor %i)', xt.anchor_states(xt.origin.anchor_idx).feature_states(xt.fixed_feature).status_idx, xt.fixed_feature, xt.origin.anchor_idx) 
       b_ros_info(b_xt->anchor_states[b_xt->origin.anchor_idx - 1]
                  .feature_states[b_xt->fixed_feature - 1].status_idx,
                  b_xt->fixed_feature, b_xt->origin.anchor_idx);
@@ -6796,13 +6790,13 @@ static void SLAM_upd(double P_apr[10404], g_struct_T *b_xt, int
   }
 
   // % do the update
-  // 'SLAM_upd:80' if any(updateVect == 1)
+  // 'SLAM_upd:73' if any(updateVect == 1)
   for (i = 0; i < 48; i++) {
     x[i] = (updateVect[i] == 1);
   }
 
   if (any(x)) {
-    // 'SLAM_upd:81' [ xt, P_apo, updateVect ] = OnePointRANSAC_EKF(xt, P_apr, z_all_l, z_all_r, cameraParams, noiseParameters, VIOParameters, updateVect); 
+    // 'SLAM_upd:74' [ xt, P_apo, updateVect ] = OnePointRANSAC_EKF(xt, P_apr, z_all_l, z_all_r, cameraParams, noiseParameters, VIOParameters, updateVect); 
     OnePointRANSAC_EKF(b_xt, P_apr, z_all_l, z_all_r,
                        d_cameraParams_CameraParameters,
                        e_cameraParams_CameraParameters,
@@ -6814,92 +6808,92 @@ static void SLAM_upd(double P_apr[10404], g_struct_T *b_xt, int
                        b_VIOParameters.full_stereo, b_VIOParameters.RANSAC,
                        updateVect);
   } else {
-    // 'SLAM_upd:82' else
-    // 'SLAM_upd:83' P_apo = P_apr;
+    // 'SLAM_upd:75' else
+    // 'SLAM_upd:76' P_apo = P_apr;
   }
 
   // % Initialize new anchors/features
-  // 'SLAM_upd:87' if length(ind_r) >= minFeatureThreshold
+  // 'SLAM_upd:80' if length(ind_r) >= minFeatureThreshold
   emxInit_real_T(&qualities, 1);
   emxInit_real_T(&anchorInd, 1);
   emxInit_real_T(&featureInd, 1);
   emxInit_int32_T(&b_iidx, 1);
   if (ii_size_idx_0 >= 4) {
     //  try to triangulate all new features
-    // 'SLAM_upd:89' new_depths = zeros(length(ind_r), 1);
+    // 'SLAM_upd:82' new_depths = zeros(length(ind_r), 1);
     for (i47 = 0; i47 < ii_size_idx_0; i47++) {
       ind_l2_data[i47] = 0.0;
     }
 
-    // 'SLAM_upd:90' new_m = zeros(3, length(ind_r));
+    // 'SLAM_upd:83' new_m = zeros(3, length(ind_r));
     idx = 3 * ii_size_idx_0;
     for (i47 = 0; i47 < idx; i47++) {
       new_m_data[i47] = 0.0;
     }
 
-    // 'SLAM_upd:91' triangulation_success = false(length(ind_r), 1);
+    // 'SLAM_upd:84' triangulation_success = false(length(ind_r), 1);
     for (i47 = 0; i47 < ii_size_idx_0; i47++) {
       triangulation_success_data[i47] = false;
     }
 
-    // 'SLAM_upd:93' for i = 1:length(ind_r)
+    // 'SLAM_upd:86' for i = 1:length(ind_r)
     for (i = 0; i < loop_ub; i++) {
-      // 'SLAM_upd:94' z_curr_l = z_all_l((ind_r(i)-1)*2 + (1:2));
+      // 'SLAM_upd:87' z_curr_l = z_all_l((ind_r(i)-1)*2 + (1:2));
       idx = ((int)ind_r_data[i] - 1) * 2;
 
-      // 'SLAM_upd:95' z_curr_r = z_all_r((ind_r(i)-1)*2 + (1:2));
+      // 'SLAM_upd:88' z_curr_r = z_all_r((ind_r(i)-1)*2 + (1:2));
       ixstart = ((int)ind_r_data[i] - 1) * 2;
       for (i47 = 0; i47 < 2; i47++) {
         z_curr_l[i47] = z_all_l[idx + i47];
         z_curr_r[i47] = z_all_r[ixstart + i47];
       }
 
-      // 'SLAM_upd:96' if ~VIOParameters.mono
+      // 'SLAM_upd:89' if ~VIOParameters.mono
       if (!b_VIOParameters.mono) {
-        // 'SLAM_upd:97' [ fp, m, success ] = initializePoint(z_curr_l, z_curr_r, cameraParams); 
+        // 'SLAM_upd:90' [ fp, m, success ] = initializePoint(z_curr_l, z_curr_r, cameraParams); 
         initializePoint(z_curr_l, z_curr_r, d_cameraParams_CameraParameters,
                         e_cameraParams_CameraParameters,
                         i_cameraParams_CameraParameters,
                         j_cameraParams_CameraParameters, cameraParams_r_lr,
                         cameraParams_R_lr, new_origin_pos_rel, b_m, &success);
 
-        // 'SLAM_upd:98' m_l = m(:,1);
+        // 'SLAM_upd:91' m_l = m(:,1);
         for (i47 = 0; i47 < 3; i47++) {
           m_l[i47] = b_m[i47];
         }
 
-        // 'SLAM_upd:100' if success
+        // 'SLAM_upd:93' if success
         if (success) {
           //  perform further checks
-          // 'SLAM_upd:101' if any(isnan(fp))
+          // 'SLAM_upd:94' if any(isnan(fp))
           for (idx = 0; idx < 3; idx++) {
             bv0[idx] = rtIsNaN(new_origin_pos_rel[idx]);
           }
 
           if (b_any(bv0)) {
-            // 'SLAM_upd:102' ros_warn('Bad triangulation (nan) for point %d', int8(ind_r(i))); 
+            // 'SLAM_upd:95' ros_warn('Bad triangulation (nan) for point %d', int8(ind_r(i))); 
             i47 = (int)rt_roundd_snf(ind_r_data[i]);
             i48 = (signed char)i47;
             d_ros_warn(i48);
 
-            // 'SLAM_upd:103' fp = m_l;
+            // 'SLAM_upd:96' fp = m_l;
             for (i47 = 0; i47 < 3; i47++) {
               new_origin_pos_rel[i47] = b_m[i47];
             }
 
-            // 'SLAM_upd:104' success = false;
+            // 'SLAM_upd:97' success = false;
             success = false;
           } else {
-            // 'SLAM_upd:105' else
+            // 'SLAM_upd:98' else
             //  check reprojection error
-            // 'SLAM_upd:107' [h_u_l, h_u_r] = predictMeasurementStereo(fp, cameraParams); 
+            // 'SLAM_upd:100' [h_u_l, h_u_r] = predictMeasurementStereo(fp, cameraParams); 
             predictMeasurementStereo(new_origin_pos_rel,
               d_cameraParams_CameraParameters, e_cameraParams_CameraParameters,
               i_cameraParams_CameraParameters, j_cameraParams_CameraParameters,
               cameraParams_r_lr, cameraParams_R_rl, h_u_l, h_u_r);
 
-            // 'SLAM_upd:109' reprojection_error_thresh = 5;
-            // 'SLAM_upd:110' if norm(h_u_l - z_curr_l) > reprojection_error_thresh || norm(h_u_r - z_curr_r) > reprojection_error_thresh 
+            // 'SLAM_upd:102' reprojection_error_thresh = 5;
+            // 'SLAM_upd:103' if norm(h_u_l - z_curr_l) > reprojection_error_thresh || norm(h_u_r - z_curr_r) > reprojection_error_thresh 
             for (idx = 0; idx < 2; idx++) {
               b_h_u_l[idx] = h_u_l[idx] - z_curr_l[idx];
             }
@@ -6915,19 +6909,19 @@ static void SLAM_upd(double P_apr[10404], g_struct_T *b_xt, int
               if (c_norm(b_h_u_l) > 5.0) {
                 guard1 = true;
               } else {
-                // 'SLAM_upd:114' else
-                // 'SLAM_upd:115' if norm(fp) < 0.1
+                // 'SLAM_upd:107' else
+                // 'SLAM_upd:108' if norm(fp) < 0.1
                 if (norm(new_origin_pos_rel) < 0.1) {
                   //  feature triangulated very close
-                  // 'SLAM_upd:116' ros_warn('Feature %i is triangulated very close. Depth: %f', int32(ind_r(i)), norm(fp)); 
+                  // 'SLAM_upd:109' ros_warn('Feature %i is triangulated very close. Depth: %f', int32(ind_r(i)), norm(fp)); 
                   e_ros_warn((int)ind_r_data[i], norm(new_origin_pos_rel));
 
-                  // 'SLAM_upd:117' fp = m_l;
+                  // 'SLAM_upd:110' fp = m_l;
                   for (i47 = 0; i47 < 3; i47++) {
                     new_origin_pos_rel[i47] = b_m[i47];
                   }
 
-                  // 'SLAM_upd:118' success = false;
+                  // 'SLAM_upd:111' success = false;
                   success = false;
                 }
               }
@@ -6935,28 +6929,28 @@ static void SLAM_upd(double P_apr[10404], g_struct_T *b_xt, int
 
             if (guard1) {
               //                          ros_info('Bad triangulation (reprojection error) for point %d', int8(ind_r(i))); 
-              // 'SLAM_upd:112' fp = m_l;
+              // 'SLAM_upd:105' fp = m_l;
               for (i47 = 0; i47 < 3; i47++) {
                 new_origin_pos_rel[i47] = b_m[i47];
               }
 
-              // 'SLAM_upd:113' success = false;
+              // 'SLAM_upd:106' success = false;
               success = false;
             }
           }
         } else {
-          // 'SLAM_upd:122' else
-          // 'SLAM_upd:123' fp = m_l;
+          // 'SLAM_upd:115' else
+          // 'SLAM_upd:116' fp = m_l;
           for (i47 = 0; i47 < 3; i47++) {
             new_origin_pos_rel[i47] = b_m[i47];
           }
         }
       } else {
-        // 'SLAM_upd:125' else
+        // 'SLAM_upd:118' else
         //  mono
-        // 'SLAM_upd:126' z_n_l = [(z_curr_l(1) - cameraParams.CameraParameters1.PrincipalPoint(1))/cameraParams.CameraParameters1.FocalLength(1); 
-        // 'SLAM_upd:127'                 (z_curr_l(2) - cameraParams.CameraParameters1.PrincipalPoint(2))/cameraParams.CameraParameters1.FocalLength(2)]; 
-        // 'SLAM_upd:128' m_l = [z_n_l; 1];
+        // 'SLAM_upd:119' z_n_l = [(z_curr_l(1) - cameraParams.CameraParameters1.PrincipalPoint(1))/cameraParams.CameraParameters1.FocalLength(1); 
+        // 'SLAM_upd:120'                 (z_curr_l(2) - cameraParams.CameraParameters1.PrincipalPoint(2))/cameraParams.CameraParameters1.FocalLength(2)]; 
+        // 'SLAM_upd:121' m_l = [z_n_l; 1];
         m_l[0] = (z_all_l[((int)ind_r_data[i] - 1) * 2] -
                   e_cameraParams_CameraParameters[0]) /
           d_cameraParams_CameraParameters[0];
@@ -6965,29 +6959,29 @@ static void SLAM_upd(double P_apr[10404], g_struct_T *b_xt, int
           d_cameraParams_CameraParameters[1];
         m_l[2] = 1.0;
 
-        // 'SLAM_upd:129' fp = 2*m_l/norm(m_l);
+        // 'SLAM_upd:122' fp = 2*m_l/norm(m_l);
         mtmp = norm(m_l);
         for (idx = 0; idx < 3; idx++) {
           new_origin_pos_rel[idx] = 2.0 * m_l[idx] / mtmp;
         }
 
-        // 'SLAM_upd:130' success = true;
+        // 'SLAM_upd:123' success = true;
         success = true;
       }
 
-      // 'SLAM_upd:132' new_depths(i) = norm(fp);
+      // 'SLAM_upd:125' new_depths(i) = norm(fp);
       ind_l2_data[i] = norm(new_origin_pos_rel);
 
-      // 'SLAM_upd:133' new_m(:, i) = m_l;
+      // 'SLAM_upd:126' new_m(:, i) = m_l;
       for (i47 = 0; i47 < 3; i47++) {
         new_m_data[i47 + 3 * i] = m_l[i47];
       }
 
-      // 'SLAM_upd:134' triangulation_success(i) = success;
+      // 'SLAM_upd:127' triangulation_success(i) = success;
       triangulation_success_data[i] = success;
     }
 
-    // 'SLAM_upd:137' ros_info('Successfully triangulated %d of %d features', int32(nnz(triangulation_success)), int32(length(triangulation_success))) 
+    // 'SLAM_upd:130' ros_info('Successfully triangulated %d of %d features', int32(nnz(triangulation_success)), int32(length(triangulation_success))) 
     ixstart = 0;
     for (k = 0; k < ii_size_idx_0; k++) {
       if (triangulation_success_data[k]) {
@@ -6997,7 +6991,7 @@ static void SLAM_upd(double P_apr[10404], g_struct_T *b_xt, int
 
     c_ros_info(ixstart, loop_ub);
 
-    // 'SLAM_upd:139' triangulated_depths = new_depths(triangulation_success);
+    // 'SLAM_upd:132' triangulated_depths = new_depths(triangulation_success);
     idx = loop_ub - 1;
     trueCount = 0;
     for (i = 0; i <= idx; i++) {
@@ -7014,7 +7008,7 @@ static void SLAM_upd(double P_apr[10404], g_struct_T *b_xt, int
       }
     }
 
-    // 'SLAM_upd:140' [triangulated_depths, triangulated_idx] = sort(triangulated_depths, 'ascend'); 
+    // 'SLAM_upd:133' [triangulated_depths, triangulated_idx] = sort(triangulated_depths, 'ascend'); 
     i47 = qualities->size[0];
     qualities->size[0] = trueCount;
     emxEnsureCapacity((emxArray__common *)qualities, i47, (int)sizeof(double));
@@ -7031,7 +7025,7 @@ static void SLAM_upd(double P_apr[10404], g_struct_T *b_xt, int
       anchorInd->data[i47] = b_iidx->data[i47];
     }
 
-    // 'SLAM_upd:141' triangulated_m = new_m(:, triangulation_success);
+    // 'SLAM_upd:134' triangulated_m = new_m(:, triangulation_success);
     idx = loop_ub - 1;
     trueCount = 0;
     for (i = 0; i <= idx; i++) {
@@ -7048,8 +7042,8 @@ static void SLAM_upd(double P_apr[10404], g_struct_T *b_xt, int
       }
     }
 
-    // 'SLAM_upd:142' triangulated_m = triangulated_m(:, triangulated_idx);
-    // 'SLAM_upd:143' triangulated_status_ind = ind_r(triangulation_success);
+    // 'SLAM_upd:135' triangulated_m = triangulated_m(:, triangulated_idx);
+    // 'SLAM_upd:136' triangulated_status_ind = ind_r(triangulation_success);
     idx = loop_ub - 1;
     ixstart = 0;
     for (i = 0; i <= idx; i++) {
@@ -7059,7 +7053,7 @@ static void SLAM_upd(double P_apr[10404], g_struct_T *b_xt, int
       }
     }
 
-    // 'SLAM_upd:144' triangulated_status_ind = triangulated_status_ind(triangulated_idx); 
+    // 'SLAM_upd:137' triangulated_status_ind = triangulated_status_ind(triangulated_idx); 
     c_triangulated_status_ind_size_ = anchorInd->size[0];
     idx = anchorInd->size[0];
     for (i47 = 0; i47 < idx; i47++) {
@@ -7071,7 +7065,7 @@ static void SLAM_upd(double P_apr[10404], g_struct_T *b_xt, int
       triangulated_status_ind_data[i47] = b_triangulated_status_ind_data[i47];
     }
 
-    // 'SLAM_upd:146' untriangulated_depths = new_depths(~triangulation_success); 
+    // 'SLAM_upd:139' untriangulated_depths = new_depths(~triangulation_success); 
     idx = loop_ub - 1;
     k = 0;
     for (i = 0; i <= idx; i++) {
@@ -7088,7 +7082,7 @@ static void SLAM_upd(double P_apr[10404], g_struct_T *b_xt, int
       }
     }
 
-    // 'SLAM_upd:147' [untriangulated_depths, untriangulated_idx] = sort(untriangulated_depths, 'ascend'); 
+    // 'SLAM_upd:140' [untriangulated_depths, untriangulated_idx] = sort(untriangulated_depths, 'ascend'); 
     i47 = featureInd->size[0];
     featureInd->size[0] = k;
     emxEnsureCapacity((emxArray__common *)featureInd, i47, (int)sizeof(double));
@@ -7107,7 +7101,7 @@ static void SLAM_upd(double P_apr[10404], g_struct_T *b_xt, int
       untriangulated_idx->data[i47] = b_iidx->data[i47];
     }
 
-    // 'SLAM_upd:148' untriangulated_m = new_m(:, ~triangulation_success);
+    // 'SLAM_upd:141' untriangulated_m = new_m(:, ~triangulation_success);
     idx = loop_ub - 1;
     k = 0;
     for (i = 0; i <= idx; i++) {
@@ -7124,8 +7118,8 @@ static void SLAM_upd(double P_apr[10404], g_struct_T *b_xt, int
       }
     }
 
-    // 'SLAM_upd:149' untriangulated_m = untriangulated_m(:, untriangulated_idx); 
-    // 'SLAM_upd:150' untriangulated_status_ind = ind_r(~triangulation_success); 
+    // 'SLAM_upd:142' untriangulated_m = untriangulated_m(:, untriangulated_idx); 
+    // 'SLAM_upd:143' untriangulated_status_ind = ind_r(~triangulation_success); 
     idx = loop_ub - 1;
     ixstart = 0;
     for (i = 0; i <= idx; i++) {
@@ -7135,7 +7129,7 @@ static void SLAM_upd(double P_apr[10404], g_struct_T *b_xt, int
       }
     }
 
-    // 'SLAM_upd:151' untriangulated_status_ind = untriangulated_status_ind(untriangulated_idx); 
+    // 'SLAM_upd:144' untriangulated_status_ind = untriangulated_status_ind(untriangulated_idx); 
     idx = untriangulated_idx->size[0];
     loop_ub = untriangulated_idx->size[0];
     for (i47 = 0; i47 < loop_ub; i47++) {
@@ -7147,7 +7141,7 @@ static void SLAM_upd(double P_apr[10404], g_struct_T *b_xt, int
       untriangulated_status_ind_data[i47] = b_triangulated_status_ind_data[i47];
     }
 
-    // 'SLAM_upd:153' new_depths = [triangulated_depths; untriangulated_depths]; 
+    // 'SLAM_upd:146' new_depths = [triangulated_depths; untriangulated_depths]; 
     ind_l2_size[0] = qualities->size[0] + featureInd->size[0];
     loop_ub = qualities->size[0];
     for (i47 = 0; i47 < loop_ub; i47++) {
@@ -7159,7 +7153,7 @@ static void SLAM_upd(double P_apr[10404], g_struct_T *b_xt, int
       ind_l2_data[i47 + qualities->size[0]] = featureInd->data[i47];
     }
 
-    // 'SLAM_upd:154' new_m = [triangulated_m, untriangulated_m];
+    // 'SLAM_upd:147' new_m = [triangulated_m, untriangulated_m];
     for (i47 = 0; i47 < trueCount; i47++) {
       for (i = 0; i < 3; i++) {
         b_new_m_data[i + 3 * i47] = new_m_data[i + 3 * (ii_data[i47] - 1)];
@@ -7190,7 +7184,7 @@ static void SLAM_upd(double P_apr[10404], g_struct_T *b_xt, int
 
     emxFree_real_T(&untriangulated_idx);
 
-    // 'SLAM_upd:155' status_ind = [triangulated_status_ind; untriangulated_status_ind]; 
+    // 'SLAM_upd:148' status_ind = [triangulated_status_ind; untriangulated_status_ind]; 
     for (i47 = 0; i47 < c_triangulated_status_ind_size_; i47++) {
       status_ind_data[i47] = triangulated_status_ind_data[i47];
     }
@@ -7202,15 +7196,15 @@ static void SLAM_upd(double P_apr[10404], g_struct_T *b_xt, int
 
     //  insert new features into the state. first the closest triangulated ones, 
     //  then the un-triangulated ones
-    // 'SLAM_upd:159' new_feature_idx = 1;
+    // 'SLAM_upd:152' new_feature_idx = 1;
     new_feature_idx = 0;
 
-    // 'SLAM_upd:160' for anchorIdx = 1:numAnchors
+    // 'SLAM_upd:153' for anchorIdx = 1:numAnchors
     anchorIdx = 0;
     exitg4 = false;
     while ((!exitg4) && (anchorIdx + 1 < 7)) {
       //          if new_feature_idx > length(new_depths)
-      // 'SLAM_upd:162' if new_feature_idx > nnz(triangulation_success)
+      // 'SLAM_upd:155' if new_feature_idx > nnz(triangulation_success)
       ixstart = 0;
       for (k = 0; k < ii_size_idx_0; k++) {
         if (triangulation_success_data[k]) {
@@ -7222,58 +7216,58 @@ static void SLAM_upd(double P_apr[10404], g_struct_T *b_xt, int
            4)) {
         exitg4 = true;
       } else {
-        // 'SLAM_upd:165' if length(new_depths) - (new_feature_idx -1) < minFeatureThreshold 
-        // 'SLAM_upd:168' if getNumValidFeatures(xt.anchor_states(anchorIdx)) < minFeatureThreshold 
+        // 'SLAM_upd:158' if length(new_depths) - (new_feature_idx -1) < minFeatureThreshold 
+        // 'SLAM_upd:161' if getNumValidFeatures(xt.anchor_states(anchorIdx)) < minFeatureThreshold 
         if (getNumValidFeatures(b_xt->anchor_states[anchorIdx].feature_states) <
             4.0) {
           //  anchor needs to be initialized
           //  free up updateVect
-          // 'SLAM_upd:171' for featureIdx = 1:numPointsPerAnchor
+          // 'SLAM_upd:164' for featureIdx = 1:numPointsPerAnchor
           for (featureIdx = 0; featureIdx < 8; featureIdx++) {
-            // 'SLAM_upd:172' if xt.anchor_states(anchorIdx).feature_states(featureIdx).status 
+            // 'SLAM_upd:165' if xt.anchor_states(anchorIdx).feature_states(featureIdx).status 
             if (b_xt->anchor_states[anchorIdx].feature_states[featureIdx].status
                 != 0) {
               //                      ros_info('clearing up feature %i (%i on %i)', xt.anchor_states(anchorIdx).feature_states(featureIdx).status_idx, featureIdx, anchorIdx) 
-              // 'SLAM_upd:174' updateVect(xt.anchor_states(anchorIdx).feature_states(featureIdx).status_idx) = int32(0); 
+              // 'SLAM_upd:167' updateVect(xt.anchor_states(anchorIdx).feature_states(featureIdx).status_idx) = int32(0); 
               updateVect[b_xt->anchor_states[anchorIdx]
                 .feature_states[featureIdx].status_idx - 1] = 0;
 
-              // 'SLAM_upd:175' xt.anchor_states(anchorIdx).feature_states(featureIdx).status_idx = int32(0); 
+              // 'SLAM_upd:168' xt.anchor_states(anchorIdx).feature_states(featureIdx).status_idx = int32(0); 
               b_xt->anchor_states[anchorIdx].feature_states[featureIdx].
                 status_idx = 0;
 
-              // 'SLAM_upd:176' xt.anchor_states(anchorIdx).feature_states(featureIdx).status = int32(0); 
+              // 'SLAM_upd:169' xt.anchor_states(anchorIdx).feature_states(featureIdx).status = int32(0); 
               b_xt->anchor_states[anchorIdx].feature_states[featureIdx].status =
                 0;
             }
           }
 
-          // 'SLAM_upd:180' if xt.origin.anchor_idx == anchorIdx
+          // 'SLAM_upd:173' if xt.origin.anchor_idx == anchorIdx
           if (b_xt->origin.anchor_idx == anchorIdx + 1) {
-            // 'SLAM_upd:181' xt.origin.anchor_idx = int32(0);
+            // 'SLAM_upd:174' xt.origin.anchor_idx = int32(0);
             b_xt->origin.anchor_idx = 0;
 
-            // 'SLAM_upd:182' ros_info('Initializing anchor %i, which was the origin anchor', int32(anchorIdx)) 
+            // 'SLAM_upd:175' ros_info('Initializing anchor %i, which was the origin anchor', int32(anchorIdx)) 
             d_ros_info(anchorIdx + 1);
           }
 
-          // 'SLAM_upd:185' xt.anchor_states(anchorIdx).pos = xt.robot_state.pos; 
+          // 'SLAM_upd:178' xt.anchor_states(anchorIdx).pos = xt.robot_state.pos; 
           for (i47 = 0; i47 < 3; i47++) {
             b_xt->anchor_states[anchorIdx].pos[i47] = b_xt->robot_state.pos[i47];
           }
 
-          // 'SLAM_upd:186' xt.anchor_states(anchorIdx).att = xt.robot_state.att; 
+          // 'SLAM_upd:179' xt.anchor_states(anchorIdx).att = xt.robot_state.att; 
           for (i47 = 0; i47 < 4; i47++) {
             b_xt->anchor_states[anchorIdx].att[i47] = b_xt->robot_state.att[i47];
           }
 
-          // 'SLAM_upd:187' xt.anchor_states(anchorIdx).P_idx = numStates + (anchorIdx-1)*numStatesPerAnchor + int32(1:6); 
+          // 'SLAM_upd:180' xt.anchor_states(anchorIdx).P_idx = numStates + (anchorIdx-1)*numStatesPerAnchor + int32(1:6); 
           i47 = anchorIdx * 14;
           for (i = 0; i < 6; i++) {
             b_xt->anchor_states[anchorIdx].P_idx[i] = (i + i47) + 19;
           }
 
-          // 'SLAM_upd:189' P_apo(xt.anchor_states(anchorIdx).P_idx, :) = 0;
+          // 'SLAM_upd:182' P_apo(xt.anchor_states(anchorIdx).P_idx, :) = 0;
           for (i47 = 0; i47 < 102; i47++) {
             for (i = 0; i < 6; i++) {
               P_apr[(b_xt->anchor_states[anchorIdx].P_idx[i] + 102 * i47) - 1] =
@@ -7281,7 +7275,7 @@ static void SLAM_upd(double P_apr[10404], g_struct_T *b_xt, int
             }
           }
 
-          // 'SLAM_upd:190' P_apo(:, xt.anchor_states(anchorIdx).P_idx) = 0;
+          // 'SLAM_upd:183' P_apo(:, xt.anchor_states(anchorIdx).P_idx) = 0;
           for (i47 = 0; i47 < 6; i47++) {
             for (i = 0; i < 102; i++) {
               P_apr[i + 102 * (b_xt->anchor_states[anchorIdx].P_idx[i47] - 1)] =
@@ -7289,7 +7283,7 @@ static void SLAM_upd(double P_apr[10404], g_struct_T *b_xt, int
             }
           }
 
-          // 'SLAM_upd:191' P_apo(xt.anchor_states(anchorIdx).P_idx(end) + (1:numPointsPerAnchor), :) = 0; 
+          // 'SLAM_upd:184' P_apo(xt.anchor_states(anchorIdx).P_idx(end) + (1:numPointsPerAnchor), :) = 0; 
           idx = b_xt->anchor_states[anchorIdx].P_idx[5];
           for (i47 = 0; i47 < 102; i47++) {
             for (i = 0; i < 8; i++) {
@@ -7306,7 +7300,7 @@ static void SLAM_upd(double P_apr[10404], g_struct_T *b_xt, int
             }
           }
 
-          // 'SLAM_upd:192' P_apo(:, xt.anchor_states(anchorIdx).P_idx(end) + (1:numPointsPerAnchor)) = 0; 
+          // 'SLAM_upd:185' P_apo(:, xt.anchor_states(anchorIdx).P_idx(end) + (1:numPointsPerAnchor)) = 0; 
           idx = b_xt->anchor_states[anchorIdx].P_idx[5];
           for (i47 = 0; i47 < 8; i47++) {
             for (i = 0; i < 102; i++) {
@@ -7324,7 +7318,7 @@ static void SLAM_upd(double P_apr[10404], g_struct_T *b_xt, int
           }
 
           //  covariance with robot states
-          // 'SLAM_upd:196' P_apo(xt.anchor_states(anchorIdx).P_idx, xt.anchor_states(anchorIdx).P_idx)        = P_apo(1:6, 1:6); 
+          // 'SLAM_upd:189' P_apo(xt.anchor_states(anchorIdx).P_idx, xt.anchor_states(anchorIdx).P_idx)        = P_apo(1:6, 1:6); 
           for (i47 = 0; i47 < 6; i47++) {
             for (i = 0; i < 6; i++) {
               b_P_apr[i + 6 * i47] = P_apr[i + 102 * i47];
@@ -7340,7 +7334,7 @@ static void SLAM_upd(double P_apr[10404], g_struct_T *b_xt, int
           }
 
           //  anchor position, attitude autocovariance
-          // 'SLAM_upd:197' P_apo(xt.anchor_states(anchorIdx).P_idx, 1:6)                                      = P_apo(1:6, 1:6); 
+          // 'SLAM_upd:190' P_apo(xt.anchor_states(anchorIdx).P_idx, 1:6)                                      = P_apo(1:6, 1:6); 
           for (i47 = 0; i47 < 6; i47++) {
             for (i = 0; i < 6; i++) {
               b_P_apr[i + 6 * i47] = P_apr[i + 102 * i47];
@@ -7355,7 +7349,7 @@ static void SLAM_upd(double P_apr[10404], g_struct_T *b_xt, int
           }
 
           //  anchor position, attitude covariance with robot state
-          // 'SLAM_upd:198' P_apo(1:6, xt.anchor_states(anchorIdx).P_idx)                                      = P_apo(1:6, 1:6); 
+          // 'SLAM_upd:191' P_apo(1:6, xt.anchor_states(anchorIdx).P_idx)                                      = P_apo(1:6, 1:6); 
           for (i47 = 0; i47 < 6; i47++) {
             for (i = 0; i < 6; i++) {
               b_P_apr[i + 6 * i47] = P_apr[i + 102 * i47];
@@ -7370,7 +7364,7 @@ static void SLAM_upd(double P_apr[10404], g_struct_T *b_xt, int
           }
 
           //  anchor position, attitude covariance with robot state
-          // 'SLAM_upd:199' P_apo(int32(7:xt.anchor_states(anchorIdx).P_idx(1)-1), xt.anchor_states(anchorIdx).P_idx) = P_apo(int32(7:xt.anchor_states(anchorIdx).P_idx(1)-1), 1:6); 
+          // 'SLAM_upd:192' P_apo(int32(7:xt.anchor_states(anchorIdx).P_idx(1)-1), xt.anchor_states(anchorIdx).P_idx) = P_apo(int32(7:xt.anchor_states(anchorIdx).P_idx(1)-1), 1:6); 
           i49 = b_xt->anchor_states[anchorIdx].P_idx[0] - 1L;
           if (i49 > 2147483647L) {
             i49 = 2147483647L;
@@ -7439,7 +7433,7 @@ static void SLAM_upd(double P_apr[10404], g_struct_T *b_xt, int
           }
 
           //  covariance with bias states etc
-          // 'SLAM_upd:200' P_apo(xt.anchor_states(anchorIdx).P_idx, int32(7:xt.anchor_states(anchorIdx).P_idx(1)-1)) = P_apo(1:6, int32(7:xt.anchor_states(anchorIdx).P_idx(1)-1)); 
+          // 'SLAM_upd:193' P_apo(xt.anchor_states(anchorIdx).P_idx, int32(7:xt.anchor_states(anchorIdx).P_idx(1)-1)) = P_apo(1:6, int32(7:xt.anchor_states(anchorIdx).P_idx(1)-1)); 
           i49 = b_xt->anchor_states[anchorIdx].P_idx[0] - 1L;
           if (i49 > 2147483647L) {
             i49 = 2147483647L;
@@ -7509,7 +7503,7 @@ static void SLAM_upd(double P_apr[10404], g_struct_T *b_xt, int
 
           //  covariance with bias states etc
           //  covariance with other anchor states
-          // 'SLAM_upd:202' P_apo(int32(xt.anchor_states(anchorIdx).P_idx(1)+1:int32(end)), xt.anchor_states(anchorIdx).P_idx) = P_apo(int32(xt.anchor_states(anchorIdx).P_idx(1)+1:int32(end)), 1:6); 
+          // 'SLAM_upd:195' P_apo(int32(xt.anchor_states(anchorIdx).P_idx(1)+1:int32(end)), xt.anchor_states(anchorIdx).P_idx) = P_apo(int32(xt.anchor_states(anchorIdx).P_idx(1)+1:int32(end)), 1:6); 
           i49 = b_xt->anchor_states[anchorIdx].P_idx[0] + 1L;
           if (i49 > 2147483647L) {
             i49 = 2147483647L;
@@ -7562,7 +7556,7 @@ static void SLAM_upd(double P_apr[10404], g_struct_T *b_xt, int
             }
           }
 
-          // 'SLAM_upd:203' P_apo(xt.anchor_states(anchorIdx).P_idx, int32(xt.anchor_states(anchorIdx).P_idx(1)+1:int32(end))) = P_apo(1:6, int32(xt.anchor_states(anchorIdx).P_idx(1)+1:int32(end))); 
+          // 'SLAM_upd:196' P_apo(xt.anchor_states(anchorIdx).P_idx, int32(xt.anchor_states(anchorIdx).P_idx(1)+1:int32(end))) = P_apo(1:6, int32(xt.anchor_states(anchorIdx).P_idx(1)+1:int32(end))); 
           i49 = b_xt->anchor_states[anchorIdx].P_idx[0] + 1L;
           if (i49 > 2147483647L) {
             i49 = 2147483647L;
@@ -7614,42 +7608,42 @@ static void SLAM_upd(double P_apr[10404], g_struct_T *b_xt, int
             }
           }
 
-          // 'SLAM_upd:205' if coder.target('MATLAB')
-          // 'SLAM_upd:221' for featureIdx = 1:numPointsPerAnchor
+          // 'SLAM_upd:198' if coder.target('MATLAB')
+          // 'SLAM_upd:214' for featureIdx = 1:numPointsPerAnchor
           featureIdx = 0;
           exitg5 = false;
           while ((!exitg5) && (featureIdx + 1 < 9)) {
-            // 'SLAM_upd:222' xt.anchor_states(anchorIdx).feature_states(featureIdx).inverse_depth = 1/new_depths(new_feature_idx); 
+            // 'SLAM_upd:215' xt.anchor_states(anchorIdx).feature_states(featureIdx).inverse_depth = 1/new_depths(new_feature_idx); 
             b_xt->anchor_states[anchorIdx].feature_states[featureIdx].
               inverse_depth = 1.0 / ind_l2_data[new_feature_idx];
 
-            // 'SLAM_upd:223' xt.anchor_states(anchorIdx).feature_states(featureIdx).m = new_m(:,new_feature_idx); 
+            // 'SLAM_upd:216' xt.anchor_states(anchorIdx).feature_states(featureIdx).m = new_m(:,new_feature_idx); 
             for (i47 = 0; i47 < 3; i47++) {
               b_xt->anchor_states[anchorIdx].feature_states[featureIdx].m[i47] =
                 new_m_data[i47 + 3 * new_feature_idx];
             }
 
-            // 'SLAM_upd:224' if VIOParameters.delayed_initialization
+            // 'SLAM_upd:217' if VIOParameters.delayed_initialization
             if (b_VIOParameters.delayed_initialization) {
-              // 'SLAM_upd:225' xt.anchor_states(anchorIdx).feature_states(featureIdx).status = int32(2); 
+              // 'SLAM_upd:218' xt.anchor_states(anchorIdx).feature_states(featureIdx).status = int32(2); 
               b_xt->anchor_states[anchorIdx].feature_states[featureIdx].status =
                 2;
             } else {
-              // 'SLAM_upd:226' else
-              // 'SLAM_upd:227' xt.anchor_states(anchorIdx).feature_states(featureIdx).status = int32(1); 
+              // 'SLAM_upd:219' else
+              // 'SLAM_upd:220' xt.anchor_states(anchorIdx).feature_states(featureIdx).status = int32(1); 
               b_xt->anchor_states[anchorIdx].feature_states[featureIdx].status =
                 1;
             }
 
-            // 'SLAM_upd:229' xt.anchor_states(anchorIdx).feature_states(featureIdx).status_idx = int32(status_ind(new_feature_idx)); 
+            // 'SLAM_upd:222' xt.anchor_states(anchorIdx).feature_states(featureIdx).status_idx = int32(status_ind(new_feature_idx)); 
             b_xt->anchor_states[anchorIdx].feature_states[featureIdx].status_idx
               = (int)status_ind_data[new_feature_idx];
 
-            // 'SLAM_upd:230' xt.anchor_states(anchorIdx).feature_states(featureIdx).P_idx = int32(numStates + (anchorIdx-1)*numStatesPerAnchor + 6 + featureIdx); 
+            // 'SLAM_upd:223' xt.anchor_states(anchorIdx).feature_states(featureIdx).P_idx = int32(numStates + (anchorIdx-1)*numStatesPerAnchor + 6 + featureIdx); 
             b_xt->anchor_states[anchorIdx].feature_states[featureIdx].P_idx =
               (anchorIdx * 14 + featureIdx) + 25;
 
-            // 'SLAM_upd:232' if new_feature_idx > nnz(triangulation_success)
+            // 'SLAM_upd:225' if new_feature_idx > nnz(triangulation_success)
             ixstart = 0;
             for (k = 0; k < ii_size_idx_0; k++) {
               if (triangulation_success_data[k]) {
@@ -7658,11 +7652,11 @@ static void SLAM_upd(double P_apr[10404], g_struct_T *b_xt, int
             }
 
             if (new_feature_idx + 1 > ixstart) {
-              // 'SLAM_upd:233' ros_info('Feature %d is too far away to triangulate.\n', xt.anchor_states(anchorIdx).feature_states(featureIdx).status_idx) 
+              // 'SLAM_upd:226' ros_info('Feature %d is too far away to triangulate.\n', xt.anchor_states(anchorIdx).feature_states(featureIdx).status_idx) 
               e_ros_info(b_xt->anchor_states[anchorIdx]
                          .feature_states[featureIdx].status_idx);
 
-              // 'SLAM_upd:234' P_apo(xt.anchor_states(anchorIdx).feature_states(featureIdx).P_idx, xt.anchor_states(anchorIdx).feature_states(featureIdx).P_idx) = noiseParameters.inv_depth_initial_unc*10; 
+              // 'SLAM_upd:227' P_apo(xt.anchor_states(anchorIdx).feature_states(featureIdx).P_idx, xt.anchor_states(anchorIdx).feature_states(featureIdx).P_idx) = noiseParameters.inv_depth_initial_unc*10; 
               P_apr[(b_xt->anchor_states[anchorIdx].feature_states[featureIdx].
                      P_idx + 102 * (b_xt->anchor_states[anchorIdx].
                                     feature_states[featureIdx].P_idx - 1)) - 1] =
@@ -7670,8 +7664,8 @@ static void SLAM_upd(double P_apr[10404], g_struct_T *b_xt, int
 
               //  TODO: Maybe push the mean value further away?
             } else {
-              // 'SLAM_upd:236' else
-              // 'SLAM_upd:237' P_apo(xt.anchor_states(anchorIdx).feature_states(featureIdx).P_idx, xt.anchor_states(anchorIdx).feature_states(featureIdx).P_idx) = noiseParameters.inv_depth_initial_unc; 
+              // 'SLAM_upd:229' else
+              // 'SLAM_upd:230' P_apo(xt.anchor_states(anchorIdx).feature_states(featureIdx).P_idx, xt.anchor_states(anchorIdx).feature_states(featureIdx).P_idx) = noiseParameters.inv_depth_initial_unc; 
               P_apr[(b_xt->anchor_states[anchorIdx].feature_states[featureIdx].
                      P_idx + 102 * (b_xt->anchor_states[anchorIdx].
                                     feature_states[featureIdx].P_idx - 1)) - 1] =
@@ -7681,14 +7675,14 @@ static void SLAM_upd(double P_apr[10404], g_struct_T *b_xt, int
             }
 
             //                  ros_info('Inserting feature %d as feature %i on anchor %i', int32(status_ind(new_feature_idx)), int32(featureIdx), int32(anchorIdx)) 
-            // 'SLAM_upd:242' updateVect(status_ind(new_feature_idx)) = int32(1); 
+            // 'SLAM_upd:235' updateVect(status_ind(new_feature_idx)) = int32(1); 
             updateVect[(int)status_ind_data[new_feature_idx] - 1] = 1;
 
-            // 'SLAM_upd:244' new_feature_idx = new_feature_idx + 1;
+            // 'SLAM_upd:237' new_feature_idx = new_feature_idx + 1;
             new_feature_idx++;
 
             //                  if new_feature_idx > length(new_depths)
-            // 'SLAM_upd:246' if new_feature_idx > nnz(triangulation_success)
+            // 'SLAM_upd:239' if new_feature_idx > nnz(triangulation_success)
             ixstart = 0;
             for (k = 0; k < ii_size_idx_0; k++) {
               if (triangulation_success_data[k]) {
@@ -7709,13 +7703,13 @@ static void SLAM_upd(double P_apr[10404], g_struct_T *b_xt, int
     }
   } else {
     if (!(ii_size_idx_0 == 0)) {
-      // 'SLAM_upd:252' elseif ~isempty(ind_r)
-      // 'SLAM_upd:253' ros_warn('Got %d new feautures but not enough for a new anchor (min %d)', length(ind_r), int32(minFeatureThreshold)) 
+      // 'SLAM_upd:245' elseif ~isempty(ind_r)
+      // 'SLAM_upd:246' ros_warn('Got %d new feautures but not enough for a new anchor (min %d)', length(ind_r), int32(minFeatureThreshold)) 
       f_ros_warn((double)ii_size_idx_0);
     }
   }
 
-  // 'SLAM_upd:255' updateVect(updateVect==int32(2)) = int32(0);
+  // 'SLAM_upd:248' updateVect(updateVect==int32(2)) = int32(0);
   for (i = 0; i < 48; i++) {
     if (updateVect[i] == 2) {
       updateVect[i] = 0;
@@ -7723,29 +7717,29 @@ static void SLAM_upd(double P_apr[10404], g_struct_T *b_xt, int
   }
 
   //  remove features that were not inserted
-  // 'SLAM_upd:257' if VIOParameters.delayed_initialization
+  // 'SLAM_upd:250' if VIOParameters.delayed_initialization
   if (b_VIOParameters.delayed_initialization) {
     //  get the median uncertainty of the active features as a benchmark on
     //  the delayed features
-    // 'SLAM_upd:260' uncertainties = -1*ones(numTrackFeatures, 1);
+    // 'SLAM_upd:253' uncertainties = -1*ones(numTrackFeatures, 1);
     for (i = 0; i < 48; i++) {
       b_uncertainties[i] = -1.0;
     }
 
-    // 'SLAM_upd:261' has_active_features = false;
+    // 'SLAM_upd:254' has_active_features = false;
     has_active_features = false;
 
-    // 'SLAM_upd:262' for anchorIdx = 1:numAnchors
+    // 'SLAM_upd:255' for anchorIdx = 1:numAnchors
     for (anchorIdx = 0; anchorIdx < 6; anchorIdx++) {
-      // 'SLAM_upd:263' for featureIdx = 1:numPointsPerAnchor
+      // 'SLAM_upd:256' for featureIdx = 1:numPointsPerAnchor
       for (featureIdx = 0; featureIdx < 8; featureIdx++) {
-        // 'SLAM_upd:264' if xt.anchor_states(anchorIdx).feature_states(featureIdx).status == 1 
+        // 'SLAM_upd:257' if xt.anchor_states(anchorIdx).feature_states(featureIdx).status == 1 
         if (b_xt->anchor_states[anchorIdx].feature_states[featureIdx].status ==
             1) {
-          // 'SLAM_upd:265' has_active_features = true;
+          // 'SLAM_upd:258' has_active_features = true;
           has_active_features = true;
 
-          // 'SLAM_upd:266' uncertainties(xt.anchor_states(anchorIdx).feature_states(featureIdx).status_idx) = P_apo(xt.anchor_states(anchorIdx).feature_states(featureIdx).P_idx, xt.anchor_states(anchorIdx).feature_states(featureIdx).P_idx); 
+          // 'SLAM_upd:259' uncertainties(xt.anchor_states(anchorIdx).feature_states(featureIdx).status_idx) = P_apo(xt.anchor_states(anchorIdx).feature_states(featureIdx).P_idx, xt.anchor_states(anchorIdx).feature_states(featureIdx).P_idx); 
           b_uncertainties[b_xt->anchor_states[anchorIdx]
             .feature_states[featureIdx].status_idx - 1] = P_apr
             [(b_xt->anchor_states[anchorIdx].feature_states[featureIdx].P_idx +
@@ -7755,9 +7749,9 @@ static void SLAM_upd(double P_apr[10404], g_struct_T *b_xt, int
       }
     }
 
-    // 'SLAM_upd:271' if has_active_features
+    // 'SLAM_upd:264' if has_active_features
     if (has_active_features) {
-      // 'SLAM_upd:272' median_uncertainty = median(uncertainties(uncertainties > 0), 1); 
+      // 'SLAM_upd:265' median_uncertainty = median(uncertainties(uncertainties > 0), 1); 
       trueCount = 0;
       for (i = 0; i < 48; i++) {
         if (b_uncertainties[i] > 0.0) {
@@ -7782,11 +7776,11 @@ static void SLAM_upd(double P_apr[10404], g_struct_T *b_xt, int
 
       //  because coder does not support nanflag
       //  check if a delayed initialization feature has converged
-      // 'SLAM_upd:275' for anchorIdx = 1:numAnchors
+      // 'SLAM_upd:268' for anchorIdx = 1:numAnchors
       for (anchorIdx = 0; anchorIdx < 6; anchorIdx++) {
-        // 'SLAM_upd:276' for featureIdx = 1:numPointsPerAnchor
+        // 'SLAM_upd:269' for featureIdx = 1:numPointsPerAnchor
         for (featureIdx = 0; featureIdx < 8; featureIdx++) {
-          // 'SLAM_upd:277' if xt.anchor_states(anchorIdx).feature_states(featureIdx).status == 2 
+          // 'SLAM_upd:270' if xt.anchor_states(anchorIdx).feature_states(featureIdx).status == 2 
           if ((b_xt->anchor_states[anchorIdx].feature_states[featureIdx].status ==
                2) && (P_apr[(b_xt->anchor_states[anchorIdx]
                              .feature_states[featureIdx].P_idx + 102 *
@@ -7794,26 +7788,26 @@ static void SLAM_upd(double P_apr[10404], g_struct_T *b_xt, int
                               .feature_states[featureIdx].P_idx - 1)) - 1] <
                       median_uncertainty * 2.0)) {
             //  this feature is not active yet
-            // 'SLAM_upd:278' if P_apo(xt.anchor_states(anchorIdx).feature_states(featureIdx).P_idx, xt.anchor_states(anchorIdx).feature_states(featureIdx).P_idx) < median_uncertainty*2 
-            // 'SLAM_upd:279' if xt.anchor_states(anchorIdx).feature_states(featureIdx).inverse_depth < 0 
+            // 'SLAM_upd:271' if P_apo(xt.anchor_states(anchorIdx).feature_states(featureIdx).P_idx, xt.anchor_states(anchorIdx).feature_states(featureIdx).P_idx) < median_uncertainty*2 
+            // 'SLAM_upd:272' if xt.anchor_states(anchorIdx).feature_states(featureIdx).inverse_depth < 0 
             if (b_xt->anchor_states[anchorIdx].feature_states[featureIdx].
                 inverse_depth < 0.0) {
-              // 'SLAM_upd:280' ros_warn('Feature %i (%i on anchor %i) converged behind its anchor', xt.anchor_states(anchorIdx).feature_states(featureIdx).status_idx, featureIdx, anchorIdx) 
+              // 'SLAM_upd:273' ros_warn('Feature %i (%i on anchor %i) converged behind its anchor', xt.anchor_states(anchorIdx).feature_states(featureIdx).status_idx, featureIdx, anchorIdx) 
               g_ros_warn(b_xt->anchor_states[anchorIdx]
                          .feature_states[featureIdx].status_idx, featureIdx + 1,
                          anchorIdx + 1);
 
-              // 'SLAM_upd:281' xt.anchor_states(anchorIdx).feature_states(featureIdx).status = int32(0); 
+              // 'SLAM_upd:274' xt.anchor_states(anchorIdx).feature_states(featureIdx).status = int32(0); 
               b_xt->anchor_states[anchorIdx].feature_states[featureIdx].status =
                 0;
 
-              // 'SLAM_upd:282' updateVect(xt.anchor_states(anchorIdx).feature_states(featureIdx).status_idx) = int32(0); 
+              // 'SLAM_upd:275' updateVect(xt.anchor_states(anchorIdx).feature_states(featureIdx).status_idx) = int32(0); 
               updateVect[b_xt->anchor_states[anchorIdx]
                 .feature_states[featureIdx].status_idx - 1] = 0;
             } else {
-              // 'SLAM_upd:283' else
+              // 'SLAM_upd:276' else
               //                              ros_info('Feature %i (%i on anchor %i) has converged', xt.anchor_states(anchorIdx).feature_states(featureIdx).status_idx, featureIdx, anchorIdx); 
-              // 'SLAM_upd:285' xt.anchor_states(anchorIdx).feature_states(featureIdx).status = int32(1); 
+              // 'SLAM_upd:278' xt.anchor_states(anchorIdx).feature_states(featureIdx).status = int32(1); 
               b_xt->anchor_states[anchorIdx].feature_states[featureIdx].status =
                 1;
             }
@@ -7824,17 +7818,17 @@ static void SLAM_upd(double P_apr[10404], g_struct_T *b_xt, int
 
     //  check if delayed features need to be forced active due to too few active 
     //  features
-    // 'SLAM_upd:295' minActiveFeatureRatio = 0.4;
-    // 'SLAM_upd:296' totalNumActiveFeatues = getTotalNumActiveFeatures(xt);
+    // 'SLAM_upd:288' minActiveFeatureRatio = 0.4;
+    // 'SLAM_upd:289' totalNumActiveFeatues = getTotalNumActiveFeatures(xt);
     totalNumActiveFeatues = getTotalNumActiveFeatures(b_xt->anchor_states);
 
-    // 'SLAM_upd:297' if totalNumActiveFeatues < minActiveFeatureRatio*single(numTrackFeatures) 
+    // 'SLAM_upd:290' if totalNumActiveFeatues < minActiveFeatureRatio*single(numTrackFeatures) 
     if (totalNumActiveFeatues < 19.200000762939453) {
       //  find the best features and activate them
-      // 'SLAM_upd:299' numDelayedFeatures = getTotalNumDelayedFeatures(xt);
+      // 'SLAM_upd:292' numDelayedFeatures = getTotalNumDelayedFeatures(xt);
       numDelayedFeatures = getTotalNumDelayedFeatures(b_xt->anchor_states);
 
-      // 'SLAM_upd:300' qualities = zeros(numDelayedFeatures, 1);
+      // 'SLAM_upd:293' qualities = zeros(numDelayedFeatures, 1);
       i47 = qualities->size[0];
       qualities->size[0] = (int)numDelayedFeatures;
       emxEnsureCapacity((emxArray__common *)qualities, i47, (int)sizeof(double));
@@ -7844,7 +7838,7 @@ static void SLAM_upd(double P_apr[10404], g_struct_T *b_xt, int
       }
 
       //  quality measures of each delayed feature
-      // 'SLAM_upd:301' anchorInd = qualities;
+      // 'SLAM_upd:294' anchorInd = qualities;
       i47 = anchorInd->size[0];
       anchorInd->size[0] = (int)numDelayedFeatures;
       emxEnsureCapacity((emxArray__common *)anchorInd, i47, (int)sizeof(double));
@@ -7853,7 +7847,7 @@ static void SLAM_upd(double P_apr[10404], g_struct_T *b_xt, int
         anchorInd->data[i47] = 0.0;
       }
 
-      // 'SLAM_upd:302' featureInd = qualities;
+      // 'SLAM_upd:295' featureInd = qualities;
       i47 = featureInd->size[0];
       featureInd->size[0] = (int)numDelayedFeatures;
       emxEnsureCapacity((emxArray__common *)featureInd, i47, (int)sizeof(double));
@@ -7862,37 +7856,37 @@ static void SLAM_upd(double P_apr[10404], g_struct_T *b_xt, int
         featureInd->data[i47] = 0.0;
       }
 
-      // 'SLAM_upd:304' delayedIdx = 1;
+      // 'SLAM_upd:297' delayedIdx = 1;
       delayedIdx = 1U;
 
-      // 'SLAM_upd:305' for anchorIdx = 1:numAnchors
+      // 'SLAM_upd:298' for anchorIdx = 1:numAnchors
       for (anchorIdx = 0; anchorIdx < 6; anchorIdx++) {
-        // 'SLAM_upd:306' for featureIdx = 1:numPointsPerAnchor
+        // 'SLAM_upd:299' for featureIdx = 1:numPointsPerAnchor
         for (featureIdx = 0; featureIdx < 8; featureIdx++) {
-          // 'SLAM_upd:307' if xt.anchor_states(anchorIdx).feature_states(featureIdx).status == 2 
+          // 'SLAM_upd:300' if xt.anchor_states(anchorIdx).feature_states(featureIdx).status == 2 
           if (b_xt->anchor_states[anchorIdx].feature_states[featureIdx].status ==
               2) {
-            // 'SLAM_upd:308' rho_unc = P_apo(xt.anchor_states(anchorIdx).feature_states(featureIdx).P_idx, xt.anchor_states(anchorIdx).feature_states(featureIdx).P_idx); 
-            // 'SLAM_upd:310' quality = rho_unc/noiseParameters.inv_depth_initial_unc; 
-            // 'SLAM_upd:312' qualities(delayedIdx) = quality;
+            // 'SLAM_upd:301' rho_unc = P_apo(xt.anchor_states(anchorIdx).feature_states(featureIdx).P_idx, xt.anchor_states(anchorIdx).feature_states(featureIdx).P_idx); 
+            // 'SLAM_upd:303' quality = rho_unc/noiseParameters.inv_depth_initial_unc; 
+            // 'SLAM_upd:305' qualities(delayedIdx) = quality;
             qualities->data[(int)delayedIdx - 1] = P_apr[(b_xt->
               anchor_states[anchorIdx].feature_states[featureIdx].P_idx + 102 *
               (b_xt->anchor_states[anchorIdx].feature_states[featureIdx].P_idx -
                1)) - 1] / c_noiseParameters_inv_depth_ini;
 
-            // 'SLAM_upd:313' anchorInd(delayedIdx) = anchorIdx;
+            // 'SLAM_upd:306' anchorInd(delayedIdx) = anchorIdx;
             anchorInd->data[(int)delayedIdx - 1] = (double)anchorIdx + 1.0;
 
-            // 'SLAM_upd:314' featureInd(delayedIdx) = featureIdx;
+            // 'SLAM_upd:307' featureInd(delayedIdx) = featureIdx;
             featureInd->data[(int)delayedIdx - 1] = (double)featureIdx + 1.0;
 
-            // 'SLAM_upd:316' delayedIdx = delayedIdx + 1;
+            // 'SLAM_upd:309' delayedIdx = delayedIdx + 1;
             delayedIdx++;
           }
         }
       }
 
-      // 'SLAM_upd:321' [~, sortInd] = sort(qualities, 'ascend');
+      // 'SLAM_upd:314' [~, sortInd] = sort(qualities, 'ascend');
       c_sort(qualities, b_iidx);
       i47 = qualities->size[0];
       qualities->size[0] = b_iidx->size[0];
@@ -7902,50 +7896,50 @@ static void SLAM_upd(double P_apr[10404], g_struct_T *b_xt, int
         qualities->data[i47] = b_iidx->data[i47];
       }
 
-      // 'SLAM_upd:321' ~
-      // 'SLAM_upd:323' numActivatedFeatures = 0;
+      // 'SLAM_upd:314' ~
+      // 'SLAM_upd:316' numActivatedFeatures = 0;
       numActivatedFeatures = 0.0;
 
-      // 'SLAM_upd:325' for i = 1:length(sortInd)
+      // 'SLAM_upd:318' for i = 1:length(sortInd)
       i = 0;
       while ((i <= qualities->size[0] - 1) && (!(numActivatedFeatures > ceilf
                (19.2F - (float)totalNumActiveFeatues))) &&
              (!(numActivatedFeatures > numDelayedFeatures))) {
-        // 'SLAM_upd:326' if numActivatedFeatures > ceil(minActiveFeatureRatio*single(numTrackFeatures) - totalNumActiveFeatues) || numActivatedFeatures > numDelayedFeatures 
-        // 'SLAM_upd:329' if xt.anchor_states(anchorInd(sortInd(i))).feature_states(featureInd(sortInd(i))).inverse_depth < 0 
+        // 'SLAM_upd:319' if numActivatedFeatures > ceil(minActiveFeatureRatio*single(numTrackFeatures) - totalNumActiveFeatues) || numActivatedFeatures > numDelayedFeatures 
+        // 'SLAM_upd:322' if xt.anchor_states(anchorInd(sortInd(i))).feature_states(featureInd(sortInd(i))).inverse_depth < 0 
         if (b_xt->anchor_states[(int)anchorInd->data[(int)qualities->data[i] - 1]
             - 1].feature_states[(int)featureInd->data[(int)qualities->data[i] -
             1] - 1].inverse_depth < 0.0) {
-          // 'SLAM_upd:330' xt.anchor_states(anchorInd(sortInd(i))).feature_states(featureInd(sortInd(i))).status = int32(0); 
+          // 'SLAM_upd:323' xt.anchor_states(anchorInd(sortInd(i))).feature_states(featureInd(sortInd(i))).status = int32(0); 
           b_xt->anchor_states[(int)anchorInd->data[(int)qualities->data[i] - 1]
             - 1].feature_states[(int)featureInd->data[(int)qualities->data[i] -
             1] - 1].status = 0;
 
-          // 'SLAM_upd:331' updateVect(xt.anchor_states(anchorInd(sortInd(i))).feature_states(featureInd(sortInd(i))).status_idx) = int32(0); 
+          // 'SLAM_upd:324' updateVect(xt.anchor_states(anchorInd(sortInd(i))).feature_states(featureInd(sortInd(i))).status_idx) = int32(0); 
           updateVect[b_xt->anchor_states[(int)anchorInd->data[(int)
             qualities->data[i] - 1] - 1].feature_states[(int)featureInd->data
             [(int)qualities->data[i] - 1] - 1].status_idx - 1] = 0;
 
-          // 'SLAM_upd:332' ros_warn('Trying to force insert feature %i behind its anchor', xt.anchor_states(anchorInd(sortInd(i))).feature_states(featureInd(sortInd(i))).status_idx) 
+          // 'SLAM_upd:325' ros_warn('Trying to force insert feature %i behind its anchor', xt.anchor_states(anchorInd(sortInd(i))).feature_states(featureInd(sortInd(i))).status_idx) 
           h_ros_warn(b_xt->anchor_states[(int)anchorInd->data[(int)
                      qualities->data[i] - 1] - 1].feature_states[(int)
                      featureInd->data[(int)qualities->data[i] - 1] - 1].
                      status_idx);
         } else {
-          // 'SLAM_upd:333' else
-          // 'SLAM_upd:334' xt.anchor_states(anchorInd(sortInd(i))).feature_states(featureInd(sortInd(i))).status = int32(1); 
+          // 'SLAM_upd:326' else
+          // 'SLAM_upd:327' xt.anchor_states(anchorInd(sortInd(i))).feature_states(featureInd(sortInd(i))).status = int32(1); 
           b_xt->anchor_states[(int)anchorInd->data[(int)qualities->data[i] - 1]
             - 1].feature_states[(int)featureInd->data[(int)qualities->data[i] -
             1] - 1].status = 1;
 
-          // 'SLAM_upd:335' ros_info('Forcing activation of feature %i (%i on anchor %i)', xt.anchor_states(anchorInd(sortInd(i))).feature_states(featureInd(sortInd(i))).status_idx, featureInd(sortInd(i)), anchorInd(sortInd(i))); 
+          // 'SLAM_upd:328' ros_info('Forcing activation of feature %i (%i on anchor %i)', xt.anchor_states(anchorInd(sortInd(i))).feature_states(featureInd(sortInd(i))).status_idx, featureInd(sortInd(i)), anchorInd(sortInd(i))); 
           f_ros_info(b_xt->anchor_states[(int)anchorInd->data[(int)
                      qualities->data[i] - 1] - 1].feature_states[(int)
                      featureInd->data[(int)qualities->data[i] - 1] - 1].
                      status_idx, featureInd->data[(int)qualities->data[i] - 1],
                      anchorInd->data[(int)qualities->data[i] - 1]);
 
-          // 'SLAM_upd:336' numActivatedFeatures = numActivatedFeatures + 1;
+          // 'SLAM_upd:329' numActivatedFeatures = numActivatedFeatures + 1;
           numActivatedFeatures++;
         }
 
@@ -7960,10 +7954,10 @@ static void SLAM_upd(double P_apr[10404], g_struct_T *b_xt, int
   emxFree_real_T(&qualities);
 
   //  check if new features need to be requested
-  // 'SLAM_upd:343' request_new_features = false;
+  // 'SLAM_upd:336' request_new_features = false;
   request_new_features = false;
 
-  // 'SLAM_upd:344' if nnz(updateVect == 0) > minFeatureThreshold
+  // 'SLAM_upd:337' if nnz(updateVect == 0) > minFeatureThreshold
   ixstart = 0;
   for (k = 0; k < 48; k++) {
     if (updateVect[k] == 0) {
@@ -7973,33 +7967,33 @@ static void SLAM_upd(double P_apr[10404], g_struct_T *b_xt, int
 
   if (ixstart > 4) {
     //  if a new anchor can be filled enough
-    // 'SLAM_upd:345' for anchorIdx = 1:numAnchors
+    // 'SLAM_upd:338' for anchorIdx = 1:numAnchors
     anchorIdx = 0;
     exitg3 = false;
     while ((!exitg3) && (anchorIdx + 1 < 7)) {
-      // 'SLAM_upd:346' if getNumValidFeatures(xt.anchor_states(anchorIdx)) < minFeatureThreshold 
+      // 'SLAM_upd:339' if getNumValidFeatures(xt.anchor_states(anchorIdx)) < minFeatureThreshold 
       if (getNumValidFeatures(b_xt->anchor_states[anchorIdx].feature_states) <
           4.0) {
         //  discard all features of this anchor
-        // 'SLAM_upd:348' for featureIdx = 1:numPointsPerAnchor
+        // 'SLAM_upd:341' for featureIdx = 1:numPointsPerAnchor
         for (featureIdx = 0; featureIdx < 8; featureIdx++) {
-          // 'SLAM_upd:349' if xt.anchor_states(anchorIdx).feature_states(featureIdx).status_idx 
+          // 'SLAM_upd:342' if xt.anchor_states(anchorIdx).feature_states(featureIdx).status_idx 
           if (b_xt->anchor_states[anchorIdx].feature_states[featureIdx].
               status_idx != 0) {
-            // 'SLAM_upd:350' updateVect(xt.anchor_states(anchorIdx).feature_states(featureIdx).status_idx) = int32(0); 
+            // 'SLAM_upd:343' updateVect(xt.anchor_states(anchorIdx).feature_states(featureIdx).status_idx) = int32(0); 
             updateVect[b_xt->anchor_states[anchorIdx].feature_states[featureIdx]
               .status_idx - 1] = 0;
 
-            // 'SLAM_upd:351' xt.anchor_states(anchorIdx).feature_states(featureIdx).status = int32(0); 
+            // 'SLAM_upd:344' xt.anchor_states(anchorIdx).feature_states(featureIdx).status = int32(0); 
             b_xt->anchor_states[anchorIdx].feature_states[featureIdx].status = 0;
 
-            // 'SLAM_upd:352' xt.anchor_states(anchorIdx).feature_states(featureIdx).status_idx = int32(0); 
+            // 'SLAM_upd:345' xt.anchor_states(anchorIdx).feature_states(featureIdx).status_idx = int32(0); 
             b_xt->anchor_states[anchorIdx].feature_states[featureIdx].status_idx
               = 0;
           }
         }
 
-        // 'SLAM_upd:355' request_new_features = true;
+        // 'SLAM_upd:348' request_new_features = true;
         request_new_features = true;
         exitg3 = true;
       } else {
@@ -8017,25 +8011,25 @@ static void SLAM_upd(double P_apr[10404], g_struct_T *b_xt, int
     //      end
   }
 
-  // 'SLAM_upd:369' if request_new_features
+  // 'SLAM_upd:362' if request_new_features
   if (request_new_features) {
-    // 'SLAM_upd:370' request_idx = 1;
+    // 'SLAM_upd:363' request_idx = 1;
     request_idx = 1;
 
-    // 'SLAM_upd:371' for i = 1:length(updateVect)
+    // 'SLAM_upd:364' for i = 1:length(updateVect)
     i = 0;
     exitg2 = false;
     while ((!exitg2) && (i < 48)) {
-      // 'SLAM_upd:372' if updateVect(i) == 0
+      // 'SLAM_upd:365' if updateVect(i) == 0
       b_guard1 = false;
       if (updateVect[i] == 0) {
-        // 'SLAM_upd:373' updateVect(i) = 2;
+        // 'SLAM_upd:366' updateVect(i) = 2;
         updateVect[i] = 2;
 
-        // 'SLAM_upd:374' request_idx = request_idx +1;
+        // 'SLAM_upd:367' request_idx = request_idx +1;
         request_idx++;
 
-        // 'SLAM_upd:375' if request_idx > max_features_to_request
+        // 'SLAM_upd:368' if request_idx > max_features_to_request
         if (request_idx > 16) {
           exitg2 = true;
         } else {
@@ -8055,27 +8049,27 @@ static void SLAM_upd(double P_apr[10404], g_struct_T *b_xt, int
   }
 
   // % robocentric update
-  // 'SLAM_upd:385' if xt.origin.anchor_idx == 0
+  // 'SLAM_upd:378' if xt.origin.anchor_idx == 0
   if (b_xt->origin.anchor_idx == 0) {
     //  need to update the origin anchor and the state
-    // 'SLAM_upd:386' xt.fixed_feature = int32(0);
+    // 'SLAM_upd:379' xt.fixed_feature = int32(0);
     b_xt->fixed_feature = 0;
 
     //  ensure that a new feature will be fixed, if this option is enabled
     //  choose the best anchor as the new origin anchor
-    // 'SLAM_upd:388' uncertainties = zeros(numAnchors, 1);
+    // 'SLAM_upd:381' uncertainties = zeros(numAnchors, 1);
     //  uncertainties of the anchors reduced to a scalar
-    // 'SLAM_upd:389' has_active_features = uncertainties;
+    // 'SLAM_upd:382' has_active_features = uncertainties;
     for (i = 0; i < 6; i++) {
       b_has_active_features[i] = 0.0;
     }
 
-    // 'SLAM_upd:390' for anchorIdx = 1:numAnchors
+    // 'SLAM_upd:383' for anchorIdx = 1:numAnchors
     for (anchorIdx = 0; anchorIdx < 6; anchorIdx++) {
-      // 'SLAM_upd:391' if anyActiveAnchorFeatures(xt.anchor_states(anchorIdx))
+      // 'SLAM_upd:384' if anyActiveAnchorFeatures(xt.anchor_states(anchorIdx))
       if (anyActiveAnchorFeatures(b_xt->anchor_states[anchorIdx].feature_states))
       {
-        // 'SLAM_upd:392' uncertainties(anchorIdx) = norm(P_apo(xt.anchor_states(anchorIdx).P_idx, xt.anchor_states(anchorIdx).P_idx)); 
+        // 'SLAM_upd:385' uncertainties(anchorIdx) = norm(P_apo(xt.anchor_states(anchorIdx).P_idx, xt.anchor_states(anchorIdx).P_idx)); 
         for (i47 = 0; i47 < 6; i47++) {
           for (i = 0; i < 6; i++) {
             b_P_apr[i + 6 * i47] = P_apr[(b_xt->anchor_states[anchorIdx].P_idx[i]
@@ -8085,25 +8079,25 @@ static void SLAM_upd(double P_apr[10404], g_struct_T *b_xt, int
 
         c_uncertainties[anchorIdx] = d_norm(b_P_apr);
 
-        // 'SLAM_upd:393' has_active_features(anchorIdx) = 1;
+        // 'SLAM_upd:386' has_active_features(anchorIdx) = 1;
         b_has_active_features[anchorIdx] = 1.0;
       } else {
-        // 'SLAM_upd:394' else
-        // 'SLAM_upd:395' uncertainties(anchorIdx) = 1000;
+        // 'SLAM_upd:387' else
+        // 'SLAM_upd:388' uncertainties(anchorIdx) = 1000;
         c_uncertainties[anchorIdx] = 1000.0;
 
         //  dont fix an anchor with no active features
       }
     }
 
-    // 'SLAM_upd:398' if ~any(has_active_features)
+    // 'SLAM_upd:391' if ~any(has_active_features)
     if (!c_any(b_has_active_features)) {
       //  can happen if outlier rejection rejected all features
-      // 'SLAM_upd:399' ros_warn('Can''t fix an anchor because none have active features') 
+      // 'SLAM_upd:392' ros_warn('Can''t fix an anchor because none have active features') 
       i_ros_warn();
     } else {
-      // 'SLAM_upd:400' else
-      // 'SLAM_upd:401' [~, sortIdx] = min(uncertainties);
+      // 'SLAM_upd:393' else
+      // 'SLAM_upd:394' [~, sortIdx] = min(uncertainties);
       ixstart = 1;
       mtmp = c_uncertainties[0];
       idx = 1;
@@ -8133,14 +8127,14 @@ static void SLAM_upd(double P_apr[10404], g_struct_T *b_xt, int
         }
       }
 
-      // 'SLAM_upd:401' ~
-      // 'SLAM_upd:402' xt.origin.anchor_idx = int32(sortIdx(1));
+      // 'SLAM_upd:394' ~
+      // 'SLAM_upd:395' xt.origin.anchor_idx = int32(sortIdx(1));
       b_xt->origin.anchor_idx = idx;
 
-      // 'SLAM_upd:403' if ~has_active_features(xt.origin.anchor_idx)
+      // 'SLAM_upd:396' if ~has_active_features(xt.origin.anchor_idx)
       if (!(b_has_active_features[b_xt->origin.anchor_idx - 1] != 0.0)) {
         //  debug check
-        // 'SLAM_upd:404' ros_error('Picked an anchor with no active features as origin (anchor %d). Probably because no anchors have any features.', int32(xt.origin.anchor_idx)) 
+        // 'SLAM_upd:397' ros_error('Picked an anchor with no active features as origin (anchor %d). Probably because no anchors have any features.', int32(xt.origin.anchor_idx)) 
         // ROS_ERROR Print to ROS_ERROR in ROS or to console in Matlab
         // 'ros_error:4' if coder.target('MATLAB')
         // 'ros_error:6' elseif ~coder.target('MEX')
@@ -8149,13 +8143,13 @@ static void SLAM_upd(double P_apr[10404], g_struct_T *b_xt, int
         memcpy(&cv46[0], &cv47[0], 111U * sizeof(char));
         ROS_ERROR(cv46, b_xt->origin.anchor_idx);
       } else {
-        // 'SLAM_upd:405' else
-        // 'SLAM_upd:406' ros_info('Setting anchor %i as origin', int32(xt.origin.anchor_idx)) 
+        // 'SLAM_upd:398' else
+        // 'SLAM_upd:399' ros_info('Setting anchor %i as origin', int32(xt.origin.anchor_idx)) 
         g_ros_info(b_xt->origin.anchor_idx);
 
-        // 'SLAM_upd:408' new_origin_pos_rel = xt.anchor_states(xt.origin.anchor_idx).pos; 
+        // 'SLAM_upd:401' new_origin_pos_rel = xt.anchor_states(xt.origin.anchor_idx).pos; 
         //  in old origin frame
-        // 'SLAM_upd:409' new_origin_att_rel = RotFromQuatJ(xt.anchor_states(xt.origin.anchor_idx).att); 
+        // 'SLAM_upd:402' new_origin_att_rel = RotFromQuatJ(xt.anchor_states(xt.origin.anchor_idx).att); 
         //  if ~all(size(q) == [4, 1])
         //      error('q does not have the size of a quaternion')
         //  end
@@ -8221,16 +8215,16 @@ static void SLAM_upd(double P_apr[10404], g_struct_T *b_xt, int
           b_xt->anchor_states[b_xt->origin.anchor_idx - 1].att[3];
 
         //  in old origin frame, = R_o{k+1}o{k}
-        // 'SLAM_upd:411' J = eye(size(P_apo));
+        // 'SLAM_upd:404' J = eye(size(P_apo));
         d_eye(J);
 
         //  robot position and orientation
-        // 'SLAM_upd:413' J(1:6, 1:6) = [new_origin_att_rel, zeros(3);...
-        // 'SLAM_upd:414'                                      zeros(3), eye(3)]; 
+        // 'SLAM_upd:406' J(1:6, 1:6) = [new_origin_att_rel, zeros(3);...
+        // 'SLAM_upd:407'                                      zeros(3), eye(3)]; 
         eye(c_xt);
 
-        // 'SLAM_upd:415' J(1:6, xt.anchor_states(xt.origin.anchor_idx).P_idx) = [-new_origin_att_rel, skew(new_origin_att_rel * (xt.robot_state.pos - new_origin_pos_rel));... 
-        // 'SLAM_upd:416'                                                                                zeros(3), -RotFromQuatJ(xt.robot_state.att) * new_origin_att_rel']; 
+        // 'SLAM_upd:408' J(1:6, xt.anchor_states(xt.origin.anchor_idx).P_idx) = [-new_origin_att_rel, skew(new_origin_att_rel * (xt.robot_state.pos - new_origin_pos_rel));... 
+        // 'SLAM_upd:409'                                                                                zeros(3), -RotFromQuatJ(xt.robot_state.att) * new_origin_att_rel']; 
         for (i = 0; i < 3; i++) {
           new_origin_pos_rel[i] = b_xt->anchor_states[b_xt->origin.anchor_idx -
             1].pos[i];
@@ -8324,9 +8318,9 @@ static void SLAM_upd(double P_apr[10404], g_struct_T *b_xt, int
                      1)] = 0.0;
 
         //  robot velocity
-        // 'SLAM_upd:418' J(7:9, 7:9) = new_origin_att_rel;
+        // 'SLAM_upd:411' J(7:9, 7:9) = new_origin_att_rel;
         //  velocity
-        // 'SLAM_upd:419' J(7:9, xt.anchor_states(xt.origin.anchor_idx).P_idx) = [zeros(3), skew(new_origin_att_rel * xt.robot_state.vel)]; 
+        // 'SLAM_upd:412' J(7:9, xt.anchor_states(xt.origin.anchor_idx).P_idx) = [zeros(3), skew(new_origin_att_rel * xt.robot_state.vel)]; 
         for (i47 = 0; i47 < 3; i47++) {
           m_l[i47] = 0.0;
           for (i = 0; i < 3; i++) {
@@ -8369,9 +8363,9 @@ static void SLAM_upd(double P_apr[10404], g_struct_T *b_xt, int
                      1)] = 0.0;
 
         //  origin rotation
-        // 'SLAM_upd:421' J(16:18, 16:18) = new_origin_att_rel;
+        // 'SLAM_upd:414' J(16:18, 16:18) = new_origin_att_rel;
         //  origin rotation
-        // 'SLAM_upd:422' J(16:18, xt.anchor_states(xt.origin.anchor_idx).P_idx) = [zeros(3), eye(3)]; 
+        // 'SLAM_upd:415' J(16:18, xt.anchor_states(xt.origin.anchor_idx).P_idx) = [zeros(3), eye(3)]; 
         eye(c_xt);
         for (i47 = 0; i47 < 3; i47++) {
           for (i = 0; i < 3; i++) {
@@ -8387,11 +8381,11 @@ static void SLAM_upd(double P_apr[10404], g_struct_T *b_xt, int
           }
         }
 
-        // 'SLAM_upd:424' for anchorIdx = 1:numAnchors
+        // 'SLAM_upd:417' for anchorIdx = 1:numAnchors
         for (anchorIdx = 0; anchorIdx < 6; anchorIdx++) {
-          // 'SLAM_upd:425' if anchorIdx == xt.origin.anchor_idx
+          // 'SLAM_upd:418' if anchorIdx == xt.origin.anchor_idx
           if (anchorIdx + 1 == b_xt->origin.anchor_idx) {
-            // 'SLAM_upd:426' J(xt.anchor_states(anchorIdx).P_idx, xt.anchor_states(anchorIdx).P_idx) = [zeros(3), zeros(3); zeros(3), zeros(3)]; 
+            // 'SLAM_upd:419' J(xt.anchor_states(anchorIdx).P_idx, xt.anchor_states(anchorIdx).P_idx) = [zeros(3), zeros(3); zeros(3), zeros(3)]; 
             for (i47 = 0; i47 < 6; i47++) {
               for (i = 0; i < 6; i++) {
                 J[(b_xt->anchor_states[anchorIdx].P_idx[i] + 102 *
@@ -8399,9 +8393,9 @@ static void SLAM_upd(double P_apr[10404], g_struct_T *b_xt, int
               }
             }
           } else {
-            // 'SLAM_upd:427' else
-            // 'SLAM_upd:428' J(xt.anchor_states(anchorIdx).P_idx, xt.anchor_states(anchorIdx).P_idx) = [new_origin_att_rel, zeros(3);... 
-            // 'SLAM_upd:429'                                                                                                          zeros(3), eye(3)]; 
+            // 'SLAM_upd:420' else
+            // 'SLAM_upd:421' J(xt.anchor_states(anchorIdx).P_idx, xt.anchor_states(anchorIdx).P_idx) = [new_origin_att_rel, zeros(3);... 
+            // 'SLAM_upd:422'                                                                                                          zeros(3), eye(3)]; 
             eye(c_xt);
             for (i47 = 0; i47 < 3; i47++) {
               for (i = 0; i < 3; i++) {
@@ -8426,8 +8420,8 @@ static void SLAM_upd(double P_apr[10404], g_struct_T *b_xt, int
               }
             }
 
-            // 'SLAM_upd:430' J(xt.anchor_states(anchorIdx).P_idx, xt.anchor_states(xt.origin.anchor_idx).P_idx) = [-new_origin_att_rel, skew(new_origin_att_rel * (xt.anchor_states(anchorIdx).pos - new_origin_pos_rel));... 
-            // 'SLAM_upd:431'                                                                                                                      zeros(3), -RotFromQuatJ(xt.anchor_states(anchorIdx).att) * new_origin_att_rel']; 
+            // 'SLAM_upd:423' J(xt.anchor_states(anchorIdx).P_idx, xt.anchor_states(xt.origin.anchor_idx).P_idx) = [-new_origin_att_rel, skew(new_origin_att_rel * (xt.anchor_states(anchorIdx).pos - new_origin_pos_rel));... 
+            // 'SLAM_upd:424'                                                                                                                      zeros(3), -RotFromQuatJ(xt.anchor_states(anchorIdx).att) * new_origin_att_rel']; 
             for (i47 = 0; i47 < 3; i47++) {
               for (i = 0; i < 3; i++) {
                 J[(b_xt->anchor_states[anchorIdx].P_idx[i + 3] + 102 *
@@ -8565,14 +8559,14 @@ static void SLAM_upd(double P_apr[10404], g_struct_T *b_xt, int
             }
           }
 
-          // 'SLAM_upd:434' xt.anchor_states(anchorIdx).pos = new_origin_att_rel * (xt.anchor_states(anchorIdx).pos - new_origin_pos_rel); 
+          // 'SLAM_upd:427' xt.anchor_states(anchorIdx).pos = new_origin_att_rel * (xt.anchor_states(anchorIdx).pos - new_origin_pos_rel); 
           for (i = 0; i < 3; i++) {
             m_l[i] = b_xt->anchor_states[anchorIdx].pos[i] -
               new_origin_pos_rel[i];
             b_xt->anchor_states[anchorIdx].pos[i] = 0.0;
           }
 
-          // 'SLAM_upd:435' xt.anchor_states(anchorIdx).att = QuatFromRotJ(RotFromQuatJ(xt.anchor_states(anchorIdx).att) * new_origin_att_rel'); 
+          // 'SLAM_upd:428' xt.anchor_states(anchorIdx).att = QuatFromRotJ(RotFromQuatJ(xt.anchor_states(anchorIdx).att) * new_origin_att_rel'); 
           //  if ~all(size(q) == [4, 1])
           //      error('q does not have the size of a quaternion')
           //  end
@@ -8646,7 +8640,7 @@ static void SLAM_upd(double P_apr[10404], g_struct_T *b_xt, int
           QuatFromRotJ(e_xt, b_xt->anchor_states[anchorIdx].att);
         }
 
-        // 'SLAM_upd:438' P_apo = J * P_apo * J';
+        // 'SLAM_upd:431' P_apo = J * P_apo * J';
         for (i47 = 0; i47 < 102; i47++) {
           for (i = 0; i < 102; i++) {
             b_J[i47 + 102 * i] = 0.0;
@@ -8665,12 +8659,12 @@ static void SLAM_upd(double P_apr[10404], g_struct_T *b_xt, int
           }
         }
 
-        // 'SLAM_upd:440' xt.robot_state.pos = new_origin_att_rel * (xt.robot_state.pos - new_origin_pos_rel); 
+        // 'SLAM_upd:433' xt.robot_state.pos = new_origin_att_rel * (xt.robot_state.pos - new_origin_pos_rel); 
         for (i47 = 0; i47 < 3; i47++) {
           d_xt[i47] = b_xt->robot_state.pos[i47] - new_origin_pos_rel[i47];
         }
 
-        // 'SLAM_upd:441' xt.robot_state.att = QuatFromRotJ(RotFromQuatJ(xt.robot_state.att) * new_origin_att_rel'); 
+        // 'SLAM_upd:434' xt.robot_state.att = QuatFromRotJ(RotFromQuatJ(xt.robot_state.att) * new_origin_att_rel'); 
         //  if ~all(size(q) == [4, 1])
         //      error('q does not have the size of a quaternion')
         //  end
@@ -8719,7 +8713,7 @@ static void SLAM_upd(double P_apr[10404], g_struct_T *b_xt, int
 
         QuatFromRotJ(e_xt, b_xt->robot_state.att);
 
-        // 'SLAM_upd:442' xt.robot_state.vel = new_origin_att_rel * xt.robot_state.vel; 
+        // 'SLAM_upd:435' xt.robot_state.vel = new_origin_att_rel * xt.robot_state.vel; 
         for (i47 = 0; i47 < 3; i47++) {
           d_xt[i47] = 0.0;
           for (i = 0; i < 3; i++) {
@@ -8728,7 +8722,7 @@ static void SLAM_upd(double P_apr[10404], g_struct_T *b_xt, int
           }
         }
 
-        // 'SLAM_upd:444' xt.origin.pos = xt.origin.pos + RotFromQuatJ(xt.origin.att)' * new_origin_pos_rel; 
+        // 'SLAM_upd:437' xt.origin.pos = xt.origin.pos + RotFromQuatJ(xt.origin.att)' * new_origin_pos_rel; 
         //  if ~all(size(q) == [4, 1])
         //      error('q does not have the size of a quaternion')
         //  end
@@ -8764,7 +8758,7 @@ static void SLAM_upd(double P_apr[10404], g_struct_T *b_xt, int
           origin.att[3] * b_xt->origin.att[3];
 
         //  in world frame
-        // 'SLAM_upd:445' xt.origin.att = QuatFromRotJ(new_origin_att_rel * RotFromQuatJ(xt.origin.att)); 
+        // 'SLAM_upd:438' xt.origin.att = QuatFromRotJ(new_origin_att_rel * RotFromQuatJ(xt.origin.att)); 
         //  if ~all(size(q) == [4, 1])
         //      error('q does not have the size of a quaternion')
         //  end
@@ -8821,23 +8815,23 @@ static void SLAM_upd(double P_apr[10404], g_struct_T *b_xt, int
   }
 
   // % aposteriori measurement prediction
-  // 'SLAM_upd:451' [map] = getMap(xt);
+  // 'SLAM_upd:444' [map] = getMap(xt);
   getMap(b_xt->origin.pos, b_xt->origin.att, b_xt->anchor_states, b_map);
 
   //  get map for output
-  // 'SLAM_upd:453' delayedStatus = zeros(size(updateVect));
+  // 'SLAM_upd:446' delayedStatus = zeros(size(updateVect));
   memset(&b_delayedStatus[0], 0, 48U * sizeof(double));
 
-  // 'SLAM_upd:454' for anchorIdx = 1:numAnchors
+  // 'SLAM_upd:447' for anchorIdx = 1:numAnchors
   for (anchorIdx = 0; anchorIdx < 6; anchorIdx++) {
-    // 'SLAM_upd:455' for featureIdx = 1:numPointsPerAnchor
+    // 'SLAM_upd:448' for featureIdx = 1:numPointsPerAnchor
     for (featureIdx = 0; featureIdx < 8; featureIdx++) {
-      // 'SLAM_upd:456' if xt.anchor_states(anchorIdx).feature_states(featureIdx).status 
+      // 'SLAM_upd:449' if xt.anchor_states(anchorIdx).feature_states(featureIdx).status 
       if ((b_xt->anchor_states[anchorIdx].feature_states[featureIdx].status != 0)
           && (b_xt->anchor_states[anchorIdx].feature_states[featureIdx].status ==
               2)) {
-        // 'SLAM_upd:457' if xt.anchor_states(anchorIdx).feature_states(featureIdx).status == 2 
-        // 'SLAM_upd:458' delayedStatus(xt.anchor_states(anchorIdx).feature_states(featureIdx).status_idx) = 1; 
+        // 'SLAM_upd:450' if xt.anchor_states(anchorIdx).feature_states(featureIdx).status == 2 
+        // 'SLAM_upd:451' delayedStatus(xt.anchor_states(anchorIdx).feature_states(featureIdx).status_idx) = 1; 
         b_delayedStatus[b_xt->anchor_states[anchorIdx].feature_states[featureIdx]
           .status_idx - 1] = 1.0;
       }
@@ -18106,13 +18100,13 @@ void SLAM(int updateVect[48], const double z_all_l[96], const double z_all_r[96]
   double t0_att[4];
   struct_T rv1[6];
 
-  // 'SLAM:11' coder.cstructname(measurements, 'VIOMeasurements', 'extern', 'HeaderFile', '../InterfaceStructs.h'); 
-  // 'SLAM:12' coder.cstructname(noiseParameters, 'NoiseParameters', 'extern', 'HeaderFile', '../InterfaceStructs.h'); 
-  // 'SLAM:13' coder.cstructname(noiseParameters.process_noise, 'ProcessNoise', 'extern', 'HeaderFile', '../InterfaceStructs.h'); 
-  // 'SLAM:14' coder.cstructname(cameraParameters, 'DUOParameters', 'extern', 'HeaderFile', '../InterfaceStructs.h'); 
-  // 'SLAM:15' coder.cstructname(cameraParameters.CameraParameters1, 'CameraParameters', 'extern', 'HeaderFile', '../InterfaceStructs.h'); 
-  // 'SLAM:16' coder.cstructname(cameraParameters.CameraParameters2, 'CameraParameters', 'extern', 'HeaderFile', '../InterfaceStructs.h'); 
-  // 'SLAM:17' coder.cstructname(VIOParameters, 'VIOParameters', 'extern', 'HeaderFile', '../InterfaceStructs.h'); 
+  // 'SLAM:11' coder.cstructname(measurements, 'VIOMeasurements', 'extern', 'HeaderFile', 'InterfaceStructs.h'); 
+  // 'SLAM:12' coder.cstructname(noiseParameters, 'NoiseParameters', 'extern', 'HeaderFile', 'InterfaceStructs.h'); 
+  // 'SLAM:13' coder.cstructname(noiseParameters.process_noise, 'ProcessNoise', 'extern', 'HeaderFile', 'InterfaceStructs.h'); 
+  // 'SLAM:14' coder.cstructname(cameraParameters, 'DUOParameters', 'extern', 'HeaderFile', 'InterfaceStructs.h'); 
+  // 'SLAM:15' coder.cstructname(cameraParameters.CameraParameters1, 'CameraParameters', 'extern', 'HeaderFile', 'InterfaceStructs.h'); 
+  // 'SLAM:16' coder.cstructname(cameraParameters.CameraParameters2, 'CameraParameters', 'extern', 'HeaderFile', 'InterfaceStructs.h'); 
+  // 'SLAM:17' coder.cstructname(VIOParameters, 'VIOParameters', 'extern', 'HeaderFile', 'InterfaceStructs.h'); 
   // 'SLAM:19' assert ( all ( size (updateVect) == [numTrackFeatures 1] ) );
   // 'SLAM:19' assert(isa(updateVect,'int32'));
   // 'SLAM:20' assert ( all ( size (z_all_l) == [numTrackFeatures*2 1] ) )
@@ -18440,9 +18434,9 @@ void SLAM(int updateVect[48], const double z_all_l[96], const double z_all_r[96]
   //  coder.cstructname(xt_out, 'RobotState');
   //  coder.cstructname(xt_out.IMU, 'IMUState');
   //  coder.cstructname(anchor_poses_out(1), 'AnchorPose');
-  // 'SLAM:119' coder.cstructname(xt_out, 'RobotState', 'extern', 'HeaderFile', '../InterfaceStructs.h'); 
-  // 'SLAM:120' coder.cstructname(xt_out.IMU, 'IMUState', 'extern', 'HeaderFile', '../InterfaceStructs.h'); 
-  // 'SLAM:121' coder.cstructname(anchor_poses_out(1), 'AnchorPose', 'extern', 'HeaderFile', '../InterfaceStructs.h'); 
+  // 'SLAM:119' coder.cstructname(xt_out, 'RobotState', 'extern', 'HeaderFile', 'InterfaceStructs.h'); 
+  // 'SLAM:120' coder.cstructname(xt_out.IMU, 'IMUState', 'extern', 'HeaderFile', 'InterfaceStructs.h'); 
+  // 'SLAM:121' coder.cstructname(anchor_poses_out(1), 'AnchorPose', 'extern', 'HeaderFile', 'InterfaceStructs.h'); 
   // 'SLAM:123' assert ( all ( size (map_out) == [numTrackFeatures*3 1] ) )
   // 'SLAM:124' assert ( all ( size (anchor_poses_out) == [numAnchors 1] ) )
   // 'SLAM:125' assert ( all ( size (updateVect) == [numTrackFeatures 1] ) )

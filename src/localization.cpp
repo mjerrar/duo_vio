@@ -177,11 +177,8 @@ Localization::Localization()
 	dynamic_reconfigure::Server<vio_ros::vio_rosConfig>::CallbackType f = boost::bind(&Localization::dynamicReconfigureCb, this, _1, _2);
 	dynamic_reconfigure_server.setCallback(f);
 
-	num_points_ = matlab_consts::numTrackFeatures;
-
-	update_vec_.assign(num_points_, 0);
-	h_u_apo.resize(num_points_*4);
-	map.resize(num_points_*3);
+	update_vec_.assign(matlab_consts::numTrackFeatures, 0);
+	map.resize(matlab_consts::numTrackFeatures*3);
 	anchor_poses.resize(matlab_consts::numAnchors);
 
 	// publishers to check timings
@@ -405,9 +402,9 @@ void Localization::resetCb(const std_msgs::Empty &msg)
 
 void Localization::update(double dt, const vio_ros::VioSensorMsg &msg, bool update_vis, bool show_image, bool reset)
 {
-	std::vector<FloatType> z_all_l(num_points_*2, 0.0);
-	std::vector<FloatType> z_all_r(num_points_*2, 0.0);
-	FloatType delayedStatus[num_points_];
+	std::vector<FloatType> z_all_l(matlab_consts::numTrackFeatures*2, 0.0);
+	std::vector<FloatType> z_all_r(matlab_consts::numTrackFeatures*2, 0.0);
+	FloatType delayedStatus[matlab_consts::numTrackFeatures];
 
 	//*********************************************************************
 	// SLAM prediction
@@ -602,7 +599,7 @@ void Localization::updateVis(RobotState &robot_state,
 		msg.anchor_poses.poses.push_back(pose);
 	}
 
-	for (int i = 0; i < num_points_; i++)
+	for (int i = 0; i < matlab_consts::numTrackFeatures; i++)
 	{
 		msg.map.data.push_back(map[i*3 + 0]);
 		msg.map.data.push_back(map[i*3 + 1]);

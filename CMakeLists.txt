@@ -95,7 +95,7 @@ generate_dynamic_reconfigure_options(
 ## CATKIN_DEPENDS: catkin_packages dependent projects also need
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
-#  INCLUDE_DIRS include
+ INCLUDE_DIRS include
 #  LIBRARIES vio_ros
   CATKIN_DEPENDS sensor_msgs message_filters geometry_msgs tf cv_bridge rospy message_runtime
 #  DEPENDS system_lib
@@ -110,7 +110,10 @@ SET( CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} ${GCC_COVERAGE_COMPILE_FLAGS}" )
 ## Your package locations should be listed before other locations
 # include_directories(include)
 
-include_directories(src/codegen_SLAM/)
+include_directories(
+src/codegen/SLAM/
+include
+)
 
 ## Declare a cpp library
 # add_library(vio_ros
@@ -118,11 +121,11 @@ include_directories(src/codegen_SLAM/)
 # )
 
 # Get all *.cpp files that Matlab Coder created
-FILE(GLOB SLAMSources src/codegen_SLAM/*.cpp)
+FILE(GLOB SLAMSources src/codegen/SLAM/*.cpp)
 
 ## Declare a cpp executable
 add_executable(vio_ros_node
-  src/vio_ros_node.cpp
+  src/nodes/vio_ros_node.cpp
   src/localization.cpp
   src/klt_point_handling.cc
   src/IMULowpass.cpp
