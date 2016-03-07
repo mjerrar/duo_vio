@@ -1,3 +1,4 @@
+For more complete instructions, refer to the [AIT WIKI](http://ait.inf.ethz.ch/wiki/doku.php?id=wiki:internal:setting_up_and_using_vio).
 # VIO_ROS
 
 Launch the visual odometry node and the DUO3D node with:
