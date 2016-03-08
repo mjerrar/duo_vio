@@ -1,7 +1,17 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(vio_ros)
 
-set(CMAKE_CXX_FLAGS "-std=c++0x ${CMAKE_CXX_FLAGS} -Wno-format-security")
+#set(CORTEX 1)  # uncomment this to enable cortex optimized compilation
+
+if(CORTEX)
+  MESSAGE( STATUS "Compiling for cortex")
+  set(NEON_FLAGS "-DENABLE_NEON -mfloat-abi=hard -mfpu=neon-vfpv4 -mcpu=cortex-a15 -Ofast")
+  set(CMAKE_CXX_FLAGS "-std=c++0x ${CMAKE_CXX_FLAGS} -Wno-format-security ${NEON_FLAGS}")
+  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${NEON_FLAGS}")
+else()
+  set(CMAKE_CXX_FLAGS "-std=c++0x ${CMAKE_CXX_FLAGS} -Wno-format-security -Ofast")
+endif()
+
 set(CMAKE_BUILD_TYPE Debug)
 
 ## Find catkin macros and libraries
@@ -104,43 +114,69 @@ catkin_package(
 ###########
 ## Build ##
 ###########
-SET(GCC_COVERAGE_COMPILE_FLAGS "-Ofast")
-SET( CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} ${GCC_COVERAGE_COMPILE_FLAGS}" )
 ## Specify additional locations of header files
 ## Your package locations should be listed before other locations
 # include_directories(include)
 
-include_directories(
-src/codegen/SLAM/
-include
-)
+if(CORTEX)
+  include_directories(
+    src/codegen/SLAM_cortex/
+    include
+    /home/odroid/Ne10/inc
+    /home/odroid/Ne10/common
+  )
+  # Get all *.cpp files that Matlab Coder created
+  FILE(GLOB SLAMSources src/codegen/SLAM_cortex/*.cpp)
+
+  ## Declare a cpp executable
+  add_executable(vio_ros_node
+    src/nodes/vio_ros_node.cpp
+    src/localization.cpp
+    src/klt_point_handling.cc
+    src/IMULowpass.cpp
+    ${SLAMSources}
+    src/mw_neon.c
+  )
+else()
+  include_directories(
+    src/codegen/SLAM/
+    include
+  )
+  # Get all *.cpp files that Matlab Coder created
+  FILE(GLOB SLAMSources src/codegen/SLAM/*.cpp)
+
+  ## Declare a cpp executable
+  add_executable(vio_ros_node
+    src/nodes/vio_ros_node.cpp
+    src/localization.cpp
+    src/klt_point_handling.cc
+    src/IMULowpass.cpp
+    ${SLAMSources}
+  )
+endif()
 
 ## Declare a cpp library
 # add_library(vio_ros
 #   src/${PROJECT_NAME}/vio_ros.cpp
 # )
 
-# Get all *.cpp files that Matlab Coder created
-FILE(GLOB SLAMSources src/codegen/SLAM/*.cpp)
-
-## Declare a cpp executable
-add_executable(vio_ros_node
-  src/nodes/vio_ros_node.cpp
-  src/localization.cpp
-  src/klt_point_handling.cc
-  src/IMULowpass.cpp
-  ${SLAMSources}
-)
-
 ## Add cmake target dependencies of the executable/library
 ## as an example, message headers may need to be generated before nodes
 add_dependencies(vio_ros_node ${PROJECT_NAME}_gencfg ${PROJECT_NAME}_generate_messages_cpp)
 
 ## Specify libraries to link a library or executable target against
-target_link_libraries(vio_ros_node
-  ${catkin_LIBRARIES}
-  yaml-cpp
-)
+if(CORTEX)
+  target_link_libraries(vio_ros_node
+    ${catkin_LIBRARIES}
+    yaml-cpp
+    /home/odroid/Ne10/build/modules/libNE10.a
+  )
+else()
+  target_link_libraries(vio_ros_node
+    ${catkin_LIBRARIES}
+    yaml-cpp
+  )
+endif()
 
 #############
 ## Install ##
