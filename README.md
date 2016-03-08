@@ -1,5 +1,5 @@
 # Installation
-The VIO is implemented in ROS. Thus, you first need to install ROS Indigo according to the []official instructions](http://wiki.ros.org/indigo/Installation/Ubuntu).
+The VIO is implemented in ROS. Thus, you first need to install ROS Indigo according to the [official instructions](http://wiki.ros.org/indigo/Installation/Ubuntu).
 
 You will also need PySide for Python 2.7
 ```bash
@@ -15,7 +15,7 @@ cd catkin_ws
 catkin_make
 ```
 
-## Installing on embedded devices
+## Compiling on embedded devices
 An optimized version is provided for ARM Cortex devices. To build this optimized version, open the `CMakeLists.txt` of this package and uncomment the line:
 ```cmake
 set(CORTEX 1)
