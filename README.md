@@ -7,7 +7,10 @@ sudo apt-get install python-pyside
 ```
 For the visualization, youalso need PyQtGraph. Download the .deb file from the [website](http://pyqtgraph.org/) and double click it to install.
 
-The VIO with the DUO camera depends on two packages: The this package for the state estimation and the [`duo3d_ros`](https://gitlab.inf.ethz.ch/naegelit/DUO3d_ROS) package for the ROS driver of the camera. Clone both git repositories into your `catkin_ws/src` directory. Also place the DUO SKD in `catkin_ws/src`.
+
+The VIO with the DUO camera depends on two packages: This package for the state estimation and the [`duo3d_ros`](https://gitlab.inf.ethz.ch/naegelit/DUO3d_ROS) package for the ROS driver of the camera.
+Clone both git repositories into your `catkin_ws/src` directory.
+Also place the DUO SKD in `catkin_ws/src`.
 
 You are now ready to compile the packages with
 ```bash
