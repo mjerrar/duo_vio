@@ -14,7 +14,7 @@
   <arg name="acc_bias_noise"            default="0.001" />          <!-- Process noise of acc bias random walk -->
   <arg name="inv_depth_initial_unc"     default="0.001" />          <!-- Initial inverse depth uncertainty (depends on baseline, resolution, and focal length) -->
   <arg name="gyro_bias_initial_unc"     default="[0.1, 0.1, 0.1]" /> <!-- Initial value for gyro bias uncertainty -->
-  <arg name="acc_bias_initial_unc"      default="[0, 0, 0]" />      <!-- Initial value for accelerometer bias uncertainty -->
+  <arg name="acc_bias_initial_unc"      default="[0.1, 0.1, 0.1]" /> <!-- Initial value for accelerometer bias uncertainty -->
   <arg name="imu_smoothing_factor"      default="0.8" />            <!-- IMU lowpass filter. 1.0 to disable smoothing -->
 
   <!-- duo camera node -->
