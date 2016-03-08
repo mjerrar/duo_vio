@@ -388,7 +388,7 @@ void Localization::update(double dt, const vio_ros::VioSensorMsg &msg, bool upda
         imulp_.put(meas);  // filter the IMU data
         imulp_.get(meas);
         SLAM(&update_vec_[0], &z_all_l[0], &z_all_r[0], dt / msg.imu.size(), &meas, &cameraParams, &noiseParams, &vioParams, 0,  // predict
-                reset,  // reset
+                reset && (!i),  // reset, only with one IMU sample
                 &robot_state, &map[0], &anchor_poses[0], delayedStatus);
     }
 
