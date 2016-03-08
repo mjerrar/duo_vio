@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 2.8.3)
 project(vio_ros)
 
 #set(CORTEX 1)  # uncomment this to enable cortex optimized compilation
+set(NEON_PATH "/home/odroid/Ne10")
 
 if(CORTEX)
   MESSAGE( STATUS "Compiling for cortex")
@@ -122,8 +123,8 @@ if(CORTEX)
   include_directories(
     src/codegen/SLAM_cortex/
     include
-    /home/odroid/Ne10/inc
-    /home/odroid/Ne10/common
+    ${NEON_PATH}/inc
+    ${NEON_PATH}/common
   )
   # Get all *.cpp files that Matlab Coder created
   FILE(GLOB SLAMSources src/codegen/SLAM_cortex/*.cpp)
@@ -169,7 +170,7 @@ if(CORTEX)
   target_link_libraries(vio_ros_node
     ${catkin_LIBRARIES}
     yaml-cpp
-    /home/odroid/Ne10/build/modules/libNE10.a
+    ${NEON_PATH}/build/modules/libNE10.a
   )
 else()
   target_link_libraries(vio_ros_node
