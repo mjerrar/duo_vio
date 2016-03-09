@@ -1,4 +1,38 @@
 #!/usr/bin/python
+
+#   Copyright (c) 2016 AIT, ETH Zurich. All rights reserved.
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions
+# are met:
+#
+# 1. Redistributions of source code must retain the above copyright
+#    notice, this list of conditions and the following disclaimer.
+# 2. Redistributions in binary form must reproduce the above copyright
+#    notice, this list of conditions and the following disclaimer in
+#    the documentation and/or other materials provided with the
+#    distribution.
+# 3. Neither the name AIT nor the names of its contributors may be
+#    used to endorse or promote products derived from this software
+#    without specific prior written permission.
+#
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+# "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+# LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+# FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+# COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+# INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+# BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
+# OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED
+# AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+# LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+# ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+# POSSIBILITY OF SUCH DAMAGE.
+#
+# File: vio_vis_msngr.py
+# Created on: 09.03.16
+# Author: Nicolas de Palezieux
+
 from __future__ import print_function, division
 
 import rospy
@@ -56,9 +90,9 @@ class Visualizer(pg.QtCore.QThread):
         x_marker.id = 0
         x_marker.type = x_marker.ARROW
         x_marker.action = x_marker.ADD
-        x_marker.scale.x = shaft_diameter*scale
-        x_marker.scale.y = head_diameter*scale
-        x_marker.scale.z = head_length*scale
+        x_marker.scale.x = shaft_diameter * scale
+        x_marker.scale.y = head_diameter * scale
+        x_marker.scale.z = head_length * scale
         x_marker.color.r = 1.0
         x_marker.color.a = 1.0
         start = Point()
@@ -66,9 +100,9 @@ class Visualizer(pg.QtCore.QThread):
         start.x = pose.position.x
         start.y = pose.position.y
         start.z = pose.position.z
-        end.x = start.x + x_axis[0]*scale
-        end.y = start.y + x_axis[1]*scale
-        end.z = start.z + x_axis[2]*scale
+        end.x = start.x + x_axis[0] * scale
+        end.y = start.y + x_axis[1] * scale
+        end.z = start.z + x_axis[2] * scale
         x_marker.points.append(start)
         x_marker.points.append(end)
 
@@ -78,9 +112,9 @@ class Visualizer(pg.QtCore.QThread):
         y_marker.id = 0
         y_marker.type = y_marker.ARROW
         y_marker.action = y_marker.ADD
-        y_marker.scale.x = shaft_diameter*scale
-        y_marker.scale.y = head_diameter*scale
-        y_marker.scale.z = head_length*scale
+        y_marker.scale.x = shaft_diameter * scale
+        y_marker.scale.y = head_diameter * scale
+        y_marker.scale.z = head_length * scale
         y_marker.color.g = 1.0
         y_marker.color.a = 1.0
         start = Point()
@@ -88,9 +122,9 @@ class Visualizer(pg.QtCore.QThread):
         start.x = pose.position.x
         start.y = pose.position.y
         start.z = pose.position.z
-        end.x = start.x + y_axis[0]*scale
-        end.y = start.y + y_axis[1]*scale
-        end.z = start.z + y_axis[2]*scale
+        end.x = start.x + y_axis[0] * scale
+        end.y = start.y + y_axis[1] * scale
+        end.z = start.z + y_axis[2] * scale
         y_marker.points.append(start)
         y_marker.points.append(end)
 
@@ -100,9 +134,9 @@ class Visualizer(pg.QtCore.QThread):
         z_marker.id = 0
         z_marker.type = z_marker.ARROW
         z_marker.action = z_marker.ADD
-        z_marker.scale.x = shaft_diameter*scale
-        z_marker.scale.y = head_diameter*scale
-        z_marker.scale.z = head_length*scale
+        z_marker.scale.x = shaft_diameter * scale
+        z_marker.scale.y = head_diameter * scale
+        z_marker.scale.z = head_length * scale
         z_marker.color.b = 1.0
         z_marker.color.a = 1.0
         start = Point()
@@ -110,9 +144,9 @@ class Visualizer(pg.QtCore.QThread):
         start.x = pose.position.x
         start.y = pose.position.y
         start.z = pose.position.z
-        end.x = start.x + z_axis[0]*scale
-        end.y = start.y + z_axis[1]*scale
-        end.z = start.z + z_axis[2]*scale
+        end.x = start.x + z_axis[0] * scale
+        end.y = start.y + z_axis[1] * scale
+        end.z = start.z + z_axis[2] * scale
         z_marker.points.append(start)
         z_marker.points.append(end)
 
@@ -133,7 +167,7 @@ class Visualizer(pg.QtCore.QThread):
         self.robot_path.header = pose_stamped.header
         self.robot_path_pub.publish(self.robot_path)
 
-        if len(self.robot_path.poses) > 2*5000:
+        if len(self.robot_path.poses) > 2 * 5000:
             self.robot_path.poses = []
 
         return
@@ -161,9 +195,9 @@ class Visualizer(pg.QtCore.QThread):
         for i in range(0, len(status_vect.data)):
             if status_vect.data[i] > 0:
                 point = Point()
-                point.x = feature_map.data[i*3 + 0]
-                point.y = feature_map.data[i*3 + 1]
-                point.z = feature_map.data[i*3 + 2]
+                point.x = feature_map.data[i * 3 + 0]
+                point.y = feature_map.data[i * 3 + 1]
+                point.z = feature_map.data[i * 3 + 2]
                 cloud.points.append(point)
                 if status_vect.data[i] == 1:
                     r_channel.values.append(0.0)
@@ -174,11 +208,11 @@ class Visualizer(pg.QtCore.QThread):
                     r_channel.values.append(1.0)
                     g_channel.values.append(0.0)
                     b_channel.values.append(1.0)
-                # else:
-                #     print(data.data[i*3 + 0:i*3 + 3])
-                #     r_channel.values.append(0.0)
-                #     g_channel.values.append(0.0)
-                #     b_channel.values.append(0.0)
+                    # else:
+                    #     print(data.data[i*3 + 0:i*3 + 3])
+                    #     r_channel.values.append(0.0)
+                    #     g_channel.values.append(0.0)
+                    #     b_channel.values.append(0.0)
         cloud.channels.append(r_channel)
         cloud.channels.append(g_channel)
         cloud.channels.append(b_channel)
@@ -196,14 +230,14 @@ class Visualizer(pg.QtCore.QThread):
         active_feature_color = (0, 255, 0)
         delayed_feature_color = (255, 0, 255)
 
-        circle_size = int(image_color.shape[0]/160)
+        circle_size = int(image_color.shape[0] / 160)
 
-        for i in range(0, int(len(feature_tracks.data)/2)):
+        for i in range(0, int(len(feature_tracks.data) / 2)):
             if status_vect.data[i] == 1:
                 feature_color = active_feature_color
             else:
                 feature_color = delayed_feature_color
-            cv2.circle(image_color, (int(feature_tracks.data[i*2]), int(feature_tracks.data[i*2+1])), circle_size, feature_color, -1)
+            cv2.circle(image_color, (int(feature_tracks.data[i * 2]), int(feature_tracks.data[i * 2 + 1])), circle_size, feature_color, -1)
             # cv2.putText(image_color, '{}'.format(i), (int(feature_tracks.data[i*2]), int(feature_tracks.data[i*2+1])), cv2.FONT_HERSHEY_SCRIPT_COMPLEX, 0.45, (0, 0, 255))
             # cv2.circle(image_color, (int(pred_feature_tracks.data[i*2]), int(pred_feature_tracks.data[i*2+1])), 2, pred_feature_color, -1)
 
@@ -244,10 +278,10 @@ def plotter(data):
 
     for i in range(0, 3):
         gyro_bias_data[i][plot_idx] = data['gyro'].data[i]
-        gyro_bias_curves[i].setData(gyro_bias_data[i][:plot_idx+1])
+        gyro_bias_curves[i].setData(gyro_bias_data[i][:plot_idx + 1])
 
         acc_bias_data[i][plot_idx] = data['acc'].data[i]
-        acc_bias_curves[i].setData(acc_bias_data[i][:plot_idx+1])
+        acc_bias_curves[i].setData(acc_bias_data[i][:plot_idx + 1])
     plot_idx += 1
     if plot_idx == 2:  # turn on only now, otherwise there will be a division by zero exception
         # print("enabling subsample")
@@ -265,11 +299,11 @@ def plotter(data):
         print('resizing plot data, size was {}'.format(gyro_bias_data[0].shape[0]))
         for i in range(0, 3):
             tmp = gyro_bias_data[i]
-            gyro_bias_data[i] = np.empty(gyro_bias_data[i].shape[0]*2)
+            gyro_bias_data[i] = np.empty(gyro_bias_data[i].shape[0] * 2)
             gyro_bias_data[i][:tmp.shape[0]] = tmp
 
             tmp = acc_bias_data[i]
-            acc_bias_data[i] = np.empty(acc_bias_data[i].shape[0]*2)
+            acc_bias_data[i] = np.empty(acc_bias_data[i].shape[0] * 2)
             acc_bias_data[i][:tmp.shape[0]] = tmp
 
 
