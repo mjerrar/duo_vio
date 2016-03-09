@@ -65,7 +65,7 @@ Once you feel that the accelerometer values have converged, stop the VIO with `C
 
 To store the IMU biases that we just estimated into the calibration file, run:
 ```bash
-roslaunch duo3d_ros merge_IMU_calibration.py
+rosrun duo3d_ros merge_IMU_calibration.py
 ```
 Follow the command line instructions to select the appropriate calibration file to merge the estimated biases.
 
