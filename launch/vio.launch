@@ -1,36 +1,36 @@
 <launch>
 
   <!-- camera settings -->
-  <arg name="FPS"                       default="50" />             <!-- Camera framerate -->
-  <arg name="resolution_width"          default="320" />            <!-- Camera resolution width -->
-  <arg name="resolution_height"         default="240" />            <!-- Camera resolution height -->
-  <arg name="lense_type"                default="FS3028B13M8" />    <!-- Name of camera lense (used to find calibration) -->
-  <arg name="vision_subsample"          default="1" />              <!-- Update estimate with images only every x vio_sensor message -->
+  <arg name="FPS"                       default="50" />                 <!-- Camera framerate -->
+  <arg name="resolution_width"          default="320" />                <!-- Camera resolution width -->
+  <arg name="resolution_height"         default="240" />                <!-- Camera resolution height -->
+  <arg name="lense_type"                default="FS3028B13M8" />        <!-- Name of camera lense (used to find calibration) -->
+  <arg name="vision_subsample"          default="1" />                  <!-- Update estimate with images only every x vio_sensor message -->
 <!--  <arg name="camera_calibration"        default="/path/to/calib" /> <!-/- Path of custom calibration file. If commented out, the calibration file will be looked for based on camera serial nr, lense_type, and resolution -/->-->
 
   <!-- noise parameters -->
-  <arg name="image_noise"               default="1" />              <!-- Measurement noise of features -->
-  <arg name="acc_noise"                 default="10" />             <!-- Processnoise of accelerometer -->
-  <arg name="gyro_noise"                default="0.01" />           <!-- Process Noise of gyroscope -->
-  <arg name="gyro_bias_noise"           default="0.000" />          <!-- Process noise of gyro bias random walk -->
-  <arg name="acc_bias_noise"            default="0.000" />          <!-- Process noise of acc bias random walk -->
-  <arg name="inv_depth_initial_unc"     default="0.001" />          <!-- Initial inverse depth uncertainty (depends on baseline, resolution, and focal length) -->
-  <arg name="gyro_bias_initial_unc"     default="[0.1, 0.1, 0.1]" /> <!-- Initial value for gyro bias uncertainty -->
-  <arg name="acc_bias_initial_unc"      default="[0, 0, 0]" />      <!-- Initial value for accelerometer bias uncertainty -->
-  <arg name="imu_smoothing_factor"      default="0.8" />            <!-- IMU lowpass filter. 1.0 to disable smoothing -->
+  <arg name="image_noise"               default="1" />                  <!-- Measurement noise of features -->
+  <arg name="acc_noise"                 default="10" />                 <!-- Processnoise of accelerometer -->
+  <arg name="gyro_noise"                default="0.001" />              <!-- Process Noise of gyroscope -->
+  <arg name="gyro_bias_noise"           default="0.000" />              <!-- Process noise of gyro bias random walk -->
+  <arg name="acc_bias_noise"            default="0.000" />              <!-- Process noise of acc bias random walk -->
+  <arg name="inv_depth_initial_unc"     default="0.001" />              <!-- Initial inverse depth uncertainty (depends on baseline, resolution, and focal length) -->
+  <arg name="gyro_bias_initial_unc"     default="[0.01, 0.01, 0.01]" /> <!-- Initial value for gyro bias uncertainty -->
+  <arg name="acc_bias_initial_unc"      default="[0, 0, 0]" />          <!-- Initial value for accelerometer bias uncertainty -->
+  <arg name="imu_smoothing_factor"      default="0.8" />                <!-- IMU lowpass filter. 1.0 to disable smoothing -->
 
   <!-- vio parameters -->
-  <arg name="max_ekf_iterations"        default="3" />              <!-- Maximum number of IESKF update iterations -->
-  <arg name="mono"                      default="0" />              <!-- Use left camera images only -->
-  <arg name="delayed_initiazation"      default="0" />              <!-- Delay use of features in state update (only sensible for mono) -->
-  <arg name="fixed_feature"             default="0" />              <!-- Keep one feature at fixed distance (only sensible for mono) -->
-  <arg name="RANSAC"                    default="1" />              <!-- Use 1p RANSAC outlier rejection (strongly recommended) -->
-  <arg name="full_stereo"               default="0" />              <!-- Always use stereo measurements (not recommended) -->
+  <arg name="max_ekf_iterations"        default="3" />                  <!-- Maximum number of IESKF update iterations -->
+  <arg name="mono"                      default="0" />                  <!-- Use left camera images only -->
+  <arg name="delayed_initiazation"      default="0" />                  <!-- Delay use of features in state update (only sensible for mono) -->
+  <arg name="fixed_feature"             default="0" />                  <!-- Keep one feature at fixed distance (only sensible for mono) -->
+  <arg name="RANSAC"                    default="1" />                  <!-- Use 1p RANSAC outlier rejection (strongly recommended) -->
+  <arg name="full_stereo"               default="0" />                  <!-- Always use stereo measurements (not recommended) -->
 
   <!-- vio parameters -->
-  <arg name="visualization_freq"        default="30" />             <!-- Frequency at which visualization messages are sent -->
-  <arg name="show_camera_image"         default="1" />              <!-- Whether camera image should be sent to visualization -->
-  <arg name="image_visualization_delay" default="1" />              <!-- Factor by which images should be sent slower than poses to visualization -->
+  <arg name="visualization_freq"        default="30" />                 <!-- Frequency at which visualization messages are sent -->
+  <arg name="show_camera_image"         default="1" />                  <!-- Whether camera image should be sent to visualization -->
+  <arg name="image_visualization_delay" default="1" />                  <!-- Factor by which images should be sent slower than poses to visualization -->
 
   <node name="vio_ros" pkg="vio_ros" type="vio_ros_node" output="screen">
     <!-- noise parameters -->
