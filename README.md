@@ -68,7 +68,7 @@ Once both the camera and the IMU has been calibrated, we are ready to use the sy
 ```bash
 roslaunch vio_ros vis.launch
 ```
-Run the VIO, this time with less IMU bias uncertainty:
+Run the VIO:
 ```bash
 roslauch vio_ros duo_vio.launch
 ```
