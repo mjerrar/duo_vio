@@ -59,7 +59,7 @@ roslaunch duo3d_ros duo.launch
 
 Run the calibrator with:
 ```bash
-rosrun duo3d_ros IMUCalibrator.y
+rosrun duo3d_ros IMUCalibrator.py
 ```
 Follow the command line instructions to calibrate the camera and write the calibration to the appropriate calibration file.
 
