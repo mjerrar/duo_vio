@@ -27,12 +27,12 @@ set(CORTEX 1)
 You will need to have [NEON 10](http://projectne10.github.io/Ne10/) installed. Follow the installation instructions provided on the website and modify the `NEON_PATH` variable in `CMakeLists.txt` to point to the appropriate location.
 
 # Calibration
-It is recommended that you first start a roscore that is always running. This makes it easier for ROS nodes to communicate with each other if some of them have to be restarted. 
+Note: It is recommended that you first start a roscore that is always running. This makes it easier for ROS nodes to communicate with each other if some of them have to be restarted. 
 ```bash
 roscore
 ```
 ## Camera Calibration
-Calibrate the stereo camera using the DUOCalibrator in the duo3d_ros package. First start the camera with 
+Calibrate the stereo camera using the DUOCalibrator in the duo3d_ros package. First start the camera with:
 ```bash
 roslaunch duo3d_ros duo.launch
 ```
@@ -49,25 +49,19 @@ Once you feel that the checkerboard has been recorded from enough poses and appe
 The cameras will be calibrated (this can take several seconds).
 
 ## IMU Calibration
-Once you have calibrated the camera, you need to calibrate the IMU. For this, you will use the VIO algorithm. Start the visualization:
-```bash
-roslaunch vio_ros vis.launch
-```
-Set the camera down somewhere, where it has a good view of distinctive, relatively close (within 1-2 meters) features.
-Then, start the VIO algorithm and the camera. As we are trying to calibrate the IMU's we will use a launch file that sets relatively high IMU bias uncertainties:
-```bash
-roslauch vio_ros calibrateIMU.launch
-```
-The PyQtGraph plot will start to plot the estimated biases.
-You should see the gyroscope biases converge quite quickly.
-Once this has happened, take the camera and set it on all 6 sides (i.e. aligning +/- of all axes with gravity), always making sure that the camera has good features (make sure not to cover the view of the cameras).
-Once you feel that the accelerometer values have converged, stop the VIO with `Ctrl + C`.
+Once you have calibrated the camera, you need to calibrate the IMU.
+For this, place the camera on a level surface, such that the camera has zero roll and pitch: The camera should look horizontally forward.
 
-To store the IMU biases that we just estimated into the calibration file, run:
+It it's not already running, start the camera with:
 ```bash
-rosrun duo3d_ros merge_IMU_calibration.py
+roslaunch duo3d_ros duo.launch
 ```
-Follow the command line instructions to select the appropriate calibration file to merge the estimated biases.
+
+Run the calibrator with:
+```bash
+rosrun duo3d_ros IMUCalibrator.y
+```
+Follow the command line instructions to calibrate the camera and write the calibration to the appropriate calibration file.
 
 # Using the VIO
 Once both the camera and the IMU has been calibrated, we are ready to use the system. Start the visualization (if it isn't already):
