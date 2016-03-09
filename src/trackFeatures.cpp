@@ -1,5 +1,3 @@
-#include "klt_point_handling.h"
-
 #include <opencv2/core/core.hpp>
 #include <opencv2/core/mat.hpp>
 #include <opencv2/core/operations.hpp>
@@ -7,6 +5,7 @@
 #include <opencv2/features2d/features2d.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
 #include <opencv2/video/tracking.hpp>
+#include <trackFeatures.h>
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
@@ -21,7 +20,7 @@ static cv::OrbDescriptorExtractor extractor;
 
 // local functions
 static void initMorePoints(const cv::Mat &img_l, const cv::Mat &img_r, std::vector<int> &updateVect, std::vector<FloatType> &z_all_l,
-        std::vector<FloatType> &z_all_r);
+        std::vector<FloatType> &z_all_r, int stereo);
 bool stereoMatch(const cv::Mat &img_l, const cv::Mat &img_r, std::vector<cv::KeyPoint> &keypointsL, std::vector<cv::Point2f> &leftPoints,
         std::vector<cv::Point2f> &rightPoints);
 bool stereoMatchOpticalFlow(const cv::Mat &img_l, const cv::Mat &img_r, std::vector<cv::KeyPoint> &keypointsL, std::vector<cv::Point2f> &leftPoints,
@@ -30,13 +29,12 @@ bool compareMatch(const cv::DMatch &first, const cv::DMatch &second);
 bool compareKeypoints(const cv::KeyPoint &first, const cv::KeyPoint &second);
 
 // corners (z_all_l, z_all_r) and status are output variables
-void handle_points_klt(const cv::Mat &img_l, const cv::Mat &img_r, std::vector<FloatType> &z_all_l, std::vector<FloatType> &z_all_r,
-        std::vector<int> &updateVect, bool fullStereo) {
+void trackFeatures(const cv::Mat &img_l, const cv::Mat &img_r, std::vector<FloatType> &z_all_l, std::vector<FloatType> &z_all_r, std::vector<int> &updateVect,
+        int stereo) {
     if (!img_l.data)
         throw "Left image is invalid";
-    if (!img_r.data)
+    if (stereo && !img_r.data)
         throw "Right image is invalid";
-    //  clock_t t1 = clock();
 
     unsigned int numPoints = updateVect.size();
     z_all_l.resize(numPoints * 2);
@@ -61,25 +59,23 @@ void handle_points_klt(const cv::Mat &img_l, const cv::Mat &img_r, std::vector<F
         if (!prev_corners.empty()) {
             cv::calcOpticalFlowPyrLK(prev_img, img_l, prev_corners, cur_corners, status, error, cv::Size(9, 9), 3);
             prev_corners = cur_corners;
-            if (fullStereo)
+            if (stereo == 2)
                 cv::calcOpticalFlowPyrLK(img_l, img_r, prev_corners, right_corners, status_right, error, cv::Size(9, 9), 3);
 
             for (size_t i = 0; i < prev_corners.size() && i < numPoints; ++i) {
-                if (!(prev_status[i] && status[i] && (!fullStereo || status_right[i])))
+                if (!(prev_status[i] && status[i] && (stereo != 2 || status_right[i])))
                     prev_status[i] = 0;
 
                 if (prev_status[i] == 1) {
-                    if (prev_corners[i].x < 0 || prev_corners[i].x > img_l.cols ||
-                            prev_corners[i].y < 0 || prev_corners[i].y > img_l.rows
-                            || (fullStereo
-                                    && (right_corners[i].x < 0 || right_corners[i].x > img_l.cols ||
-                                            right_corners[i].y < 0 || right_corners[i].y > img_l.rows))) {
+                    if (prev_corners[i].x < 0 || prev_corners[i].x > img_l.cols || prev_corners[i].y < 0 || prev_corners[i].y > img_l.rows
+                            || ((stereo == 2)
+                                    && (right_corners[i].x < 0 || right_corners[i].x > img_l.cols || right_corners[i].y < 0 || right_corners[i].y > img_l.rows))) {
                         updateVect[i] = 0;
                     } else {
                         z_all_l[2 * i + 0] = prev_corners[i].x;
                         z_all_l[2 * i + 1] = prev_corners[i].y;
 
-                        if (fullStereo) {
+                        if (stereo == 2) {
                             z_all_r[2 * i + 0] = right_corners[i].x;
                             z_all_r[2 * i + 1] = right_corners[i].y;
                         }
@@ -95,21 +91,17 @@ void handle_points_klt(const cv::Mat &img_l, const cv::Mat &img_r, std::vector<F
 
     img_l.copyTo(prev_img);
 
-    if (!img_r.empty()) {
-        // initialize new points if needed
-        initMorePoints(img_l, img_r, updateVect, z_all_l, z_all_r);
-    } else {
-        printf("Right image is empty!\n");
-    }
+    // initialize new points if needed
+    initMorePoints(img_l, img_r, updateVect, z_all_l, z_all_r, stereo);
 }
 
 // ==== local functions, hidden from outside this file ====
 
 static void initMorePoints(const cv::Mat &img_l, const cv::Mat &img_r, std::vector<int> &updateVect, std::vector<FloatType> &z_all_l,
-        std::vector<FloatType> &z_all_r) {
+        std::vector<FloatType> &z_all_r, int stereo) {
     if (!img_l.data)
         throw "Left image is invalid";
-    if (!img_r.data)
+    if (stereo && !img_r.data)
         throw "Right image is invalid";
 
     unsigned int targetNumPoints = 0;
@@ -118,8 +110,6 @@ static void initMorePoints(const cv::Mat &img_l, const cv::Mat &img_r, std::vect
         if (updateVect[i] == 2)  // 2 means VIO requested stereo measurement
             targetNumPoints++;
     }
-
-// printf("targetNumPoints %d\n", targetNumPoints);
 
     if (!targetNumPoints)
         return;
@@ -159,14 +149,12 @@ static void initMorePoints(const cv::Mat &img_l, const cv::Mat &img_r, std::vect
     for (int x = 0; x < numBinsX; x++) {
         for (int y = 0; y < numBinsY; y++) {
             int neededFeatures = std::max(0, targetFeaturesPerBin - featuresPerBin[x][y]);
-//          printf("needed features in bin (%d, %d): %d\n", x, y, neededFeatures);
+
             if (neededFeatures) {
                 int col_from = x * binWidth;
                 int col_to = std::min((x + 1) * binWidth, img_l.cols);
                 int row_from = y * binHeight;
                 int row_to = std::min((y + 1) * binHeight, img_l.rows);
-
-//              printf("bin (%d %d) x: (%d %d), y: (%d %d)\n", x, y, col_from, col_to, row_from, row_to);
 
                 std::vector<cv::KeyPoint> keypoints, goodKeypointsBin;
                 detector.detect(img_l.rowRange(row_from, row_to).colRange(col_from, col_to), keypoints);
@@ -178,8 +166,6 @@ static void initMorePoints(const cv::Mat &img_l, const cv::Mat &img_r, std::vect
                     keypoints[i].pt.x += col_from;
                     keypoints[i].pt.y += row_from;
                 }
-
-//              printf("detected %d keypoints\n", keypoints.size());
 
                 // check if the new features are far enough from existing points
                 int newPtIdx = 0;
@@ -194,7 +180,6 @@ static void initMorePoints(const cv::Mat &img_l, const cv::Mat &img_r, std::vect
                         int existing_pt_x = prev_corners[j].x;
                         int existing_pt_y = prev_corners[j].y;
                         if (abs(existing_pt_x - new_pt_x) < dist && abs(existing_pt_y - new_pt_y) < dist) {
-//                          printf("Discarding new point %d at (%d, %d) because it's too close to existing point %d at (%d, %d)\n", j, new_pt_x, new_pt_y, j, existing_pt_x, existing_pt_y);
                             far_enough = false;
                             unusedKeypoints.push_back(keypoints[newPtIdx]);
                             break;
@@ -206,7 +191,6 @@ static void initMorePoints(const cv::Mat &img_l, const cv::Mat &img_r, std::vect
                             int existing_pt_x = goodKeypointsBin[j].pt.x;
                             int existing_pt_y = goodKeypointsBin[j].pt.y;
                             if (abs(existing_pt_x - new_pt_x) < dist && abs(existing_pt_y - new_pt_y) < dist) {
-//                              printf("Discarding new point %d at (%d, %d) because it's too close to another new point %d at (%d, %d)\n", j, new_pt_x, new_pt_y, j+1, existing_pt_x, existing_pt_y);
                                 far_enough = false;
                                 unusedKeypoints.push_back(keypoints[newPtIdx]);
                                 break;
@@ -214,13 +198,11 @@ static void initMorePoints(const cv::Mat &img_l, const cv::Mat &img_r, std::vect
                         }
                         if (far_enough) {
                             goodKeypointsBin.push_back(keypoints[newPtIdx]);
-//                          printf("Found good feature at (%d, %d)\n", new_pt_x, new_pt_y);
                             if (goodKeypointsBin.size() == neededFeatures)
                                 break;
                         }
                     }
                 }
-//              printf("found %d good keypoints in this bin\n", goodKeypointsBin.size());
                 // insert the good points into the vector containing the new points of the whole image
                 goodKeypointsL.insert(goodKeypointsL.end(), goodKeypointsBin.begin(), goodKeypointsBin.end());
                 // save the unused keypoints for later
@@ -230,9 +212,6 @@ static void initMorePoints(const cv::Mat &img_l, const cv::Mat &img_r, std::vect
             }
         }
     }
-
-//  printf("goodKeypointsL.size %d\n", goodKeypointsL.size());
-//  printf("unusedKeypoints.size %d\n", unusedKeypoints.size());
 
     // if not many features were requested, we may have found too many features. delete from all bins for equal distancing
     if (goodKeypointsL.size() > targetNumPoints) {
@@ -249,7 +228,6 @@ static void initMorePoints(const cv::Mat &img_l, const cv::Mat &img_r, std::vect
     }
 
     if (goodKeypointsL.size() < targetNumPoints) {
-//      printf("need %d more features, have %d unused ones to try\n", targetNumPoints-goodKeypointsL.size(), unusedKeypoints.size());
         // try to insert new points that were not used in the bins
         sort(unusedKeypoints.begin(), unusedKeypoints.end(), compareKeypoints);
 
@@ -266,7 +244,6 @@ static void initMorePoints(const cv::Mat &img_l, const cv::Mat &img_r, std::vect
                 int existing_pt_x = prev_corners[j].x;
                 int existing_pt_y = prev_corners[j].y;
                 if (abs(existing_pt_x - new_pt_x) < dist && abs(existing_pt_y - new_pt_y) < dist) {
-//                  printf("Discarding new point %d at (%d, %d) because it's too close to existing point %d at (%d, %d)\n", j, new_pt_x, new_pt_y, j, existing_pt_x, existing_pt_y);
                     far_enough = false;
                     break;
                 }
@@ -277,20 +254,17 @@ static void initMorePoints(const cv::Mat &img_l, const cv::Mat &img_r, std::vect
                     int existing_pt_x = goodKeypointsL[j].pt.x;
                     int existing_pt_y = goodKeypointsL[j].pt.y;
                     if (abs(existing_pt_x - new_pt_x) < dist && abs(existing_pt_y - new_pt_y) < dist) {
-//                        printf("Discarding new point %d at (%d, %d) because it's too close to another new point %d at (%d, %d)\n", j, new_pt_x, new_pt_y, j+1, existing_pt_x, existing_pt_y);
                         far_enough = false;
                         break;
                     }
                 }
                 if (far_enough) {
                     goodKeypointsL.push_back(unusedKeypoints[newPtIdx]);
-//                    printf("Found good feature at (%d, %d)\n", new_pt_x, new_pt_y);
                     if (goodKeypointsL.size() == targetNumPoints)
                         break;
                 }
             }
         }
-//      printf("%d new features with %d requested after adding from unused ones\n", goodKeypointsL.size(), targetNumPoints);
     }
 
     if (goodKeypointsL.empty()) {
@@ -303,16 +277,23 @@ static void initMorePoints(const cv::Mat &img_l, const cv::Mat &img_r, std::vect
 
     std::vector<cv::Point2f> leftPoints, rightPoints;
 
-    if (!stereoMatchOpticalFlow(img_l, img_r, goodKeypointsL, leftPoints, rightPoints)) {
-        for (int i = 0; i < updateVect.size(); i++) {
-            if (updateVect[i] == 2)
-                updateVect[i] = 0;
+    if (stereo) {
+        if (!stereoMatchOpticalFlow(img_l, img_r, goodKeypointsL, leftPoints, rightPoints)) {
+            for (int i = 0; i < updateVect.size(); i++) {
+                if (updateVect[i] == 2)
+                    updateVect[i] = 0;
+            }
+            return;
         }
-        return;
+        if (leftPoints.size() != rightPoints.size())  // debug
+            printf("Left and right points have different sizes: left %d, right %d\n", (int) leftPoints.size(), (int) rightPoints.size());
+    } else {
+        leftPoints.resize(goodKeypointsL.size());
+        for (int i = 0; i < goodKeypointsL.size(); i++)
+        {
+            leftPoints[i] = goodKeypointsL[i].pt;
+        }
     }
-    if (leftPoints.size() != rightPoints.size())  // debug
-        printf("Left and right points have different sizes: left %d, right %d\n", (int) leftPoints.size(), (int) rightPoints.size());
-
     if (leftPoints.size() < targetNumPoints)
         printf("Number of good matches: %d, desired: %d\n", (int) leftPoints.size(), targetNumPoints);
 
@@ -328,8 +309,10 @@ static void initMorePoints(const cv::Mat &img_l, const cv::Mat &img_r, std::vect
                 z_all_l[i * 2 + 0] = leftPoints[matches_idx].x;
                 z_all_l[i * 2 + 1] = leftPoints[matches_idx].y;
 
-                z_all_r[i * 2 + 0] = rightPoints[matches_idx].x;
-                z_all_r[i * 2 + 1] = rightPoints[matches_idx].y;
+                if (stereo) {
+                    z_all_r[i * 2 + 0] = rightPoints[matches_idx].x;
+                    z_all_r[i * 2 + 1] = rightPoints[matches_idx].y;
+                }
 
                 matches_idx++;
             } else {

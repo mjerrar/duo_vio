@@ -28,6 +28,8 @@ find_package(
   cv_bridge
   roslib
   dynamic_reconfigure
+  message_generation
+  message_runtime
 )
 
 ## System dependencies are found with CMake's conventions
@@ -71,11 +73,11 @@ add_message_files(
 )
 
 ## Generate services in the 'srv' folder
-# add_service_files(
-#   FILES
-#   Service1.srv
+add_service_files(
+  FILES
+  TrackFeatures.srv
 #   Service2.srv
-# )
+)
 
 ## Generate actions in the 'action' folder
 # add_action_files(
@@ -106,8 +108,8 @@ generate_dynamic_reconfigure_options(
 ## CATKIN_DEPENDS: catkin_packages dependent projects also need
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
- INCLUDE_DIRS include
-#  LIBRARIES vio_ros
+  INCLUDE_DIRS include
+  LIBRARIES feature_tracker
   CATKIN_DEPENDS sensor_msgs message_filters geometry_msgs tf cv_bridge rospy message_runtime
 #  DEPENDS system_lib
 )
@@ -118,6 +120,14 @@ catkin_package(
 ## Specify additional locations of header files
 ## Your package locations should be listed before other locations
 # include_directories(include)
+
+# Declare a cpp library
+ add_library(feature_tracker
+   src/trackFeatures.cpp
+ )
+target_link_libraries(feature_tracker
+  ${catkin_LIBRARIES}
+)
 
 if(CORTEX)
   include_directories(
@@ -133,7 +143,6 @@ if(CORTEX)
   add_executable(vio_ros_node
     src/nodes/vio_ros_node.cpp
     src/localization.cpp
-    src/klt_point_handling.cc
     src/IMULowpass.cpp
     ${SLAMSources}
     src/mw_neon.c
@@ -150,34 +159,40 @@ else()
   add_executable(vio_ros_node
     src/nodes/vio_ros_node.cpp
     src/localization.cpp
-    src/klt_point_handling.cc
     src/IMULowpass.cpp
     ${SLAMSources}
   )
 endif()
 
-## Declare a cpp library
-# add_library(vio_ros
-#   src/${PROJECT_NAME}/vio_ros.cpp
-# )
+add_executable(feature_tracker_node
+  src/nodes/feature_tracker_node.cpp
+)
 
 ## Add cmake target dependencies of the executable/library
 ## as an example, message headers may need to be generated before nodes
-add_dependencies(vio_ros_node ${PROJECT_NAME}_gencfg ${PROJECT_NAME}_generate_messages_cpp)
+add_dependencies(vio_ros_node ${PROJECT_NAME}_gencfg ${PROJECT_NAME}_generate_messages_cpp ${PROJECT_NAME}_EXPORTED_TARGETS})
+add_dependencies(feature_tracker_node ${PROJECT_NAME}_EXPORTED_TARGETS})
 
 ## Specify libraries to link a library or executable target against
 if(CORTEX)
   target_link_libraries(vio_ros_node
+    feature_tracker
     ${catkin_LIBRARIES}
     yaml-cpp
     ${NEON_PATH}/build/modules/libNE10.a
   )
 else()
   target_link_libraries(vio_ros_node
+    feature_tracker
     ${catkin_LIBRARIES}
     yaml-cpp
   )
 endif()
+
+target_link_libraries(feature_tracker_node
+  feature_tracker
+  ${catkin_LIBRARIES}
+)
 
 #############
 ## Install ##

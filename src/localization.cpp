@@ -9,8 +9,8 @@
 #include <geometry_msgs/Point32.h>
 #include <visualization_msgs/Marker.h>
 #include <std_msgs/Float32.h>
+#include <trackFeatures.h>
 
-#include "klt_point_handling.h"
 #include "codegen/SLAM/SLAM.h"
 
 static const int VIO_SENSOR_QUEUE_SIZE = 30;
@@ -429,7 +429,7 @@ void Localization::update(double dt, const vio_ros::VioSensorMsg &msg, bool upda
             right = right_image->image;
         }
 
-        handle_points_klt(left, right, z_all_l, z_all_r, update_vec_, vioParams.full_stereo);
+        trackFeatures(left, right, z_all_l, z_all_r, update_vec_, 1+vioParams.full_stereo);
 
         double duration_feature_tracking = (ros::Time::now() - tic_feature_tracking).toSec();
         std_msgs::Float32 duration_feature_tracking_msg;
