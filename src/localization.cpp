@@ -49,7 +49,6 @@
 #include <std_msgs/Float32.h>
 #include <trackFeatures.h>
 
-#include "codegen/SLAM/SLAM.h"
 
 static const int VIO_SENSOR_QUEUE_SIZE = 30;
 
@@ -65,8 +64,6 @@ Localization::Localization() :
                 dist(0.0),
                 got_device_serial_nr(false),
                 use_dark_current(false) {
-    SLAM_initialize();
-
     // initialize structs
     cameraParams = { {}, {}};
     noiseParams = {};
@@ -214,10 +211,10 @@ Localization::Localization() :
     timing_total_pub = nh_.advertise<std_msgs::Float32>("timing_total", 10);
 
     body_tf.setOrigin(tf::Vector3(0.0, 0.0, 0.0));
+
 }
 
 Localization::~Localization() {
-    SLAM_terminate();
 
     printf("Longest update duration: %.3f msec, %.3f Hz\n", float(max_clicks_) / CLOCKS_PER_SEC * 1000, CLOCKS_PER_SEC / float(max_clicks_));
 
@@ -336,6 +333,7 @@ void Localization::deviceSerialNrCb(const std_msgs::String &msg) {
             exit(-1);
         }
         cameraParams = parseYaml(YamlNode);
+        vio.setParams(cameraParams, noiseParams, vioParams);
     } catch (YAML::BadFile &e) {
         ROS_FATAL("Failed to open camera calibration %s\nException: %s", calib_path.c_str(), e.what());
         exit(-1);
@@ -377,6 +375,7 @@ void Localization::loadCustomCameraCalibration(const std::string calib_path) {
             exit(-1);
         }
         cameraParams = parseYaml(YamlNode);
+        vio.setParams(cameraParams, noiseParams, vioParams);
     } catch (YAML::BadFile &e) {
         ROS_FATAL("Failed to open camera calibration %s\nException: %s", calib_path.c_str(), e.what());
         exit(-1);
@@ -412,7 +411,7 @@ void Localization::resetCb(const std_msgs::Empty &msg) {
 void Localization::update(double dt, const vio_ros::VioSensorMsg &msg, bool update_vis, bool show_image, bool reset) {
     std::vector<FloatType> z_all_l(matlab_consts::numTrackFeatures * 2, 0.0);
     std::vector<FloatType> z_all_r(matlab_consts::numTrackFeatures * 2, 0.0);
-    FloatType delayedStatus[matlab_consts::numTrackFeatures];
+    std::vector<FloatType> delayedStatus(matlab_consts::numTrackFeatures);
 
     //*********************************************************************
     // SLAM prediction
@@ -421,13 +420,14 @@ void Localization::update(double dt, const vio_ros::VioSensorMsg &msg, bool upda
 
     VIOMeasurements meas;
 
+    if (reset)
+        vio.reset();
+
     for (int i = 0; i < msg.imu.size(); i++) {
         getIMUData(msg.imu[i], meas);  // write the IMU data into the appropriate struct
         imulp_.put(meas);  // filter the IMU data
         imulp_.get(meas);
-        SLAM(&update_vec_[0], &z_all_l[0], &z_all_r[0], dt / msg.imu.size(), &meas, &cameraParams, &noiseParams, &vioParams, 0,  // predict
-                reset && (!i),  // reset, only with one IMU sample
-                &robot_state, &map[0], &anchor_poses[0], delayedStatus);
+        vio.predict(meas, dt / msg.imu.size());
     }
 
     sensor_msgs::Imu smoothed;
@@ -477,9 +477,7 @@ void Localization::update(double dt, const vio_ros::VioSensorMsg &msg, bool upda
         //*********************************************************************
         // SLAM update
         //*********************************************************************
-        SLAM(&update_vec_[0], &z_all_l[0], &z_all_r[0], dt, &meas, &cameraParams, &noiseParams, &vioParams, 1,  // vision update
-                0,  // reset (reset is done in prediction)
-                &robot_state, &map[0], &anchor_poses[0], delayedStatus);
+        vio.update(update_vec_, z_all_l, z_all_r, robot_state, map, anchor_poses, delayedStatus);
 
         camera_tf.setOrigin(tf::Vector3(robot_state.pos[0], robot_state.pos[1], robot_state.pos[2]));
         camera_tf.setRotation(tf::Quaternion(robot_state.att[0], robot_state.att[1], robot_state.att[2], robot_state.att[3]));

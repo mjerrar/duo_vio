@@ -67,8 +67,7 @@
 
 #include "sensor_msgs/Joy.h"
 
-#include "SLAM.h"
-#include "SLAM_includes.h"
+#include "VIO.h"
 #include "dynamic_reconfigure/server.h"
 #include "vio_ros/vio_rosConfig.h"
 
@@ -93,6 +92,8 @@ class Localization {
     ~Localization();
 
  private:
+    VIO vio;
+
     // Visualization topics
     ros::Publisher vio_vis_pub;
     ros::Publisher vio_vis_reset_pub;

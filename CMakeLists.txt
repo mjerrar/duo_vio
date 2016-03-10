@@ -109,7 +109,7 @@ generate_dynamic_reconfigure_options(
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
   INCLUDE_DIRS include
-  LIBRARIES feature_tracker
+  LIBRARIES feature_tracker vio
   CATKIN_DEPENDS sensor_msgs message_filters geometry_msgs tf cv_bridge rospy message_runtime
 #  DEPENDS system_lib
 )
@@ -139,14 +139,13 @@ if(CORTEX)
   # Get all *.cpp files that Matlab Coder created
   FILE(GLOB SLAMSources src/codegen/SLAM_cortex/*.cpp)
 
-  ## Declare a cpp executable
-  add_executable(vio_ros_node
-    src/nodes/vio_ros_node.cpp
-    src/localization.cpp
-    src/IMULowpass.cpp
+  # Declare a cpp library
+  add_library(vio
+    src/trackFeatures.cpp
     ${SLAMSources}
     src/mw_neon.c
   )
+
 else()
   include_directories(
     src/codegen/SLAM/
@@ -155,14 +154,21 @@ else()
   # Get all *.cpp files that Matlab Coder created
   FILE(GLOB SLAMSources src/codegen/SLAM/*.cpp)
 
-  ## Declare a cpp executable
-  add_executable(vio_ros_node
-    src/nodes/vio_ros_node.cpp
-    src/localization.cpp
-    src/IMULowpass.cpp
+  # Declare a cpp library
+  add_library(vio
+    src/trackFeatures.cpp
     ${SLAMSources}
   )
+
 endif()
+
+## Declare a cpp executable
+add_executable(vio_ros_node
+  src/nodes/vio_ros_node.cpp
+  src/localization.cpp
+  src/IMULowpass.cpp
+  src/VIO.cpp
+)
 
 add_executable(feature_tracker_node
   src/nodes/feature_tracker_node.cpp
@@ -177,6 +183,7 @@ add_dependencies(feature_tracker_node ${PROJECT_NAME}_EXPORTED_TARGETS})
 if(CORTEX)
   target_link_libraries(vio_ros_node
     feature_tracker
+    vio
     ${catkin_LIBRARIES}
     yaml-cpp
     ${NEON_PATH}/build/modules/libNE10.a
@@ -184,6 +191,7 @@ if(CORTEX)
 else()
   target_link_libraries(vio_ros_node
     feature_tracker
+    vio
     ${catkin_LIBRARIES}
     yaml-cpp
   )
