@@ -5,14 +5,48 @@
 // File: SLAM.cpp
 //
 // MATLAB Coder version            : 3.0
-// C/C++ source code generated on  : 07-Mar-2016 14:28:04
+// C/C++ source code generated on  : 10-Mar-2016 13:31:13
 //
 
 // Include Files
 #include "rt_nonfinite.h"
 #include "SLAM.h"
-#include <ros/console.h>
 #include <stdio.h>
+#include <vio_logging.h>
+
+// Custom Source Code
+//***************************************************************************
+//
+//    Copyright (c) 2015-2016 AIT, ETH Zurich. All rights reserved.
+//
+//  Redistribution and use in source and binary forms, with or without
+//  modification, are permitted provided that the following conditions
+//  are met:
+//
+//  1. Redistributions of source code must retain the above copyright
+//     notice, this list of conditions and the following disclaimer.
+//  2. Redistributions in binary form must reproduce the above copyright
+//     notice, this list of conditions and the following disclaimer in
+//     the documentation and/or other materials provided with the
+//     distribution.
+//  3. Neither the name AIT nor the names of its contributors may be
+//     used to endorse or promote products derived from this software
+//     without specific prior written permission.
+//
+//  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+//  "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+//  LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+//  FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+//  COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+//  INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+//  BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
+//  OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED
+//  AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+//  LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+//  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+//  POSSIBILITY OF SUCH DAMAGE.
+//
+// **************************************************************************
 
 // Type Definitions
 #include <stdio.h>
@@ -172,13 +206,13 @@ static void b_getH_R_res(const float xt_robot_state_pos[3], const float
   f_stereoParams_CameraParameters[2], const float stereoParams_r_lr[3], const
   float stereoParams_R_rl[9], boolean_T VIOParameters_full_stereo,
   emxArray_real32_T *r, emxArray_real32_T *H);
+static void b_log_error();
+static void b_log_info(int varargin_1, int varargin_2, int varargin_3);
+static void b_log_warn();
 static void b_merge(emxArray_int32_T *idx, emxArray_real32_T *x, int offset, int
                     np, int nq, emxArray_int32_T *iwork, emxArray_real32_T
                     *xwork);
 static float b_norm(const float x[4]);
-static void b_ros_error();
-static void b_ros_info(int varargin_1, int varargin_2, int varargin_3);
-static void b_ros_warn();
 static void b_sort(float x[8], int idx[8]);
 static void b_xaxpy(int n, float a, const float x[36], int ix0, float y[6], int
                     iy0);
@@ -186,9 +220,9 @@ static void b_xgeqp3(float A[30], float tau[5], int jpvt[5]);
 static float b_xnrm2(int n, const emxArray_real32_T *x, int ix0);
 static boolean_T c_any(const float x[6]);
 static double c_fprintf(float varargin_1);
+static void c_log_info(int varargin_1, int varargin_2);
+static void c_log_warn(int varargin_1, float varargin_2);
 static float c_norm(const float x[2]);
-static void c_ros_info(int varargin_1, int varargin_2);
-static void c_ros_warn(int varargin_1, float varargin_2);
 static void c_sort(emxArray_real32_T *x, emxArray_int32_T *idx);
 static void c_xaxpy(int n, float a, const float x[6], int ix0, float y[36], int
                     iy0);
@@ -196,16 +230,16 @@ static float c_xnrm2(int n, const emxArray_real32_T *x, int ix0);
 static void cast(const struct_T x[6], AnchorPose y[6]);
 static void cross(const float a[3], const float b[3], float c[3]);
 static double d_fprintf(float varargin_1);
+static void d_log_info(int varargin_1);
+static void d_log_warn(signed char varargin_1);
 static float d_norm(const float x[36]);
-static void d_ros_info(int varargin_1);
-static void d_ros_warn(signed char varargin_1);
 static void d_sort(emxArray_real32_T *x, int dim, emxArray_int32_T *idx);
 static float d_xnrm2(int n, const float x[30], int ix0);
 static void diag(const float v[3], float d[9]);
 static int div_s32_floor(int numerator, int denominator);
 static double e_fprintf(float varargin_1);
-static void e_ros_info(int varargin_1);
-static void e_ros_warn(int varargin_1, float varargin_2);
+static void e_log_info(int varargin_1);
+static void e_log_warn(int varargin_1, float varargin_2);
 static float e_xnrm2(int n, const float x[36], int ix0);
 static void eml_signed_integer_colon(int b, emxArray_int32_T *y);
 static void emxEnsureCapacity(emxArray__common *emxArray, int oldNumel, int
@@ -217,13 +251,13 @@ static void emxInit_int32_T1(emxArray_int32_T **pEmxArray, int b_numDimensions);
 static void emxInit_real32_T(emxArray_real32_T **pEmxArray, int b_numDimensions);
 static void emxInit_real32_T1(emxArray_real32_T **pEmxArray, int b_numDimensions);
 static double f_fprintf(float varargin_1);
-static void f_ros_info(int varargin_1, float varargin_2, float varargin_3);
-static void f_ros_warn(float varargin_1);
+static void f_log_info(int varargin_1, float varargin_2, float varargin_3);
+static void f_log_warn(float varargin_1);
 static float f_xnrm2(int n, const float x[6], int ix0);
 static void fileManager(FILE * *f, boolean_T *a);
 static double g_fprintf(float varargin_1);
-static void g_ros_info(int varargin_1);
-static void g_ros_warn(int varargin_1, int varargin_2, int varargin_3);
+static void g_log_info(int varargin_1);
+static void g_log_warn(int varargin_1, int varargin_2, int varargin_3);
 static void getAnchorPoses(const float xt_origin_pos[3], const float
   xt_origin_att[4], const f_struct_T xt_anchor_states[6], struct_T anchor_poses
   [6]);
@@ -251,9 +285,9 @@ static void getWorldState(const float xt_robot_state_IMU_pos[3], const float
   world_state_IMU_gyro_bias[3], float world_state_IMU_acc_bias[3], float
   world_state_IMU_pos[3], float world_state_IMU_att[4]);
 static double h_fprintf(float varargin_1, float varargin_2, float varargin_3);
-static void h_ros_warn(int varargin_1);
+static void h_log_warn(int varargin_1);
 static double i_fprintf(float varargin_1, float varargin_2, float varargin_3);
-static void i_ros_warn();
+static void i_log_warn();
 static void initializePoint(const float z_u_l[2], const float z_u_r[2], const
   float c_cameraparams_CameraParameters[2], const float
   d_cameraparams_CameraParameters[2], const float
@@ -263,6 +297,9 @@ static void initializePoint(const float z_u_l[2], const float z_u_r[2], const
 static double j_fprintf(float varargin_1);
 static double k_fprintf(float varargin_1);
 static double l_fprintf(int varargin_1);
+static void log_error();
+static void log_info(int varargin_1, int varargin_2, int varargin_3);
+static void log_warn(int varargin_1, int varargin_2, int varargin_3);
 static double m_fprintf(const char varargin_1_data[], const int varargin_1_size
   [2]);
 static float median(const float x_data[], const int x_size[1]);
@@ -302,9 +339,6 @@ static double q_fprintf(const char varargin_1_data[], const int varargin_1_size
 static void quatmultJ(const float q[4], const float p[4], float qp[4]);
 static int rankFromQR(const emxArray_real32_T *A);
 static void rdivide(const float x[3], float y, float z[3]);
-static void ros_error();
-static void ros_info(int varargin_1, int varargin_2, int varargin_3);
-static void ros_warn(int varargin_1, int varargin_2, int varargin_3);
 static void sort(float x[8], int idx[8]);
 static void sortIdx(emxArray_real32_T *x, emxArray_int32_T *idx);
 static void svd(const float A[36], float U[6]);
@@ -2428,7 +2462,7 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, float b_P[10404], const float
     emxFree_real32_T(&c_c);
     emxFree_real32_T(&b_c);
 
-    //  ros_info('Found %i LI inliers in %i active features', nnz(LI_inlier_status), nnz(activeFeatures)) 
+    //  log_info('Found %i LI inliers in %i active features', nnz(LI_inlier_status), nnz(activeFeatures)) 
     // 'OnePointRANSAC_EKF:130' if nnz(LI_inlier_status) > LI_min_support_thresh 
     n = 0;
     for (k = 0; k < 48; k++) {
@@ -3021,8 +3055,8 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, float b_P[10404], const float
             // 'OnePointRANSAC_EKF:155' if xt.anchor_states(anchorIdx).feature_states(featureIdx).inverse_depth < 0 
             if (b_xt->anchor_states[anchorIdx].feature_states[featureIdx].
                 inverse_depth < 0.0F) {
-              // 'OnePointRANSAC_EKF:156' ros_warn('Feature %i (%i on %i) is behind its anchor, rejecting', int32(xt.anchor_states(anchorIdx).feature_states(featureIdx).status_idx), int32(featureIdx), int32(anchorIdx)) 
-              ros_warn(b_xt->anchor_states[anchorIdx].feature_states[featureIdx]
+              // 'OnePointRANSAC_EKF:156' log_warn('Feature %i (%i on %i) is behind its anchor, rejecting', int32(xt.anchor_states(anchorIdx).feature_states(featureIdx).status_idx), int32(featureIdx), int32(anchorIdx)) 
+              log_warn(b_xt->anchor_states[anchorIdx].feature_states[featureIdx]
                        .status_idx, featureIdx + 1, anchorIdx + 1);
 
               // 'OnePointRANSAC_EKF:157' updateVect(xt.anchor_states(anchorIdx).feature_states(featureIdx).status_idx) = int32(0); 
@@ -3106,8 +3140,8 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, float b_P[10404], const float
         LI_inlier_status[ic] = false;
       }
 
-      // 'OnePointRANSAC_EKF:169' ros_warn('1-Point RANSAC didnt find enough LI inliers') 
-      b_ros_warn();
+      // 'OnePointRANSAC_EKF:169' log_warn('1-Point RANSAC didnt find enough LI inliers') 
+      b_log_warn();
     }
   }
 
@@ -4403,11 +4437,11 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, float b_P[10404], const float
             //  only reject the feature if its still bad in last iteration, otherwise just dont use for this update 
           }
 
-          //                  ros_info('rejecting %i', HI_ind(k))
+          //                  log_info('rejecting %i', HI_ind(k))
           // 'OnePointRANSAC_EKF:229' if updateVect(HI_ind(k)) == 2
           if (updateVect[(int)out->data[k] - 1] == 2) {
-            // 'OnePointRANSAC_EKF:230' ros_error('inconsistency')
-            b_ros_error();
+            // 'OnePointRANSAC_EKF:230' log_error('inconsistency')
+            b_log_error();
           }
         }
       }
@@ -5084,8 +5118,8 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, float b_P[10404], const float
               if ((it == c_VIOParameters_max_ekf_iterati) &&
                   (xt_it.anchor_states[anchorIdx].feature_states[featureIdx].
                    inverse_depth > 10.0F)) {
-                // 'OnePointRANSAC_EKF:261' ros_warn('Feature %i is very close. Depth: %f', int32(xt_it.anchor_states(anchorIdx).feature_states(featureIdx).status_idx), 1/xt.anchor_states(anchorIdx).feature_states(featureIdx).inverse_depth) 
-                c_ros_warn(xt_it.anchor_states[anchorIdx]
+                // 'OnePointRANSAC_EKF:261' log_warn('Feature %i is very close. Depth: %f', int32(xt_it.anchor_states(anchorIdx).feature_states(featureIdx).status_idx), 1/xt.anchor_states(anchorIdx).feature_states(featureIdx).inverse_depth) 
+                c_log_warn(xt_it.anchor_states[anchorIdx]
                            .feature_states[featureIdx].status_idx, 1.0F /
                            b_xt->anchor_states[anchorIdx]
                            .feature_states[featureIdx].inverse_depth);
@@ -5097,8 +5131,8 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, float b_P[10404], const float
                    c_VIOParameters_max_ekf_iterati)) {
                 // 'OnePointRANSAC_EKF:264' if it == VIOParameters.max_ekf_iterations 
                 //  only reject if we are done iterating
-                // 'OnePointRANSAC_EKF:265' ros_warn('Feature %i (%i on %i) is behind its anchor, rejecting', int32(xt_it.anchor_states(anchorIdx).feature_states(featureIdx).status_idx), int32(featureIdx), int32(anchorIdx)) 
-                ros_warn(xt_it.anchor_states[anchorIdx]
+                // 'OnePointRANSAC_EKF:265' log_warn('Feature %i (%i on %i) is behind its anchor, rejecting', int32(xt_it.anchor_states(anchorIdx).feature_states(featureIdx).status_idx), int32(featureIdx), int32(anchorIdx)) 
+                log_warn(xt_it.anchor_states[anchorIdx]
                          .feature_states[featureIdx].status_idx, featureIdx + 1,
                          anchorIdx + 1);
 
@@ -5773,12 +5807,14 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, float b_P[10404], const float
   // 'OnePointRANSAC_EKF:319' if rejected_ratio < 0.1
   if (rejected_ratio < 0.1F) {
     //  if more than 90% were rejected
-    // 'OnePointRANSAC_EKF:320' ros_error('1-point RANSAC rejected %d%% of all features! Resetting velocity.', int32(100-rejected_ratio*100)) 
-    // ROS_ERROR Print to ROS_ERROR in ROS or to console in Matlab
-    // 'ros_error:4' if coder.target('MATLAB')
-    // 'ros_error:6' elseif ~coder.target('MEX')
-    // 'ros_error:7' coder.cinclude('<ros/console.h>')
-    // 'ros_error:8' coder.ceval('ROS_ERROR', [str, 0], varargin{:});
+    // 'OnePointRANSAC_EKF:320' log_error('1-point RANSAC rejected %d%% of all features! Resetting velocity.', int32(100-rejected_ratio*100)) 
+    // log_error Print to console in Matlab
+    //  in C++, vio_logging.h needs to be created to define what LOG_ERROR does, 
+    //  e.g. redefine ROS_ERROR
+    // 'log_error:6' if coder.target('MATLAB')
+    // 'log_error:8' elseif ~coder.target('MEX')
+    // 'log_error:9' coder.cinclude('<vio_logging.h>')
+    // 'log_error:10' coder.ceval('LOG_ERROR', [str, 0], varargin{:});
     memcpy(&cv48[0], &cv49[0], 66U * sizeof(char));
     wj = roundf(100.0F - rejected_ratio * 100.0F);
     if (wj < 2.14748365E+9F) {
@@ -5787,7 +5823,7 @@ static void OnePointRANSAC_EKF(g_struct_T *b_xt, float b_P[10404], const float
       i35 = MAX_int32_T;
     }
 
-    ROS_ERROR(cv48, i35);
+    LOG_ERROR(cv48, i35);
 
     // 'OnePointRANSAC_EKF:322' gryro_bias_cov = P(10:12, 10:12);
     // 'OnePointRANSAC_EKF:323' acc_bias_cov = P(13:15, 13:15);
@@ -6715,7 +6751,7 @@ static void SLAM_upd(float P_apr[10404], g_struct_T *b_xt, int
         // 'SLAM_upd:29' xt.anchor_states(anchorIdx).feature_states(featureIdx).status_idx = int32(0); 
         b_xt->anchor_states[anchorIdx].feature_states[featureIdx].status_idx = 0;
 
-        //                  ros_info('Lost feature %i, which was %i on anchor %i', idx, featureIdx, anchorIdx) 
+        //                  log_info('Lost feature %i, which was %i on anchor %i', idx, featureIdx, anchorIdx) 
       }
     }
   }
@@ -6735,8 +6771,8 @@ static void SLAM_upd(float P_apr[10404], g_struct_T *b_xt, int
           // 'SLAM_upd:42' fix_new_feature = true;
           fix_new_feature = true;
 
-          // 'SLAM_upd:43' ros_info('Fixed feature %i (%i on anchor %i) is no longer valid', xt.anchor_states(xt.origin.anchor_idx).feature_states(xt.fixed_feature).status_idx, xt.fixed_feature, xt.origin.anchor_idx) 
-          ros_info(b_xt->anchor_states[b_xt->origin.anchor_idx - 1].
+          // 'SLAM_upd:43' log_info('Fixed feature %i (%i on anchor %i) is no longer valid', xt.anchor_states(xt.origin.anchor_idx).feature_states(xt.fixed_feature).status_idx, xt.fixed_feature, xt.origin.anchor_idx) 
+          log_info(b_xt->anchor_states[b_xt->origin.anchor_idx - 1].
                    feature_states[b_xt->fixed_feature - 1].status_idx,
                    b_xt->fixed_feature, b_xt->origin.anchor_idx);
         }
@@ -6784,8 +6820,8 @@ static void SLAM_upd(float P_apr[10404], g_struct_T *b_xt, int
       // 'SLAM_upd:61' ~
       // 'SLAM_upd:62' if ~active_feature(sortIdx(1))
       if (!(active_feature[(int)uncertainties[0] - 1] != 0)) {
-        // 'SLAM_upd:63' ros_error('picked an inactive feature')
-        ros_error();
+        // 'SLAM_upd:63' log_error('picked an inactive feature')
+        log_error();
       }
 
       // 'SLAM_upd:65' xt.fixed_feature = int32(sortIdx(1));
@@ -6813,8 +6849,8 @@ static void SLAM_upd(float P_apr[10404], g_struct_T *b_xt, int
         P_apr[i32 + 102 * (ix - 1)] = 0.0F;
       }
 
-      // 'SLAM_upd:68' ros_info('Fixing feature %i (feature %i on anchor %i)', xt.anchor_states(xt.origin.anchor_idx).feature_states(xt.fixed_feature).status_idx, xt.fixed_feature, xt.origin.anchor_idx) 
-      b_ros_info(b_xt->anchor_states[b_xt->origin.anchor_idx - 1]
+      // 'SLAM_upd:68' log_info('Fixing feature %i (feature %i on anchor %i)', xt.anchor_states(xt.origin.anchor_idx).feature_states(xt.fixed_feature).status_idx, xt.fixed_feature, xt.origin.anchor_idx) 
+      b_log_info(b_xt->anchor_states[b_xt->origin.anchor_idx - 1]
                  .feature_states[b_xt->fixed_feature - 1].status_idx,
                  b_xt->fixed_feature, b_xt->origin.anchor_idx);
     }
@@ -6915,7 +6951,7 @@ static void SLAM_upd(float P_apr[10404], g_struct_T *b_xt, int
           }
 
           if (b_any(bv0)) {
-            // 'SLAM_upd:95' ros_warn('Bad triangulation (nan) for point %d', int8(ind_r(i))); 
+            // 'SLAM_upd:95' log_warn('Bad triangulation (nan) for point %d', int8(ind_r(i))); 
             mtmp = roundf(qualities->data[i]);
             if (mtmp < 128.0F) {
               if (mtmp >= -128.0F) {
@@ -6929,7 +6965,7 @@ static void SLAM_upd(float P_apr[10404], g_struct_T *b_xt, int
               i33 = 0;
             }
 
-            d_ros_warn(i33);
+            d_log_warn(i33);
 
             // 'SLAM_upd:96' fp = m_l;
             for (i32 = 0; i32 < 3; i32++) {
@@ -6962,7 +6998,7 @@ static void SLAM_upd(float P_apr[10404], g_struct_T *b_xt, int
                 // 'SLAM_upd:108' if norm(fp) < 0.1
                 if (norm(fp) < 0.1F) {
                   //  feature triangulated very close
-                  // 'SLAM_upd:109' ros_warn('Feature %i is triangulated very close. Depth: %f', int32(ind_r(i)), norm(fp)); 
+                  // 'SLAM_upd:109' log_warn('Feature %i is triangulated very close. Depth: %f', int32(ind_r(i)), norm(fp)); 
                   mtmp = roundf(qualities->data[i]);
                   if (mtmp < 2.14748365E+9F) {
                     if (mtmp >= -2.14748365E+9F) {
@@ -6976,7 +7012,7 @@ static void SLAM_upd(float P_apr[10404], g_struct_T *b_xt, int
                     i32 = 0;
                   }
 
-                  e_ros_warn(i32, norm(fp));
+                  e_log_warn(i32, norm(fp));
 
                   // 'SLAM_upd:110' fp = m_l;
                   for (i32 = 0; i32 < 3; i32++) {
@@ -6990,7 +7026,7 @@ static void SLAM_upd(float P_apr[10404], g_struct_T *b_xt, int
             }
 
             if (guard1) {
-              //                          ros_info('Bad triangulation (reprojection error) for point %d', int8(ind_r(i))); 
+              //                          log_info('Bad triangulation (reprojection error) for point %d', int8(ind_r(i))); 
               // 'SLAM_upd:105' fp = m_l;
               for (i32 = 0; i32 < 3; i32++) {
                 fp[i32] = b_m[i32];
@@ -7053,7 +7089,7 @@ static void SLAM_upd(float P_apr[10404], g_struct_T *b_xt, int
       triangulation_success_data[i] = success;
     }
 
-    // 'SLAM_upd:130' ros_info('Successfully triangulated %d of %d features', int32(nnz(triangulation_success)), int32(length(triangulation_success))) 
+    // 'SLAM_upd:130' log_info('Successfully triangulated %d of %d features', int32(nnz(triangulation_success)), int32(length(triangulation_success))) 
     ix = 0;
     for (idx = 0; idx < c_triangulation_success_size_id; idx++) {
       if (triangulation_success_data[idx]) {
@@ -7061,7 +7097,7 @@ static void SLAM_upd(float P_apr[10404], g_struct_T *b_xt, int
       }
     }
 
-    c_ros_info(ix, c_triangulation_success_size_id);
+    c_log_info(ix, c_triangulation_success_size_id);
 
     // 'SLAM_upd:132' triangulated_depths = new_depths(triangulation_success);
     idx = c_triangulation_success_size_id - 1;
@@ -7302,7 +7338,7 @@ static void SLAM_upd(float P_apr[10404], g_struct_T *b_xt, int
             // 'SLAM_upd:165' if xt.anchor_states(anchorIdx).feature_states(featureIdx).status 
             if (b_xt->anchor_states[anchorIdx].feature_states[featureIdx].status
                 != 0) {
-              //                      ros_info('clearing up feature %i (%i on %i)', xt.anchor_states(anchorIdx).feature_states(featureIdx).status_idx, featureIdx, anchorIdx) 
+              //                      log_info('clearing up feature %i (%i on %i)', xt.anchor_states(anchorIdx).feature_states(featureIdx).status_idx, featureIdx, anchorIdx) 
               // 'SLAM_upd:167' updateVect(xt.anchor_states(anchorIdx).feature_states(featureIdx).status_idx) = int32(0); 
               updateVect[b_xt->anchor_states[anchorIdx]
                 .feature_states[featureIdx].status_idx - 1] = 0;
@@ -7322,8 +7358,8 @@ static void SLAM_upd(float P_apr[10404], g_struct_T *b_xt, int
             // 'SLAM_upd:174' xt.origin.anchor_idx = int32(0);
             b_xt->origin.anchor_idx = 0;
 
-            // 'SLAM_upd:175' ros_info('Initializing anchor %i, which was the origin anchor', int32(anchorIdx)) 
-            d_ros_info(anchorIdx + 1);
+            // 'SLAM_upd:175' log_info('Initializing anchor %i, which was the origin anchor', int32(anchorIdx)) 
+            d_log_info(anchorIdx + 1);
           }
 
           // 'SLAM_upd:178' xt.anchor_states(anchorIdx).pos = xt.robot_state.pos; 
@@ -7702,8 +7738,8 @@ static void SLAM_upd(float P_apr[10404], g_struct_T *b_xt, int
             }
 
             if ((float)new_feature_idx > ix) {
-              // 'SLAM_upd:226' ros_info('Feature %d is too far away to triangulate.\n', xt.anchor_states(anchorIdx).feature_states(featureIdx).status_idx) 
-              e_ros_info(b_xt->anchor_states[anchorIdx]
+              // 'SLAM_upd:226' log_info('Feature %d is too far away to triangulate.\n', xt.anchor_states(anchorIdx).feature_states(featureIdx).status_idx) 
+              e_log_info(b_xt->anchor_states[anchorIdx]
                          .feature_states[featureIdx].status_idx);
 
               // 'SLAM_upd:227' P_apo(xt.anchor_states(anchorIdx).feature_states(featureIdx).P_idx, xt.anchor_states(anchorIdx).feature_states(featureIdx).P_idx) = noiseParameters.inv_depth_initial_unc*10; 
@@ -7724,7 +7760,7 @@ static void SLAM_upd(float P_apr[10404], g_struct_T *b_xt, int
               // *new_depths(new_feature_idx);
             }
 
-            //                  ros_info('Inserting feature %d as feature %i on anchor %i', int32(status_ind(new_feature_idx)), int32(featureIdx), int32(anchorIdx)) 
+            //                  log_info('Inserting feature %d as feature %i on anchor %i', int32(status_ind(new_feature_idx)), int32(featureIdx), int32(anchorIdx)) 
             // 'SLAM_upd:235' updateVect(status_ind(new_feature_idx)) = int32(1); 
             updateVect[(int)status_ind_data[new_feature_idx - 1] - 1] = 1;
 
@@ -7754,8 +7790,8 @@ static void SLAM_upd(float P_apr[10404], g_struct_T *b_xt, int
   } else {
     if (!(qualities->size[0] == 0)) {
       // 'SLAM_upd:245' elseif ~isempty(ind_r)
-      // 'SLAM_upd:246' ros_warn('Got %d new feautures but not enough for a new anchor (min %d)', length(ind_r), int32(minFeatureThreshold)) 
-      f_ros_warn((float)loop_ub);
+      // 'SLAM_upd:246' log_warn('Got %d new feautures but not enough for a new anchor (min %d)', length(ind_r), int32(minFeatureThreshold)) 
+      f_log_warn((float)loop_ub);
     }
   }
 
@@ -7842,8 +7878,8 @@ static void SLAM_upd(float P_apr[10404], g_struct_T *b_xt, int
             // 'SLAM_upd:272' if xt.anchor_states(anchorIdx).feature_states(featureIdx).inverse_depth < 0 
             if (b_xt->anchor_states[anchorIdx].feature_states[featureIdx].
                 inverse_depth < 0.0F) {
-              // 'SLAM_upd:273' ros_warn('Feature %i (%i on anchor %i) converged behind its anchor', xt.anchor_states(anchorIdx).feature_states(featureIdx).status_idx, featureIdx, anchorIdx) 
-              g_ros_warn(b_xt->anchor_states[anchorIdx]
+              // 'SLAM_upd:273' log_warn('Feature %i (%i on anchor %i) converged behind its anchor', xt.anchor_states(anchorIdx).feature_states(featureIdx).status_idx, featureIdx, anchorIdx) 
+              g_log_warn(b_xt->anchor_states[anchorIdx]
                          .feature_states[featureIdx].status_idx, featureIdx + 1,
                          anchorIdx + 1);
 
@@ -7856,7 +7892,7 @@ static void SLAM_upd(float P_apr[10404], g_struct_T *b_xt, int
                 .feature_states[featureIdx].status_idx - 1] = 0;
             } else {
               // 'SLAM_upd:276' else
-              //                              ros_info('Feature %i (%i on anchor %i) has converged', xt.anchor_states(anchorIdx).feature_states(featureIdx).status_idx, featureIdx, anchorIdx); 
+              //                              log_info('Feature %i (%i on anchor %i) has converged', xt.anchor_states(anchorIdx).feature_states(featureIdx).status_idx, featureIdx, anchorIdx); 
               // 'SLAM_upd:278' xt.anchor_states(anchorIdx).feature_states(featureIdx).status = int32(1); 
               b_xt->anchor_states[anchorIdx].feature_states[featureIdx].status =
                 1;
@@ -7973,8 +8009,8 @@ static void SLAM_upd(float P_apr[10404], g_struct_T *b_xt, int
             .feature_states[(int)featureInd->data[(int)qualities->data[(int)
             (1.0F + (float)i) - 1] - 1] - 1].status_idx - 1] = 0;
 
-          // 'SLAM_upd:325' ros_warn('Trying to force insert feature %i behind its anchor', xt.anchor_states(anchorInd(sortInd(i))).feature_states(featureInd(sortInd(i))).status_idx) 
-          h_ros_warn(b_xt->anchor_states[(int)anchorInd->data[(int)
+          // 'SLAM_upd:325' log_warn('Trying to force insert feature %i behind its anchor', xt.anchor_states(anchorInd(sortInd(i))).feature_states(featureInd(sortInd(i))).status_idx) 
+          h_log_warn(b_xt->anchor_states[(int)anchorInd->data[(int)
                      qualities->data[(int)(1.0F + (float)i) - 1] - 1] - 1].
                      feature_states[(int)featureInd->data[(int)qualities->data
                      [(int)(1.0F + (float)i) - 1] - 1] - 1].status_idx);
@@ -7986,8 +8022,8 @@ static void SLAM_upd(float P_apr[10404], g_struct_T *b_xt, int
             featureInd->data[(int)qualities->data[(int)(1.0F + (float)i) - 1] -
             1] - 1].status = 1;
 
-          // 'SLAM_upd:328' ros_info('Forcing activation of feature %i (%i on anchor %i)', xt.anchor_states(anchorInd(sortInd(i))).feature_states(featureInd(sortInd(i))).status_idx, featureInd(sortInd(i)), anchorInd(sortInd(i))); 
-          f_ros_info(b_xt->anchor_states[(int)anchorInd->data[(int)
+          // 'SLAM_upd:328' log_info('Forcing activation of feature %i (%i on anchor %i)', xt.anchor_states(anchorInd(sortInd(i))).feature_states(featureInd(sortInd(i))).status_idx, featureInd(sortInd(i)), anchorInd(sortInd(i))); 
+          f_log_info(b_xt->anchor_states[(int)anchorInd->data[(int)
                      qualities->data[(int)(1.0F + (float)i) - 1] - 1] - 1].
                      feature_states[(int)featureInd->data[(int)qualities->data
                      [(int)(1.0F + (float)i) - 1] - 1] - 1].status_idx,
@@ -8061,7 +8097,7 @@ static void SLAM_upd(float P_apr[10404], g_struct_T *b_xt, int
     //      if coder.target('MATLAB')
     //          for anchorIdx = 1:numAnchors
     //              if getNumValidFeatures(xt.anchor_states(anchorIdx)) < minFeatureThreshold 
-    //                  ros_error('anchor %i needs new features but cant ask for them', anchorIdx) 
+    //                  log_error('anchor %i needs new features but cant ask for them', anchorIdx) 
     //              end
     //          end
     //      end
@@ -8100,7 +8136,7 @@ static void SLAM_upd(float P_apr[10404], g_struct_T *b_xt, int
       }
     }
 
-    //      ros_info('Requesting %d new features', int32(request_idx-1))
+    //      log_info('Requesting %d new features', int32(request_idx-1))
     //      updateVect(updateVect == 0) = int32(2); % get as many new features as possible 
   }
 
@@ -8151,8 +8187,8 @@ static void SLAM_upd(float P_apr[10404], g_struct_T *b_xt, int
     // 'SLAM_upd:391' if ~any(has_active_features)
     if (!c_any(b_has_active_features)) {
       //  can happen if outlier rejection rejected all features
-      // 'SLAM_upd:392' ros_warn('Can''t fix an anchor because none have active features') 
-      i_ros_warn();
+      // 'SLAM_upd:392' log_warn('Can''t fix an anchor because none have active features') 
+      i_log_warn();
     } else {
       // 'SLAM_upd:393' else
       // 'SLAM_upd:394' [~, sortIdx] = min(uncertainties);
@@ -8192,18 +8228,20 @@ static void SLAM_upd(float P_apr[10404], g_struct_T *b_xt, int
       // 'SLAM_upd:396' if ~has_active_features(xt.origin.anchor_idx)
       if (!(b_has_active_features[b_xt->origin.anchor_idx - 1] != 0.0F)) {
         //  debug check
-        // 'SLAM_upd:397' ros_error('Picked an anchor with no active features as origin (anchor %d). Probably because no anchors have any features.', int32(xt.origin.anchor_idx)) 
-        // ROS_ERROR Print to ROS_ERROR in ROS or to console in Matlab
-        // 'ros_error:4' if coder.target('MATLAB')
-        // 'ros_error:6' elseif ~coder.target('MEX')
-        // 'ros_error:7' coder.cinclude('<ros/console.h>')
-        // 'ros_error:8' coder.ceval('ROS_ERROR', [str, 0], varargin{:});
+        // 'SLAM_upd:397' log_error('Picked an anchor with no active features as origin (anchor %d). Probably because no anchors have any features.', int32(xt.origin.anchor_idx)) 
+        // log_error Print to console in Matlab
+        //  in C++, vio_logging.h needs to be created to define what LOG_ERROR does, 
+        //  e.g. redefine ROS_ERROR
+        // 'log_error:6' if coder.target('MATLAB')
+        // 'log_error:8' elseif ~coder.target('MEX')
+        // 'log_error:9' coder.cinclude('<vio_logging.h>')
+        // 'log_error:10' coder.ceval('LOG_ERROR', [str, 0], varargin{:});
         memcpy(&cv46[0], &cv47[0], 111U * sizeof(char));
-        ROS_ERROR(cv46, b_xt->origin.anchor_idx);
+        LOG_ERROR(cv46, b_xt->origin.anchor_idx);
       } else {
         // 'SLAM_upd:398' else
-        // 'SLAM_upd:399' ros_info('Setting anchor %i as origin', int32(xt.origin.anchor_idx)) 
-        g_ros_info(b_xt->origin.anchor_idx);
+        // 'SLAM_upd:399' log_info('Setting anchor %i as origin', int32(xt.origin.anchor_idx)) 
+        g_log_info(b_xt->origin.anchor_idx);
 
         // 'SLAM_upd:401' new_origin_pos_rel = xt.anchor_states(xt.origin.anchor_idx).pos; 
         for (i = 0; i < 3; i++) {
@@ -10899,6 +10937,95 @@ static void b_getH_R_res(const float xt_robot_state_pos[3], const float
 }
 
 //
+// log_error Print to console in Matlab
+//  in C++, vio_logging.h needs to be created to define what LOG_ERROR does,
+//  e.g. redefine ROS_ERROR
+// Arguments    : void
+// Return Type  : void
+//
+static void b_log_error()
+{
+  char cv20[14];
+  int i18;
+  static const char cv21[14] = { 'i', 'n', 'c', 'o', 'n', 's', 'i', 's', 't',
+    'e', 'n', 'c', 'y', '\x00' };
+
+  // 'log_error:6' if coder.target('MATLAB')
+  // 'log_error:8' elseif ~coder.target('MEX')
+  // 'log_error:9' coder.cinclude('<vio_logging.h>')
+  // 'log_error:10' coder.ceval('LOG_ERROR', [str, 0], varargin{:});
+  for (i18 = 0; i18 < 14; i18++) {
+    cv20[i18] = cv21[i18];
+  }
+
+  LOG_ERROR(cv20);
+}
+
+//
+// log_info Print to console in Matlab
+//  in C++, vio_logging.h needs to be created to define what LOG_INFO does,
+//  e.g. redefine ROS_INFO
+// Arguments    : int varargin_1
+//                int varargin_2
+//                int varargin_3
+// Return Type  : void
+//
+static void b_log_info(int varargin_1, int varargin_2, int varargin_3)
+{
+  char cv14[44];
+  int i12;
+  static const char cv15[44] = { 'F', 'i', 'x', 'i', 'n', 'g', ' ', 'f', 'e',
+    'a', 't', 'u', 'r', 'e', ' ', '%', 'i', ' ', '(', 'f', 'e', 'a', 't', 'u',
+    'r', 'e', ' ', '%', 'i', ' ', 'o', 'n', ' ', 'a', 'n', 'c', 'h', 'o', 'r',
+    ' ', '%', 'i', ')', '\x00' };
+
+  //  debug_level == 0: print errors, == 1: print warnings, == 2: print info
+  // 'log_info:7' if coder.target('MATLAB')
+  // 'log_info:11' elseif ~coder.target('MEX')
+  // 'log_info:12' coder.cinclude('<vio_logging.h>')
+  // 'log_info:13' if debug_level >= 2
+  if (debug_level >= 2.0F) {
+    // 'log_info:14' coder.ceval('LOG_INFO', [str, 0], varargin{:});
+    for (i12 = 0; i12 < 44; i12++) {
+      cv14[i12] = cv15[i12];
+    }
+
+    LOG_INFO(cv14, varargin_1, varargin_2, varargin_3);
+  }
+}
+
+//
+// log_warn Print to console in Matlab
+//  in C++, vio_logging.h needs to be created to define what LOG_WARN does,
+//  e.g. redefine ROS_WARN
+// Arguments    : void
+// Return Type  : void
+//
+static void b_log_warn()
+{
+  char cv18[44];
+  int i17;
+  static const char cv19[44] = { '1', '-', 'P', 'o', 'i', 'n', 't', ' ', 'R',
+    'A', 'N', 'S', 'A', 'C', ' ', 'd', 'i', 'd', 'n', 't', ' ', 'f', 'i', 'n',
+    'd', ' ', 'e', 'n', 'o', 'u', 'g', 'h', ' ', 'L', 'I', ' ', 'i', 'n', 'l',
+    'i', 'e', 'r', 's', '\x00' };
+
+  //  debug_level == 0: print errors, == 1: print warnings, == 2: print info
+  // 'log_warn:8' if coder.target('MATLAB')
+  // 'log_warn:12' elseif ~coder.target('MEX')
+  // 'log_warn:13' coder.cinclude('<vio_logging.h>')
+  // 'log_warn:14' if debug_level >= 2
+  if (debug_level >= 2.0F) {
+    // 'log_warn:15' coder.ceval('LOG_WARN', [str, 0], varargin{:});
+    for (i17 = 0; i17 < 44; i17++) {
+      cv18[i17] = cv19[i17];
+    }
+
+    LOG_WARN(cv18);
+  }
+}
+
+//
 // Arguments    : emxArray_int32_T *idx
 //                emxArray_real32_T *x
 //                int offset
@@ -10986,89 +11113,6 @@ static float b_norm(const float x[4])
   }
 
   return scale * sqrtf(y);
-}
-
-//
-// ROS_ERROR Print to ROS_ERROR in ROS or to console in Matlab
-// Arguments    : void
-// Return Type  : void
-//
-static void b_ros_error()
-{
-  char cv20[14];
-  int i18;
-  static const char cv21[14] = { 'i', 'n', 'c', 'o', 'n', 's', 'i', 's', 't',
-    'e', 'n', 'c', 'y', '\x00' };
-
-  // 'ros_error:4' if coder.target('MATLAB')
-  // 'ros_error:6' elseif ~coder.target('MEX')
-  // 'ros_error:7' coder.cinclude('<ros/console.h>')
-  // 'ros_error:8' coder.ceval('ROS_ERROR', [str, 0], varargin{:});
-  for (i18 = 0; i18 < 14; i18++) {
-    cv20[i18] = cv21[i18];
-  }
-
-  ROS_ERROR(cv20);
-}
-
-//
-// ROS_INFO Print to ROS_INFO in ROS or to console in Matlab
-// Arguments    : int varargin_1
-//                int varargin_2
-//                int varargin_3
-// Return Type  : void
-//
-static void b_ros_info(int varargin_1, int varargin_2, int varargin_3)
-{
-  char cv14[44];
-  int i12;
-  static const char cv15[44] = { 'F', 'i', 'x', 'i', 'n', 'g', ' ', 'f', 'e',
-    'a', 't', 'u', 'r', 'e', ' ', '%', 'i', ' ', '(', 'f', 'e', 'a', 't', 'u',
-    'r', 'e', ' ', '%', 'i', ' ', 'o', 'n', ' ', 'a', 'n', 'c', 'h', 'o', 'r',
-    ' ', '%', 'i', ')', '\x00' };
-
-  //  debug_level == 0: print errors, == 1: print warnings, == 2: print info
-  // 'ros_info:5' if coder.target('MATLAB')
-  // 'ros_info:9' elseif ~coder.target('MEX')
-  // 'ros_info:10' coder.cinclude('<ros/console.h>')
-  // 'ros_info:11' if debug_level >= 2
-  if (debug_level >= 2.0F) {
-    // 'ros_info:12' coder.ceval('ROS_INFO', [str, 0], varargin{:});
-    for (i12 = 0; i12 < 44; i12++) {
-      cv14[i12] = cv15[i12];
-    }
-
-    ROS_INFO(cv14, varargin_1, varargin_2, varargin_3);
-  }
-}
-
-//
-// ROS_WARN Print to ROS_WARN in ROS or to console in Matlab
-// Arguments    : void
-// Return Type  : void
-//
-static void b_ros_warn()
-{
-  char cv18[44];
-  int i17;
-  static const char cv19[44] = { '1', '-', 'P', 'o', 'i', 'n', 't', ' ', 'R',
-    'A', 'N', 'S', 'A', 'C', ' ', 'd', 'i', 'd', 'n', 't', ' ', 'f', 'i', 'n',
-    'd', ' ', 'e', 'n', 'o', 'u', 'g', 'h', ' ', 'L', 'I', ' ', 'i', 'n', 'l',
-    'i', 'e', 'r', 's', '\x00' };
-
-  //  debug_level == 0: print errors, == 1: print warnings, == 2: print info
-  // 'ros_warn:6' if coder.target('MATLAB')
-  // 'ros_warn:10' elseif ~coder.target('MEX')
-  // 'ros_warn:11' coder.cinclude('<ros/console.h>')
-  // 'ros_warn:12' if debug_level >= 2
-  if (debug_level >= 2.0F) {
-    // 'ros_warn:13' coder.ceval('ROS_WARN', [str, 0], varargin{:});
-    for (i17 = 0; i17 < 44; i17++) {
-      cv18[i17] = cv19[i17];
-    }
-
-    ROS_WARN(cv18);
-  }
 }
 
 //
@@ -11669,6 +11713,69 @@ static double c_fprintf(float varargin_1)
 }
 
 //
+// log_info Print to console in Matlab
+//  in C++, vio_logging.h needs to be created to define what LOG_INFO does,
+//  e.g. redefine ROS_INFO
+// Arguments    : int varargin_1
+//                int varargin_2
+// Return Type  : void
+//
+static void c_log_info(int varargin_1, int varargin_2)
+{
+  char cv28[44];
+  int i23;
+  static const char cv29[44] = { 'S', 'u', 'c', 'c', 'e', 's', 's', 'f', 'u',
+    'l', 'l', 'y', ' ', 't', 'r', 'i', 'a', 'n', 'g', 'u', 'l', 'a', 't', 'e',
+    'd', ' ', '%', 'd', ' ', 'o', 'f', ' ', '%', 'd', ' ', 'f', 'e', 'a', 't',
+    'u', 'r', 'e', 's', '\x00' };
+
+  //  debug_level == 0: print errors, == 1: print warnings, == 2: print info
+  // 'log_info:7' if coder.target('MATLAB')
+  // 'log_info:11' elseif ~coder.target('MEX')
+  // 'log_info:12' coder.cinclude('<vio_logging.h>')
+  // 'log_info:13' if debug_level >= 2
+  if (debug_level >= 2.0F) {
+    // 'log_info:14' coder.ceval('LOG_INFO', [str, 0], varargin{:});
+    for (i23 = 0; i23 < 44; i23++) {
+      cv28[i23] = cv29[i23];
+    }
+
+    LOG_INFO(cv28, varargin_1, varargin_2);
+  }
+}
+
+//
+// log_warn Print to console in Matlab
+//  in C++, vio_logging.h needs to be created to define what LOG_WARN does,
+//  e.g. redefine ROS_WARN
+// Arguments    : int varargin_1
+//                float varargin_2
+// Return Type  : void
+//
+static void c_log_warn(int varargin_1, float varargin_2)
+{
+  char cv22[36];
+  int i19;
+  static const char cv23[36] = { 'F', 'e', 'a', 't', 'u', 'r', 'e', ' ', '%',
+    'i', ' ', 'i', 's', ' ', 'v', 'e', 'r', 'y', ' ', 'c', 'l', 'o', 's', 'e',
+    '.', ' ', 'D', 'e', 'p', 't', 'h', ':', ' ', '%', 'f', '\x00' };
+
+  //  debug_level == 0: print errors, == 1: print warnings, == 2: print info
+  // 'log_warn:8' if coder.target('MATLAB')
+  // 'log_warn:12' elseif ~coder.target('MEX')
+  // 'log_warn:13' coder.cinclude('<vio_logging.h>')
+  // 'log_warn:14' if debug_level >= 2
+  if (debug_level >= 2.0F) {
+    // 'log_warn:15' coder.ceval('LOG_WARN', [str, 0], varargin{:});
+    for (i19 = 0; i19 < 36; i19++) {
+      cv22[i19] = cv23[i19];
+    }
+
+    LOG_WARN(cv22, varargin_1, varargin_2);
+  }
+}
+
+//
 // Arguments    : const float x[2]
 // Return Type  : float
 //
@@ -11694,65 +11801,6 @@ static float c_norm(const float x[2])
   }
 
   return scale * sqrtf(y);
-}
-
-//
-// ROS_INFO Print to ROS_INFO in ROS or to console in Matlab
-// Arguments    : int varargin_1
-//                int varargin_2
-// Return Type  : void
-//
-static void c_ros_info(int varargin_1, int varargin_2)
-{
-  char cv28[44];
-  int i23;
-  static const char cv29[44] = { 'S', 'u', 'c', 'c', 'e', 's', 's', 'f', 'u',
-    'l', 'l', 'y', ' ', 't', 'r', 'i', 'a', 'n', 'g', 'u', 'l', 'a', 't', 'e',
-    'd', ' ', '%', 'd', ' ', 'o', 'f', ' ', '%', 'd', ' ', 'f', 'e', 'a', 't',
-    'u', 'r', 'e', 's', '\x00' };
-
-  //  debug_level == 0: print errors, == 1: print warnings, == 2: print info
-  // 'ros_info:5' if coder.target('MATLAB')
-  // 'ros_info:9' elseif ~coder.target('MEX')
-  // 'ros_info:10' coder.cinclude('<ros/console.h>')
-  // 'ros_info:11' if debug_level >= 2
-  if (debug_level >= 2.0F) {
-    // 'ros_info:12' coder.ceval('ROS_INFO', [str, 0], varargin{:});
-    for (i23 = 0; i23 < 44; i23++) {
-      cv28[i23] = cv29[i23];
-    }
-
-    ROS_INFO(cv28, varargin_1, varargin_2);
-  }
-}
-
-//
-// ROS_WARN Print to ROS_WARN in ROS or to console in Matlab
-// Arguments    : int varargin_1
-//                float varargin_2
-// Return Type  : void
-//
-static void c_ros_warn(int varargin_1, float varargin_2)
-{
-  char cv22[36];
-  int i19;
-  static const char cv23[36] = { 'F', 'e', 'a', 't', 'u', 'r', 'e', ' ', '%',
-    'i', ' ', 'i', 's', ' ', 'v', 'e', 'r', 'y', ' ', 'c', 'l', 'o', 's', 'e',
-    '.', ' ', 'D', 'e', 'p', 't', 'h', ':', ' ', '%', 'f', '\x00' };
-
-  //  debug_level == 0: print errors, == 1: print warnings, == 2: print info
-  // 'ros_warn:6' if coder.target('MATLAB')
-  // 'ros_warn:10' elseif ~coder.target('MEX')
-  // 'ros_warn:11' coder.cinclude('<ros/console.h>')
-  // 'ros_warn:12' if debug_level >= 2
-  if (debug_level >= 2.0F) {
-    // 'ros_warn:13' coder.ceval('ROS_WARN', [str, 0], varargin{:});
-    for (i19 = 0; i19 < 36; i19++) {
-      cv22[i19] = cv23[i19];
-    }
-
-    ROS_WARN(cv22, varargin_1, varargin_2);
-  }
 }
 
 //
@@ -11896,6 +11944,67 @@ static double d_fprintf(float varargin_1)
 }
 
 //
+// log_info Print to console in Matlab
+//  in C++, vio_logging.h needs to be created to define what LOG_INFO does,
+//  e.g. redefine ROS_INFO
+// Arguments    : int varargin_1
+// Return Type  : void
+//
+static void d_log_info(int varargin_1)
+{
+  char cv30[52];
+  int i24;
+  static const char cv31[52] = { 'I', 'n', 'i', 't', 'i', 'a', 'l', 'i', 'z',
+    'i', 'n', 'g', ' ', 'a', 'n', 'c', 'h', 'o', 'r', ' ', '%', 'i', ',', ' ',
+    'w', 'h', 'i', 'c', 'h', ' ', 'w', 'a', 's', ' ', 't', 'h', 'e', ' ', 'o',
+    'r', 'i', 'g', 'i', 'n', ' ', 'a', 'n', 'c', 'h', 'o', 'r', '\x00' };
+
+  //  debug_level == 0: print errors, == 1: print warnings, == 2: print info
+  // 'log_info:7' if coder.target('MATLAB')
+  // 'log_info:11' elseif ~coder.target('MEX')
+  // 'log_info:12' coder.cinclude('<vio_logging.h>')
+  // 'log_info:13' if debug_level >= 2
+  if (debug_level >= 2.0F) {
+    // 'log_info:14' coder.ceval('LOG_INFO', [str, 0], varargin{:});
+    for (i24 = 0; i24 < 52; i24++) {
+      cv30[i24] = cv31[i24];
+    }
+
+    LOG_INFO(cv30, varargin_1);
+  }
+}
+
+//
+// log_warn Print to console in Matlab
+//  in C++, vio_logging.h needs to be created to define what LOG_WARN does,
+//  e.g. redefine ROS_WARN
+// Arguments    : signed char varargin_1
+// Return Type  : void
+//
+static void d_log_warn(signed char varargin_1)
+{
+  char cv24[37];
+  int i21;
+  static const char cv25[37] = { 'B', 'a', 'd', ' ', 't', 'r', 'i', 'a', 'n',
+    'g', 'u', 'l', 'a', 't', 'i', 'o', 'n', ' ', '(', 'n', 'a', 'n', ')', ' ',
+    'f', 'o', 'r', ' ', 'p', 'o', 'i', 'n', 't', ' ', '%', 'd', '\x00' };
+
+  //  debug_level == 0: print errors, == 1: print warnings, == 2: print info
+  // 'log_warn:8' if coder.target('MATLAB')
+  // 'log_warn:12' elseif ~coder.target('MEX')
+  // 'log_warn:13' coder.cinclude('<vio_logging.h>')
+  // 'log_warn:14' if debug_level >= 2
+  if (debug_level >= 2.0F) {
+    // 'log_warn:15' coder.ceval('LOG_WARN', [str, 0], varargin{:});
+    for (i21 = 0; i21 < 37; i21++) {
+      cv24[i21] = cv25[i21];
+    }
+
+    LOG_WARN(cv24, varargin_1);
+  }
+}
+
+//
 // Arguments    : const float x[36]
 // Return Type  : float
 //
@@ -11929,63 +12038,6 @@ static float d_norm(const float x[36])
   }
 
   return y;
-}
-
-//
-// ROS_INFO Print to ROS_INFO in ROS or to console in Matlab
-// Arguments    : int varargin_1
-// Return Type  : void
-//
-static void d_ros_info(int varargin_1)
-{
-  char cv30[52];
-  int i24;
-  static const char cv31[52] = { 'I', 'n', 'i', 't', 'i', 'a', 'l', 'i', 'z',
-    'i', 'n', 'g', ' ', 'a', 'n', 'c', 'h', 'o', 'r', ' ', '%', 'i', ',', ' ',
-    'w', 'h', 'i', 'c', 'h', ' ', 'w', 'a', 's', ' ', 't', 'h', 'e', ' ', 'o',
-    'r', 'i', 'g', 'i', 'n', ' ', 'a', 'n', 'c', 'h', 'o', 'r', '\x00' };
-
-  //  debug_level == 0: print errors, == 1: print warnings, == 2: print info
-  // 'ros_info:5' if coder.target('MATLAB')
-  // 'ros_info:9' elseif ~coder.target('MEX')
-  // 'ros_info:10' coder.cinclude('<ros/console.h>')
-  // 'ros_info:11' if debug_level >= 2
-  if (debug_level >= 2.0F) {
-    // 'ros_info:12' coder.ceval('ROS_INFO', [str, 0], varargin{:});
-    for (i24 = 0; i24 < 52; i24++) {
-      cv30[i24] = cv31[i24];
-    }
-
-    ROS_INFO(cv30, varargin_1);
-  }
-}
-
-//
-// ROS_WARN Print to ROS_WARN in ROS or to console in Matlab
-// Arguments    : signed char varargin_1
-// Return Type  : void
-//
-static void d_ros_warn(signed char varargin_1)
-{
-  char cv24[37];
-  int i21;
-  static const char cv25[37] = { 'B', 'a', 'd', ' ', 't', 'r', 'i', 'a', 'n',
-    'g', 'u', 'l', 'a', 't', 'i', 'o', 'n', ' ', '(', 'n', 'a', 'n', ')', ' ',
-    'f', 'o', 'r', ' ', 'p', 'o', 'i', 'n', 't', ' ', '%', 'd', '\x00' };
-
-  //  debug_level == 0: print errors, == 1: print warnings, == 2: print info
-  // 'ros_warn:6' if coder.target('MATLAB')
-  // 'ros_warn:10' elseif ~coder.target('MEX')
-  // 'ros_warn:11' coder.cinclude('<ros/console.h>')
-  // 'ros_warn:12' if debug_level >= 2
-  if (debug_level >= 2.0F) {
-    // 'ros_warn:13' coder.ceval('ROS_WARN', [str, 0], varargin{:});
-    for (i21 = 0; i21 < 37; i21++) {
-      cv24[i21] = cv25[i21];
-    }
-
-    ROS_WARN(cv24, varargin_1);
-  }
 }
 
 //
@@ -12174,11 +12226,13 @@ static double e_fprintf(float varargin_1)
 }
 
 //
-// ROS_INFO Print to ROS_INFO in ROS or to console in Matlab
+// log_info Print to console in Matlab
+//  in C++, vio_logging.h needs to be created to define what LOG_INFO does,
+//  e.g. redefine ROS_INFO
 // Arguments    : int varargin_1
 // Return Type  : void
 //
-static void e_ros_info(int varargin_1)
+static void e_log_info(int varargin_1)
 {
   char cv32[45];
   int i25;
@@ -12188,27 +12242,29 @@ static void e_ros_info(int varargin_1)
     't', 'e', '.', '\\', 'n', '\x00' };
 
   //  debug_level == 0: print errors, == 1: print warnings, == 2: print info
-  // 'ros_info:5' if coder.target('MATLAB')
-  // 'ros_info:9' elseif ~coder.target('MEX')
-  // 'ros_info:10' coder.cinclude('<ros/console.h>')
-  // 'ros_info:11' if debug_level >= 2
+  // 'log_info:7' if coder.target('MATLAB')
+  // 'log_info:11' elseif ~coder.target('MEX')
+  // 'log_info:12' coder.cinclude('<vio_logging.h>')
+  // 'log_info:13' if debug_level >= 2
   if (debug_level >= 2.0F) {
-    // 'ros_info:12' coder.ceval('ROS_INFO', [str, 0], varargin{:});
+    // 'log_info:14' coder.ceval('LOG_INFO', [str, 0], varargin{:});
     for (i25 = 0; i25 < 45; i25++) {
       cv32[i25] = cv33[i25];
     }
 
-    ROS_INFO(cv32, varargin_1);
+    LOG_INFO(cv32, varargin_1);
   }
 }
 
 //
-// ROS_WARN Print to ROS_WARN in ROS or to console in Matlab
+// log_warn Print to console in Matlab
+//  in C++, vio_logging.h needs to be created to define what LOG_WARN does,
+//  e.g. redefine ROS_WARN
 // Arguments    : int varargin_1
 //                float varargin_2
 // Return Type  : void
 //
-static void e_ros_warn(int varargin_1, float varargin_2)
+static void e_log_warn(int varargin_1, float varargin_2)
 {
   char cv26[49];
   int i22;
@@ -12218,17 +12274,17 @@ static void e_ros_warn(int varargin_1, float varargin_2)
     'D', 'e', 'p', 't', 'h', ':', ' ', '%', 'f', '\x00' };
 
   //  debug_level == 0: print errors, == 1: print warnings, == 2: print info
-  // 'ros_warn:6' if coder.target('MATLAB')
-  // 'ros_warn:10' elseif ~coder.target('MEX')
-  // 'ros_warn:11' coder.cinclude('<ros/console.h>')
-  // 'ros_warn:12' if debug_level >= 2
+  // 'log_warn:8' if coder.target('MATLAB')
+  // 'log_warn:12' elseif ~coder.target('MEX')
+  // 'log_warn:13' coder.cinclude('<vio_logging.h>')
+  // 'log_warn:14' if debug_level >= 2
   if (debug_level >= 2.0F) {
-    // 'ros_warn:13' coder.ceval('ROS_WARN', [str, 0], varargin{:});
+    // 'log_warn:15' coder.ceval('LOG_WARN', [str, 0], varargin{:});
     for (i22 = 0; i22 < 49; i22++) {
       cv26[i22] = cv27[i22];
     }
 
-    ROS_WARN(cv26, varargin_1, varargin_2);
+    LOG_WARN(cv26, varargin_1, varargin_2);
   }
 }
 
@@ -12479,13 +12535,15 @@ static double f_fprintf(float varargin_1)
 }
 
 //
-// ROS_INFO Print to ROS_INFO in ROS or to console in Matlab
+// log_info Print to console in Matlab
+//  in C++, vio_logging.h needs to be created to define what LOG_INFO does,
+//  e.g. redefine ROS_INFO
 // Arguments    : int varargin_1
 //                float varargin_2
 //                float varargin_3
 // Return Type  : void
 //
-static void f_ros_info(int varargin_1, float varargin_2, float varargin_3)
+static void f_log_info(int varargin_1, float varargin_2, float varargin_3)
 {
   char cv40[51];
   int i29;
@@ -12495,26 +12553,28 @@ static void f_ros_info(int varargin_1, float varargin_2, float varargin_3)
     ' ', 'a', 'n', 'c', 'h', 'o', 'r', ' ', '%', 'i', ')', '\x00' };
 
   //  debug_level == 0: print errors, == 1: print warnings, == 2: print info
-  // 'ros_info:5' if coder.target('MATLAB')
-  // 'ros_info:9' elseif ~coder.target('MEX')
-  // 'ros_info:10' coder.cinclude('<ros/console.h>')
-  // 'ros_info:11' if debug_level >= 2
+  // 'log_info:7' if coder.target('MATLAB')
+  // 'log_info:11' elseif ~coder.target('MEX')
+  // 'log_info:12' coder.cinclude('<vio_logging.h>')
+  // 'log_info:13' if debug_level >= 2
   if (debug_level >= 2.0F) {
-    // 'ros_info:12' coder.ceval('ROS_INFO', [str, 0], varargin{:});
+    // 'log_info:14' coder.ceval('LOG_INFO', [str, 0], varargin{:});
     for (i29 = 0; i29 < 51; i29++) {
       cv40[i29] = cv41[i29];
     }
 
-    ROS_INFO(cv40, varargin_1, varargin_2, varargin_3);
+    LOG_INFO(cv40, varargin_1, varargin_2, varargin_3);
   }
 }
 
 //
-// ROS_WARN Print to ROS_WARN in ROS or to console in Matlab
+// log_warn Print to console in Matlab
+//  in C++, vio_logging.h needs to be created to define what LOG_WARN does,
+//  e.g. redefine ROS_WARN
 // Arguments    : float varargin_1
 // Return Type  : void
 //
-static void f_ros_warn(float varargin_1)
+static void f_log_warn(float varargin_1)
 {
   char cv34[62];
   int i26;
@@ -12525,17 +12585,17 @@ static void f_ros_warn(float varargin_1)
     'm', 'i', 'n', ' ', '%', 'd', ')', '\x00' };
 
   //  debug_level == 0: print errors, == 1: print warnings, == 2: print info
-  // 'ros_warn:6' if coder.target('MATLAB')
-  // 'ros_warn:10' elseif ~coder.target('MEX')
-  // 'ros_warn:11' coder.cinclude('<ros/console.h>')
-  // 'ros_warn:12' if debug_level >= 2
+  // 'log_warn:8' if coder.target('MATLAB')
+  // 'log_warn:12' elseif ~coder.target('MEX')
+  // 'log_warn:13' coder.cinclude('<vio_logging.h>')
+  // 'log_warn:14' if debug_level >= 2
   if (debug_level >= 2.0F) {
-    // 'ros_warn:13' coder.ceval('ROS_WARN', [str, 0], varargin{:});
+    // 'log_warn:15' coder.ceval('LOG_WARN', [str, 0], varargin{:});
     for (i26 = 0; i26 < 62; i26++) {
       cv34[i26] = cv35[i26];
     }
 
-    ROS_WARN(cv34, varargin_1, 4);
+    LOG_WARN(cv34, varargin_1, 4);
   }
 }
 
@@ -12608,11 +12668,13 @@ static double g_fprintf(float varargin_1)
 }
 
 //
-// ROS_INFO Print to ROS_INFO in ROS or to console in Matlab
+// log_info Print to console in Matlab
+//  in C++, vio_logging.h needs to be created to define what LOG_INFO does,
+//  e.g. redefine ROS_INFO
 // Arguments    : int varargin_1
 // Return Type  : void
 //
-static void g_ros_info(int varargin_1)
+static void g_log_info(int varargin_1)
 {
   char cv44[28];
   int i31;
@@ -12621,28 +12683,30 @@ static void g_ros_info(int varargin_1)
     'g', 'i', 'n', '\x00' };
 
   //  debug_level == 0: print errors, == 1: print warnings, == 2: print info
-  // 'ros_info:5' if coder.target('MATLAB')
-  // 'ros_info:9' elseif ~coder.target('MEX')
-  // 'ros_info:10' coder.cinclude('<ros/console.h>')
-  // 'ros_info:11' if debug_level >= 2
+  // 'log_info:7' if coder.target('MATLAB')
+  // 'log_info:11' elseif ~coder.target('MEX')
+  // 'log_info:12' coder.cinclude('<vio_logging.h>')
+  // 'log_info:13' if debug_level >= 2
   if (debug_level >= 2.0F) {
-    // 'ros_info:12' coder.ceval('ROS_INFO', [str, 0], varargin{:});
+    // 'log_info:14' coder.ceval('LOG_INFO', [str, 0], varargin{:});
     for (i31 = 0; i31 < 28; i31++) {
       cv44[i31] = cv45[i31];
     }
 
-    ROS_INFO(cv44, varargin_1);
+    LOG_INFO(cv44, varargin_1);
   }
 }
 
 //
-// ROS_WARN Print to ROS_WARN in ROS or to console in Matlab
+// log_warn Print to console in Matlab
+//  in C++, vio_logging.h needs to be created to define what LOG_WARN does,
+//  e.g. redefine ROS_WARN
 // Arguments    : int varargin_1
 //                int varargin_2
 //                int varargin_3
 // Return Type  : void
 //
-static void g_ros_warn(int varargin_1, int varargin_2, int varargin_3)
+static void g_log_warn(int varargin_1, int varargin_2, int varargin_3)
 {
   char cv36[57];
   int i27;
@@ -12653,17 +12717,17 @@ static void g_ros_warn(int varargin_1, int varargin_2, int varargin_3)
     'o', 'r', '\x00' };
 
   //  debug_level == 0: print errors, == 1: print warnings, == 2: print info
-  // 'ros_warn:6' if coder.target('MATLAB')
-  // 'ros_warn:10' elseif ~coder.target('MEX')
-  // 'ros_warn:11' coder.cinclude('<ros/console.h>')
-  // 'ros_warn:12' if debug_level >= 2
+  // 'log_warn:8' if coder.target('MATLAB')
+  // 'log_warn:12' elseif ~coder.target('MEX')
+  // 'log_warn:13' coder.cinclude('<vio_logging.h>')
+  // 'log_warn:14' if debug_level >= 2
   if (debug_level >= 2.0F) {
-    // 'ros_warn:13' coder.ceval('ROS_WARN', [str, 0], varargin{:});
+    // 'log_warn:15' coder.ceval('LOG_WARN', [str, 0], varargin{:});
     for (i27 = 0; i27 < 57; i27++) {
       cv36[i27] = cv37[i27];
     }
 
-    ROS_WARN(cv36, varargin_1, varargin_2, varargin_3);
+    LOG_WARN(cv36, varargin_1, varargin_2, varargin_3);
   }
 }
 
@@ -15221,11 +15285,13 @@ static double h_fprintf(float varargin_1, float varargin_2, float varargin_3)
 }
 
 //
-// ROS_WARN Print to ROS_WARN in ROS or to console in Matlab
+// log_warn Print to console in Matlab
+//  in C++, vio_logging.h needs to be created to define what LOG_WARN does,
+//  e.g. redefine ROS_WARN
 // Arguments    : int varargin_1
 // Return Type  : void
 //
-static void h_ros_warn(int varargin_1)
+static void h_log_warn(int varargin_1)
 {
   char cv38[52];
   int i28;
@@ -15235,17 +15301,17 @@ static void h_ros_warn(int varargin_1)
     'd', ' ', 'i', 't', 's', ' ', 'a', 'n', 'c', 'h', 'o', 'r', '\x00' };
 
   //  debug_level == 0: print errors, == 1: print warnings, == 2: print info
-  // 'ros_warn:6' if coder.target('MATLAB')
-  // 'ros_warn:10' elseif ~coder.target('MEX')
-  // 'ros_warn:11' coder.cinclude('<ros/console.h>')
-  // 'ros_warn:12' if debug_level >= 2
+  // 'log_warn:8' if coder.target('MATLAB')
+  // 'log_warn:12' elseif ~coder.target('MEX')
+  // 'log_warn:13' coder.cinclude('<vio_logging.h>')
+  // 'log_warn:14' if debug_level >= 2
   if (debug_level >= 2.0F) {
-    // 'ros_warn:13' coder.ceval('ROS_WARN', [str, 0], varargin{:});
+    // 'log_warn:15' coder.ceval('LOG_WARN', [str, 0], varargin{:});
     for (i28 = 0; i28 < 52; i28++) {
       cv38[i28] = cv39[i28];
     }
 
-    ROS_WARN(cv38, varargin_1);
+    LOG_WARN(cv38, varargin_1);
   }
 }
 
@@ -15278,11 +15344,13 @@ static double i_fprintf(float varargin_1, float varargin_2, float varargin_3)
 }
 
 //
-// ROS_WARN Print to ROS_WARN in ROS or to console in Matlab
+// log_warn Print to console in Matlab
+//  in C++, vio_logging.h needs to be created to define what LOG_WARN does,
+//  e.g. redefine ROS_WARN
 // Arguments    : void
 // Return Type  : void
 //
-static void i_ros_warn()
+static void i_log_warn()
 {
   char cv42[54];
   int i30;
@@ -15293,17 +15361,17 @@ static void i_ros_warn()
   };
 
   //  debug_level == 0: print errors, == 1: print warnings, == 2: print info
-  // 'ros_warn:6' if coder.target('MATLAB')
-  // 'ros_warn:10' elseif ~coder.target('MEX')
-  // 'ros_warn:11' coder.cinclude('<ros/console.h>')
-  // 'ros_warn:12' if debug_level >= 2
+  // 'log_warn:8' if coder.target('MATLAB')
+  // 'log_warn:12' elseif ~coder.target('MEX')
+  // 'log_warn:13' coder.cinclude('<vio_logging.h>')
+  // 'log_warn:14' if debug_level >= 2
   if (debug_level >= 2.0F) {
-    // 'ros_warn:13' coder.ceval('ROS_WARN', [str, 0], varargin{:});
+    // 'log_warn:15' coder.ceval('LOG_WARN', [str, 0], varargin{:});
     for (i30 = 0; i30 < 54; i30++) {
       cv42[i30] = cv43[i30];
     }
 
-    ROS_WARN(cv42);
+    LOG_WARN(cv42);
   }
 }
 
@@ -15613,6 +15681,100 @@ static double l_fprintf(int varargin_1)
   }
 
   return nbytesint;
+}
+
+//
+// log_error Print to console in Matlab
+//  in C++, vio_logging.h needs to be created to define what LOG_ERROR does,
+//  e.g. redefine ROS_ERROR
+// Arguments    : void
+// Return Type  : void
+//
+static void log_error()
+{
+  char cv12[27];
+  int i11;
+  static const char cv13[27] = { 'p', 'i', 'c', 'k', 'e', 'd', ' ', 'a', 'n',
+    ' ', 'i', 'n', 'a', 'c', 't', 'i', 'v', 'e', ' ', 'f', 'e', 'a', 't', 'u',
+    'r', 'e', '\x00' };
+
+  // 'log_error:6' if coder.target('MATLAB')
+  // 'log_error:8' elseif ~coder.target('MEX')
+  // 'log_error:9' coder.cinclude('<vio_logging.h>')
+  // 'log_error:10' coder.ceval('LOG_ERROR', [str, 0], varargin{:});
+  for (i11 = 0; i11 < 27; i11++) {
+    cv12[i11] = cv13[i11];
+  }
+
+  LOG_ERROR(cv12);
+}
+
+//
+// log_info Print to console in Matlab
+//  in C++, vio_logging.h needs to be created to define what LOG_INFO does,
+//  e.g. redefine ROS_INFO
+// Arguments    : int varargin_1
+//                int varargin_2
+//                int varargin_3
+// Return Type  : void
+//
+static void log_info(int varargin_1, int varargin_2, int varargin_3)
+{
+  char cv10[54];
+  int i10;
+  static const char cv11[54] = { 'F', 'i', 'x', 'e', 'd', ' ', 'f', 'e', 'a',
+    't', 'u', 'r', 'e', ' ', '%', 'i', ' ', '(', '%', 'i', ' ', 'o', 'n', ' ',
+    'a', 'n', 'c', 'h', 'o', 'r', ' ', '%', 'i', ')', ' ', 'i', 's', ' ', 'n',
+    'o', ' ', 'l', 'o', 'n', 'g', 'e', 'r', ' ', 'v', 'a', 'l', 'i', 'd', '\x00'
+  };
+
+  //  debug_level == 0: print errors, == 1: print warnings, == 2: print info
+  // 'log_info:7' if coder.target('MATLAB')
+  // 'log_info:11' elseif ~coder.target('MEX')
+  // 'log_info:12' coder.cinclude('<vio_logging.h>')
+  // 'log_info:13' if debug_level >= 2
+  if (debug_level >= 2.0F) {
+    // 'log_info:14' coder.ceval('LOG_INFO', [str, 0], varargin{:});
+    for (i10 = 0; i10 < 54; i10++) {
+      cv10[i10] = cv11[i10];
+    }
+
+    LOG_INFO(cv10, varargin_1, varargin_2, varargin_3);
+  }
+}
+
+//
+// log_warn Print to console in Matlab
+//  in C++, vio_logging.h needs to be created to define what LOG_WARN does,
+//  e.g. redefine ROS_WARN
+// Arguments    : int varargin_1
+//                int varargin_2
+//                int varargin_3
+// Return Type  : void
+//
+static void log_warn(int varargin_1, int varargin_2, int varargin_3)
+{
+  char cv16[54];
+  int i16;
+  static const char cv17[54] = { 'F', 'e', 'a', 't', 'u', 'r', 'e', ' ', '%',
+    'i', ' ', '(', '%', 'i', ' ', 'o', 'n', ' ', '%', 'i', ')', ' ', 'i', 's',
+    ' ', 'b', 'e', 'h', 'i', 'n', 'd', ' ', 'i', 't', 's', ' ', 'a', 'n', 'c',
+    'h', 'o', 'r', ',', ' ', 'r', 'e', 'j', 'e', 'c', 't', 'i', 'n', 'g', '\x00'
+  };
+
+  //  debug_level == 0: print errors, == 1: print warnings, == 2: print info
+  // 'log_warn:8' if coder.target('MATLAB')
+  // 'log_warn:12' elseif ~coder.target('MEX')
+  // 'log_warn:13' coder.cinclude('<vio_logging.h>')
+  // 'log_warn:14' if debug_level >= 2
+  if (debug_level >= 2.0F) {
+    // 'log_warn:15' coder.ceval('LOG_WARN', [str, 0], varargin{:});
+    for (i16 = 0; i16 < 54; i16++) {
+      cv16[i16] = cv17[i16];
+    }
+
+    LOG_WARN(cv16, varargin_1, varargin_2, varargin_3);
+  }
 }
 
 //
@@ -16289,20 +16451,22 @@ static void printParams(float c_noiseParameters_process_noise, float
   // 'SLAM:132' fprintf('\n');
   b_fprintf();
 
-  // 'SLAM:133' ros_info('Noise parameters:');
-  // ROS_INFO Print to ROS_INFO in ROS or to console in Matlab
+  // 'SLAM:133' log_info('Noise parameters:');
+  // log_info Print to console in Matlab
+  //  in C++, vio_logging.h needs to be created to define what LOG_INFO does,
+  //  e.g. redefine ROS_INFO
   //  debug_level == 0: print errors, == 1: print warnings, == 2: print info
-  // 'ros_info:5' if coder.target('MATLAB')
-  // 'ros_info:9' elseif ~coder.target('MEX')
-  // 'ros_info:10' coder.cinclude('<ros/console.h>')
-  // 'ros_info:11' if debug_level >= 2
+  // 'log_info:7' if coder.target('MATLAB')
+  // 'log_info:11' elseif ~coder.target('MEX')
+  // 'log_info:12' coder.cinclude('<vio_logging.h>')
+  // 'log_info:13' if debug_level >= 2
   if (debug_level >= 2.0F) {
-    // 'ros_info:12' coder.ceval('ROS_INFO', [str, 0], varargin{:});
+    // 'log_info:14' coder.ceval('LOG_INFO', [str, 0], varargin{:});
     for (i1 = 0; i1 < 18; i1++) {
       cv0[i1] = cv1[i1];
     }
 
-    ROS_INFO(cv0);
+    LOG_INFO(cv0);
   }
 
   // 'SLAM:134' fprintf('\tqv: %f\n', noiseParameters.process_noise.qv);
@@ -16337,20 +16501,22 @@ static void printParams(float c_noiseParameters_process_noise, float
   // 'SLAM:144' fprintf('\n');
   b_fprintf();
 
-  // 'SLAM:145' ros_info('VIO parameters');
-  // ROS_INFO Print to ROS_INFO in ROS or to console in Matlab
+  // 'SLAM:145' log_info('VIO parameters');
+  // log_info Print to console in Matlab
+  //  in C++, vio_logging.h needs to be created to define what LOG_INFO does,
+  //  e.g. redefine ROS_INFO
   //  debug_level == 0: print errors, == 1: print warnings, == 2: print info
-  // 'ros_info:5' if coder.target('MATLAB')
-  // 'ros_info:9' elseif ~coder.target('MEX')
-  // 'ros_info:10' coder.cinclude('<ros/console.h>')
-  // 'ros_info:11' if debug_level >= 2
+  // 'log_info:7' if coder.target('MATLAB')
+  // 'log_info:11' elseif ~coder.target('MEX')
+  // 'log_info:12' coder.cinclude('<vio_logging.h>')
+  // 'log_info:13' if debug_level >= 2
   if (debug_level >= 2.0F) {
-    // 'ros_info:12' coder.ceval('ROS_INFO', [str, 0], varargin{:});
+    // 'log_info:14' coder.ceval('LOG_INFO', [str, 0], varargin{:});
     for (i1 = 0; i1 < 15; i1++) {
       cv2[i1] = cv3[i1];
     }
 
-    ROS_INFO(cv2);
+    LOG_INFO(cv2);
   }
 
   // 'SLAM:146' fprintf('\tmax_ekf_iterations: %d\n', int32(VIOParameters.max_ekf_iterations)); 
@@ -16595,94 +16761,6 @@ static void rdivide(const float x[3], float y, float z[3])
   int i;
   for (i = 0; i < 3; i++) {
     z[i] = x[i] / y;
-  }
-}
-
-//
-// ROS_ERROR Print to ROS_ERROR in ROS or to console in Matlab
-// Arguments    : void
-// Return Type  : void
-//
-static void ros_error()
-{
-  char cv12[27];
-  int i11;
-  static const char cv13[27] = { 'p', 'i', 'c', 'k', 'e', 'd', ' ', 'a', 'n',
-    ' ', 'i', 'n', 'a', 'c', 't', 'i', 'v', 'e', ' ', 'f', 'e', 'a', 't', 'u',
-    'r', 'e', '\x00' };
-
-  // 'ros_error:4' if coder.target('MATLAB')
-  // 'ros_error:6' elseif ~coder.target('MEX')
-  // 'ros_error:7' coder.cinclude('<ros/console.h>')
-  // 'ros_error:8' coder.ceval('ROS_ERROR', [str, 0], varargin{:});
-  for (i11 = 0; i11 < 27; i11++) {
-    cv12[i11] = cv13[i11];
-  }
-
-  ROS_ERROR(cv12);
-}
-
-//
-// ROS_INFO Print to ROS_INFO in ROS or to console in Matlab
-// Arguments    : int varargin_1
-//                int varargin_2
-//                int varargin_3
-// Return Type  : void
-//
-static void ros_info(int varargin_1, int varargin_2, int varargin_3)
-{
-  char cv10[54];
-  int i10;
-  static const char cv11[54] = { 'F', 'i', 'x', 'e', 'd', ' ', 'f', 'e', 'a',
-    't', 'u', 'r', 'e', ' ', '%', 'i', ' ', '(', '%', 'i', ' ', 'o', 'n', ' ',
-    'a', 'n', 'c', 'h', 'o', 'r', ' ', '%', 'i', ')', ' ', 'i', 's', ' ', 'n',
-    'o', ' ', 'l', 'o', 'n', 'g', 'e', 'r', ' ', 'v', 'a', 'l', 'i', 'd', '\x00'
-  };
-
-  //  debug_level == 0: print errors, == 1: print warnings, == 2: print info
-  // 'ros_info:5' if coder.target('MATLAB')
-  // 'ros_info:9' elseif ~coder.target('MEX')
-  // 'ros_info:10' coder.cinclude('<ros/console.h>')
-  // 'ros_info:11' if debug_level >= 2
-  if (debug_level >= 2.0F) {
-    // 'ros_info:12' coder.ceval('ROS_INFO', [str, 0], varargin{:});
-    for (i10 = 0; i10 < 54; i10++) {
-      cv10[i10] = cv11[i10];
-    }
-
-    ROS_INFO(cv10, varargin_1, varargin_2, varargin_3);
-  }
-}
-
-//
-// ROS_WARN Print to ROS_WARN in ROS or to console in Matlab
-// Arguments    : int varargin_1
-//                int varargin_2
-//                int varargin_3
-// Return Type  : void
-//
-static void ros_warn(int varargin_1, int varargin_2, int varargin_3)
-{
-  char cv16[54];
-  int i16;
-  static const char cv17[54] = { 'F', 'e', 'a', 't', 'u', 'r', 'e', ' ', '%',
-    'i', ' ', '(', '%', 'i', ' ', 'o', 'n', ' ', '%', 'i', ')', ' ', 'i', 's',
-    ' ', 'b', 'e', 'h', 'i', 'n', 'd', ' ', 'i', 't', 's', ' ', 'a', 'n', 'c',
-    'h', 'o', 'r', ',', ' ', 'r', 'e', 'j', 'e', 'c', 't', 'i', 'n', 'g', '\x00'
-  };
-
-  //  debug_level == 0: print errors, == 1: print warnings, == 2: print info
-  // 'ros_warn:6' if coder.target('MATLAB')
-  // 'ros_warn:10' elseif ~coder.target('MEX')
-  // 'ros_warn:11' coder.cinclude('<ros/console.h>')
-  // 'ros_warn:12' if debug_level >= 2
-  if (debug_level >= 2.0F) {
-    // 'ros_warn:13' coder.ceval('ROS_WARN', [str, 0], varargin{:});
-    for (i16 = 0; i16 < 54; i16++) {
-      cv16[i16] = cv17[i16];
-    }
-
-    ROS_WARN(cv16, varargin_1, varargin_2, varargin_3);
   }
 }
 
@@ -17624,36 +17702,40 @@ static void undistortPoint(const float pt_d_data[], const int pt_d_size[1], int
 
       // 'get_r_u:20' if i == 100
       if ((b_i == 100) && (debug_level >= 2.0F)) {
-        // 'get_r_u:21' ros_warn('Pixel radius inversion: Reached iteration limit') 
-        // ROS_WARN Print to ROS_WARN in ROS or to console in Matlab
+        // 'get_r_u:21' log_warn('Pixel radius inversion: Reached iteration limit') 
+        // log_warn Print to console in Matlab
+        //  in C++, vio_logging.h needs to be created to define what LOG_WARN does, 
+        //  e.g. redefine ROS_WARN
         //  debug_level == 0: print errors, == 1: print warnings, == 2: print info 
-        // 'ros_warn:6' if coder.target('MATLAB')
-        // 'ros_warn:10' elseif ~coder.target('MEX')
-        // 'ros_warn:11' coder.cinclude('<ros/console.h>')
-        // 'ros_warn:12' if debug_level >= 2
-        // 'ros_warn:13' coder.ceval('ROS_WARN', [str, 0], varargin{:});
+        // 'log_warn:8' if coder.target('MATLAB')
+        // 'log_warn:12' elseif ~coder.target('MEX')
+        // 'log_warn:13' coder.cinclude('<vio_logging.h>')
+        // 'log_warn:14' if debug_level >= 2
+        // 'log_warn:15' coder.ceval('LOG_WARN', [str, 0], varargin{:});
         for (i9 = 0; i9 < 48; i9++) {
           cv6[i9] = cv7[i9];
         }
 
-        ROS_WARN(cv6);
+        LOG_WARN(cv6);
       }
 
       // 'get_r_u:24' if x < 0
       if ((r_u_sq < 0.0F) && (debug_level >= 2.0F)) {
-        // 'get_r_u:25' ros_warn('negative undistorted radius. rd_sq = %f, ru_sq = %f', rd_sq, x); 
-        // ROS_WARN Print to ROS_WARN in ROS or to console in Matlab
+        // 'get_r_u:25' log_warn('negative undistorted radius. rd_sq = %f, ru_sq = %f', rd_sq, x); 
+        // log_warn Print to console in Matlab
+        //  in C++, vio_logging.h needs to be created to define what LOG_WARN does, 
+        //  e.g. redefine ROS_WARN
         //  debug_level == 0: print errors, == 1: print warnings, == 2: print info 
-        // 'ros_warn:6' if coder.target('MATLAB')
-        // 'ros_warn:10' elseif ~coder.target('MEX')
-        // 'ros_warn:11' coder.cinclude('<ros/console.h>')
-        // 'ros_warn:12' if debug_level >= 2
-        // 'ros_warn:13' coder.ceval('ROS_WARN', [str, 0], varargin{:});
+        // 'log_warn:8' if coder.target('MATLAB')
+        // 'log_warn:12' elseif ~coder.target('MEX')
+        // 'log_warn:13' coder.cinclude('<vio_logging.h>')
+        // 'log_warn:14' if debug_level >= 2
+        // 'log_warn:15' coder.ceval('LOG_WARN', [str, 0], varargin{:});
         for (i9 = 0; i9 < 52; i9++) {
           cv8[i9] = cv9[i9];
         }
 
-        ROS_WARN(cv8, r_d_sq, r_u_sq);
+        LOG_WARN(cv8, r_d_sq, r_u_sq);
       }
 
       // 'undistortPoint:80' coeff = (1 + k1*r_u_sq + k2*r_u_sq^2 + k3*r_u_sq^3); 
