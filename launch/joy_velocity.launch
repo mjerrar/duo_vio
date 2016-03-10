@@ -63,7 +63,7 @@
     <arg name="mav_tf_link"         value="$(arg mav_tf_link)" />
   </include>
 
-  <include file="$(find vio_ros)/launch/duo_vio.launch">
+  <include file="$(find duo_vio)/launch/duo_vio.launch">
   </include>
 
 </launch>

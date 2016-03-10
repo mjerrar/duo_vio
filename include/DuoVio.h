@@ -31,13 +31,13 @@
  *
  ****************************************************************************/
 /*
- * localization.h
+ * DuoVio.h
  *
  *  Created on: Mar 9, 2016
  *      Author: nicolas
  */
-#ifndef _LOCALIZATION_H_
-#define _LOCALIZATION_H_
+#ifndef _DuoVio_H_
+#define _DuoVio_H_
 
 #include <ros/ros.h>
 #include <ros/package.h>
@@ -69,10 +69,10 @@
 
 #include "VIO.h"
 #include "dynamic_reconfigure/server.h"
-#include "vio_ros/vio_rosConfig.h"
+#include "duo_vio/duo_vioConfig.h"
 
-#include "vio_ros/vio_vis.h"
-#include "vio_ros/VioSensorMsg.h"
+#include "ait_ros_messages/vio_vis.h"
+#include "ait_ros_messages/VioSensorMsg.h"
 
 #include "std_msgs/MultiArrayLayout.h"
 #include "std_msgs/MultiArrayDimension.h"
@@ -86,10 +86,10 @@
 
 #include "Precision.h"
 
-class Localization {
+class DuoVio {
  public:
-    Localization();
-    ~Localization();
+    DuoVio();
+    ~DuoVio();
 
  private:
     VIO vio;
@@ -123,7 +123,7 @@ class Localization {
     bool auto_subsample;  // if true, predict with messages without image data, otherwise update
 
     ros::Publisher vio_sensor_processed_pub;
-    dynamic_reconfigure::Server<vio_ros::vio_rosConfig> dynamic_reconfigure_server;
+    dynamic_reconfigure::Server<duo_vio::duo_vioConfig> dynamic_reconfigure_server;
 
     ros::Publisher pose_pub;
     ros::Publisher vel_pub;
@@ -156,19 +156,19 @@ class Localization {
     std::vector<FloatType> map;
     std::vector<AnchorPose> anchor_poses;
 
-    void vioSensorMsgCb(const vio_ros::VioSensorMsg &msg);
+    void vioSensorMsgCb(const ait_ros_messages::VioSensorMsg &msg);
     void deviceSerialNrCb(const std_msgs::String &msg);
     void loadCustomCameraCalibration(const std::string calib_path);
-    void update(double dt, const vio_ros::VioSensorMsg &msg, bool debug_publish, bool show_image, bool reset);
+    void update(double dt, const ait_ros_messages::VioSensorMsg &msg, bool debug_publish, bool show_image, bool reset);
 
     void getIMUData(const sensor_msgs::Imu& imu, VIOMeasurements& meas);
 
     void updateVis(RobotState &robot_state, std::vector<AnchorPose> &anchor_poses, std::vector<FloatType> &map, std::vector<int> &updateVect,
-            const vio_ros::VioSensorMsg &msg, std::vector<FloatType> &z_l, bool show_image);
+            const ait_ros_messages::VioSensorMsg &msg, std::vector<FloatType> &z_l, bool show_image);
 
     tf::Quaternion camera2world;  // the rotation that transforms a vector in the camera frame to one in the world frame
 
-    void dynamicReconfigureCb(vio_ros::vio_rosConfig &config, uint32_t level);
+    void dynamicReconfigureCb(duo_vio::duo_vioConfig &config, uint32_t level);
 };
 
-#endif /* _LOCALIZATION_H_ */
+#endif /* _DuoVio_H_ */

@@ -1,5 +1,5 @@
 # Installation
-The VIO is implemented in ROS. Thus, you first need to install ROS Indigo according to the []official instructions](http://wiki.ros.org/indigo/Installation/Ubuntu).
+The VIO is implemented in ROS. Thus, you first need to install ROS Indigo according to the [official instructions](http://wiki.ros.org/indigo/Installation/Ubuntu).
 
 You will also need PySide for Python 2.7
 ```bash
@@ -8,8 +8,11 @@ sudo apt-get install python-pyside
 For the visualization, youalso need PyQtGraph. Download the .deb file from the [website](http://pyqtgraph.org/) and double click it to install.
 
 
-The VIO with the DUO camera depends on two packages: This package for the state estimation and the [`duo3d_ros`](https://gitlab.inf.ethz.ch/naegelit/DUO3d_ROS) package for the ROS driver of the camera.
-Clone both git repositories into your `catkin_ws/src` directory.
+The VIO with the DUO camera depends on three packages:
+- [This package](https://github.com/ethz-ait/duo_vio) for the state estimation
+- [`duo3d_ros`](https://github.com/ethz-ait/duo3d_ros) package for the ROS driver of the camera
+- [`ait_ros_messages`](https://github.com/ethz-ait/ait_ros_messages) for custom ROS messages
+Clone all git repositories into your `catkin_ws/src` directory.
 Also place the DUO SKD in `catkin_ws/src`.
 
 You are now ready to compile the packages with
@@ -66,10 +69,10 @@ Follow the command line instructions to calibrate the camera and write the calib
 # Using the VIO
 Once both the camera and the IMU has been calibrated, we are ready to use the system. Start the visualization (if it isn't already):
 ```bash
-roslaunch vio_ros vis.launch
+roslaunch duo_vio vis.launch
 ```
 Run the VIO:
 ```bash
-roslauch vio_ros duo_vio.launch
+roslauch duo_vio duo_vio.launch
 ```
 

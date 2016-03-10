@@ -31,12 +31,12 @@
  *
  ****************************************************************************/
 /*
- * localization.cpp
+ * DuoVio.cpp
  *
  *  Created on: Mar 9, 2016
  *      Author: nicolas
  */
-#include "localization.h"
+#include "DuoVio.h"
 
 #include <math.h>
 #include <stdio.h>
@@ -52,7 +52,7 @@
 
 static const int VIO_SENSOR_QUEUE_SIZE = 30;
 
-Localization::Localization() :
+DuoVio::DuoVio() :
                 nh_("~"),
                 SLAM_reset_flag(1),
                 cam2body(-0.5, 0.5, -0.5, -0.5),
@@ -69,9 +69,9 @@ Localization::Localization() :
     noiseParams = {};
     vioParams = {};
 
-    vio_sensor_sub = nh_.subscribe("/vio_sensor", VIO_SENSOR_QUEUE_SIZE, &Localization::vioSensorMsgCb, this);
-    device_serial_nr_sub = nh_.subscribe("/vio_sensor/device_serial_nr", 1, &Localization::deviceSerialNrCb, this);
-    reset_sub = nh_.subscribe("reset", 1, &Localization::resetCb, this);
+    vio_sensor_sub = nh_.subscribe("/vio_sensor", VIO_SENSOR_QUEUE_SIZE, &DuoVio::vioSensorMsgCb, this);
+    device_serial_nr_sub = nh_.subscribe("/vio_sensor/device_serial_nr", 1, &DuoVio::deviceSerialNrCb, this);
+    reset_sub = nh_.subscribe("reset", 1, &DuoVio::resetCb, this);
 
     pose_pub = nh_.advertise<geometry_msgs::Pose>("pose", 1);
     vel_pub = nh_.advertise<geometry_msgs::Vector3>("vel", 1);
@@ -79,7 +79,7 @@ Localization::Localization() :
     smoothed_imu_pub = nh_.advertise<sensor_msgs::Imu>("imu_smoothed", 1);  // debug
 
     // visualization topics
-    vio_vis_pub = nh_.advertise<vio_ros::vio_vis>("/vio_vis/vio_vis", 1);
+    vio_vis_pub = nh_.advertise<ait_ros_messages::vio_vis>("/vio_vis/vio_vis", 1);
     vio_vis_reset_pub = nh_.advertise<std_msgs::Empty>("/vio_vis/reset", 1);
     ros::Duration(0.5).sleep();  // otherwise the following message might not be received
     vio_vis_reset_pub.publish(std_msgs::Empty());
@@ -198,7 +198,7 @@ Localization::Localization() :
     nh_.getParam("imu_smoothing_factor", imu_smoothing_factor);
     imulp_.setSmoothingFactor(imu_smoothing_factor);
 
-    dynamic_reconfigure::Server<vio_ros::vio_rosConfig>::CallbackType f = boost::bind(&Localization::dynamicReconfigureCb, this, _1, _2);
+    dynamic_reconfigure::Server<duo_vio::duo_vioConfig>::CallbackType f = boost::bind(&DuoVio::dynamicReconfigureCb, this, _1, _2);
     dynamic_reconfigure_server.setCallback(f);
 
     update_vec_.assign(matlab_consts::numTrackFeatures, 0);
@@ -214,7 +214,7 @@ Localization::Localization() :
 
 }
 
-Localization::~Localization() {
+DuoVio::~DuoVio() {
 
     printf("Longest update duration: %.3f msec, %.3f Hz\n", float(max_clicks_) / CLOCKS_PER_SEC * 1000, CLOCKS_PER_SEC / float(max_clicks_));
 
@@ -238,7 +238,7 @@ Localization::~Localization() {
     }
 }
 
-void Localization::vioSensorMsgCb(const vio_ros::VioSensorMsg& msg) {
+void DuoVio::vioSensorMsgCb(const ait_ros_messages::VioSensorMsg& msg) {
     if (!got_device_serial_nr)
         return;
     ros::Time tic_total = ros::Time::now();
@@ -304,7 +304,7 @@ void Localization::vioSensorMsgCb(const vio_ros::VioSensorMsg& msg) {
         ROS_WARN_THROTTLE(1.0, "Duration: %.3f ms. Theoretical max frequency: %.3f Hz", duration_total * 1000, 1 / duration_total);
 }
 
-void Localization::deviceSerialNrCb(const std_msgs::String &msg) {
+void DuoVio::deviceSerialNrCb(const std_msgs::String &msg) {
     if (got_device_serial_nr) {
         ROS_WARN("Got device serial nr but already have one. Ignoring.");
         return;
@@ -365,7 +365,7 @@ void Localization::deviceSerialNrCb(const std_msgs::String &msg) {
     }
 }
 
-void Localization::loadCustomCameraCalibration(const std::string calib_path) {
+void DuoVio::loadCustomCameraCalibration(const std::string calib_path) {
     // load a camera calibration defined in the launch script
     got_device_serial_nr = true;
     try {
@@ -382,7 +382,7 @@ void Localization::loadCustomCameraCalibration(const std::string calib_path) {
     }
 }
 
-void Localization::dynamicReconfigureCb(vio_ros::vio_rosConfig &config, uint32_t level) {
+void DuoVio::dynamicReconfigureCb(duo_vio::duo_vioConfig &config, uint32_t level) {
     noiseParams.image_noise = config.noise_image;
     noiseParams.process_noise.qv = config.noise_acc;
     noiseParams.process_noise.qw = config.noise_gyro;
@@ -397,7 +397,7 @@ void Localization::dynamicReconfigureCb(vio_ros::vio_rosConfig &config, uint32_t
     vioParams.RANSAC = config.vio_RANSAC;
 }
 
-void Localization::resetCb(const std_msgs::Empty &msg) {
+void DuoVio::resetCb(const std_msgs::Empty &msg) {
     ROS_WARN("Got reset command");
     SLAM_reset_flag = true;
 
@@ -408,7 +408,7 @@ void Localization::resetCb(const std_msgs::Empty &msg) {
     dist = 0;
 }
 
-void Localization::update(double dt, const vio_ros::VioSensorMsg &msg, bool update_vis, bool show_image, bool reset) {
+void DuoVio::update(double dt, const ait_ros_messages::VioSensorMsg &msg, bool update_vis, bool show_image, bool reset) {
     std::vector<FloatType> z_all_l(matlab_consts::numTrackFeatures * 2, 0.0);
     std::vector<FloatType> z_all_r(matlab_consts::numTrackFeatures * 2, 0.0);
     std::vector<FloatType> delayedStatus(matlab_consts::numTrackFeatures);
@@ -531,7 +531,7 @@ void Localization::update(double dt, const vio_ros::VioSensorMsg &msg, bool upda
     vio_cnt++;
 }
 
-void Localization::getIMUData(const sensor_msgs::Imu& imu, VIOMeasurements& meas) {
+void DuoVio::getIMUData(const sensor_msgs::Imu& imu, VIOMeasurements& meas) {
     meas.acc[0] = imu.linear_acceleration.x;
     meas.acc[1] = imu.linear_acceleration.y;
     meas.acc[2] = imu.linear_acceleration.z;
@@ -541,9 +541,9 @@ void Localization::getIMUData(const sensor_msgs::Imu& imu, VIOMeasurements& meas
     meas.gyr[2] = imu.angular_velocity.z;
 }
 
-void Localization::updateVis(RobotState &robot_state, std::vector<AnchorPose> &anchor_poses, std::vector<FloatType> &map, std::vector<int> &updateVect,
-        const vio_ros::VioSensorMsg &sensor_msg, std::vector<FloatType> &z_l, bool show_image) {
-    vio_ros::vio_vis msg;
+void DuoVio::updateVis(RobotState &robot_state, std::vector<AnchorPose> &anchor_poses, std::vector<FloatType> &map, std::vector<int> &updateVect,
+        const ait_ros_messages::VioSensorMsg &sensor_msg, std::vector<FloatType> &z_l, bool show_image) {
+    ait_ros_messages::vio_vis msg;
 
     msg.robot_pose.position.x = robot_state.pos[0];
     msg.robot_pose.position.y = robot_state.pos[1];

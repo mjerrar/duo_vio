@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.8.3)
-project(vio_ros)
+project(duo_vio)
 
 #set(CORTEX 1)  # uncomment this to enable cortex optimized compilation
 set(NEON_PATH "/home/odroid/Ne10")
@@ -66,11 +66,11 @@ find_package(
 ##   * add every package in MSG_DEP_SET to generate_messages(DEPENDENCIES ...)
 
 ## Generate messages in the 'msg' folder
-add_message_files(
-  FILES
-  vio_vis.msg
-  VioSensorMsg.msg
-)
+#add_message_files(
+#  FILES
+#  vio_vis.msg
+#  VioSensorMsg.msg
+#)
 
 ## Generate services in the 'srv' folder
 add_service_files(
@@ -95,7 +95,7 @@ generate_messages(
 )
 
 generate_dynamic_reconfigure_options(
-  cfg/vio_ros.cfg
+  cfg/duo_vio.cfg
 )
 
 ###################################
@@ -141,7 +141,7 @@ if(CORTEX)
 
   # Declare a cpp library
   add_library(vio
-    src/trackFeatures.cpp
+    src/VIO.cpp
     ${SLAMSources}
     src/mw_neon.c
   )
@@ -156,16 +156,16 @@ else()
 
   # Declare a cpp library
   add_library(vio
-    src/trackFeatures.cpp
+    src/VIO.cpp
     ${SLAMSources}
   )
 
 endif()
 
 ## Declare a cpp executable
-add_executable(vio_ros_node
-  src/nodes/vio_ros_node.cpp
-  src/localization.cpp
+add_executable(duo_vio_node
+  src/nodes/duo_vio_node.cpp
+  src/DuoVio.cpp
   src/IMULowpass.cpp
   src/VIO.cpp
 )
@@ -176,12 +176,12 @@ add_executable(feature_tracker_node
 
 ## Add cmake target dependencies of the executable/library
 ## as an example, message headers may need to be generated before nodes
-add_dependencies(vio_ros_node ${PROJECT_NAME}_gencfg ${PROJECT_NAME}_generate_messages_cpp ${PROJECT_NAME}_EXPORTED_TARGETS})
+add_dependencies(duo_vio_node ${PROJECT_NAME}_gencfg ${PROJECT_NAME}_generate_messages_cpp ${PROJECT_NAME}_EXPORTED_TARGETS})
 add_dependencies(feature_tracker_node ${PROJECT_NAME}_EXPORTED_TARGETS})
 
 ## Specify libraries to link a library or executable target against
 if(CORTEX)
-  target_link_libraries(vio_ros_node
+  target_link_libraries(duo_vio_node
     feature_tracker
     vio
     ${catkin_LIBRARIES}
@@ -189,7 +189,7 @@ if(CORTEX)
     ${NEON_PATH}/build/modules/libNE10.a
   )
 else()
-  target_link_libraries(vio_ros_node
+  target_link_libraries(duo_vio_node
     feature_tracker
     vio
     ${catkin_LIBRARIES}
@@ -217,7 +217,7 @@ target_link_libraries(feature_tracker_node
 # )
 
 ## Mark executables and/or libraries for installation
-# install(TARGETS vio_ros vio_ros_node
+# install(TARGETS duo_vio duo_vio_node
 #   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
 #   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
 #   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
@@ -242,7 +242,7 @@ target_link_libraries(feature_tracker_node
 #############
 
 ## Add gtest based cpp test target and link libraries
-# catkin_add_gtest(${PROJECT_NAME}-test test/test_vio_ros.cpp)
+# catkin_add_gtest(${PROJECT_NAME}-test test/test_duo_vio.cpp)
 # if(TARGET ${PROJECT_NAME}-test)
 #   target_link_libraries(${PROJECT_NAME}-test ${PROJECT_NAME})
 # endif()

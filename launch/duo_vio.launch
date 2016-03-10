@@ -12,7 +12,7 @@
   </include>
 
  <!-- visual odometry node --> 
- <include file="$(find vio_ros)/launch/vio.launch">
+ <include file="$(find duo_vio)/launch/vio.launch">
     <arg name="resolution_width"    value="$(arg resolution_width)" />
     <arg name="resolution_height"   value="$(arg resolution_height)" />
     <arg name="FPS"                 value="$(arg FPS)" />

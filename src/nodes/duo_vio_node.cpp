@@ -1,12 +1,12 @@
 #include <ros/ros.h>
 
-#include "localization.h"
+#include "DuoVio.h"
 
 int main(int argc, char *argv[])
 {
   ros::init(argc, argv, "vio_ros");
   
-  Localization estimation;
+  DuoVio duo_vio;
 
   ros::spin();
   return 0;

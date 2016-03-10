@@ -43,9 +43,9 @@
 
 #include "Precision.h"
 #include "trackFeatures.h"
-#include "vio_ros/TrackFeatures.h"
+#include "duo_vio/TrackFeatures.h"
 
-bool track(vio_ros::TrackFeatures::Request &req, vio_ros::TrackFeatures::Response &res);
+bool track(duo_vio::TrackFeatures::Request &req, duo_vio::TrackFeatures::Response &res);
 
 int main(int argc, char *argv[])
 {
@@ -61,7 +61,7 @@ int main(int argc, char *argv[])
 }
 
 
-bool track(vio_ros::TrackFeatures::Request &req, vio_ros::TrackFeatures::Response &res)
+bool track(duo_vio::TrackFeatures::Request &req, duo_vio::TrackFeatures::Response &res)
 {
     cv_bridge::CvImagePtr left_image;
     cv_bridge::CvImagePtr right_image;

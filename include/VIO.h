@@ -31,20 +31,46 @@
  *
  ****************************************************************************/
 /*
- * vio_logging.h
+ * VIO.h
  *
  *  Created on: Mar 10, 2016
  *      Author: nicolas
  */
 
-#ifndef INCLUDE_VIO_LOGGING_H_
-#define INCLUDE_VIO_LOGGING_H_
+#ifndef SRC_VIO_H_
+#define SRC_VIO_H_
 
-#include <ros/ros.h>
+#include <vector>
 
-#define LOG_INFO ROS_INFO
-#define LOG_WARN ROS_WARN
-#define LOG_ERROR ROS_ERROR
+#include "Precision.h"
+#include "SLAM_includes.h"
+#include "matlab_consts.h"
 
+class VIO {
+    bool reset_;
+    bool params_set_;
+    bool is_initialized_;
 
-#endif /* INCLUDE_VIO_LOGGING_H_ */
+    DUOParameters duoParam_;
+    NoiseParameters noiseParam_;
+    VIOParameters vioParam_;
+
+    std::vector<int> int_dummy_;
+    std::vector<FloatType> float_dummy_;
+    std::vector<AnchorPose> anchor_poses_dummy_;
+    VIOMeasurements vio_eas_dummy_;
+    RobotState robot_state_dummy_;
+
+public:
+    VIO();
+    VIO(DUOParameters duoParam, NoiseParameters noiseParam, VIOParameters vioParam);
+    virtual ~VIO();
+    void predict(const VIOMeasurements &meas, double dt);
+    void update(std::vector<int> &update_vect, std::vector<FloatType> &feautres_l, std::vector<FloatType> &feautres_r, RobotState &robotState,
+            std::vector<FloatType> &map, std::vector<AnchorPose> &anchor_poses, std::vector<FloatType> &delayedStatus);
+    void reset();
+    bool getParams(DUOParameters &duoParam, NoiseParameters &noiseParam, VIOParameters &vioParam);
+    void setParams(DUOParameters duoParam, NoiseParameters noiseParam, VIOParameters vioParam);
+};
+
+#endif /* SRC_VIO_H_ */

@@ -32,7 +32,7 @@
   <arg name="show_camera_image"         default="1" />                  <!-- Whether camera image should be sent to visualization -->
   <arg name="image_visualization_delay" default="1" />                  <!-- Factor by which images should be sent slower than poses to visualization -->
 
-  <node name="vio_ros" pkg="vio_ros" type="vio_ros_node" output="screen">
+  <node name="duo_vio" pkg="duo_vio" type="duo_vio_node" output="screen">
     <!-- noise parameters -->
     <param name="noise_acc"                         type="double" value="$(arg acc_noise)" />
     <param name="noise_acc_bias"                    type="double" value="$(arg acc_bias_noise)" />
@@ -66,6 +66,6 @@
 
   </node>
 
-  <node name="reset_vio_power_btn" pkg="vio_ros" type="reset_vio_power_btn.py" />
+  <node name="reset_vio_power_btn" pkg="duo_vio" type="reset_vio_power_btn.py" />
 
 </launch>
