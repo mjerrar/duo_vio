@@ -7,13 +7,13 @@ sudo apt-get install python-pyside
 ```
 For the visualization, youalso need PyQtGraph. Download the .deb file from the [website](http://pyqtgraph.org/) and double click it to install.
 
-
-The VIO with the DUO camera depends on three packages:
+The VIO depends on three ROS packages
 - [This package](https://github.com/ethz-ait/duo_vio) for the state estimation
-- [`duo3d_ros`](https://github.com/ethz-ait/duo3d_ros) package for the ROS driver of the camera
 - [`ait_ros_messages`](https://github.com/ethz-ait/ait_ros_messages) for custom ROS messages
+- A ROS driver that publishes image and IMU data in VioSensorMsg messages as defined in `ait_ros_messages`. Depending on the camera you are using, this package will differ.
+    - If you are using a [DUO3d](http://duo3d.com/) camera, the package you need is [`duo3d_ros`](https://github.com/ethz-ait/duo3d_ros). You will also need to place the DUO SKD in `catkin_ws/src`, which customers can download from the [DUO3d](http://duo3d.com/) website
+
 Clone all git repositories into your `catkin_ws/src` directory.
-Also place the DUO SKD in `catkin_ws/src`.
 
 You are now ready to compile the packages with
 ```bash
@@ -21,8 +21,9 @@ cd catkin_ws
 catkin_make
 ```
 
-## Installing on embedded devices
-An optimized version is provided for ARM Cortex devices. To build this optimized version, open the `CMakeLists.txt` of this package and uncomment the line:
+## Compiling for embedded devices
+A version of the algorithm optimized for ARM Cortex-A devices is provided.
+To build this optimized version, open the `CMakeLists.txt` of this package and uncomment the line:
 ```cmake
 set(CORTEX 1)
 ```
@@ -75,4 +76,3 @@ Run the VIO:
 ```bash
 roslauch duo_vio duo_vio.launch
 ```
-
