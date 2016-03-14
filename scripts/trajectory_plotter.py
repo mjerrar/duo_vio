@@ -35,8 +35,6 @@
 
 from __future__ import print_function, division
 
-__author__ = 'nicolas'
-
 import sys
 import rosbag
 import rospy
@@ -47,6 +45,8 @@ import tf
 import time
 import numpy as np
 import genpy
+
+__author__ = 'nicolas'
 
 if __name__ == "__main__":
     if len(sys.argv) != 2:

@@ -54,14 +54,10 @@ static cv::Mat prev_img;
 static std::vector<cv::Point2f> prev_corners;
 static std::vector<cv::Point2f> prev_corners_right;
 static std::vector<unsigned char> prev_status(100, 0);
-static cv::FastFeatureDetector detector;
-static cv::OrbDescriptorExtractor extractor;
 
 // local functions
 static void initMorePoints(const cv::Mat &img_l, const cv::Mat &img_r, std::vector<int> &updateVect, std::vector<FloatType> &z_all_l,
         std::vector<FloatType> &z_all_r, int stereo);
-bool stereoMatch(const cv::Mat &img_l, const cv::Mat &img_r, std::vector<cv::KeyPoint> &keypointsL, std::vector<cv::Point2f> &leftPoints,
-        std::vector<cv::Point2f> &rightPoints);
 bool stereoMatchOpticalFlow(const cv::Mat &img_l, const cv::Mat &img_r, std::vector<cv::KeyPoint> &keypointsL, std::vector<cv::Point2f> &leftPoints,
         std::vector<cv::Point2f> &rightPoints);
 bool compareMatch(const cv::DMatch &first, const cv::DMatch &second);
@@ -196,7 +192,7 @@ static void initMorePoints(const cv::Mat &img_l, const cv::Mat &img_r, std::vect
                 int row_to = std::min((y + 1) * binHeight, img_l.rows);
 
                 std::vector<cv::KeyPoint> keypoints, goodKeypointsBin;
-                detector.detect(img_l.rowRange(row_from, row_to).colRange(col_from, col_to), keypoints);
+                FAST(img_l.rowRange(row_from, row_to).colRange(col_from, col_to), keypoints, 10);
 
                 sort(keypoints.begin(), keypoints.end(), compareKeypoints);
 
@@ -359,47 +355,6 @@ static void initMorePoints(const cv::Mat &img_l, const cv::Mat &img_r, std::vect
             }
         }
     }
-}
-
-bool stereoMatch(const cv::Mat &img_l, const cv::Mat &img_r, std::vector<cv::KeyPoint> &keypointsL, std::vector<cv::Point2f> &leftPoints,
-        std::vector<cv::Point2f> &rightPoints) {
-    std::vector<cv::KeyPoint> keypointsR;
-    cv::Mat descriptorsL, descriptorsR;
-    detector.detect(img_r, keypointsR);
-
-    extractor.compute(img_l, keypointsL, descriptorsL);
-    extractor.compute(img_r, keypointsR, descriptorsR);
-
-    if (descriptorsL.empty()) {
-        printf("WARNING: Left descriptor empty\n");
-        return false;
-    }
-    if (descriptorsR.empty()) {
-        printf("WARNING: Right descriptor empty\n");
-        return false;
-    }
-
-    cv::BFMatcher matcher(cv::NORM_HAMMING, true);  // BFMatcher appears to be faster than FlannBasedMatcher
-    std::vector<cv::DMatch> matches;
-    matcher.match(descriptorsR, descriptorsL, matches);
-
-    if (!matches.empty()) {
-        // sort the matches by distance (i.e. quality)
-        sort(matches.begin(), matches.end(), compareMatch);
-
-        for (int i = 0; i < matches.size(); i++) {
-            leftPoints.push_back(keypointsL[matches[i].trainIdx].pt);
-            rightPoints.push_back(keypointsR[matches[i].queryIdx].pt);
-        }
-
-        // get sub pixel accurate points
-        cv::Size winSize = cv::Size(5, 5);
-        cv::Size zeroZone = cv::Size(-1, -1);
-        cv::TermCriteria criteria = cv::TermCriteria(CV_TERMCRIT_EPS + CV_TERMCRIT_ITER, 40, 0.001);
-        cv::cornerSubPix(img_l, leftPoints, winSize, zeroZone, criteria);
-        cv::cornerSubPix(img_r, rightPoints, winSize, zeroZone, criteria);
-    }
-    return true;
 }
 
 bool stereoMatchOpticalFlow(const cv::Mat &img_l, const cv::Mat &img_r, std::vector<cv::KeyPoint> &keypointsL, std::vector<cv::Point2f> &leftPoints,

@@ -1,6 +1,6 @@
 <launch>
-  <node name="vio_vis_msngr" pkg="vio_ros" type="vio_vis_msngr.py" output="screen" />
-  <node name="vio_vis_rviz" pkg="rviz" type="rviz" output="screen" args="-d $(find vio_ros)/rviz/vio.rviz" />
+  <node name="vio_vis_msngr" pkg="duo_vio" type="vio_vis_msngr.py" output="screen" />
+  <node name="vio_vis_rviz" pkg="rviz" type="rviz" output="screen" args="-d $(find duo_vio)/rviz/vio.rviz" />
 </launch>
 
 

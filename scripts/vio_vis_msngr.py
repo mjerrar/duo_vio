@@ -45,7 +45,7 @@ import tf
 import cv2
 from cv_bridge import CvBridge
 
-from vio_ros.msg import vio_vis
+from ait_ros_messages.msg import vio_vis
 import pyqtgraph as pg
 import numpy as np
 import time
