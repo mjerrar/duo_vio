@@ -18,6 +18,6 @@
     <arg name="FPS"                 value="$(arg FPS)" />
   </include>
 
-  <node name="set_cpu" pkg="vio_ros" type="set_cpu.py" />
+  <node name="set_cpu" pkg="duo_vio" type="set_cpu.py" />
 
 </launch>
