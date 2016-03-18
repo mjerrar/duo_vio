@@ -30,6 +30,7 @@ find_package(
   dynamic_reconfigure
   message_generation
   message_runtime
+  klt_feature_tracker
 )
 
 ## System dependencies are found with CMake's conventions
@@ -73,11 +74,10 @@ find_package(
 #)
 
 ## Generate services in the 'srv' folder
-add_service_files(
-  FILES
-  TrackFeatures.srv
+#add_service_files(
+#  FILES
 #   Service2.srv
-)
+#)
 
 ## Generate actions in the 'action' folder
 # add_action_files(
@@ -121,18 +121,12 @@ catkin_package(
 ## Your package locations should be listed before other locations
 # include_directories(include)
 
-# Declare a cpp library
- add_library(feature_tracker
-   src/trackFeatures.cpp
- )
-target_link_libraries(feature_tracker
-  ${catkin_LIBRARIES}
-)
-
 if(CORTEX)
   include_directories(
+    ${catkin_INCLUDE_DIRS}
     src/codegen/SLAM_cortex/
     include
+    ${klt_feature_tracker_INCLUDE_DIRS}
     ${NEON_PATH}/inc
     ${NEON_PATH}/common
   )
@@ -148,8 +142,10 @@ if(CORTEX)
 
 else()
   include_directories(
+    ${catkin_INCLUDE_DIRS}
     src/codegen/SLAM/
     include
+    ${klt_feature_tracker_INCLUDE_DIRS}
   )
   # Get all *.cpp files that Matlab Coder created
   FILE(GLOB SLAMSources src/codegen/SLAM/*.cpp)
@@ -170,19 +166,14 @@ add_executable(duo_vio_node
   src/VIO.cpp
 )
 
-add_executable(feature_tracker_node
-  src/nodes/feature_tracker_node.cpp
-)
-
 ## Add cmake target dependencies of the executable/library
 ## as an example, message headers may need to be generated before nodes
 add_dependencies(duo_vio_node ${PROJECT_NAME}_gencfg ${PROJECT_NAME}_generate_messages_cpp ${PROJECT_NAME}_EXPORTED_TARGETS})
-add_dependencies(feature_tracker_node ${PROJECT_NAME}_EXPORTED_TARGETS})
 
 ## Specify libraries to link a library or executable target against
 if(CORTEX)
   target_link_libraries(duo_vio_node
-    feature_tracker
+    ${klt_feature_tracker_LIBRARIES}
     vio
     ${catkin_LIBRARIES}
     yaml-cpp
@@ -190,17 +181,12 @@ if(CORTEX)
   )
 else()
   target_link_libraries(duo_vio_node
-    feature_tracker
+    ${klt_feature_tracker_LIBRARIES}
     vio
     ${catkin_LIBRARIES}
     yaml-cpp
   )
 endif()
-
-target_link_libraries(feature_tracker_node
-  feature_tracker
-  ${catkin_LIBRARIES}
-)
 
 #############
 ## Install ##

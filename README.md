@@ -7,9 +7,10 @@ sudo apt-get install python-pyside
 ```
 For the visualization, youalso need PyQtGraph. Download the .deb file from the [website](http://pyqtgraph.org/) and double click it to install.
 
-The VIO depends on three ROS packages
-- [This package](https://github.com/ethz-ait/duo_vio) for the state estimation
-- [`ait_ros_messages`](https://github.com/ethz-ait/ait_ros_messages) for custom ROS messages
+The VIO depends on the following ROS packages
+- [This package](https://github.com/ethz-ait/duo_vio) for the state estimation,
+- [`ait_ros_messages`](https://github.com/ethz-ait/ait_ros_messages) for custom ROS messages,
+- [`klt_feaute_tracker`](https://github.com/ethz-ait/klt_feature_tracker) for feature tracking,
 - A ROS driver that publishes image and IMU data in VioSensorMsg messages as defined in `ait_ros_messages`. Depending on the camera you are using, this package will differ.
     - If you are using a [DUO3d](http://duo3d.com/) camera, the package you need is [`duo3d_ros`](https://github.com/ethz-ait/duo3d_ros). You will also need to place the DUO SKD in `catkin_ws/src`, which customers can download from the [DUO3d](http://duo3d.com/) website
 

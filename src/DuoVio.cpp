@@ -411,6 +411,8 @@ void DuoVio::resetCb(const std_msgs::Empty &msg) {
 void DuoVio::update(double dt, const ait_ros_messages::VioSensorMsg &msg, bool update_vis, bool show_image, bool reset) {
     std::vector<FloatType> z_all_l(matlab_consts::numTrackFeatures * 2, 0.0);
     std::vector<FloatType> z_all_r(matlab_consts::numTrackFeatures * 2, 0.0);
+    std::vector<cv::Point2f> features_l(matlab_consts::numTrackFeatures);
+    std::vector<cv::Point2f> features_r(matlab_consts::numTrackFeatures);
     std::vector<FloatType> delayedStatus(matlab_consts::numTrackFeatures);
 
     //*********************************************************************
@@ -467,7 +469,15 @@ void DuoVio::update(double dt, const ait_ros_messages::VioSensorMsg &msg, bool u
             right = right_image->image;
         }
 
-        trackFeatures(left, right, z_all_l, z_all_r, update_vec_, 1+vioParams.full_stereo);
+        trackFeatures(left, right, features_l, features_r, update_vec_, 1+vioParams.full_stereo);
+
+        for (int i = 0; i < features_l.size(); i++) {
+            z_all_l[2*i + 0] = features_l[i].x;
+            z_all_l[2*i + 1] = features_l[i].y;
+
+            z_all_r[2*i + 0] = features_r[i].x;
+            z_all_r[2*i + 1] = features_r[i].y;
+        }
 
         double duration_feature_tracking = (ros::Time::now() - tic_feature_tracking).toSec();
         std_msgs::Float32 duration_feature_tracking_msg;
