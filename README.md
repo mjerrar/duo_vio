@@ -21,7 +21,8 @@ You are now ready to compile the packages with
 cd catkin_ws
 catkin_make
 ```
-
+# Test Data
+We recorded two test ROS bags with the Duo Callibration file. The data can be downloaded [Here](ait.inf.ethz.ch/projects/2016/duo-vio/downloads/DUOVioData.zip).
 ## Compiling for embedded devices
 A version of the algorithm optimized for ARM Cortex-A devices is provided.
 To build this optimized version, open the `CMakeLists.txt` of this package and uncomment the line:
