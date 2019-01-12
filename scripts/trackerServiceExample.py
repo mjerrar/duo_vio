@@ -38,8 +38,8 @@ from __future__ import print_function, division
 import rospy
 import cv2
 import cv_bridge
-from vio_ros.srv import *
-from vio_ros.msg import VioSensorMsg
+from klt_feature_tracker.srv import *
+from ait_ros_messages.msg import VioSensorMsg
 from sensor_msgs.msg import Image
 
 
