@@ -14,6 +14,8 @@ The VIO depends on the following ROS packages
 - A ROS driver that publishes image and IMU data in VioSensorMsg messages as defined in `ait_ros_messages`. Depending on the camera you are using, this package will differ.
     - If you are using a [DUO3d](http://duo3d.com/) camera, the package you need is [`duo3d_ros`](https://github.com/ethz-ait/duo3d_ros). You will also need to place the DUO SKD in `catkin_ws/src`, which customers can download from the [DUO3d](http://duo3d.com/) website
 
+You will aslo have to install `cpuset` if your linux doesn't already have it.
+
 Clone all git repositories into your `catkin_ws/src` directory.
 
 You are now ready to compile the packages with
